@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "claimlink_backend": {
+      "main": "src/claimlink_backend/main.mo",
+      "type": "motoko"
+    },
+    "claimlink_frontend": {
+      "dependencies": [
+        "claimlink_backend"
+      ],
+      "source": [
+        "src/claimlink_frontend/dist"
+      ],
+      "type": "assets",
+      "workspace": "claimlink_frontend"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
