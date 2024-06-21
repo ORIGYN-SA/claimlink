@@ -14,5 +14,11 @@
   "type": "module",
   "workspaces": [
     "src/claimlink_frontend"
-  ]
+  ],
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.0.20",
+    "identityvault": "^0.1.11",
+    "react-icons": "^5.2.1",
+    "react-router-dom": "^6.23.1"
+  }
 }
