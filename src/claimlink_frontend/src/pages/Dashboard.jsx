@@ -12,17 +12,17 @@ const Dashboard = ({ children }) => {
   };
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-100">
       <div
-        className={`fixed top-0 left-0 h-full transition-transform duration-500 ${
+        className={`fixed top-0 left-0     h-full z-10 transition-transform duration-500 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <Sidebar />
+        <Sidebar setSidebarOpen={toggleSidebar} />
       </div>
       <div
-        className={`transition-all duration-500 flex-grow ${
-          isSidebarOpen ? "ml-72" : "ml-0"
+        className={`transition-all duration-500 flex-grow m-0 ${
+          isSidebarOpen ? "sm:ml-[250px]" : "ml-0"
         }`}
       >
         <header className="w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
@@ -36,7 +36,7 @@ const Dashboard = ({ children }) => {
           </div>
         </header>
         <Breadcrumb />
-        <div className="m-6">{children}</div>
+        <div className="m-4">{children}</div>
       </div>
     </div>
   );

@@ -6,8 +6,8 @@ const Breadcrumb = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
-    <nav className="flex p-4 px-6  bg-[#FBFAFC] text-gray-600 border-b border-gray-300">
-      <ol className="list-reset flex">
+    <nav className="flex p-2 h-12 px-6  bg-[#FBFAFC] text-gray-600 border-b border-gray-300">
+      <ol className="list-reset flex items-center">
         <li>
           <Link to="/" className="text-blue-700 hover:text-blue-800">
             Dashboard

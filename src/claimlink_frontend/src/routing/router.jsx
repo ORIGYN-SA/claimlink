@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import Dashboardcontainer from "../pages/Dashboardcontainer";
+import CampaignSetup from "../components/CampaignSetup";
 
 const approutes = createBrowserRouter([
   {
@@ -19,7 +20,7 @@ const approutes = createBrowserRouter([
     path: "/dispensers",
     element: (
       <Dashboard>
-        <Dashboardcontainer />
+        <CampaignSetup />
       </Dashboard>
     ),
   },

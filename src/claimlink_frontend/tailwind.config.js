@@ -5,6 +5,13 @@ export default {
     extend: {
       fontFamily: {
         manrope: ["Manrope", "sans-serif"],
+        quicksand: ["Quicksand", "sans-serif"],
+      },
+      fontSize: {
+        "custom-14px": "14px",
+      },
+      lineHeight: {
+        "custom-20px": "20px",
       },
     },
   },
