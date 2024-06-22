@@ -1,7 +1,10 @@
 import { createBrowserRouter } from "react-router-dom";
 import Dashboard from "../pages/Dashboard";
 import Dashboardcontainer from "../pages/Dashboardcontainer";
-import CampaignSetup from "../components/CampaignSetup";
+import Dispensers from "../pages/Dispensers";
+import CreateDispensers from "../components/dispensers/CreateDispenser";
+import DispenserSetup from "../components/dispensers/DispenserSetup";
+import CreateDispenser from "../components/dispensers/CreateDispenser";
 
 const approutes = createBrowserRouter([
   {
@@ -20,7 +23,23 @@ const approutes = createBrowserRouter([
     path: "/dispensers",
     element: (
       <Dashboard>
-        <CampaignSetup />
+        <Dispensers />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/create-dispenser",
+    element: (
+      <Dashboard>
+        <CreateDispenser />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/dispenser-setup",
+    element: (
+      <Dashboard>
+        <DispenserSetup />
       </Dashboard>
     ),
   },

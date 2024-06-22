@@ -36,7 +36,7 @@ const Dashboard = ({ children }) => {
           </div>
         </header>
         <Breadcrumb />
-        <div className="m-4">{children}</div>
+        <div className="bg-gray-100 m-4">{children}</div>
       </div>
     </div>
   );
