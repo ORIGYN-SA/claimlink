@@ -1,31 +1,29 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useMemo } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
 import { TfiPlus } from "react-icons/tfi";
+import StyledDropzone from "../../common/StyledDropzone";
+import Toggle from "react-toggle";
+import { GoDownload } from "react-icons/go";
+import { BsCopy, BsQrCode } from "react-icons/bs";
+// import "react-toggle/style.css";
 
 const CreateDispenser = () => {
-  const [selectedFile, setSelectedFile] = useState(null);
+  // const handleCheeseChange = () => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     featured: !prevFormData.featured,
+  //   }));
+  // };
 
-  const handleFileChange = (event) => {
-    setSelectedFile(event.target.files[0]);
-  };
-
-  const handleDrop = (event) => {
-    event.preventDefault();
-    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
-      setSelectedFile(event.dataTransfer.files[0]);
-      event.dataTransfer.clearData();
-    }
-  };
-
-  const handleDragOver = (event) => {
-    event.preventDefault();
-  };
+  const val = `0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
+0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
+0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829 etc`;
   return (
     <motion.div
-      initial={{ scale: 1, opacity: 0, x: 50 }}
-      animate={{ opacity: 1, scale: 1, x: 100 }}
-      exit={{ x: -150 }}
+      initial={{ scale: 1, opacity: 0 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{}}
       className="flex"
     >
       <div className="p-6 w-2/3">
@@ -70,67 +68,138 @@ const CreateDispenser = () => {
               <label htmlFor="title" className="text-md font-semibold py-3 ">
                 Upload CSV
               </label>
-              <div className="">
-                <div
-                  className="border-2 border-dotted border-gray-400 rounded-xl  flex flex-col items-center justify-center cursor-pointer"
-                  onDrop={handleDrop}
-                  onDragOver={handleDragOver}
-                >
-                  <motion.div
-                    initial={{ scale: 1, opacity: 1 }}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="flex flex-col items-center justify-center"
-                  >
-                    <div className="bg-white p-3 m-4 rounded-md">
-                      <TfiPlus className="text-[#564BF1] w-8 h-8 font-semibold" />
-                    </div>
-                    <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3">
-                      Drag and Drop or Click to Upload
-                    </h2>
-                    <p className="text-[#564BF1] text-sm text-center mt-2">
-                      You can drag and drop a file here or click to select a
-                      file to upload.
-                    </p>
-                  </motion.div>
-                  <input
-                    type="file"
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                    onChange={handleFileChange}
-                  />
-                </div>
-                {selectedFile && (
-                  <div className="mt-4">
-                    <p>Selected File: {selectedFile.name}</p>
-                  </div>
-                )}
-              </div>
+              <StyledDropzone />
             </div>
+            <div className="mt-8 flex justify-between items-center ">
+              <label htmlFor="title" className="text-md font-semibold  ">
+                Redirect to another URL{" "}
+              </label>
+              <Toggle
+                className=" px-3 py-2 "
+                id="featured"
+
+                // defaultChecked={formData.featured}
+                // onChange={handleCheeseChange}
+              />
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              When your campaign will be finished user can be redirected to link
+              or website
+            </p>
             <div className="mt-2 flex flex-col ">
               <label htmlFor="title" className="text-md font-semibold py-3 ">
-                Duration
+                Redirect link{" "}
               </label>
               <input
                 type="text"
                 name=""
                 id=""
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                placeholder="Text"
+                placeholder="Enter Link"
               />
-              <div className="flex items-center gap-4 mt-2 ">
-                <TbInfoHexagon className="text-[#564BF1]" />
-                <p className="text-sm text-gray-500">
-                  Enter duration in minutes
-                </p>
+            </div>
+            <div className="border border-gray-300 my-6"></div>
+            <div className="mt-8 flex justify-between items-center ">
+              <label htmlFor="title" className="text-md font-semibold  ">
+                Whitelist setup{" "}
+              </label>
+              <Toggle
+                className=" px-3 py-2 "
+                id="featured"
+
+                // defaultChecked={formData.featured}
+                // onChange={handleCheeseChange}
+              />
+            </div>
+            <p className="text-gray-400 text-sm mt-2">
+              Only addresses entered below will be able to claim
+            </p>
+            <div className="mt-2 flex flex-col ">
+              <label htmlFor="title" className="text-md font-semibold py-3 ">
+                Recepient’s address{" "}
+              </label>
+              <div className="bg-white px-2 py-2 outline-none border text-gray-500 border-gray-200 rounded-md">
+                {val}
               </div>
             </div>
+            <div className="mt-2 flex flex-col ">
+              <label htmlFor="title" className="text-md font-semibold py-3 ">
+                Upload CSV
+              </label>
+              <StyledDropzone />
+            </div>
           </form>
-          <button className="px-6 py-2 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
-            Create
+          <button className="px-6 py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+            Apply changes
           </button>
         </div>
       </div>
-      <div className="w-1/3">fgfg</div>
+      <div className="w-1/3 bg-white p-6">
+        <h2 className="font-semibold text-xl">Dispenser</h2>
+        <div className="mt-2 w-full">
+          <div className="flex justify-between">
+            <p className="text-gray-500">Status</p>
+            <p className="text-red-500">Not Uploaded</p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Start Date</p>
+            <p>
+              April 11, 2024 <span className="text-gray-500">13:54</span>
+            </p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Duration</p>
+            <p className="text-gray-800">1440 min</p>
+          </div>
+        </div>
+        <div className="border border-gray-300 my-6"></div>
+        <div className="mt-2 w-full">
+          <div className="flex justify-between">
+            <p className="text-gray-800 font-medium">Statistics</p>
+            <div className="text-[#564BF1] flex items-center  gap-1 ">
+              {" "}
+              <GoDownload />
+              <p className="underline"> Download full report</p>
+            </div>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Total links</p>
+            <p>10</p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Scanned</p>
+            <p className="text-gray-800">14</p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Links left</p>
+            <p>10</p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">Claimed</p>
+            <p>0</p>
+          </div>
+        </div>
+        <div className="border border-gray-300 my-6"></div>
+
+        <div className=" flex flex-col ">
+          <label htmlFor="title" className="text-md font-semibold pb-3 ">
+            Link
+          </label>
+          <div className="flex items-center gap-2">
+            <div className="bg-white px-2 py-2 w-full outline-none border text-[#5542F6] border-gray-200 rounded-md">
+              https://claim.link/6DJ8KK
+            </div>
+            <div className="bg-[#564bf11d] px-2 py-2 outline-none border  border-[#E9E8FC] rounded-md">
+              <BsCopy className="w-5 h-5 text-[#564BF1]" />
+            </div>
+          </div>
+        </div>
+        <div className="border border-gray-300 my-6"></div>
+        <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+          <BsQrCode />
+          Download QR
+        </button>
+      </div>
     </motion.div>
   );
 };

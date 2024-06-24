@@ -5,6 +5,11 @@ import Dispensers from "../pages/Dispensers";
 import CreateDispensers from "../components/dispensers/CreateDispenser";
 import DispenserSetup from "../components/dispensers/DispenserSetup";
 import CreateDispenser from "../components/dispensers/CreateDispenser";
+import Minter from "../pages/Minter";
+import SelectContractType from "../components/minter/SelectContractType";
+import CollectionSetup from "../components/minter/CollectionSetup";
+import AddToken from "../components/minter/AddToken";
+import AddTokenHome from "../components/minter/AddTokenHome";
 
 const approutes = createBrowserRouter([
   {
@@ -28,7 +33,7 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/create-dispenser",
+    path: "/dispensers/create-dispenser",
     element: (
       <Dashboard>
         <CreateDispenser />
@@ -36,10 +41,50 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/dispenser-setup",
+    path: "/dispensers/dispenser-setup",
     element: (
       <Dashboard>
         <DispenserSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter",
+    element: (
+      <Dashboard>
+        <Minter />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract",
+    element: (
+      <Dashboard>
+        <SelectContractType />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/collection-setup",
+    element: (
+      <Dashboard>
+        <CollectionSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home",
+    element: (
+      <Dashboard>
+        <AddTokenHome />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home/add-token",
+    element: (
+      <Dashboard>
+        <AddToken />
       </Dashboard>
     ),
   },
