@@ -5,6 +5,9 @@ import Dispensers from "../pages/Dispensers";
 import CreateDispensers from "../components/dispensers/CreateDispenser";
 import DispenserSetup from "../components/dispensers/DispenserSetup";
 import CreateDispenser from "../components/dispensers/CreateDispenser";
+import CampaignSetup from "../components/claimlink/CampaignSetup";
+import ClaimPattern from "../components/claimlink/ClaimPattern";
+import DistributionPage from "../components/claimlink/DistributionPage";
 
 const approutes = createBrowserRouter([
   {
@@ -40,6 +43,30 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <DispenserSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/campaign-setup",
+    element: (
+      <Dashboard>
+        <CampaignSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/claim-pattern",
+    element: (
+      <Dashboard>
+        <ClaimPattern />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/distribution",
+    element: (
+      <Dashboard>
+        <DistributionPage />
       </Dashboard>
     ),
   },

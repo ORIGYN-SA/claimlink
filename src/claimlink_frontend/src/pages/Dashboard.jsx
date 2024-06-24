@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import Breadcrumb from "../components/Breadcrumb";
@@ -7,14 +7,34 @@ import { RxHamburgerMenu } from "react-icons/rx";
 const Dashboard = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  useEffect(() => {
+    // Close sidebar on mobile view by default
+    const handleResize = () => {
+      if (window.innerWidth < 640) {
+        setIsSidebarOpen(false);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+
+    // Initialize sidebar state based on screen size
+    handleResize();
+
+    // Add event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Clean up event listener on component unmount
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   return (
-    <div className="flex bg-gray-100">
+    <div className="flex bg-gray-50">
       <div
-        className={`fixed top-0 left-0     h-full z-10 transition-transform duration-500 ${
+        className={`fixed top-0 left-0 h-full z-10 transition-transform duration-500 ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -36,7 +56,7 @@ const Dashboard = ({ children }) => {
           </div>
         </header>
         <Breadcrumb />
-        <div className="bg-gray-100 m-4">{children}</div>
+        <div className="bg-gray-50">{children}</div>
       </div>
     </div>
   );

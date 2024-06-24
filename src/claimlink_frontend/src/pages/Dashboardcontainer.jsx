@@ -1,10 +1,11 @@
 import React from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
+import { Link } from "react-router-dom";
 
 const DashboardContainer = () => {
   return (
-    <div className="min-h-screen  ">
+    <div className="min-h-screen p-4 ">
       <div className="  bg-[#5542F6]  rounded-xl h-24 mb-4 m-2"></div>
       <div className="flex items-center justify-between w-full p-2">
         <p className="text-xl font-semibold">Campaign</p>
@@ -14,9 +15,9 @@ const DashboardContainer = () => {
         </button>
       </div>
       <div className="grid mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
-        <div className="w-full   mb-4   ">
+        <Link to="/campaign-setup" className="w-full   mb-4   ">
           <NewCampaignCard />
-        </div>
+        </Link>
         {Array(3)
           .fill(0)
           .map((_, index) => (
