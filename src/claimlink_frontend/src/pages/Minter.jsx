@@ -3,17 +3,17 @@ import React from "react";
 import { TfiPlus } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
 
-const Dispensers = () => {
+const Minter = () => {
   const navigate = useNavigate();
 
   const createDispenser = () => {
-    navigate("/dispensers/create-dispenser");
+    navigate("/minter/new-contract");
   };
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
       <div className="flex justify-between items-center">
-        <h2 className="text-lg sm:text-xl font-semibold">Dispensers</h2>
+        <h2 className="text-lg sm:text-xl font-semibold">My NFT contracts</h2>
         <select
           name="Filter"
           id="filter"
@@ -36,15 +36,14 @@ const Dispensers = () => {
             <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
           </div>
           <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3">
-            Create new dispenser
+            Deploy new contract
           </h2>
           <p className="text-[#564BF1] text-sm text-center mt-2">
-            Dispenser is represented by a single link or QR code that you can
-            share for multiple users to scan to claim a unique token.
+            Mint a new token.
           </p>
         </motion.div>
 
-        {[1, 2, 3, 4, 5, 6].map((index) => (
+        {[1, 2, 3].map((index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, scale: 0 }}
@@ -58,27 +57,23 @@ const Dispensers = () => {
               src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
               alt="Dispenser"
             />
-            <h2 className="text-lg sm:text-xl font-semibold mt-5 ">Title</h2>
+            <h2 className="text-lg sm:text-xl font-semibold mt-5 ">
+              Test collection
+            </h2>
             <p className="text-sm text-gray-500 mt-1 ">April 5, 13:34</p>
             <div className="border border-gray-300 my-4 w-full"></div>
             <div className="mt-2 w-full">
               <div className="flex justify-between">
-                <p className="text-gray-500">Status</p>
-                <p className="text-red-500">Not Uploaded</p>
+                <p className="text-gray-500">Address</p>
+                <p className="text-[#564BF1]">0xf8c...992h4</p>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Start Date</p>
-                <p>
-                  April 11, 2024 <span className="text-gray-500">13:54</span>
-                </p>
+                <p className="text-gray-500">All token copies</p>
+                <p className="font-medium ">10</p>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Duration</p>
-                <p className="text-gray-800">1440 min</p>
-              </div>
-              <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Links</p>
-                <p>10</p>
+                <p className="text-gray-500">Token standart</p>
+                <p className="text-gray-800 font-medium">ERC1155</p>
               </div>
             </div>
           </motion.div>
@@ -88,4 +83,4 @@ const Dispensers = () => {
   );
 };
 
-export default Dispensers;
+export default Minter;

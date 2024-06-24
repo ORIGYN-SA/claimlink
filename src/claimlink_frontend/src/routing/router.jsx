@@ -8,6 +8,11 @@ import CreateDispenser from "../components/dispensers/CreateDispenser";
 import CampaignSetup from "../components/claimlink/CampaignSetup";
 import ClaimPattern from "../components/claimlink/ClaimPattern";
 import DistributionPage from "../components/claimlink/DistributionPage";
+import Minter from "../pages/Minter";
+import SelectContractType from "../components/minter/SelectContractType";
+import CollectionSetup from "../components/minter/CollectionSetup";
+import AddToken from "../components/minter/AddToken";
+import AddTokenHome from "../components/minter/AddTokenHome";
 
 const approutes = createBrowserRouter([
   {
@@ -31,7 +36,7 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/create-dispenser",
+    path: "/dispensers/create-dispenser",
     element: (
       <Dashboard>
         <CreateDispenser />
@@ -39,7 +44,7 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/dispenser-setup",
+    path: "/dispensers/dispenser-setup",
     element: (
       <Dashboard>
         <DispenserSetup />
@@ -51,6 +56,13 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <CampaignSetup />
+        </Dashboard>
+    ),
+  },{
+    path: "/minter",
+    element: (
+      <Dashboard>
+        <Minter />
       </Dashboard>
     ),
   },
@@ -59,6 +71,13 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <ClaimPattern />
+        </Dashboard>
+    ),
+  },{
+    path: "/minter/new-contract",
+    element: (
+      <Dashboard>
+        <SelectContractType />
       </Dashboard>
     ),
   },
@@ -67,6 +86,29 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <DistributionPage />
+        </Dashboard>
+    ),
+  },{
+    path: "/minter/new-contract/collection-setup",
+    element: (
+      <Dashboard>
+        <CollectionSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home",
+    element: (
+      <Dashboard>
+        <AddTokenHome />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home/add-token",
+    element: (
+      <Dashboard>
+        <AddToken />
       </Dashboard>
     ),
   },
