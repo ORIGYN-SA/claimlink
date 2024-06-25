@@ -13,6 +13,7 @@ import SelectContractType from "../components/minter/SelectContractType";
 import CollectionSetup from "../components/minter/CollectionSetup";
 import AddToken from "../components/minter/AddToken";
 import AddTokenHome from "../components/minter/AddTokenHome";
+import CompaignSetup from "../components/minter/CompaignSetup";
 
 const approutes = createBrowserRouter([
   {
@@ -61,7 +62,7 @@ const approutes = createBrowserRouter([
   },{
     path: "/minter",
     element: (
-      <Dashboard>
+      <Dashboard headerText="Minter" menubar={false}>
         <Minter />
       </Dashboard>
     ),
@@ -109,6 +110,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <AddToken />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home/campaign-setup",
+    element: (
+      <Dashboard headerText="Test campaign" menubar={false}>
+        <CompaignSetup />
       </Dashboard>
     ),
   },

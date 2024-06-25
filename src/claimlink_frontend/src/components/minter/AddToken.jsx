@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
 import { TfiPlus } from "react-icons/tfi";
 import StyledDropzone from "../../common/StyledDropzone";
@@ -8,6 +8,7 @@ import { GoDownload, GoLink } from "react-icons/go";
 import { BsArrowRightSquare, BsCopy, BsQrCode } from "react-icons/bs";
 
 const AddToken = () => {
+  const [showCopies, setShowCopies] = useState(false);
   return (
     <motion.div
       initial={{ scale: 1, opacity: 0 }}
@@ -69,22 +70,69 @@ const AddToken = () => {
             </div>
 
             <div className="flex w-full gap-4 mt-6">
-              <div className="mt-6 w-1/2 flex flex-col bg-[#564BF1] text-white py-7 rounded-xl  px-4 cursor-pointer ">
-                <GoLink className=" w-6 h-6 mb-6" />
+              <div
+                onClick={() => {
+                  setShowCopies(false);
+                }}
+                className={`mt-6 w-1/2   flex flex-col  py-7 rounded-xl  px-4 cursor-pointer ${
+                  showCopies ? "bg-white " : " bg-[#564BF1] text-white"
+                }`}
+              >
+                <GoLink
+                  className={` w-6 h-6 mb-6 ${
+                    showCopies ? "text-[#564BF1] " : "text-white"
+                  }`}
+                />
                 <h4 className="text-lg font-medium">Mint at Claim</h4>
-                <p className="text-sm ">
+                <p
+                  className={`text-sm  ${
+                    showCopies ? "  text-gray-500" : "text-white"
+                  }`}
+                >
                   Metadata will be uploaded now and tokens will be minted later
                   via Claim Links
                 </p>
               </div>
-              <div className="mt-6 w-1/2   flex flex-col bg-white py-7 rounded-xl  px-4 cursor-pointer">
-                <BsArrowRightSquare className="text-[#564BF1] w-6 h-6 mb-6" />
+              <div
+                onClick={() => {
+                  setShowCopies(true);
+                }}
+                className={`mt-6 w-1/2   flex flex-col  py-7 rounded-xl  px-4 cursor-pointer ${
+                  showCopies ? "bg-[#564BF1] text-white" : "bg-white"
+                }`}
+              >
+                <BsArrowRightSquare
+                  className={` w-6 h-6 mb-6 ${
+                    showCopies ? " text-white" : "text-[#564BF1]"
+                  }`}
+                />
                 <h4 className="text-lg font-medium">Mint</h4>
-                <p className="text-sm text-gray-500">
+                <p
+                  className={`text-sm  ${
+                    showCopies ? " text-white" : "text-gray-500"
+                  }`}
+                >
                   Tokens will be pre-minted to your account
                 </p>
               </div>
             </div>
+            {showCopies ? (
+              <div className=" flex flex-col mt-4 ">
+                <label htmlFor="title" className="text-md font-semibold py-3 ">
+                  Number of copies{" "}
+                  <span className="text-gray-400 text-sm mb-3 font-normal">
+                    (eg. 100)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  name=""
+                  id=""
+                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  placeholder="Number"
+                />
+              </div>
+            ) : null}
             <div className=" flex flex-col mt-4">
               <label htmlFor="title" className="text-md font-semibold py-3 ">
                 Properties{" "}

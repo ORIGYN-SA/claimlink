@@ -24,7 +24,7 @@ const Dispensers = () => {
           <option value="old">Old</option>
         </select>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3  2xl:grid-cols-4 gap-5 mt-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  2xl:grid-cols-4 gap-5 mt-5">
         <motion.div
           initial={{ scale: 1, opacity: 1 }}
           whileHover={{ scale: 1.05 }}
@@ -35,7 +35,7 @@ const Dispensers = () => {
           <div className="bg-white p-3 m-4 rounded-md">
             <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
           </div>
-          <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3">
+          <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3 text-center">
             Create new dispenser
           </h2>
           <p className="text-[#564BF1] text-sm text-center mt-2">

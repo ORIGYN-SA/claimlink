@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
 import { TfiPlus } from "react-icons/tfi";
 import StyledDropzone from "../../common/StyledDropzone";
@@ -7,12 +7,21 @@ import Toggle from "react-toggle";
 import { GoDownload, GoLink } from "react-icons/go";
 import { BsCopy, BsQrCode } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import CommonModal from "../../common/CommonModel";
 
 const AddTokenHome = () => {
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const addToken = () => {
     navigate("/minter/new-contract/token-home/add-token");
+  };
+  const addcompaign = () => {
+    navigate("/minter/new-contract/token-home/campaign-setup");
+  };
+
+  const toggleModal = () => {
+    setIsModalOpen(!isModalOpen);
   };
   return (
     <motion.div
@@ -25,7 +34,7 @@ const AddTokenHome = () => {
         <div>
           <h2 className="text-xl font-semibold">My NFTs </h2>
         </div>
-        <div className="grid grid-cols-3">
+        <div className="grid grid-cols-3 gap-4">
           <motion.div
             initial={{ scale: 1, opacity: 1 }}
             whileHover={{ scale: 1.05 }}
@@ -43,6 +52,64 @@ const AddTokenHome = () => {
               Click here to add a new tocken to this collection
             </p>
           </motion.div>
+
+          {[1, 2, 3].map((index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+              className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
+            >
+              <img
+                width="100px"
+                height="80px"
+                src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                alt="Dispenser"
+              />
+              <h2 className="text-lg sm:text-xl font-semibold mt-5 ">
+                Test collection
+              </h2>
+              <p className="text-sm text-gray-500 mt-1">April 5, 13:34</p>
+              <div className="border border-gray-300 my-4 w-full"></div>
+              <div className="mt-2 w-full">
+                <div className="flex justify-between">
+                  <p className="text-gray-500">Address</p>
+                  <p className="text-[#564BF1]">0xf8c...992h4</p>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <p className="text-gray-500">All token copies</p>
+                  <p className="font-medium">10</p>
+                </div>
+                <div className="flex justify-between mt-2">
+                  <p className="text-gray-500 line-clamp-1		">Token standard </p>
+                  <p className="text-gray-800 font-medium"> ERC1155</p>
+                </div>
+              </div>
+              <div className="border border-gray-300 my-6"></div>
+              <button
+                onClick={toggleModal}
+                className="px-2 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+              >
+                <GoLink />
+                Create claim links
+              </button>
+              {isModalOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 bg-[#7979792e]   z-40"
+                    onClick={toggleModal}
+                  ></div>
+                  <div className="fixed inset-0 flex  items-center justify-center z-50">
+                    <CommonModal
+                      toggleModal={toggleModal}
+                      title="Transfer NFT"
+                    />
+                  </div>
+                </>
+              )}
+            </motion.div>
+          ))}
         </div>
       </div>
       <div className="w-1/3 bg-white p-6">
@@ -82,7 +149,10 @@ const AddTokenHome = () => {
         </div>
         <div className="border border-gray-200 my-6"></div>
 
-        <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+        <button
+          onClick={addcompaign}
+          className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm"
+        >
           <GoLink />
           Create claim links
         </button>

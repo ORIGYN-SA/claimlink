@@ -9,9 +9,6 @@ const SelectContractType = () => {
   const opensetup = () => {
     navigate("/minter/new-contract/collection-setup");
   };
-  const openmynft = () => {
-    navigate("/minter/new-contract/token-home");
-  };
 
   return (
     <div className="p-6 w-3/5">
@@ -32,10 +29,7 @@ const SelectContractType = () => {
             </p>
           </div>
           <div className="flex w-full gap-4">
-            <div
-              className="mt-6 w-1/2 flex flex-col bg-white py-7 rounded-xl  px-4 cursor-pointer"
-              onClick={openmynft}
-            >
+            <div className="mt-6 w-1/2 flex flex-col bg-white py-7 rounded-xl  px-4 cursor-pointer">
               <CiImageOn className="text-[#564BF1] w-6 h-6 mb-6" />
               <h4 className="text-lg font-medium">ICRC-7</h4>
               <p className="text-sm text-gray-500">
