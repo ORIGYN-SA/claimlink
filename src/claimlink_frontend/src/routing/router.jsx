@@ -13,6 +13,10 @@ import SelectContractType from "../components/minter/SelectContractType";
 import CollectionSetup from "../components/minter/CollectionSetup";
 import AddToken from "../components/minter/AddToken";
 import AddTokenHome from "../components/minter/AddTokenHome";
+import Launch from "../components/claimlink/Launch";
+import TestCampaign from "../components/claimlink/TestCampaign";
+import QrManager from "../components/qrManager/QrManager";
+import QrSetup from "../components/qrManager/QrSetup";
 
 const approutes = createBrowserRouter([
   {
@@ -52,13 +56,30 @@ const approutes = createBrowserRouter([
     ),
   },
   {
+    path: "/claim-link/launch",
+    element: (
+      <Dashboard>
+        <Launch />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/claim-link/test-campaign",
+    element: (
+      <Dashboard>
+        <TestCampaign />
+      </Dashboard>
+    ),
+  },
+  {
     path: "/campaign-setup",
     element: (
       <Dashboard>
         <CampaignSetup />
-        </Dashboard>
+      </Dashboard>
     ),
-  },{
+  },
+  {
     path: "/minter",
     element: (
       <Dashboard>
@@ -71,9 +92,10 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <ClaimPattern />
-        </Dashboard>
+      </Dashboard>
     ),
-  },{
+  },
+  {
     path: "/minter/new-contract",
     element: (
       <Dashboard>
@@ -86,9 +108,26 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <DistributionPage />
-        </Dashboard>
+      </Dashboard>
     ),
-  },{
+  },
+  {
+    path: "/qr-manager",
+    element: (
+      <Dashboard>
+        <QrManager />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/qr-setup",
+    element: (
+      <Dashboard>
+        <QrSetup/>
+      </Dashboard>
+    ),
+  },
+  {
     path: "/minter/new-contract/collection-setup",
     element: (
       <Dashboard>

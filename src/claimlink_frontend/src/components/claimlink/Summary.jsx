@@ -25,18 +25,19 @@ const Summary = () => {
         <h3 className="text-gray-500">Token standard</h3>
         <p className=" font-semibold">ICRC-7</p>
       </div>
-
-      <div className="mb-4 flex justify-between">
+      <div className="bg-gray-400  border border-gray-100"></div>
+      <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">ID/Copies</h3>
         <p className=" font-semibold">1/1 per link / 10 links</p>
       </div>
+      <div className="bg-gray-400  border border-gray-100"></div>
 
-      <div className="mb-4 flex justify-between">
+      <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total links</h3>
         <p className=" font-semibold">10</p>
       </div>
-
-      <div className="mb-4 flex justify-between">
+      <div className="bg-gray-400 border border-gray-100"></div>
+      <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Claim pattern</h3>
         <p className=" font-semibold">Transfer</p>
       </div>
@@ -50,8 +51,8 @@ const Summary = () => {
         <h3 className="text-gray-500">Included into the links</h3>
         <p className="  font-semibold">0.0 ICP</p>
       </div>
-
-      <div className="mb-4 flex justify-between">
+      <div className="bg-gray-400   border border-gray-100"></div>
+      <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total amount</h3>
         <p className=" font-semibold">0.0 ICP</p>
       </div>
