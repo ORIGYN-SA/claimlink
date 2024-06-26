@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Breadcrumb from "../components/Breadcrumb";
 import { Header } from "../common/Header";
+import Stepper from "../common/Stepper";
 
 const Dashboard = ({ children, headerText, menubar = true }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -52,6 +53,7 @@ const Dashboard = ({ children, headerText, menubar = true }) => {
           />
         </header>
         <Breadcrumb />
+
         <div className="bg-gray-50 h-full">{children}</div>
       </div>
     </div>

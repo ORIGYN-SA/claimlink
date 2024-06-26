@@ -16,6 +16,7 @@ import AddTokenHome from "../components/minter/AddTokenHome";
 import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
 import QrManager from "../components/qrManager/QrManager";
+import QrSetup from "../components/qrManager/QrSetup";
 
 const approutes = createBrowserRouter([
   {
@@ -33,7 +34,7 @@ const approutes = createBrowserRouter([
   {
     path: "/dispensers",
     element: (
-      <Dashboard>
+      <Dashboard headerText={"good"} menubar={false}>
         <Dispensers />
       </Dashboard>
     ),

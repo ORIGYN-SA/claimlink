@@ -2,7 +2,7 @@ import React from "react";
 
 const Summary = () => {
   return (
-    <div className="bg-white border-l border-gray-300  p-6 w-80">
+    <div className="bg-white border-l hidden sm:block border-gray-300  p-6 w-80">
       <h2 className="text-xl font-semibold mb-4">Summary</h2>
       <p className="text-gray-500 mb-6">Check and confirm details</p>
 
