@@ -26,7 +26,7 @@ const CreateDispenser = () => {
       exit={{}}
       className="flex"
     >
-      <div className="p-6 w-2/3">
+      <div className="p-6  w-full md:w-2/3">
         <div>
           <h2 className="text-xl font-semibold">New Dispenser </h2>
           <p className="text-gray-400 text-sm mt-2">
@@ -118,7 +118,7 @@ const CreateDispenser = () => {
               <label htmlFor="title" className="text-md font-semibold py-3 ">
                 Recepient’s address{" "}
               </label>
-              <div className="bg-white px-2 py-2 outline-none border text-gray-500 border-gray-200 rounded-md">
+              <div className="bg-white line-clamp-3 px-2 py-2 outline-none border text-gray-500 border-gray-200 rounded-md">
                 {val}
               </div>
             </div>
@@ -129,12 +129,12 @@ const CreateDispenser = () => {
               <StyledDropzone />
             </div>
           </form>
-          <button className="px-6 py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+          <button className="px-6 py-3 w-full md:w-auto mt-6 bg-[#5542F6] text-white rounded-md text-sm">
             Apply changes
           </button>
         </div>
       </div>
-      <div className="w-1/3 bg-white p-6">
+      <div className="w-1/3 md:inline hidden bg-white p-6">
         <h2 className="font-semibold text-xl">Dispenser</h2>
         <div className="mt-2 w-full">
           <div className="flex justify-between">

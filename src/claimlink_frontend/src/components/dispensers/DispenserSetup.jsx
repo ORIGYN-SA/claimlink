@@ -3,7 +3,7 @@ import { TbInfoHexagon } from "react-icons/tb";
 
 const DispenserSetup = () => {
   return (
-    <div className="p-6 w-2/3">
+    <div className="md:p-6 p-4 md:w-2/3 w-full">
       <div>
         <h2 className="text-xl font-semibold">Dispensers setup</h2>
       </div>
@@ -25,7 +25,7 @@ const DispenserSetup = () => {
             <label htmlFor="title" className="text-lg font-semibold py-3 ">
               Start date
             </label>
-            <div className="flex w-full justify-between gap-4">
+            <div className="flex md:flex-row flex-col w-full justify-between gap-4">
               <input
                 type="date"
                 name=""
@@ -33,24 +33,26 @@ const DispenserSetup = () => {
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md w-full"
                 placeholder="Text"
               />
-              <select
-                name=""
-                id=""
-                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md "
-              >
-                <option value="">12</option>
-                <option value="">13</option>
-                <option value="">14</option>
-              </select>
-              <select
-                name=""
-                id=""
-                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md "
-              >
-                <option value="">11</option>
-                <option value="">12</option>
-                <option value="">13</option>
-              </select>
+              <div className="flex  md:justify-normal justify-between gap-4">
+                <select
+                  name=""
+                  id=""
+                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md "
+                >
+                  <option value="">12</option>
+                  <option value="">13</option>
+                  <option value="">14</option>
+                </select>
+                <select
+                  name=""
+                  id=""
+                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md "
+                >
+                  <option value="">11</option>
+                  <option value="">12</option>
+                  <option value="">13</option>
+                </select>
+              </div>
             </div>
             <div className="flex items-center gap-4 mt-2 ">
               <TbInfoHexagon className="text-[#564BF1]" />
@@ -76,7 +78,7 @@ const DispenserSetup = () => {
             </div>
           </div>
         </form>
-        <button className="px-6 py-2 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+        <button className="px-6 w-full md:w-auto py-2 mt-6 bg-[#5542F6] text-white rounded-sm text-sm">
           Create
         </button>
       </div>
