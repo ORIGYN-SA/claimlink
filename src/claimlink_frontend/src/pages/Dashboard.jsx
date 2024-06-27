@@ -89,7 +89,7 @@ const Dashboard = ({ children, headerText, menubar = true }) => {
                 toggleSidebar={toggleSidebar}
               />
             </header>
-            <Breadcrumb />
+
             <div className="bg-gray-50 h-full">{children}</div>
           </div>
         </div>

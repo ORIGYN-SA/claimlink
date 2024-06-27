@@ -7,15 +7,15 @@ const ClaimPattern = () => {
   return (
     <>
       <div className="flex justify-between">
-        <div className="h-screen  w-[70%]  p-6 ">
+        <div className="h-screen  sm:w-[70%] w-full  p-6 ">
           <p className="text-2xl text-gray-900 font-semibold">claim pattern</p>
           <p className="text-gray-500 mt-4 ">
             Choose the desired claim pattern and proceed with the appropriate
             transaction to enable it
           </p>
-          <div className="w-[75%] space-y-3 mt-8">
-            <div className="flex gap-4   ">
-              <div className="w-[50%] rounded-md h-44 border-2 border-gray-100   p-4 bg-white ">
+          <div className="sm:w-[75%] w-full space-y-3 mt-8">
+            <div className="sm:flex sm:gap-4 space-y-4  sm:space-y-0  ">
+              <div className="sm:w-[50%] w-full rounded-md h-44 border-2 border-gray-100   p-4 bg-white ">
                 <CiImageOn size={36} className="text-[#5542F6]" />
                 <div>
                   <p className="font-semibold mt-10">Transfer</p>
@@ -25,7 +25,7 @@ const ClaimPattern = () => {
                   </p>
                 </div>
               </div>
-              <div className="w-[50%] rounded-md h-44 border-2 border-gray-100  p-4 bg-white">
+              <div className=" sm:w-[50%] w-full rounded-md h-44 border-2 border-gray-100  p-4 bg-white">
                 <CiWallet size={36} className="text-[#5542F6]" />
                 <div>
                   <p className="font-semibold mt-10">Mint</p>
@@ -37,10 +37,10 @@ const ClaimPattern = () => {
             </div>
           </div>
           <div className="mt-6 flex  space-x-3 ">
-            <button className="px-4 py-3  w-[20%] border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
+            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
               Back
             </button>
-            <button className="px-4 py-3  w-[20%] bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
+            <button className="px-4 py-3  sm:w-[20%]  w-1/2 bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
               Next
             </button>
           </div>

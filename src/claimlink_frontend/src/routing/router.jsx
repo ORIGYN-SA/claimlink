@@ -17,6 +17,7 @@ import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
 import QrManager from "../components/qrManager/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
+import NewQrSetup from "../../src/components/qrManager/NewQrSet";
 
 const approutes = createBrowserRouter([
   {
@@ -124,6 +125,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <QrSetup />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/new-qr-setup",
+    element: (
+      <Dashboard>
+        <NewQrSetup />
       </Dashboard>
     ),
   },

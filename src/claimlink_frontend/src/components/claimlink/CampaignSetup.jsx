@@ -1,11 +1,23 @@
-import React from "react";
+import React, { useState } from "react";
 import { CiImageOn } from "react-icons/ci";
 import { CiWallet } from "react-icons/ci";
 import Summary from "./Summary";
+import Stepper from "../../common/Stepper";
+import { Link } from "react-router-dom";
 
 const CampaignSetup = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleNext = () => {
+    setCurrentStep((prev) => Math.min(prev + 1, 4)); // Assuming there are 4 steps
+  };
+
+  const handleBack = () => {
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
   return (
     <>
+      <Stepper currentStep={currentStep} />
       <div className="flex justify-between">
         <div className="h-screen  sm:w-[70%] w-screen space-y-6 p-6 ">
           <p className="text-2xl text-gray-900 font-semibold">campaign setup</p>
@@ -49,8 +61,12 @@ const CampaignSetup = () => {
             </p>
           </div>
 
-          <button className="px-4 py-3 sm:w-[18%] w-[25%] bg-[#5542F6]  text-xs font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
-            Next
+          <button
+            className="px-4 py-3 sm:w-[18%] w-full bg-[#5542F6]  text-xs font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white"
+            onClick={handleNext}
+            disabled={currentStep === 4}
+          >
+            <Link to="/claim-pattern">Next</Link>
           </button>
         </div>
         <Summary />

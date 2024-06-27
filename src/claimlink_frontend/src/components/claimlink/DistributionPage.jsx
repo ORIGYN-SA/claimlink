@@ -30,7 +30,7 @@ const DistributionPage = () => {
 
   return (
     <div className="flex justify-between">
-      <div className="p-8 w-[70%]">
+      <div className="p-8 sm:w-[70%] w-full">
         <h2 className=" text-2xl text-gray-900 font-semibold mb-4">
           Distribution
         </h2>
@@ -40,7 +40,7 @@ const DistributionPage = () => {
         </p>
 
         <div className="mb-4 ">
-          <div className="w-[75%] flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white ">
+          <div className="sm:w-[75%]   w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white ">
             <IoSettingsOutline
               size={24}
               className="text-[#5542F6] flex items-center h-full"
@@ -52,7 +52,7 @@ const DistributionPage = () => {
               </p>
             </div>
           </div>
-          <div className="w-[75%] mt-4 flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white ">
+          <div className=" sm:w-[75%]   w-full mt-4 flex rounded-lg h-24 gap-4 border-2 p-4 border-gray-100    bg-white ">
             <AiOutlineLink
               size={24}
               className="text-[#5542F6] flex items-center h-full"
@@ -68,12 +68,12 @@ const DistributionPage = () => {
 
         <div className="mb-4 mt-4">
           <h3 className="text-xl font-semibold mb-4">Gasless claiming</h3>
-          <p className="text-sm text-gray-500 w-[75%] mb-4">
+          <p className="text-sm text-gray-500  sm:w-[75%]   w-full mb-4">
             Selecting to sponsors transactions will allow users to claim tokens
             without having any ICP in their wallet, otherwise users will pay gas
             to cover transactions themselves
           </p>
-          <div className=" w-[75%] flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
+          <div className=" sm:w-[75%]   w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
             <TbWallet
               size={24}
               className="text-[#5542F6] flex items-center h-full"
@@ -87,7 +87,7 @@ const DistributionPage = () => {
               Sponsor claiming gas fees (+ 0.3 ICP per link)
             </button>
           </div>
-          <div className="w-[75%] flex mt-4 rounded-lg font-semibold h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
+          <div className=" sm:w-[75%]   w-full flex mt-4 rounded-lg font-semibold h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
             <TbWallet
               size={24}
               className="text-[#5542F6] flex items-center h-full"
@@ -101,7 +101,7 @@ const DistributionPage = () => {
           </div>
         </div>
 
-        <div className="mb-4 flex justify-between w-[75%]">
+        <div className="mb-4 flex justify-between sm:w-[75%]   w-full">
           <h3 className="text-lg font-semibold mb-2">
             Add token IDs to distribute
           </h3>
@@ -118,24 +118,24 @@ const DistributionPage = () => {
           type="text"
           value={tokenIds}
           onChange={handleTokenIdsChange}
-          className=" w-[75%] h-16 rounded border-2 px-3 border-gray-100"
+          className="  sm:w-[75%]   w-full h-16 rounded border-2 px-3 border-gray-100"
           placeholder="Enter token IDs"
         />
 
-        <p className="mb-6 text-sm text-gray-500 w-[75%] mt-4">
+        <p className="mb-6 text-sm text-gray-500  sm:w-[75%]   w-full mt-4">
           If you have a big set of different tokens to distribute, you could
           also provide the information by{" "}
           <span className="text-[#5542F6]">uploading CSV file</span>.
         </p>
 
-        <div className="mt-10 flex  space-x-3  ">
-          <button className="px-4 py-3  w-[20%] border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
+        <div className="mt-10 flex  space-x-3 w-[100%]  ">
+          <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
             <Link to="/claim-pattern" className="w-full">
               Back
             </Link>
           </button>
           <Link to="/claim-link/launch" className="w-full">
-            <button className="px-4 py-3  w-[20%] bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
+            <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
               Next
             </button>
           </Link>

@@ -2,6 +2,8 @@ import React from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { IoSettingsOutline } from "react-icons/io5";
 
 const DashboardContainer = () => {
   return (
@@ -22,7 +24,14 @@ const DashboardContainer = () => {
           .fill(0)
           .map((_, index) => (
             <div key={index} className="w-full  p-2 ">
-              <CampaignCard />
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <CampaignCard />
+              </motion.div>
             </div>
           ))}
       </div>
@@ -31,7 +40,14 @@ const DashboardContainer = () => {
           .fill(0)
           .map((_, index) => (
             <div key={index} className="w-full  p-2">
-              <CampaignCard />
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <CampaignCard />
+              </motion.div>
             </div>
           ))}
       </div>
@@ -60,34 +76,37 @@ const NewCampaignCard = () => {
 const CampaignCard = () => {
   return (
     <>
-      <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg shadow-md p-4">
+      <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
         <div className="flex items-center justify-between mb-4">
-          <div className=" flex gap-2 ">
-            <div className="flex justify-start  space-x-4">
-              <img
-                src="https://via.placeholder.com/100"
-                alt="Campaign"
-                className="w-12 h-12 object-cover rounded-md"
-                style={{
-                  border: "2px solid white",
-                  zIndex: 3,
-                }}
-              />
-              <img
-                src="https://via.placeholder.com/100"
-                alt="Campaign"
-                className="w-12 h-12 object-cover rounded-md"
-                style={{
-                  border: "2px solid white",
-                  zIndex: 2,
-                  marginLeft: -24,
-                }}
-              />
+          <div className=" flex gap-2 items-center  justify-between w-full ">
+            <div className="flex gap-2">
+              <div className="flex justify-start  space-x-4">
+                <img
+                  src="https://via.placeholder.com/100"
+                  alt="Campaign"
+                  className="w-12 h-12 object-cover rounded-md"
+                  style={{
+                    border: "2px solid white",
+                    zIndex: 3,
+                  }}
+                />
+                <img
+                  src="https://via.placeholder.com/100"
+                  alt="Campaign"
+                  className="w-12 h-12 object-cover rounded-md"
+                  style={{
+                    border: "2px solid white",
+                    zIndex: 2,
+                    marginLeft: -24,
+                  }}
+                />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold">Test campaign</h2>
+                <p className="text-sm text-gray-500">December 5, 13:54</p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-lg font-semibold">Test campaign</h2>
-              <p className="text-sm text-gray-500">December 5, 13:54</p>
-            </div>
+            <IoSettingsOutline size={24} className="text-gray-400  " />
           </div>
         </div>
         <div className="grid grid-cols-2 ">
