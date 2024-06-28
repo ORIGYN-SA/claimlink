@@ -10,7 +10,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { PiLinkSimple } from "react-icons/pi";
 // import "react-toggle/style.css";
 
-const CompaignSetup = () => {
+const DistributionPages = () => {
   // const handleCheeseChange = () => {
   //   setFormData((prevFormData) => ({
   //     ...prevFormData,
@@ -194,4 +194,4 @@ const CompaignSetup = () => {
   );
 };
 
-export default CompaignSetup;
+export default DistributionPages;

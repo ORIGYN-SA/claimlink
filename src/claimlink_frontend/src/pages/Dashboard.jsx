@@ -63,8 +63,8 @@ const Dashboard = ({ children, headerText, menubar = true }) => {
           {isSidebarOpen && <MobileSidebar setSidebarOpen={toggleSidebar} />}
           <Breadcrumb />
 
-          <div className="flex-grow p-4">
-            <div className="bg-gray-50 h-full">{children}</div>
+          <div className="flex-grow ">
+            <div className="bg-gray-100 h-full">{children}</div>
           </div>
           <MobileFooter />
         </div>

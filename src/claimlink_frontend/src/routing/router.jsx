@@ -7,7 +7,7 @@ import DispenserSetup from "../components/dispensers/DispenserSetup";
 import CreateDispenser from "../components/dispensers/CreateDispenser";
 import CampaignSetup from "../components/claimlink/CampaignSetup";
 import ClaimPattern from "../components/claimlink/ClaimPattern";
-import DistributionPage from "../components/claimlink/DistributionPage";
+import DistributionPage from "../components/minter/DistributionPage";
 import Minter from "../pages/Minter";
 import SelectContractType from "../components/minter/SelectContractType";
 import CollectionSetup from "../components/minter/CollectionSetup";
@@ -17,8 +17,7 @@ import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
 import QrManager from "../components/qrManager/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
-import NewQrSetup from "../../src/components/qrManager/NewQrSet";
-
+import DistributionPages from "../components/minter/CompaignSetup";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -157,6 +156,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <AddToken />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/minter/new-contract/token-home/campaign-setup",
+    element: (
+      <Dashboard>
+        <DistributionPages />
       </Dashboard>
     ),
   },
