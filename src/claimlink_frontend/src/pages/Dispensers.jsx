@@ -13,15 +13,15 @@ const Dispensers = () => {
   };
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8">
+    <div className="md:p-4 p-6 ">
       {window.innerWidth < 640 ? (
         <div>
           {" "}
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl  font-semibold">Dispensers</h2>
+            <h2 className=" text-lg text-[#2E2C34]  font-bold">Dispensers</h2>
             <button
               onClick={createDispenser}
-              className="flex items-center text-xl gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              className="flex items-center text-sm  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
             >
               <GoPlus className="text-2xl" /> New dispenser
             </button>
@@ -32,7 +32,7 @@ const Dispensers = () => {
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1 }}
-              className="bg-white  py-6 mt-6 rounded-xl flex flex-col shadow-md"
+              className="bg-white  py-4 mt-6 rounded-xl flex flex-col shadow-md"
             >
               <div className="px-6">
                 <div className="flex justify-between items-center ">
@@ -45,10 +45,12 @@ const Dispensers = () => {
                       className="rounded-lg"
                     />
                     <div className="">
-                      <h2 className="text-lg sm:text-xl font-semibold  ">
+                      <h2 className=" text-sm font-bold text-[#2E2C34]  ">
                         Title
                       </h2>
-                      <p className="text-sm text-gray-500  ">April 5, 13:34</p>
+                      <p className="text-[#84818A] md:text-sm text-xs ">
+                        April 5, 13:34
+                      </p>
                     </div>
                   </div>
                   <div>
@@ -60,8 +62,10 @@ const Dispensers = () => {
                   <div className="flex w-full justify-start relative">
                     <div className="w-1/2 p-2 flex justify-start">
                       <div className="flex flex-col justify-start">
-                        <p className="text-gray-500">Status</p>
-                        <p className="text-red-500 font-medium text-lg">
+                        <p className="text-[#84818A] md:text-sm text-xs">
+                          Status
+                        </p>
+                        <p className="text-red-500 font-medium text-sm">
                           Not Uploaded
                         </p>
                       </div>
@@ -69,8 +73,10 @@ const Dispensers = () => {
                     <div className="w-1/2 p-2 flex flex-col justify-start relative">
                       <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                       <div className="flex flex-col justify-start pl-4">
-                        <p className="text-gray-500">Start Date</p>
-                        <p className="text-black font-medium text-lg">
+                        <p className="text-[#84818A] md:text-sm text-xs">
+                          Start Date
+                        </p>
+                        <p className="text-[#2E2C34] font-semibold text-sm">
                           April 11, 2024
                         </p>
                       </div>
@@ -80,8 +86,10 @@ const Dispensers = () => {
                   <div className="flex flex-wrap  relative">
                     <div className="w-1/2 p-2 flex justify-start">
                       <div className="flex flex-col justify-start">
-                        <p className="text-gray-500">Duration</p>
-                        <p className="text-black font-medium text-lg">
+                        <p className="text-[#84818A] md:text-sm text-xs">
+                          Duration
+                        </p>
+                        <p className="text-[#2E2C34] font-semibold text-sm">
                           1440 min
                         </p>
                       </div>
@@ -89,8 +97,12 @@ const Dispensers = () => {
                     <div className="w-1/2 p-2 flex flex-col justify-start relative">
                       <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                       <div className="flex flex-col justify-start pl-4">
-                        <p className="text-gray-500">Links</p>
-                        <p className="text-black font-medium text-lg">10</p>
+                        <p className="text-[#84818A] md:text-sm text-xs">
+                          Links
+                        </p>
+                        <p className="text-[#2E2C34] font-semibold text-sm">
+                          10
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -102,7 +114,7 @@ const Dispensers = () => {
       ) : (
         <div>
           <div className="flex justify-between items-center">
-            <h2 className="text-lg sm:text-xl font-semibold">Dispensers</h2>
+            <h2 className="text-lg  font-bold text-[#2E2C34]">Dispensers</h2>
             <select
               name="Filter"
               id="filter"
@@ -121,13 +133,13 @@ const Dispensers = () => {
               className="bg-[#E9E8FC] px-4 py-4 rounded-xl flex flex-col items-center justify-center cursor-pointer"
               onClick={createDispenser}
             >
-              <div className="bg-white p-3 m-4 rounded-md">
+              <div className="bg-white p-2 m-2 rounded-md">
                 <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
               </div>
-              <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3 text-center">
+              <h2 className="text-[#564BF1] text-lg  font-bold mt-3 text-center">
                 Create new dispenser
               </h2>
-              <p className="text-[#564BF1] text-sm text-center mt-2">
+              <p className="text-[#564BF1] text-xs text-center mt-2">
                 Dispenser is represented by a single link or QR code that you
                 can share for multiple users to scan to claim a unique token.
               </p>
@@ -142,35 +154,38 @@ const Dispensers = () => {
                 className="bg-white px-4 py-4 rounded-xl flex flex-col"
               >
                 <img
-                  width="100px"
+                  width="80px"
                   height="80px"
                   src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
                   alt="Dispenser"
+                  className="rounded-md"
                 />
-                <h2 className="text-lg sm:text-xl font-semibold mt-5 ">
+                <h2 className="text-lg  font-bold text-[#2E2C34] mt-3 ">
                   Title
                 </h2>
-                <p className="text-sm text-gray-500 mt-1 ">April 5, 13:34</p>
+                <p className="text-xs text-[#84818A] mt-1 ">April 5, 13:34</p>
                 <div className="border border-gray-300 my-4 w-full"></div>
-                <div className="mt-2 w-full">
+                <div className=" w-full">
                   <div className="flex justify-between">
-                    <p className="text-gray-500">Status</p>
-                    <p className="text-red-500">Not Uploaded</p>
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-gray-500">Start Date</p>
-                    <p>
-                      April 11, 2024{" "}
-                      <span className="text-gray-500">13:54</span>
+                    <p className="text-xs text-[#84818A] ">Status</p>
+                    <p className="text-[#F95657] text-sm font-bold">
+                      Not Uploaded
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
-                    <p className="text-gray-500">Duration</p>
-                    <p className="text-gray-800">1440 min</p>
+                    <p className="text-xs text-[#84818A] ">Start Date</p>
+                    <p className="text-[#2E2C34] text-sm font-bold">
+                      April 11, 2024{" "}
+                      <span className="text-gray-500 font-normal">13:54</span>
+                    </p>
                   </div>
                   <div className="flex justify-between mt-2">
-                    <p className="text-gray-500">Links</p>
-                    <p>10</p>
+                    <p className="text-xs text-[#84818A] ">Duration</p>
+                    <p className="text-[#2E2C34] text-sm font-bold">1440 min</p>
+                  </div>
+                  <div className="flex justify-between mt-2">
+                    <p className="text-xs text-[#84818A] ">Links</p>
+                    <p className="text-[#2E2C34] text-sm font-bold">10</p>
                   </div>
                 </div>
               </motion.div>

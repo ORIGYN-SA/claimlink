@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FaCog, FaCode, FaGasPump, FaTimes } from "react-icons/fa";
 import { IoSettingsOutline } from "react-icons/io5";
 import { AiOutlineLink } from "react-icons/ai";
-import Summary from "./Summary";
+import Summary from "../claimlink/Summary";
 import { TbWallet } from "react-icons/tb";
 import { Link } from "react-router-dom";
 import Stepper from "../../common/Stepper";

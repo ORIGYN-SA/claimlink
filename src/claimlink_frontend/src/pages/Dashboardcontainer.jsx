@@ -10,7 +10,9 @@ import Breadcrumb from "../components/Breadcrumb";
 const DashboardContainer = () => {
   return (
     <>
-      <Breadcrumb />
+      <div className="hidden sm:block">
+        <Breadcrumb />
+      </div>
 
       <div className="min-h-screen p-4 ">
         <div className="  bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-4 m-2"></div>

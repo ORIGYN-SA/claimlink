@@ -6,6 +6,7 @@ import StyledDropzone from "../../common/StyledDropzone";
 import Toggle from "react-toggle";
 import { GoDownload, GoLink } from "react-icons/go";
 import { BsArrowRightSquare, BsCopy, BsQrCode } from "react-icons/bs";
+import { MobileHeader } from "../../common/Header";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
@@ -14,11 +15,14 @@ const AddToken = () => {
       initial={{ scale: 1, opacity: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{}}
-      className="flex"
+      className="flex "
     >
-      <div className="p-6 w-3/5">
+      <div className="p-6 w-full md:w-3/5">
+        <div className="flex md:hidden justify-start">
+          <MobileHeader htext={"New Contract"} />
+        </div>
         <div>
-          <h2 className="text-xl font-semibold">Add token </h2>
+          <h2 className="text-xl font-semibold md:mt-0 mt-8">Add token </h2>
         </div>
         <div>
           <form action="">
@@ -29,9 +33,9 @@ const AddToken = () => {
                   (PNG, JPG, GIF, MP4. Max 5MB)
                 </span>
               </label>
-              <div className="flex gap-4">
+              <div className="flex gap-4 flex-col md:flex-row">
                 <img
-                  className="rounded-xl w-22 h-24"
+                  className="rounded-xl md:w-22 md:h-24 w-28"
                   src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
                   alt=""
                 />
@@ -68,18 +72,18 @@ const AddToken = () => {
                 placeholder="text"
               />
             </div>
-
-            <div className="flex w-full gap-4 mt-6">
+            <p className="text-md font-semibold mt-6 ">Mining</p>
+            <div className="flex md:flex-row flex-col w-full md:gap-4 ">
               <div
                 onClick={() => {
                   setShowCopies(false);
                 }}
-                className={`mt-6 w-1/2   flex flex-col  py-7 rounded-xl  px-4 cursor-pointer ${
+                className={`mt-6 md:w-1/2 w-full   flex flex-col md:py-7 py-4 rounded-xl  px-4 cursor-pointer ${
                   showCopies ? "bg-white " : " bg-[#564BF1] text-white"
                 }`}
               >
                 <GoLink
-                  className={` w-6 h-6 mb-6 ${
+                  className={` md:w-6 md:h-6 w-5 h-5 mb-2  md:mb-6 ${
                     showCopies ? "text-[#564BF1] " : "text-white"
                   }`}
                 />
@@ -97,12 +101,12 @@ const AddToken = () => {
                 onClick={() => {
                   setShowCopies(true);
                 }}
-                className={`mt-6 w-1/2   flex flex-col  py-7 rounded-xl  px-4 cursor-pointer ${
+                className={`mt-6  md:w-1/2 w-full    flex flex-col  md:py-7 py-4 rounded-xl  px-4 cursor-pointer ${
                   showCopies ? "bg-[#564BF1] text-white" : "bg-white"
                 }`}
               >
                 <BsArrowRightSquare
-                  className={` w-6 h-6 mb-6 ${
+                  className={` md:w-6 md:h-6 w-5 h-5 mb-2  md:mb-6 ${
                     showCopies ? " text-white" : "text-[#564BF1]"
                   }`}
                 />
@@ -140,19 +144,20 @@ const AddToken = () => {
                   (optional)
                 </span>
               </label>
-              <div className="flex gap-4">
+              <div className="flex md:gap-4 gap-3 w-full">
                 <input
                   type="text"
                   name=""
                   id=""
-                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  className="bg-white px-2 w-1/2 py-2 outline-none border border-gray-200 rounded-md"
                   placeholder="e.g , Color"
                 />
+
                 <input
                   type="text"
                   name=""
                   id=""
-                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  className="bg-white px-2 w-1/2 py-2 outline-none border border-gray-200 rounded-md"
                   placeholder="e.g , Color"
                 />
               </div>
@@ -162,7 +167,7 @@ const AddToken = () => {
             </div>
           </form>
           <div className="flex gap-4">
-            <button className="px-6 py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
+            <button className="px-6 py-3  md:w-auto w-full md:mt-6 mt-14 bg-[#5542F6] text-white rounded-md text-sm">
               Mint item{" "}
             </button>
           </div>

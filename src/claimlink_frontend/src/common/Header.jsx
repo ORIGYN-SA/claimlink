@@ -36,3 +36,22 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
     </>
   );
 };
+
+export function MobileHeader({ htext }) {
+  const navigate = useNavigate();
+
+  return (
+    <div className="flex gap-4 items-center justify-start">
+      <div
+        className="bg-[#564bf136] p-2  rounded-md"
+        onClick={() => navigate(-1)}
+      >
+        <BsArrowLeft className="text-[#564BF1] w-5 h-5 font-semibold" />
+      </div>
+      <div>
+        <p className="font-medium text-md">{htext}</p>
+        <p className="text-gray-500 text-sm">16.04.2024 20:55</p>
+      </div>
+    </div>
+  );
+}

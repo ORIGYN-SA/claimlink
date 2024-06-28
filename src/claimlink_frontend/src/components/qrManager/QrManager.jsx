@@ -5,10 +5,15 @@ import { Link } from "react-router-dom";
 import InfoCard from "../../common/InfoCard";
 import { motion } from "framer-motion";
 import { IoIosAdd } from "react-icons/io";
+import Breadcrumb from "../Breadcrumb";
 
 const QrManager = () => {
   return (
     <>
+      {" "}
+      <div className="hidden sm:block">
+        <Breadcrumb />
+      </div>
       <div className="min-h-screen p-4 ">
         <div className="flex items-center justify-between w-full p-2">
           <p className="text-xl font-semibold">QR manager</p>
