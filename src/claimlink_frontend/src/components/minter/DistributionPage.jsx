@@ -30,11 +30,7 @@ const DistributionPage = () => {
 
   return (
     <div className="flex justify-between">
-<<<<<<< HEAD:src/claimlink_frontend/src/components/claimlink/DistributionPage.jsx
       <div className="p-8 sm:w-[70%] w-full">
-=======
-      <div className="p-8 md:w-[70%] w-full">
->>>>>>> 28877c8 (aDED):src/claimlink_frontend/src/components/minter/DistributionPage.jsx
         <h2 className=" text-2xl text-gray-900 font-semibold mb-4">
           Distribution
         </h2>

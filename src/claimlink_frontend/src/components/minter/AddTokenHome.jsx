@@ -18,7 +18,7 @@ const AddTokenHome = () => {
     navigate("/minter/new-contract/token-home/add-token");
   };
   const addcompaign = () => {
-    navigate("/minter/new-contract/token-home/campaign-setup");
+    navigate("/minter/new-contract/token-home/distribution-setup");
   };
 
   const toggleModal = () => {

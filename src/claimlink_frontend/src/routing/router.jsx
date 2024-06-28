@@ -17,7 +17,8 @@ import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
 import QrManager from "../components/qrManager/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
-import DistributionPages from "../components/minter/CompaignSetup";
+import QRSetForm from "../components/qrManager/NewQrSet";
+import DistributionPages from "../components/minter/DistributionPages";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -131,7 +132,7 @@ const approutes = createBrowserRouter([
     path: "/new-qr-setup",
     element: (
       <Dashboard>
-        <NewQrSetup />
+        <QRSetForm />
       </Dashboard>
     ),
   },
@@ -160,7 +161,7 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/minter/new-contract/token-home/campaign-setup",
+    path: "/minter/new-contract/token-home/distribution-setup",
     element: (
       <Dashboard>
         <DistributionPages />

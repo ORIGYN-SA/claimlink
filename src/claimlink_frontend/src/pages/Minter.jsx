@@ -16,17 +16,20 @@ const Minter = () => {
   };
   return (
     <>
-      <div className="p-4 min-h-full">
+      <div className="md:p-4 p-6 min-h-full">
         {window.innerWidth < 640 ? (
           <div>
             {" "}
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl  font-semibold"> My NFT contracts</h2>
+              <h2 className=" text-lg text-[#2E2C34]  font-bold">
+                {" "}
+                My NFT contracts
+              </h2>
               <button
                 onClick={createContract}
-                className="flex items-center text-xl gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+                className="flex items-center text-sm  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
               >
-                <GoPlus className="text-2xl" /> New contract
+                <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
             {[1, 2, 3, 4, 5, 6].map((index) => (
@@ -35,10 +38,10 @@ const Minter = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
-                className="bg-white  py-6 mt-6 rounded-xl flex flex-col shadow-md"
+                className="bg-white  py-4 mt-6 rounded-xl flex flex-col shadow-md"
                 onClick={openmynft}
               >
-                <div className="px-6">
+                <div className="px-4">
                   <div className="flex justify-between items-center ">
                     <div className="flex items-center gap-3">
                       <img
@@ -49,10 +52,10 @@ const Minter = () => {
                         className="rounded-lg"
                       />
                       <div className="">
-                        <h2 className="text-lg sm:text-xl font-semibold  ">
+                        <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]  ">
                           Test collection
                         </h2>
-                        <p className="text-sm text-gray-500  ">
+                        <p className="text-[#84818A] md:text-sm text-xs ">
                           April 5, 13:34
                         </p>
                       </div>
@@ -61,13 +64,15 @@ const Minter = () => {
                       <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
                     </div>
                   </div>
-                  <div className="border bg-[#EBEAED] mt-6 w-full"></div>
+                  <div className="border bg-[#EBEAED] mt-4 w-full"></div>
                   <div className=" w-full">
                     <div className="flex w-full justify-start relative">
                       <div className="w-1/2 p-2 flex justify-start">
                         <div className="flex flex-col justify-start">
-                          <p className="text-gray-500">Address</p>
-                          <p className="text-[#564BF1] font-medium text-lg">
+                          <p className="text-[#84818A] md:text-sm text-xs">
+                            Address
+                          </p>
+                          <p className="text-[#564BF1] font-semibold text-sm">
                             0xf8c...992h4{" "}
                           </p>
                         </div>
@@ -75,8 +80,12 @@ const Minter = () => {
                       <div className="w-1/2 p-2 flex flex-col justify-start relative">
                         <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                         <div className="flex flex-col justify-start pl-4">
-                          <p className="text-gray-500">All token copies</p>
-                          <p className="text-black font-medium text-lg">10</p>
+                          <p className="text-[#84818A] md:text-sm text-xs">
+                            All token copies
+                          </p>
+                          <p className="text-[#2E2C34] font-semibold text-sm">
+                            10
+                          </p>
                         </div>
                       </div>
                     </div>
@@ -84,8 +93,10 @@ const Minter = () => {
                     <div className="flex flex-wrap  relative">
                       <div className="w-1/2 mt-2 flex justify-start">
                         <div className="flex flex-col justify-start">
-                          <p className="text-gray-500">Token standart</p>
-                          <p className="text-black font-medium text-lg">
+                          <p className="text-[#84818A] md:text-sm text-xs">
+                            Token standart
+                          </p>
+                          <p className="text-[#2E2C34] font-semibold text-sm">
                             ERC1155
                           </p>
                         </div>
