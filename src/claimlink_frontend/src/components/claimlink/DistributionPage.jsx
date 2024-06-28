@@ -5,6 +5,7 @@ import { AiOutlineLink } from "react-icons/ai";
 import Summary from "./Summary";
 import { TbWallet } from "react-icons/tb";
 import { Link } from "react-router-dom";
+import Stepper from "../../common/Stepper";
 
 const DistributionPage = () => {
   const [claimType, setClaimType] = useState("");
@@ -29,6 +30,8 @@ const DistributionPage = () => {
   };
 
   return (
+    <>
+      <Stepper currentStep={3}/>
     <div className="flex justify-between">
       <div className="p-8 sm:w-[70%] w-full">
         <h2 className=" text-2xl text-gray-900 font-semibold mb-4">
@@ -143,6 +146,7 @@ const DistributionPage = () => {
       </div>
       <Summary />
     </div>
+    </>
   );
 };
 

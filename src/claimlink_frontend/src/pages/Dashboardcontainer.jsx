@@ -4,61 +4,76 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { IoSettingsOutline } from "react-icons/io5";
+import { IoIosAdd } from "react-icons/io";
 
+import Breadcrumb from "../components/Breadcrumb";
 const DashboardContainer = () => {
   return (
-    <div className="min-h-screen p-4 ">
-      <div className="  bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-4 m-2"></div>
-      <div className="flex items-center justify-between w-full p-2">
-        <p className="text-xl font-semibold">Campaign</p>
-        <button className=" flex items-center justify-center  gap-2 px-4 py-1 border border-gray-500 rounded-md capitalize">
-          <IoIosArrowDown className="text-center " size={12} />
-          filter
-        </button>
+    <>
+      <Breadcrumb />
+
+      <div className="min-h-screen p-4 ">
+        <div className="  bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-4 m-2"></div>
+        <div className="flex items-center justify-between w-full p-2">
+          <p className="text-xl font-semibold">Campaign</p>
+          <div className="sm:hidden">
+            <button className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize">
+              <IoIosAdd className="text-center " size={20} />
+              New campaign
+            </button>
+          </div>
+          <div className="hidden sm:block">
+            <button className=" flex items-center justify-center  gap-2 px-4 py-1 border border-gray-500 rounded-md capitalize">
+              <IoIosArrowDown className="text-center " size={12} />
+              filter
+            </button>
+          </div>
+        </div>
+
+        <div className="grid  mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
+          <Link to="/campaign-setup" className="w-full   mb-4   ">
+            <NewCampaignCard />
+          </Link>
+          {Array(3)
+            .fill(0)
+            .map((_, index) => (
+              <div key={index} className="w-full  p-2 ">
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1 }}
+                >
+                  <CampaignCard />
+                </motion.div>
+              </div>
+            ))}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
+          {Array(10)
+            .fill(0)
+            .map((_, index) => (
+              <div key={index} className="w-full  p-2">
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1 }}
+                >
+                  <CampaignCard />
+                </motion.div>
+              </div>
+            ))}
+        </div>
       </div>
-      <div className="grid  mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
-        <Link to="/campaign-setup" className="w-full   mb-4   ">
-          <NewCampaignCard />
-        </Link>
-        {Array(3)
-          .fill(0)
-          .map((_, index) => (
-            <div key={index} className="w-full  p-2 ">
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1 }}
-              >
-                <CampaignCard />
-              </motion.div>
-            </div>
-          ))}
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
-        {Array(10)
-          .fill(0)
-          .map((_, index) => (
-            <div key={index} className="w-full  p-2">
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1 }}
-              >
-                <CampaignCard />
-              </motion.div>
-            </div>
-          ))}
-      </div>
-    </div>
+    </>
   );
 };
 
 const NewCampaignCard = () => {
   return (
     <div className="hidden sm:block h-full">
-      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797] shadow-md text-center">
+      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797]  text-center">
         <div className=" w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
           <FaPlus className="text-[#5542F6]" />
         </div>
@@ -147,7 +162,7 @@ const CampaignCard = () => {
           </div>
         </div>
       </div>
-      <div className="max-w-sm mx-auto sm:block hidden bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="max-w-sm mx-auto sm:block hidden bg-white   rounded-lg overflow-hidden">
         <div className="relative h-12 mt-6 px-6">
           <div className="flex justify-start  space-x-4">
             <img
@@ -188,33 +203,33 @@ const CampaignCard = () => {
           <div className="text-xs">
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Contract</span>
-              <span className="text-blue-500">0xf8c...992h4</span>
+              <span className="text-blue-500 font-semibold">0xf8c...992h4</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Network</span>
-              <span>Internet Computer</span>
+              <span className="font-semibold">Internet Computer</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Token standard</span>
-              <span>ERC1155</span>
+              <span className="font-semibold">ERC1155</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Links</span>
-              <span>10</span>
+              <span className="font-semibold">10</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claims</span>
-              <span>0</span>
+              <span className="font-semibold">0</span>
             </div>
             <hr className="my-2" />
 
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Sponsorship</span>
-              <span>Disable</span>
+              <span className="font-semibold">Disable</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claim pattern</span>
-              <span>Transfer</span>
+              <span className="font-semibold">Transfer</span>
             </div>
           </div>
         </div>

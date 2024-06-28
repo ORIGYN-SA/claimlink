@@ -4,6 +4,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
 import InfoCard from "../../common/InfoCard";
 import { motion } from "framer-motion";
+import { IoIosAdd } from "react-icons/io";
 
 const QrManager = () => {
   return (
@@ -11,10 +12,18 @@ const QrManager = () => {
       <div className="min-h-screen p-4 ">
         <div className="flex items-center justify-between w-full p-2">
           <p className="text-xl font-semibold">QR manager</p>
-          <button className=" flex items-center justify-center border-[#5542F6] gap-2 px-4 py-1 border  text-[#5542F6] rounded capitalize">
-            <IoIosArrowDown className="text-center " size={12} />
-            filter
-          </button>
+          <div className="sm:hidden">
+            <button className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize">
+              <IoIosAdd className="text-center " size={20} />
+              New QR set
+            </button>
+          </div>
+          <div className="hidden sm:block">
+            <button className=" flex items-center justify-center border-[#5542F6] gap-2 px-4 py-1 border  text-[#5542F6] rounded capitalize">
+              <IoIosArrowDown className="text-center " size={12} />
+              filter
+            </button>
+          </div>
         </div>
         <div className="grid mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
           <Link to="/qr-setup" className="w-full   mb-4   ">
