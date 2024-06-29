@@ -51,7 +51,7 @@ const approutes = createBrowserRouter([
   {
     path: "/dispensers/dispenser-setup",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true} headerText={"New dispeser"} menubar={false}>
         <DispenserSetup />
       </Dashboard>
     ),
@@ -75,7 +75,7 @@ const approutes = createBrowserRouter([
   {
     path: "/campaign-setup",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <CampaignSetup />
       </Dashboard>
     ),
@@ -99,7 +99,7 @@ const approutes = createBrowserRouter([
   {
     path: "/minter/new-contract",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <SelectContractType />
       </Dashboard>
     ),
@@ -139,7 +139,7 @@ const approutes = createBrowserRouter([
   {
     path: "/minter/new-contract/collection-setup",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <CollectionSetup />
       </Dashboard>
     ),
@@ -163,7 +163,7 @@ const approutes = createBrowserRouter([
   {
     path: "/minter/new-contract/token-home/distribution-setup",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true} headerText={"Test campaign"} menubar={false}>
         <DistributionPages />
       </Dashboard>
     ),

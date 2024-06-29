@@ -11,16 +11,19 @@ const Dispensers = () => {
   const createDispenser = () => {
     navigate("/dispensers/create-dispenser");
   };
+  const DispenserSetup = () => {
+    navigate("/dispensers/dispenser-setup");
+  };
 
   return (
-    <div className="md:p-4 p-6 ">
+    <div className=" p-6 ">
       {window.innerWidth < 640 ? (
         <div>
           {" "}
           <div className="flex justify-between items-center">
             <h2 className=" text-lg text-[#2E2C34]  font-bold">Dispensers</h2>
             <button
-              onClick={createDispenser}
+              onClick={DispenserSetup}
               className="flex items-center text-sm  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
             >
               <GoPlus className="text-2xl" /> New dispenser
@@ -29,6 +32,7 @@ const Dispensers = () => {
           {[1, 2, 3, 4, 5, 6].map((index) => (
             <motion.div
               key={index}
+              onClick={createDispenser}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1 }}
@@ -131,7 +135,7 @@ const Dispensers = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
               className="bg-[#E9E8FC] px-4 py-4 rounded-xl flex flex-col items-center justify-center cursor-pointer"
-              onClick={createDispenser}
+              onClick={DispenserSetup}
             >
               <div className="bg-white p-2 m-2 rounded-md">
                 <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
@@ -151,7 +155,8 @@ const Dispensers = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
-                className="bg-white px-4 py-4 rounded-xl flex flex-col"
+                className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                onClick={createDispenser}
               >
                 <img
                   width="80px"
@@ -168,24 +173,24 @@ const Dispensers = () => {
                 <div className=" w-full">
                   <div className="flex justify-between">
                     <p className="text-xs text-[#84818A] ">Status</p>
-                    <p className="text-[#F95657] text-sm font-bold">
+                    <p className="text-[#F95657] text-xs font-bold">
                       Not Uploaded
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Start Date</p>
-                    <p className="text-[#2E2C34] text-sm font-bold">
+                    <p className="text-[#2E2C34] text-xs font-bold">
                       April 11, 2024{" "}
                       <span className="text-gray-500 font-normal">13:54</span>
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Duration</p>
-                    <p className="text-[#2E2C34] text-sm font-bold">1440 min</p>
+                    <p className="text-[#2E2C34] text-xs font-bold">1440 min</p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Links</p>
-                    <p className="text-[#2E2C34] text-sm font-bold">10</p>
+                    <p className="text-[#2E2C34] text-xs font-bold">10</p>
                   </div>
                 </div>
               </motion.div>

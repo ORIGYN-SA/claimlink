@@ -19,11 +19,33 @@ const CreateDispenser = () => {
   const val = `0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
 0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
 0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829 etc`;
+
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    duration: 0.6,
+  };
   return (
     <motion.div
-      initial={{ scale: 1, opacity: 0 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{}}
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
       className="flex"
     >
       <div className="p-6  w-full md:w-2/3">
