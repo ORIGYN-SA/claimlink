@@ -7,8 +7,15 @@ import MobileSidebar, { MobileFooter } from "../components/MobileSidebar";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { MdArrowOutward } from "react-icons/md";
 import { IoIosCloseCircle } from "react-icons/io";
+import StepperComponent from "../common/StepperComponent";
+import Home from "./Home";
 
-const Dashboard = ({ children, headerText, menubar = true }) => {
+const Dashboard = ({
+  children = <Home />,
+  headerText,
+  menubar = true,
+  stepper = false,
+}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -89,7 +96,7 @@ const Dashboard = ({ children, headerText, menubar = true }) => {
                 toggleSidebar={toggleSidebar}
               />
             </header>
-
+            {stepper ? "" : <Breadcrumb />}
             <div className="bg-gray-50 h-full">{children}</div>
           </div>
         </div>
