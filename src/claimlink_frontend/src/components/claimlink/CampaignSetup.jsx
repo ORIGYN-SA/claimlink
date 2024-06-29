@@ -4,12 +4,8 @@ import { CiWallet } from "react-icons/ci";
 import Summary from "./Summary";
 import Stepper from "../../common/Stepper";
 import { Link } from "react-router-dom";
-<<<<<<< HEAD
 import { BsArrowLeft } from "react-icons/bs";
 import { motion } from "framer-motion";
-=======
-import StepperComponent from "../../common/StepperComponent";
->>>>>>> d4a69e9 (AddED)
 
 const CampaignSetup = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -29,7 +25,6 @@ const CampaignSetup = () => {
   ];
   return (
     <>
-<<<<<<< HEAD
       <Stepper currentStep={1} />
       <motion.div
         initial={{ opacity: 0.5, scale: 0.5 }}
@@ -44,36 +39,6 @@ const CampaignSetup = () => {
                 onClick={() => navigate(-1)}
               >
                 <BsArrowLeft className="text-[#564BF1] w-6 h-6 font-semibold" />
-=======
-      <StepperComponent
-        steps={steps}
-        currentStep={currentStep}
-        completedColor="green-500"
-        activeColor="blue-500"
-        defaultColor="gray-300"
-      />
-      <div className="flex justify-between">
-        <div className="h-screen  sm:w-[70%] w-screen space-y-6 p-6 ">
-          <p className="text-2xl text-gray-900 font-semibold">campaign setup</p>
-
-          <div className="space-y-3">
-            <p className="text-gray-900 font-semibold">Title</p>
-            <input
-              type="text"
-              className="sm:w-[75%] w-full h-10 rounded border-2 px-3 border-gray-100"
-              placeholder="Text "
-            />
-          </div>
-          <div className="sm:w-[75%] w-full space-y-3">
-            <p className="text-gray-900 font-semibold">contract</p>
-            <div className="sm:flex sm:gap-4 ">
-              <div className="sm:w-[50%] rounded-md mb-4 sm:mb-0 h-36 border-2 border-gray-100 space-y-6 p-4 bg-white ">
-                <CiImageOn size={36} className="text-[#5542F6]" />
-                <div>
-                  <p className="font-semibold"> NFTs </p>
-                  <p className="text-sm text-gray-500">DIP-721/ICRC-7</p>
-                </div>
->>>>>>> d4a69e9 (AddED)
               </div>
               <div>
                 <p className="font-medium text-lg">Test</p>
