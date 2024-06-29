@@ -7,7 +7,7 @@ import DispenserSetup from "../components/dispensers/DispenserSetup";
 import CreateDispenser from "../components/dispensers/CreateDispenser";
 import CampaignSetup from "../components/claimlink/CampaignSetup";
 import ClaimPattern from "../components/claimlink/ClaimPattern";
-import DistributionPage from "../components/minter/DistributionPage";
+import DistributionPage from "../components/DistributionPage";
 import Minter from "../pages/Minter";
 import SelectContractType from "../components/minter/SelectContractType";
 import CollectionSetup from "../components/minter/CollectionSetup";

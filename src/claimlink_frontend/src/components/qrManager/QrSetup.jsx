@@ -10,7 +10,7 @@ const QrSetup = () => {
           <p className="text-gray-900 font-semibold">Name of the set</p>
           <input
             type="text"
-            className="sm:w-[50%] w-full h-10 rounded border-2 px-3 border-gray-100"
+            className="sm:w-[50%] w-full h-10 rounded outline-none border-2 px-3 border-gray-100"
             placeholder="Text "
           />
         </div>
@@ -18,7 +18,7 @@ const QrSetup = () => {
           <p className="text-gray-900 font-semibold">Quality</p>
           <input
             type="text"
-            className="sm:w-[50%] h-10 w-full rounded border-2 px-3 border-gray-100"
+            className="sm:w-[50%] h-10 w-full outline-none rounded border-2 px-3 border-gray-100"
             placeholder="Text "
           />
         </div>
