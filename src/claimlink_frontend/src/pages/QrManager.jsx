@@ -2,18 +2,16 @@ import React from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
-import InfoCard from "../../common/InfoCard";
+import InfoCard from "../common/InfoCard";
 import { motion } from "framer-motion";
 import { IoIosAdd } from "react-icons/io";
-import Breadcrumb from "../Breadcrumb";
+import Breadcrumb from "../components/Breadcrumb";
 
 const QrManager = () => {
   return (
     <>
       {" "}
-      <div className="hidden sm:block">
-        <Breadcrumb />
-      </div>
+      <div className="hidden sm:block"></div>
       <div className="min-h-screen p-4 ">
         <div className="flex items-center justify-between w-full p-2">
           <p className="text-xl font-semibold">QR manager</p>
@@ -24,10 +22,16 @@ const QrManager = () => {
             </button>
           </div>
           <div className="hidden sm:block">
-            <button className=" flex items-center justify-center border-[#5542F6] gap-2 px-4 py-1 border  text-[#5542F6] rounded capitalize">
+            <select
+              name="Filter"
+              id="filter"
+              className=" flex items-center justify-center border-[#5542F6] gap-2 px-4 py-1 border  text-[#5542F6] rounded capitalize"
+            >
               <IoIosArrowDown className="text-center " size={12} />
-              filter
-            </button>
+              <option value="filter">Filter</option>
+              <option value="new">New</option>
+              <option value="old">Old</option>
+            </select>
           </div>
         </div>
         <div className="grid mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">

@@ -18,7 +18,7 @@ const Stepper = ({ currentStep }) => {
                 step.id < currentStep
                   ? "border-green-400 text-white"
                   : step.id === currentStep
-                  ? "border-blue-500 text-white"
+                  ? "border-[#5542F6] text-white"
                   : "text-gray-500"
               }`}
             >
@@ -27,7 +27,7 @@ const Stepper = ({ currentStep }) => {
                   step.id < currentStep
                     ? "border-green-400 text-white"
                     : step.id === currentStep
-                    ? "border-blue-500 text-white"
+                    ? "border-[#5542F6] text-white"
                     : "border-gray-300 text-gray-500"
                 }`}
               >
@@ -36,7 +36,7 @@ const Stepper = ({ currentStep }) => {
                     step.id < currentStep
                       ? "bg-green-500 text-white"
                       : step.id === currentStep
-                      ? "bg-blue-500 text-white"
+                      ? "bg-[#5542F6] text-white"
                       : "bg-gray-300 text-gray-500"
                   }`}
                 >
@@ -66,7 +66,7 @@ const Stepper = ({ currentStep }) => {
                     step.id < currentStep
                       ? "text-green-500"
                       : step.id === currentStep
-                      ? "text-blue-500"
+                      ? "text-[#5542F6]"
                       : "text-gray-500"
                   }`}
                 >
@@ -80,7 +80,7 @@ const Stepper = ({ currentStep }) => {
                   step.id < currentStep
                     ? "border-green-500"
                     : step.id === currentStep
-                    ? "border-blue-500"
+                    ? "border-[#5542F6]"
                     : "border-gray-300"
                 }`}
               ></div>

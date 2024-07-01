@@ -15,7 +15,7 @@ import AddToken from "../components/minter/AddToken";
 import AddTokenHome from "../components/minter/AddTokenHome";
 import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
-import QrManager from "../components/qrManager/QrManager";
+import QrManager from "../pages/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
 import QRSetForm from "../components/qrManager/NewQrSet";
 import DistributionPages from "../components/minter/DistributionPages";
@@ -27,7 +27,7 @@ const approutes = createBrowserRouter([
   {
     path: "/claim-link",
     element: (
-      <Dashboard>
+      <Dashboard stepper={false}>
         <Dashboardcontainer />
       </Dashboard>
     ),
@@ -91,7 +91,7 @@ const approutes = createBrowserRouter([
   {
     path: "/claim-pattern",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <ClaimPattern />
       </Dashboard>
     ),
@@ -107,7 +107,7 @@ const approutes = createBrowserRouter([
   {
     path: "/distribution",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <DistributionPage />
       </Dashboard>
     ),
@@ -123,7 +123,7 @@ const approutes = createBrowserRouter([
   {
     path: "/qr-setup",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <QrSetup />
       </Dashboard>
     ),

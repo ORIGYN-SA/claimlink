@@ -10,10 +10,6 @@ import Breadcrumb from "../components/Breadcrumb";
 const DashboardContainer = () => {
   return (
     <>
-      <div className="hidden sm:block">
-        <Breadcrumb />
-      </div>
-
       <div className="min-h-screen p-4 ">
         <div className="  bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-4 m-2"></div>
         <div className="flex items-center justify-between w-full p-2">
@@ -25,10 +21,16 @@ const DashboardContainer = () => {
             </button>
           </div>
           <div className="hidden sm:block">
-            <button className=" flex items-center justify-center  gap-2 px-4 py-1 border border-gray-500 rounded-md capitalize">
+            <select
+              name="Filter"
+              id="filter"
+              className=" flex items-center justify-center outline-none  gap-2 px-4 py-1 border border-gray-500 rounded-md capitalize"
+            >
               <IoIosArrowDown className="text-center " size={12} />
-              filter
-            </button>
+              <option value="filter">Filter</option>
+              <option value="new">New</option>
+              <option value="old">Old</option>
+            </select>
           </div>
         </div>
 
