@@ -173,24 +173,26 @@ const Dispensers = () => {
                 <div className=" w-full">
                   <div className="flex justify-between">
                     <p className="text-xs text-[#84818A] ">Status</p>
-                    <p className="text-[#F95657] text-xs font-bold">
+                    <p className="text-[#F95657] text-xs font-semibold">
                       Not Uploaded
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Start Date</p>
-                    <p className="text-[#2E2C34] text-xs font-bold">
+                    <p className="text-[#2E2C34] text-xs font-semibold">
                       April 11, 2024{" "}
                       <span className="text-gray-500 font-normal">13:54</span>
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Duration</p>
-                    <p className="text-[#2E2C34] text-xs font-bold">1440 min</p>
+                    <p className="text-[#2E2C34] text-xs font-semibold">
+                      1440 min
+                    </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Links</p>
-                    <p className="text-[#2E2C34] text-xs font-bold">10</p>
+                    <p className="text-[#2E2C34] text-xs font-semibold">10</p>
                   </div>
                 </div>
               </motion.div>

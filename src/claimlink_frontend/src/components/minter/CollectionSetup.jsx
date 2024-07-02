@@ -11,35 +11,36 @@ import { useLocation, useNavigate } from "react-router-dom";
 import StepperComponent from "../../common/StepperComponent";
 import MainButton, { BackButton } from "../../common/Buttons";
 
-const CollectionSetup = () => {
+const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const { currentStep } = location.state || { currentStep: 1 };
-
-  const handleBack = () => {
-    navigate("/minter/new-contract", {
-      state: { currentStep: currentStep - 1 },
-    });
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
   };
 
-  const steps = [
-    { id: 1, name: "Select contract type" },
-    { id: 2, name: "Contract setup" },
-  ];
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
-      <StepperComponent
-        steps={steps}
-        currentStep={currentStep}
-        completedColor="green-500"
-        activeColor="blue-500"
-        defaultColor="gray-300"
-      />
       <motion.div
-        initial={{ scale: 1, opacity: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{}}
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
         className="flex"
       >
         <div className="p-6 w-full md:w-3/5">
@@ -119,7 +120,7 @@ const CollectionSetup = () => {
             <div className="flex gap-4 md:w-auto w-full md:mt-0 mt-10">
               <BackButton onClick={handleBack} text={"Back"} />
 
-              <MainButton text={" Deploy collection"} />
+              <MainButton onClick={handleNext} text={" Deploy collection"} />
             </div>
           </div>
         </div>

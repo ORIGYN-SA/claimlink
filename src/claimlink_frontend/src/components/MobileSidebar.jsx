@@ -5,8 +5,9 @@ import { IoIosArrowUp, IoIosCloseCircle } from "react-icons/io";
 import { MdArrowOutward, MdDashboard, MdQrCode, MdMoney } from "react-icons/md";
 import { RiStackFill } from "react-icons/ri";
 import { IoLogOutOutline } from "react-icons/io5";
+import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 
-const MobileSidebar = ({ setSidebarOpen }) => {
+const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isVisible, setIsVisible] = useState(false);
@@ -25,10 +26,31 @@ const MobileSidebar = ({ setSidebarOpen }) => {
 
   return (
     <div
-      className={`fixed top-0  mt-20 left-0 w-screen h-screen bg-[#FBFAFC] z-20 flex flex-col  transition-transform duration-500 ${
+      className={`fixed top-0   left-0 w-screen h-screen bg-[#FBFAFC] z-20 flex flex-col  transition-transform duration-500 ${
         isVisible ? "translate-y-0" : "-translate-y-full"
       }`}
     >
+      <header className="w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
+        <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+          claimlink
+          <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
+        </div>
+        {isSidebarOpen ? (
+          <button
+            onClick={setSidebarOpen}
+            className="text-xl bg-[#3B00B9] p-2 rounded-md"
+          >
+            <RxCross2 className="text-white " />{" "}
+          </button>
+        ) : (
+          <button
+            onClick={setSidebarOpen}
+            className="text-xl px-2 py-2 bg-gray-300 rounded-md"
+          >
+            <RxHamburgerMenu />
+          </button>
+        )}
+      </header>
       <div className="px-6 py-2 flex flex-col">
         <p className="text-sm text-gray-500">Balance</p>
         <p className="text-2xl text-gray-900 font-medium">0 ICP</p>

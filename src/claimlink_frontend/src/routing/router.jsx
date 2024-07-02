@@ -20,6 +20,7 @@ import QrSetup from "../components/qrManager/QrSetup";
 import QRSetForm from "../components/qrManager/NewQrSet";
 import DistributionPages from "../components/minter/DistributionPages";
 import LoginPage from "../components/LoginPage";
+import Contract from "../components/minter/Contract";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -105,7 +106,7 @@ const approutes = createBrowserRouter([
     path: "/minter/new-contract",
     element: (
       <Dashboard stepper={true}>
-        <SelectContractType />
+        <Contract />
       </Dashboard>
     ),
   },
@@ -141,14 +142,14 @@ const approutes = createBrowserRouter([
       </Dashboard>
     ),
   },
-  {
-    path: "/minter/new-contract/collection-setup",
-    element: (
-      <Dashboard stepper={true}>
-        <CollectionSetup />
-      </Dashboard>
-    ),
-  },
+  // {
+  //   path: "/minter/new-contract/collection-setup",
+  //   element: (
+  //     <Dashboard stepper={true}>
+  //       <CollectionSetup />
+  //     </Dashboard>
+  //   ),
+  // },
   {
     path: "/minter/new-contract/token-home",
     element: (

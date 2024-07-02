@@ -24,6 +24,26 @@ const AddTokenHome = () => {
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
       {window.innerWidth < 640 ? (
@@ -36,29 +56,29 @@ const AddTokenHome = () => {
           >
             <div className="px-6">
               <div className=" ">
-                <h2 className="text-xl font-semibold  ">Test collection</h2>
+                <h2 className="text-md font-bold  black">Test collection</h2>
               </div>
               <div className="border bg-[#EBEAED] mt-4 w-full"></div>
               <div className=" w-full">
                 <div className="flex w-full justify-start relative ">
                   <div className="w-1/2 p-2 flex justify-start ">
                     <div className="flex flex-col justify-start">
-                      <p className="text-gray-500">Collection symbol</p>
-                      <p className="text-black font-medium text-lg">TST </p>
+                      <p className="gray text-xs">Collection symbol</p>
+                      <p className="black font-semibold text-sm">TST </p>
                     </div>
                   </div>
                   <div className="w-1/2  p-2 flex flex-col justify-start relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                     <div className="flex flex-col justify-start pl-4">
-                      <p className="text-gray-500">Token address</p>
+                      <p className="gray text-xs">Token address</p>
                       <div className="flex items-center gap-2 font-medium text-lg">
                         {" "}
-                        <p className="text-[#564BF1] font-medium">
+                        <p className="text-[#564BF1] font-semibold text-sm">
                           0xf8c...992h4
                         </p>
                         <BsCopy className="w-3 h-3 text-[#564BF1]" />
                       </div>
-                      {/* <p className="text-black font-medium text-lg">10</p> */}
+                      {/* <p className="black font-medium text-lg">10</p> */}
                     </div>
                   </div>
                 </div>
@@ -66,15 +86,17 @@ const AddTokenHome = () => {
                 <div className="flex w-full justify-start relative">
                   <div className="w-1/2 p-2 flex justify-start">
                     <div className="flex flex-col justify-start">
-                      <p className="text-gray-500">Token type</p>
-                      <p className=" font-medium text-lg">ICRC-7 Token </p>
+                      <p className="gray text-xs">Token type</p>
+                      <p className="font-semibold text-sm black">
+                        ICRC-7 Token{" "}
+                      </p>
                     </div>
                   </div>
                   <div className="w-1/2 p-2 flex flex-col justify-start relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                     <div className="flex flex-col justify-start pl-4">
-                      <p className="text-gray-500">Token standart</p>
-                      <p className="text-black font-medium text-lg">ICRC-7</p>
+                      <p className="gray text-xs">Token standart</p>
+                      <p className="font-semibold text-sm black">ICRC-7</p>
                     </div>
                   </div>
                 </div>
@@ -82,8 +104,8 @@ const AddTokenHome = () => {
                 <div className="flex w-full justify-start relative">
                   <div className="w-1/2 p-2 flex justify-start">
                     <div className="flex flex-col justify-start">
-                      <p className="text-gray-500">Date of create</p>
-                      <p className=" font-medium text-lg">
+                      <p className="gray text-xs">Date of create</p>
+                      <p className=" font-semibold text-sm black">
                         Dec. 11, 2024 13:54{" "}
                       </p>
                     </div>
@@ -91,15 +113,15 @@ const AddTokenHome = () => {
                   <div className="w-1/2 p-2 flex flex-col justify-start relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                     <div className="flex flex-col justify-start pl-4">
-                      <p className="text-gray-500">All token copies</p>
-                      <p className="text-black font-medium text-lg">0</p>
+                      <p className="gray text-xs">All token copies</p>
+                      <p className="font-semibold text-sm black">0</p>
                     </div>
                   </div>
                 </div>
               </div>
               <button
                 onClick={addcompaign}
-                className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-2 bg-[#5542F6] text-white rounded-sm text-sm"
+                className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-4 bg-[#5542F6] text-white rounded-sm text-sm"
               >
                 <GoLink />
                 Create claim links
@@ -108,19 +130,19 @@ const AddTokenHome = () => {
           </motion.div>
 
           <div className="flex justify-between items-center mt-10">
-            <h2 className="text-2xl  font-semibold"> My NFTs</h2>
+            <h2 className="text-xl black  font-bold"> My NFTs</h2>
             <button
               onClick={addToken}
-              className="flex items-center text-xl gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              className="flex items-center text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
             >
-              <GoPlus className="text-2xl" /> Add token
+              <GoPlus className="text-sm" /> Add token
             </button>
           </div>
-          <div className="bg-[#EBEAED] py-10 text-center mt-10 rounded-sm">
-            <h4 className="text-[#84818A] text-lg font-medium">
+          <div className="bg-[#EBEAED] py-10 text-center mt-6 rounded-sm">
+            <h4 className="text-[#84818A] text-base font-medium">
               You have no tokens yet
             </h4>
-            <p className="text-[#84818A] text-sm mt-1">
+            <p className="text-[#84818A] text-xs mt-1">
               Press Add token to create one
             </p>
           </div>
@@ -144,13 +166,11 @@ const AddTokenHome = () => {
                 className="bg-[#E9E8FC] px-4 py-8 mt-8 rounded-xl flex flex-col items-center justify-center cursor-pointer"
                 onClick={addToken}
               >
-                <div className="bg-white p-3 m-4 rounded-md">
-                  <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
+                <div className="bg-white p-2 m-2 rounded-md">
+                  <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
                 </div>
-                <h2 className="text-[#564BF1] text-lg sm:text-xl font-semibold mt-3">
-                  Add token
-                </h2>
-                <p className="text-[#564BF1] text-sm text-center mt-2">
+                <h2 className="blue text-xl  font-bold mt-3">Add token</h2>
+                <p className="blue text-xs text-center mt-2">
                   Click here to add a new tocken to this collection
                 </p>
               </motion.div>
@@ -164,36 +184,40 @@ const AddTokenHome = () => {
                   className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
                 >
                   <img
-                    width="100px"
+                    width="80px"
                     height="80px"
                     src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
                     alt="Dispenser"
                   />
-                  <h2 className="text-lg sm:text-xl font-semibold mt-5 ">
-                    Test collection
+                  <h2 className="text-xl black  font-bold  mt-5 ">
+                    Test Token
                   </h2>
-                  <p className="text-sm text-gray-500 mt-1">April 5, 13:34</p>
-                  <div className="border border-gray-300 my-4 w-full"></div>
-                  <div className="mt-2 w-full">
+                  <p className="text-xs gray mt-1">April 5, 13:34</p>
+                  <div className="border border-gray-200 my-4 w-full"></div>
+                  <div className=" w-full">
                     <div className="flex justify-between">
-                      <p className="text-gray-500">Address</p>
-                      <p className="text-[#564BF1]">0xf8c...992h4</p>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-gray-500">All token copies</p>
-                      <p className="font-medium">10</p>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-gray-500 line-clamp-1		">
-                        Token standard{" "}
+                      <p className="text-xs gray ">Address</p>
+                      <p className="text-[#564BF1] text-xs font-semibold">
+                        0xf8c...992h4
                       </p>
-                      <p className="text-gray-800 font-medium"> ERC1155</p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs gray">Copies</p>
+                      <p className="text-xs font-semibold">10</p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs gray		">ID </p>
+                      <p className="text-xs font-semibold"> 0</p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs gray		">Description </p>
+                      <p className="text-xs font-semibold"> -</p>
                     </div>
                   </div>
-                  <div className="border border-gray-300 my-6"></div>
+                  <div className="border border-gray-200 my-4"></div>
                   <button
                     onClick={toggleModal}
-                    className="px-2 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+                    className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
                   >
                     <GoLink />
                     Create claim links
@@ -217,47 +241,47 @@ const AddTokenHome = () => {
             </div>
           </div>
           <div className="w-1/3 bg-white p-6">
-            <h2 className="font-semibold text-xl">Test collection</h2>
-            <div className="mt-2 w-full">
+            <h2 className="font-bold text-xl">Test collection</h2>
+            <div className="mt-4 w-full">
               <div className="flex justify-between">
-                <p className="text-gray-500">Collection symbol</p>
-                <p className="text-gray-800 font-medium">TST</p>
+                <p className="gray text-sm">Collection symbol</p>
+                <p className="black font-semibold text-sm">TST</p>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Token address</p>
+                <p className="gray text-sm">Token address</p>
                 <div className="flex items-center gap-2">
                   {" "}
-                  <p className="text-[#564BF1] font-medium">0xf8c...992h4</p>
+                  <p className=" blue font-semibold text-sm">0xf8c...992h4</p>
                   <BsCopy className="w-3 h-3 text-[#564BF1]" />
                 </div>{" "}
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Token type</p>
-                <p className="text-gray-800 font-medium">ICRC-7 Token</p>
+                <p className="gray text-sm">Token type</p>
+                <p className="black font-semibold text-sm">ICRC-7 Token</p>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Token standart</p>
-                <p className="text-gray-800 font-medium">ICRC-7</p>
+                <p className="gray text-sm">Token standart</p>
+                <p className="black font-semibold text-sm">ICRC-7</p>
               </div>
             </div>
-            <div className="border border-gray-200 my-6"></div>
+            <div className="border border-gray-200 my-4"></div>
             <div className="mt-2 w-full">
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">Date of create</p>
-                <p className="text-gray-800 font-medium">
+                <p className="gray text-sm">Date of create</p>
+                <p className="black font-semibold text-sm">
                   April 11, 2024 13:54
                 </p>
               </div>
               <div className="flex justify-between mt-2">
-                <p className="text-gray-500">All token copies</p>
-                <p className="text-gray-800 font-medium">0</p>
+                <p className="gray text-sm">All token copies</p>
+                <p className="black font-semibold text-sm">0</p>
               </div>
             </div>
-            <div className="border border-gray-200 my-6"></div>
+            <div className="border border-gray-200 my-4"></div>
 
             <button
               onClick={addcompaign}
-              className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm"
+              className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
             >
               <GoLink />
               Create claim links

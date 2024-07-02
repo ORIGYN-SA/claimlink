@@ -34,7 +34,7 @@ const Sidebar = ({ setSidebarOpen }) => {
         }  flex flex-col justify-between  px-2 transition-all duration-300 border-r border-gray-300`}
       >
         <div className="px-2">
-          <p className="text-4xl w-full tracking-wide h-[88px] text-[#2E2C34] font-quicksand items-center gap-2 justify-center flex">
+          <p className="text-4xl w-full tracking-wide h-[88px] text-[#2E2C34]  items-center gap-2 justify-center flex">
             claimlink
             <MdArrowOutward className="bg-[#3B00B9] rounded text-white" />
             <IoIosCloseCircle
@@ -55,7 +55,7 @@ const Sidebar = ({ setSidebarOpen }) => {
               <Link
                 key={item.path}
                 to={item.path}
-                className={` flex items-center tracking-wide h-[48px] text-xs font-quicksand  font-semibold gap-2 py-3 p-2 rounded transition duration-200 ${
+                className={` flex items-center tracking-wide h-[48px] text-xs    font-semibold gap-2 py-3 p-2 rounded transition duration-200 ${
                   currentPath === item.path
                     ? "bg-[#dad6f797]  text-[#5542F6]"
                     : isWhiteBackground
@@ -75,11 +75,11 @@ const Sidebar = ({ setSidebarOpen }) => {
               </Link>
             ))}
           </div>
-          <div className="mt-44">
+          <div className="mt-36">
             <div className="border-t border-gray-200 mb-2"></div>
             <Link
               to="/technical-help"
-              className={`flex items-center py-3 px-2 tracking-wide mb-2 rounded  h-[32px] text-xs font-quicksand  font-semibold transition  duration-200 hover:bg-gray-300 ${
+              className={`flex items-center py-3 px-2 tracking-wide mb-2 rounded  h-[32px] text-xs   font-semibold transition  duration-200 hover:bg-gray-300 ${
                 isWhiteBackground ? " text-[#878097]" : "text-white"
               }`}
             >
@@ -87,7 +87,7 @@ const Sidebar = ({ setSidebarOpen }) => {
             </Link>
             <Link
               to="/contact-us"
-              className={`py-3 px-2 rounded   h-[32px] tracking-wider text-xs font-quicksand  font-semibold flex items-center transition duration-200 hover:bg-gray-300 ${
+              className={`py-3 px-2 rounded   h-[32px] tracking-wider text-xs   font-semibold flex items-center transition duration-200 hover:bg-gray-300 ${
                 isWhiteBackground ? " text-[#878097]" : "text-white"
               }`}
             >
@@ -96,7 +96,7 @@ const Sidebar = ({ setSidebarOpen }) => {
           </div>
         </div>
 
-        <div className="flex flex-col shadow-lg rounded-md mt-12 p-4 mx-4">
+        {/* <div className="flex flex-col shadow-lg rounded-md mt-12 p-4 mx-4">
           <p
             className={`mb-4  text-xs font-quicksand    ${
               isWhiteBackground ? "text-[#2E2C34]" : "text-gray-400"
@@ -107,7 +107,7 @@ const Sidebar = ({ setSidebarOpen }) => {
           <button className="px-4 py-2 bg-[#5542F6]  text-xs font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
             Upgrade to Pro
           </button>
-        </div>
+        </div> */}
       </div>
     </>
   );

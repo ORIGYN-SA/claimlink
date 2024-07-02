@@ -38,6 +38,27 @@ const DistributionPages = () => {
     { id: 3, name: "Distribution" },
     { id: 4, name: "Launch" },
   ];
+
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
       <StepperComponent
@@ -48,9 +69,11 @@ const DistributionPages = () => {
         defaultColor="gray-300"
       />
       <motion.div
-        initial={{ scale: 1, opacity: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{}}
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
         className="flex"
       >
         <div className="p-6  w-full md:w-2/3">
@@ -58,7 +81,7 @@ const DistributionPages = () => {
             <MobileHeader htext={"New Contract"} />
           </div>
           <div>
-            <h2 className="md:text-xl text-lg text-[#2E2C34] font-[700] md:mt-0 mt-6">
+            <h2 className="md:text-xl text-xl text-[#2E2C34] font-[700] md:mt-0 mt-6">
               Distrubution{" "}
             </h2>
             <p className="text-[#2E2C34] text-xs md:text-sm mt-2">
@@ -71,7 +94,7 @@ const DistributionPages = () => {
               <div className="mt-2 flex bg-white px-4 py-3 items-center rounded-lg gap-4 border border-[#EBEAED]">
                 <IoSettingsOutline className="md:w-6 md:h-6 w-5 h-5 text-[#5542F6]" />
                 <div className="">
-                  <h4 className="font-[700] md:text-lg text-xs text-[#2E2C34]">
+                  <h4 className="font-bold md:text-base text-xs text-[#2E2C34]">
                     Manual
                   </h4>
                   <p className="md:text-sm text-xs text-[#84818A]">
@@ -82,7 +105,7 @@ const DistributionPages = () => {
               <div className="mt-2 flex bg-white px-4 py-3 items-center rounded-lg gap-4 border border-gray-200">
                 <PiLinkSimple className="md:w-6 md:h-6 w-5 h-5 text-[#5542F6]" />
                 <div className="">
-                  <h4 className="font-[700] md:text-lg text-xs text-[#2E2C34] ">
+                  <h4 className="font-[700] md:text-base text-xs text-[#2E2C34] ">
                     SDK
                   </h4>
                   <p className=" md:text-sm text-xs text-[#84818A]">
@@ -93,7 +116,7 @@ const DistributionPages = () => {
               <div className=" flex flex-col mt-4">
                 <label
                   htmlFor="title"
-                  className="md:text-md text-sm text-[#2E2C34] py-2 md:py-3 md:font-[700] font-[600]"
+                  className="md:text-base text-sm text-[#2E2C34] py-2 md:py-3 md:font-[700] font-[600]"
                 >
                   Gasless claiming
                 </label>
@@ -137,7 +160,7 @@ const DistributionPages = () => {
                     />
                   </svg>
                   <div className="">
-                    <h4 className="font-[700] md:text-lg text-xs text-[#2E2C34]">
+                    <h4 className="font-[700] md:text-base text-xs text-[#2E2C34]">
                       Sponsor claiming gas fees (+ 0.3 MATIC per link)
                     </h4>
                   </div>
@@ -177,7 +200,7 @@ const DistributionPages = () => {
                     />
                   </svg>
                   <div className="">
-                    <h4 className="font-[700] md:text-lg text-xs text-[#2E2C34] ">
+                    <h4 className="font-[700] md:text-base text-xs text-[#2E2C34] ">
                       No sponsoring
                     </h4>
                   </div>
@@ -187,7 +210,7 @@ const DistributionPages = () => {
                 <div className="flex md:flex-row flex-col justify-between mb-2 mt-6">
                   <label
                     htmlFor="title"
-                    className="md:text-md text-sm text-[#2E2C34] py-2 md:py-3 md:font-[700] font-[600]"
+                    className="md:text-base text-sm text-[#2E2C34] py-2 md:py-3 md:font-[700] font-[600]"
                   >
                     Add token IDs to distribute
                   </label>
@@ -306,11 +329,13 @@ const DistributionPages = () => {
               </div>
 
               <div className="flex items-center gap-4 mt-2 ">
-                <TbInfoHexagon className="text-[#564BF1]" />
+                <TbInfoHexagon className="text-[#564BF1] w-5 h-5" />
                 <p className="md:text-sm text-xs text-[#84818A] mb-3 ">
                   If you have a big set of different tokens to distribute, you
                   couls also provide the information by{" "}
-                  <span className="text-[#564BF1]">uploading CSV file</span>
+                  <span className="text-[#564BF1] font-[600]">
+                    uploading CSV file
+                  </span>
                 </p>
               </div>
             </form>

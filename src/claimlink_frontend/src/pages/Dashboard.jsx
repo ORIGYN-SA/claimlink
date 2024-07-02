@@ -77,7 +77,12 @@ const Dashboard = ({
               </button>
             )}
           </header>
-          {isSidebarOpen && <MobileSidebar setSidebarOpen={toggleSidebar} />}
+          {isSidebarOpen && (
+            <MobileSidebar
+              setSidebarOpen={toggleSidebar}
+              isSidebarOpen={isSidebarOpen}
+            />
+          )}
           <Breadcrumb />
 
           <div className="flex-grow ">
