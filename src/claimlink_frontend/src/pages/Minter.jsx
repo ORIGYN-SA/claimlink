@@ -166,7 +166,7 @@ const Minter = () => {
                   <div className="mt-2 w-full">
                     <div className="flex justify-between">
                       <p className="text-xs text-[#84818A] ">Address</p>
-                      <p className="text-[#564BF1] text-xs font-bold">
+                      <p className="text-[#564BF1] text-xs font-semibold">
                         0xf8c...992h4
                       </p>
                     </div>
@@ -174,11 +174,11 @@ const Minter = () => {
                       <p className="text-xs text-[#84818A] ">
                         All token copies
                       </p>
-                      <p className="text-[#2E2C34] text-xs font-bold">10</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">10</p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs text-[#84818A] ">Token standard</p>
-                      <p className="text-[#2E2C34] text-xs font-bold">
+                      <p className="text-[#2E2C34] text-xs  font-semibold">
                         ERC1155
                       </p>
                     </div>

@@ -197,21 +197,21 @@ const AddTokenHome = () => {
                   <div className=" w-full">
                     <div className="flex justify-between">
                       <p className="text-xs gray ">Address</p>
-                      <p className="text-[#564BF1] text-xs font-bold">
+                      <p className="text-[#564BF1] text-xs font-semibold">
                         0xf8c...992h4
                       </p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs gray">Copies</p>
-                      <p className="text-xs font-bold">10</p>
+                      <p className="text-xs font-semibold">10</p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs gray		">ID </p>
-                      <p className="text-xs font-bold"> 0</p>
+                      <p className="text-xs font-semibold"> 0</p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs gray		">Description </p>
-                      <p className="text-xs font-bold"> -</p>
+                      <p className="text-xs font-semibold"> -</p>
                     </div>
                   </div>
                   <div className="border border-gray-200 my-4"></div>
@@ -245,34 +245,36 @@ const AddTokenHome = () => {
             <div className="mt-4 w-full">
               <div className="flex justify-between">
                 <p className="gray text-sm">Collection symbol</p>
-                <p className="black font-bold text-sm">TST</p>
+                <p className="black font-semibold text-sm">TST</p>
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token address</p>
                 <div className="flex items-center gap-2">
                   {" "}
-                  <p className=" blue font-bold text-sm">0xf8c...992h4</p>
+                  <p className=" blue font-semibold text-sm">0xf8c...992h4</p>
                   <BsCopy className="w-3 h-3 text-[#564BF1]" />
                 </div>{" "}
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token type</p>
-                <p className="black font-bold text-sm">ICRC-7 Token</p>
+                <p className="black font-semibold text-sm">ICRC-7 Token</p>
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token standart</p>
-                <p className="black font-bold text-sm">ICRC-7</p>
+                <p className="black font-semibold text-sm">ICRC-7</p>
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
             <div className="mt-2 w-full">
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Date of create</p>
-                <p className="black font-bold text-sm">April 11, 2024 13:54</p>
+                <p className="black font-semibold text-sm">
+                  April 11, 2024 13:54
+                </p>
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">All token copies</p>
-                <p className="black font-bold text-sm">0</p>
+                <p className="black font-semibold text-sm">0</p>
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>

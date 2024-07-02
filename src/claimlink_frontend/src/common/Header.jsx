@@ -6,11 +6,11 @@ import { useState } from "react";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
-  const [log, setLog] = useState(false);
+  const [showLogout, setshowLogout] = useState(false);
 
   const logout = (e) => {
     e.preventDefault();
-    setLog(!log);
+    setLog(!showLogout);
   };
   return (
     <>
@@ -41,13 +41,6 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
             hyw2w-ejnfe-jen.....
             <MdOutlineArrowDropDown size={24} className="text-gray-500" />
           </button>
-          {log ? (
-            <button className="flex right-0 absolute mt-3 justify-end text-white px-2 py-1 rounded-xl items-end font-Manrope bg-[#232323] ">
-              Logout
-            </button>
-          ) : (
-            ""
-          )}
         </div>
       </div>
       {showLogout && (
