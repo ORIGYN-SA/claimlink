@@ -19,15 +19,20 @@ import QrManager from "../pages/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
 import QRSetForm from "../components/qrManager/NewQrSet";
 import DistributionPages from "../components/minter/DistributionPages";
+import LoginPage from "../components/LoginPage";
 const approutes = createBrowserRouter([
   {
     path: "/",
     element: <Dashboard />,
   },
   {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
     path: "/claim-link",
     element: (
-      <Dashboard stepper={false}>
+      <Dashboard stepper={false} headerText={"Test Campaign"} menubar={false}>
         <Dashboardcontainer />
       </Dashboard>
     ),

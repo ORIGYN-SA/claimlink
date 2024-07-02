@@ -9,6 +9,8 @@ import { MdArrowOutward } from "react-icons/md";
 import { IoIosCloseCircle } from "react-icons/io";
 import StepperComponent from "../common/StepperComponent";
 import Home from "./Home";
+import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
+import { useAuth } from "../connect/useClient";
 
 const Dashboard = ({
   children = <Home />,
@@ -17,6 +19,14 @@ const Dashboard = ({
   stepper = false,
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const whitelist = ["oyjva-2yaaa-aaaam-qbaya-cai"];
+  const { isAuthenticated } = useAuth();
+
+  const handleLogin = async () => {
+    const userObject = await PlugLogin(whitelist);
+    console.log(userObject);
+    // Handle code will go here...
+  };
 
   useEffect(() => {
     // Close sidebar on mobile view by default

@@ -21,6 +21,7 @@
     "@headlessui/react": "^2.1.0",
     "@heroicons/react": "^2.1.4",
     "framer-motion": "^11.2.11",
+    "ic-auth": "^0.9.1",
     "identityvault": "^0.1.11",
     "react-dropzone": "^14.2.3",
     "react-icons": "^5.2.1",
