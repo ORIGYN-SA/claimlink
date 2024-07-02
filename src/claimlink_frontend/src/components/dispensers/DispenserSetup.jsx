@@ -33,7 +33,8 @@ const DispenserSetup = () => {
 
   const pageTransition = {
     type: "tween",
-    duration: 0.5,
+    ease: "anticipate",
+    duration: 0.8,
   };
 
   return (

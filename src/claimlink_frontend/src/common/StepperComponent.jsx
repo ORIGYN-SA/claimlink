@@ -15,19 +15,19 @@ const StepperComponent = ({
             <div
               className={`flex items-center justify-center px-2 border-b-2 h-full ${
                 step.id < currentStep
-                  ? `border-${completedColor} text-white`
+                  ? `border-${completedColor} text-${completedColor}`
                   : step.id === currentStep
-                  ? `border-${activeColor} text-white`
-                  : "text-gray-500"
+                  ? `border-${activeColor} text-${activeColor}`
+                  : `border-${defaultColor} text-gray-500`
               }`}
             >
               <div
                 className={`rounded-full p-[1px] border-2 ${
                   step.id < currentStep
-                    ? `border-${completedColor} text-white`
+                    ? `border-${completedColor}`
                     : step.id === currentStep
-                    ? `border-${activeColor} text-white`
-                    : `border-${defaultColor} text-gray-500`
+                    ? `border-${activeColor}`
+                    : `border-${defaultColor}`
                 }`}
               >
                 <div
@@ -78,8 +78,6 @@ const StepperComponent = ({
                 className={`flex-1 border-t-2 ${
                   step.id < currentStep
                     ? `border-${completedColor}`
-                    : step.id === currentStep
-                    ? `border-${activeColor}`
                     : `border-${defaultColor}`
                 }`}
               ></div>

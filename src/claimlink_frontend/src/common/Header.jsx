@@ -6,11 +6,12 @@ import { useState } from "react";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
-  const [showLogout, setShowLogout] = useState(false);
-  const handleDropdownClick = () => {
-    setShowLogout((prev) => !prev);
-  };
+  const [log, setLog] = useState(false);
 
+  const logout = (e) => {
+    e.preventDefault();
+    setLog(!log);
+  };
   return (
     <>
       {menubar ? (
@@ -32,13 +33,22 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
 
       <div className="flex items-center space-x-4 font-semibold justify-end">
         <span className="text-[#2E2C34] font-Manrope">0 ICP</span>
-        <span
-          className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2"
-          onClick={handleDropdownClick}
-        >
-          hyw2w-ejnfe-jen.....
-          <MdOutlineArrowDropDown size={24} className="text-gray-500" />
-        </span>
+        <div className="relative">
+          <button
+            onClick={logout}
+            className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2"
+          >
+            hyw2w-ejnfe-jen.....
+            <MdOutlineArrowDropDown size={24} className="text-gray-500" />
+          </button>
+          {log ? (
+            <button className="flex right-0 absolute mt-3 justify-end text-white px-2 py-1 rounded-xl items-end font-Manrope bg-[#232323] ">
+              Logout
+            </button>
+          ) : (
+            ""
+          )}
+        </div>
       </div>
       {showLogout && (
         <button

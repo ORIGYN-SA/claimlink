@@ -19,7 +19,6 @@ const CreateDispenser = () => {
   const val = `0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
 0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829
 0xf94B9dA12AE677CF90B7A85e695cC805dfc0D829 etc`;
-
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -37,7 +36,8 @@ const CreateDispenser = () => {
 
   const pageTransition = {
     type: "tween",
-    duration: 0.6,
+    ease: "anticipate",
+    duration: 0.8,
   };
   return (
     <motion.div
