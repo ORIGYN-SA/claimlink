@@ -4,6 +4,7 @@ import { FaSun, FaMoon } from "react-icons/fa";
 import { IoMdStar } from "react-icons/io";
 import { AiOutlineLink } from "react-icons/ai";
 import { IoIosCloseCircle } from "react-icons/io";
+import { useAuth } from "../connect/useClient";
 import {
   MdArrowOutward,
   MdDashboard,
@@ -15,8 +16,10 @@ import { RiStackFill } from "react-icons/ri";
 
 const Sidebar = ({ setSidebarOpen }) => {
   const [isWhiteBackground, setWhiteBackground] = useState(true);
+  const { login, isAuthenticated, principal, logout } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
+  
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: MdDashboard },

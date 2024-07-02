@@ -65,7 +65,7 @@ const approutes = createBrowserRouter([
   {
     path: "/claim-link/launch",
     element: (
-      <Dashboard>
+      <Dashboard stepper={true}>
         <Launch />
       </Dashboard>
     ),

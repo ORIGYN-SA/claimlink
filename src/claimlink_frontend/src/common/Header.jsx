@@ -21,6 +21,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
   };
   const { login, isAuthenticated, principal, logout } = useAuth();
   const [principals, setPrincipal] = useState("webf-uwebf-sesu");
+  console.log(isAuthenticated);
 
   setTimeout(() => {
     if (isAuthenticated) {

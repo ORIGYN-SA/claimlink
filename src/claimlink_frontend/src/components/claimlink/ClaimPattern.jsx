@@ -4,6 +4,7 @@ import Summary from "./Summary";
 import { BsArrowLeft } from "react-icons/bs";
 import { motion } from "framer-motion";
 import Stepper from "../../common/Stepper";
+import { Link } from "react-router-dom";
 
 const ClaimPattern = () => {
   const [selectedPattern, setSelectedPattern] = useState("transfer");
@@ -116,18 +117,19 @@ const ClaimPattern = () => {
             </div>
             <div className="mt-6 flex space-x-3">
               <button
-                className="px-4 py-3 sm:w-[20%] w-1/2 border-[#5542F6] border text-[#5542F6] text-sm font-quicksand rounded transition duration-200"
+                className="px-4 py-3 sm:w-[20%] w-1/2 border-[#5542F6] border text-[#5542F6] text-sm  rounded transition duration-200"
                 onClick={() => navigate(-1)}
               >
                 Back
               </button>
-              <button
-                className="px-4 py-3 sm:w-[20%] w-1/2 bg-[#5542F6] text-sm font-quicksand rounded transition duration-200 hover:bg-blue-600 text-white"
+              <Link
+                to="/distribution"
+                className="px-4 py-3 sm:w-[20%] w-1/2 bg-[#5542F6] text-sm  text-center rounded transition duration-200 hover:bg-blue-600 text-white"
                 onClick={() => navigate(1)}
                 disabled={!selectedPattern}
               >
                 Next
-              </button>
+              </Link>
             </div>
           </div>
           <Summary />

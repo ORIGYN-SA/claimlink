@@ -1,18 +1,18 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
-// import { createActor } from "../../../../.dfx/local/canisters/claimlink_backend";
+import { createActor } from "../../../declarations/claimlink_backend";
 import { Principal } from "@dfinity/principal";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
-// const canisterID = process.env.CANISTER_ID_THECHAMPS_BACKEND;
-// const whitelist = [process.env.CANISTER_ID_THECHAMPS_BACKEND];
+const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
+const whitelist = [process.env.CANISTER_ID_CLAIMLINK_BACKEND];
 
 export const useAuthClient = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [principal, setPrincipal] = useState(null);
-  //   const [backendActor, setBackendActor] = useState(createActor(canisterID));
+  const [backendActor, setBackendActor] = useState(createActor(canisterID));
   const [identity, setIdentity] = useState(null);
 
   // Save state to sessionStorage
@@ -69,7 +69,6 @@ export const useAuthClient = () => {
     setIsAuthenticated(true);
     setPrincipal(Principal.fromText(userObject.principal));
     setIdentity(userObject.agent);
-    navigate("/");
 
     // Save to sessionStorage
     saveAuthState(userObject);
@@ -92,7 +91,7 @@ export const useAuthClient = () => {
 
   useEffect(() => {
     initAuthClient();
-  }, [isAuthenticated]);
+  }, []);
 
   useEffect(() => {
     // Set logout after 24 hours
@@ -107,7 +106,7 @@ export const useAuthClient = () => {
     login,
     logout,
     principal,
-
+    backendActor,
     identity,
   };
 };

@@ -132,13 +132,13 @@ const DistributionPage = () => {
           </p>
 
           <div className="mt-10 flex  space-x-3 w-[100%]  ">
-            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
+            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm   rounded transition  duration-200   ">
               <Link to="/claim-pattern" className="w-full">
                 Back
               </Link>
             </button>
             <Link to="/claim-link/launch" className="w-full">
-              <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
+              <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm   rounded transition  duration-200 hover:bg-blue-600 text-white">
                 Next
               </button>
             </Link>

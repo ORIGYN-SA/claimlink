@@ -6,11 +6,21 @@ import { MdArrowOutward, MdDashboard, MdQrCode, MdMoney } from "react-icons/md";
 import { RiStackFill } from "react-icons/ri";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
+import { useAuth } from "../connect/useClient";
 
 const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isVisible, setIsVisible] = useState(false);
+  const { login, isAuthenticated, principal, logout } = useAuth();
+  const [principals, setPrincipal] = useState("webf-uwebf-sesu");
+  console.log(isAuthenticated);
+
+  setTimeout(() => {
+    if (isAuthenticated) {
+      setPrincipal(principal.toText());
+    }
+  }, 5000);
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: MdDashboard },
@@ -58,10 +68,10 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
       <div className="px-6 py-2 mb-6">
         <p className="text-sm text-gray-500">Wallet</p>
         <div className="flex justify-between items-center">
-          <p className="text-2xl text-gray-900 font-medium">0xf8c...992h4</p>
+          <p className="text-2xl text-gray-900 font-medium">{principals}</p>
           <button className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2">
             <IoLogOutOutline />
-            Log out
+            {isAuthenticated ? "Logout" : "Login"}
           </button>
         </div>
       </div>

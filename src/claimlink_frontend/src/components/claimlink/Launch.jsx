@@ -226,11 +226,11 @@ const Launch = () => {
           </div>
 
           <div className="mt-16 flex   space-x-3  ">
-            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm font-quicksand  rounded transition  duration-200   ">
+            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm  rounded transition  duration-200   ">
               Back
             </button>
 
-            <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
+            <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm   rounded transition  duration-200 hover:bg-blue-600 text-white">
               Launch campaign
             </button>
           </div>
