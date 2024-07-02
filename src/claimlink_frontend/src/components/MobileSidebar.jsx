@@ -68,7 +68,9 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
       <div className="px-6 py-2 mb-6">
         <p className="text-sm text-gray-500">Wallet</p>
         <div className="flex justify-between items-center">
-          <p className="text-2xl text-gray-900 font-medium">{principals}</p>
+          <p className="text-2xl text-gray-900 font-medium w-44 truncate ">
+            {principals}
+          </p>
           <button className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2">
             <IoLogOutOutline />
             {isAuthenticated ? "Logout" : "Login"}
