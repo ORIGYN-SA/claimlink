@@ -8,12 +8,12 @@ import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { MdArrowOutward } from "react-icons/md";
 import { IoIosCloseCircle } from "react-icons/io";
 import StepperComponent from "../common/StepperComponent";
-import Home from "./Home";
 import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
 import { useAuth } from "../connect/useClient";
+import DashBoardHome from "./DashboardHome";
 
 const Dashboard = ({
-  children = <Home />,
+  children = <DashBoardHome />,
   headerText,
   menubar = true,
   stepper = false,
