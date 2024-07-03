@@ -20,7 +20,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
     navigate("/login");
   };
   const { login, isAuthenticated, principal, logout } = useAuth();
-  const [principals, setPrincipal] = useState("webf-uwebf-sesu");
+  const [principals, setPrincipal] = useState("webfa-uwebfs-sesud");
   console.log(isAuthenticated);
 
   setTimeout(() => {
@@ -49,12 +49,12 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
       )}
 
       <div className="flex items-center space-x-4 font-semibold justify-end">
-        <span className="text-[#2E2C34] font-Manrope">0 ICP</span>
+        <span className="text-[#2E2C34] font-bold">0 ICP</span>
         <span
           className="flex items-center justify-center text-[#2E2C34]  font-Manrope  rounded-3xl bg-gray-200 px-3 py-2"
           onClick={handleDropdownClick}
         >
-          <p className=" w-44 truncate">{principals}</p>
+          <p className=" w-44 truncate font-bold">{principals}</p>
           <MdOutlineArrowDropDown size={24} className="text-gray-500" />
         </span>
       </div>

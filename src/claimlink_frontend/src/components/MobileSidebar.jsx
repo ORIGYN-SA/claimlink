@@ -21,6 +21,14 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
       setPrincipal(principal.toText());
     }
   }, 5000);
+  const handleLogin = () => {
+    if (isAuthenticated) {
+      logout();
+      setPrincipal("webf-uwebf-sesu");
+    } else {
+      login("NFID");
+    }
+  };
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: MdDashboard },
@@ -71,7 +79,10 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
           <p className="text-2xl text-gray-900 font-medium w-44 truncate ">
             {principals}
           </p>
-          <button className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2">
+          <button
+            className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2"
+            onClick={handleLogin}
+          >
             <IoLogOutOutline />
             {isAuthenticated ? "Logout" : "Login"}
           </button>
