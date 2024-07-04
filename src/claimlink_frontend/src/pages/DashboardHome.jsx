@@ -8,7 +8,7 @@ import { RiStackFill } from "react-icons/ri";
 import { RxCross2 } from "react-icons/rx";
 import { TfiPlus } from "react-icons/tfi";
 
-const Home = () => {
+const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const contracts = [1, 2, 3, 4, 5, 6];
@@ -24,9 +24,9 @@ const Home = () => {
   return (
     <div className=" p-6 ">
       <div className="grid md:grid-cols-4 grid-cols-2 w-full gap-4 justify-between">
-        <div className="bg-white p-4 rounded-md ">
+        <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Links total</p>
-          <p className="text-2xl text-[#2E2C34] font-bold">235</p>
+          <p className="text-2xl text-[#2E2C34]  font-bold">235</p>
           <p className="text-xs text-[#6FC773] ">+56 today</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
@@ -788,4 +788,4 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default DashBoardHome;
