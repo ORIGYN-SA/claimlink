@@ -15,8 +15,8 @@ const QRSetForm = () => {
   };
 
   return (
-    <div className="flex justify-between ">
-      <div className="p-8   mx-auto  rounded-xl  ">
+    <div className="flex justify-between  ">
+      <div className="p-8 sm:w-[60%]    rounded-xl  ">
         <h1 className="text-2xl font-bold mb-4">New QR set</h1>
         <div className="mb-4">
           <h2 className="text-lg font-semibold">Connect to claim links</h2>
@@ -80,8 +80,8 @@ const QRSetForm = () => {
             </div>
           </div>
         </div>
-        <div className="flex  ">
-          <button className="bg-[#5542F6] text-white px-6 py-3 rounded-md">
+        <div className="flex w-full  ">
+          <button className="bg-[#5542F6] w-full  sm:w-[25%] text-white px-6 py-3 rounded-md">
             Apply changes
           </button>
         </div>

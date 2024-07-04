@@ -141,42 +141,35 @@ const Launch = () => {
               You can setup the the link expiration, so that users will not able
               to claim after certain day and time
             </p>
-            <div className=" mt-6  space-y-4 w-[75%]">
+            <div className=" mt-6  space-y-4 sm:w-[75%]">
               <h1 className="text-lg font-semibold"> Expiration Date</h1>
-              <div className="flex space-x-4">
-                <div className="flex-1 relative">
-                  <input
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="border text-gray-400  rounded-md p-2 outline-none w-full"
-                    placeholder="12-24-2024"
-                  />
-                  <div className="absolute inset-y-0 right-0 pr-3 border-l border-gray-200 p-2 m-3 text-gray-400 flex items-center pointer-events-none">
-                    <SlCalender />
-                  </div>
+              <div className="flex md:flex-row flex-col w-full justify-between gap-4">
+                <input
+                  type="date"
+                  name="startDate"
+                  id="startDate"
+                  className="bg-white px-2 py-2 outline-none border border-gray-200  sm:w-[73%] w-full  rounded-md "
+                />
+                <div className="flex md:justify-normal justify-between gap-4">
+                  <select
+                    name="startHour"
+                    id="startHour"
+                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  >
+                    <option value="">12</option>
+                    <option value="">13</option>
+                    <option value="">14</option>
+                  </select>
+                  <select
+                    name="startMinute"
+                    id="startMinute"
+                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  >
+                    <option value="">11</option>
+                    <option value="">12</option>
+                    <option value="">13</option>
+                  </select>
                 </div>
-                <select
-                  value={hour}
-                  onChange={(e) => setHour(e.target.value)}
-                  className="border   rounded-md p-2 text-gray-400"
-                >
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, "0")}>
-                      {String(i).padStart(2, "0")}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={minute}
-                  onChange={(e) => setMinute(e.target.value)}
-                  className="border  text-gray-400 rounded-md p-2"
-                >
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <option key={i} value={String(i).padStart(2, "0")}>
-                      {String(i).padStart(2, "0")}
-                    </option>
-                  ))}
-                </select>
               </div>
             </div>
             <div className="flex items-center gap-2 mt-2 ">

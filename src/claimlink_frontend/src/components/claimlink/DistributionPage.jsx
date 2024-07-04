@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { FaCog, FaCode, FaGasPump, FaTimes } from "react-icons/fa";
 import { IoSettingsOutline } from "react-icons/io5";
 import { AiOutlineLink } from "react-icons/ai";
-import Summary from "./claimlink/Summary";
+import Summary from "./Summary";
 import { TbWallet } from "react-icons/tb";
 import { Link } from "react-router-dom";
-import Stepper from "../common/Stepper";
+import Stepper from "../../common/Stepper";
 
 const DistributionPage = () => {
   const [claimType, setClaimType] = useState("");
@@ -57,7 +57,7 @@ const DistributionPage = () => {
             </div>
             <div className=" sm:w-[75%]   w-full mt-4 flex rounded-lg h-24 gap-4 border-2 p-4 border-gray-100    bg-white ">
               <AiOutlineLink
-                size={24}
+                size={32}
                 className="text-[#5542F6] flex items-center h-full"
               />
               <div>
@@ -76,9 +76,9 @@ const DistributionPage = () => {
               tokens without having any ICP in their wallet, otherwise users
               will pay gas to cover transactions themselves
             </p>
-            <div className=" sm:w-[75%]   w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
+            <div className=" sm:w-[75%]  text-sm sm:text-lg w-full flex rounded-lg h-20 gap-4 border-2 p-4  border-gray-100    bg-white">
               <TbWallet
-                size={24}
+                size={32}
                 className="text-[#5542F6] flex items-center h-full"
               />
               <button
@@ -92,7 +92,7 @@ const DistributionPage = () => {
             </div>
             <div className=" sm:w-[75%]   w-full flex mt-4 rounded-lg font-semibold h-20 gap-4 border-2 p-4 border-gray-100    bg-white">
               <TbWallet
-                size={24}
+                size={32}
                 className="text-[#5542F6] flex items-center h-full"
               />
               <button
@@ -104,15 +104,15 @@ const DistributionPage = () => {
             </div>
           </div>
 
-          <div className="mb-4 flex justify-between sm:w-[75%]   w-full">
-            <h3 className="text-lg font-semibold mb-2">
+          <div className="mb-4 sm:flex justify-between sm:w-[75%]   w-full">
+            <h3 className=" sm:text-lg  font-semibold mb-2">
               Add token IDs to distribute
             </h3>
-            <div className="flex justify-between gap-4 ">
-              <button className="px-3 py-1 border text-sm bg-[#dad6f797] text-[#5542F6] rounded-lg ">
+            <div className="flex sm:justify-between gap-4 ">
+              <button className="px-4 sm:px-3 py-1 border sm:text-sm  text-xs bg-[#dad6f797] text-[#5542F6] rounded-lg ">
                 Set manually
               </button>
-              <button className="px-3 py-1 border  bg-[#5542F6] text-sm text-white rounded-lg">
+              <button className=" px-4 sm:px-3 py-1  sm:text-sm  text-xs border  bg-[#5542F6]   text-white rounded-lg">
                 Select all
               </button>
             </div>
@@ -131,16 +131,18 @@ const DistributionPage = () => {
             <span className="text-[#5542F6]">uploading CSV file</span>.
           </p>
 
-          <div className="mt-10 flex  space-x-3 w-[100%]  ">
-            <button className="px-4 py-3  sm:w-[20%] w-1/2 border-[#5542F6]  border text-[#5542F6]   text-sm   rounded transition  duration-200   ">
-              <Link to="/claim-pattern" className="w-full">
-                Back
-              </Link>
-            </button>
-            <Link to="/claim-link/launch" className="w-full">
-              <button className="px-4 py-3  sm:w-[20%] w-1/2 bg-[#5542F6]  text-sm   rounded transition  duration-200 hover:bg-blue-600 text-white">
-                Next
-              </button>
+          <div className="mt-10 flex  space-x-3  w-full  ">
+            <Link
+              to="/claim-pattern"
+              className="px-4 py-3 sm:w-[20%] w-1/2 border-[#5542F6] border text-center text-[#5542F6] text-sm rounded transition duration-200"
+            >
+              Back
+            </Link>
+            <Link
+              to="/claim-link/launch"
+              className="px-4 py-3 sm:w-[20%] w-1/2 bg-[#5542F6] text-sm rounded text-center transition duration-200 hover:bg-blue-600 text-white"
+            >
+              Next
             </Link>
           </div>
         </div>

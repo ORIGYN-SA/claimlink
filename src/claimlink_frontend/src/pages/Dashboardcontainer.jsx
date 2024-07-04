@@ -15,10 +15,13 @@ const DashboardContainer = () => {
         <div className="flex items-center justify-between w-full p-2">
           <p className="text-xl font-semibold">Campaign</p>
           <div className="sm:hidden">
-            <button className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize">
+            <Link
+              to="/campaign-setup"
+              className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize"
+            >
               <IoIosAdd className="text-center " size={20} />
               New campaign
-            </button>
+            </Link>
           </div>
           <div className="hidden sm:block">
             <select

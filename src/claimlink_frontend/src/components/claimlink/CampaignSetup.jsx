@@ -38,7 +38,7 @@ const CampaignSetup = () => {
         transition={{ duration: 0.5 }}
       >
         <div className="flex justify-between">
-          <div className="h-screen sm:w-[70%] w-screen space-y-6 p-6 ">
+          <div className="h-full sm:w-[70%] w-screen space-y-6 p-6 ">
             <div className="flex sm:hidden gap-4 items-center">
               <div
                 className="bg-[#564bf136] p-3 rounded-md"

@@ -3,7 +3,7 @@ import React from "react";
 const QrSetup = () => {
   return (
     <div className="p-6">
-      <div className="h-screen    p-6 ">
+      <div className="h-screen    ">
         <p className="text-2xl text-gray-900 font-semibold">New QR set</p>
 
         <div className="space-y-3 mt-6">

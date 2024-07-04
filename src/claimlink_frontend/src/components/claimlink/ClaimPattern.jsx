@@ -23,7 +23,7 @@ const ClaimPattern = () => {
       >
         <div className="flex justify-between">
           <div className="h-screen sm:w-[70%] w-full p-6">
-            <div className="flex gap-4 sm:hidden items-center">
+            <div className="flex gap-4 sm:hidden items-center mb-8">
               <div
                 className="bg-[#564bf136] p-3 rounded-md"
                 onClick={() => navigate(-1)}
