@@ -7,10 +7,25 @@ import { MdMoney, MdQrCode } from "react-icons/md";
 import { RiStackFill } from "react-icons/ri";
 import { RxCross2 } from "react-icons/rx";
 import { TfiPlus } from "react-icons/tfi";
+import CountUp from "react-countup";
+import { useNavigate } from "react-router-dom";
 
 const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const navigate = useNavigate();
 
+  const createContract = () => {
+    navigate("/minter/new-contract");
+  };
+  const qrSetup = () => {
+    navigate("/qr-setup");
+  };
+  const dispenserSetup = () => {
+    navigate("/dispensers/dispenser-setup");
+  };
+  const campaignsetup = () => {
+    navigate("/campaign-setup");
+  };
   const contracts = [1, 2, 3, 4, 5, 6];
   const len = [];
 
@@ -26,22 +41,50 @@ const DashBoardHome = () => {
       <div className="grid md:grid-cols-4 grid-cols-2 w-full gap-4 justify-between">
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Links total</p>
-          <p className="text-2xl text-[#2E2C34]  font-bold">235</p>
+          <p>
+            <CountUp
+              className="text-2xl text-[#2E2C34]  font-bold"
+              end={235}
+              duration={5}
+            />
+          </p>
           <p className="text-xs text-[#6FC773] ">+56 today</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed total</p>
-          <p className="text-2xl text-[#2E2C34] font-bold">235</p>
+          <p className="text-2xl text-[#2E2C34] font-bold">
+            <CountUp
+              className="text-2xl text-[#2E2C34]  font-bold"
+              end={235}
+              duration={5}
+            />
+          </p>
           <p className="text-xs text-[#6FC773] ">+56 today</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed rate total</p>
-          <p className="text-2xl text-[#2E2C34] font-bold">80.0 %</p>
+          <p className="text-2xl text-[#2E2C34] font-bold">
+            <CountUp
+              className="text-2xl text-[#2E2C34]  font-bold"
+              end={80.25}
+              duration={5}
+              decimals={2}
+            />
+            %
+          </p>
           <p className="text-xs text-[#6FC773] ">+30%</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed rate today</p>
-          <p className="text-2xl text-[#2E2C34] font-bold">80.0%</p>
+          <p className="text-2xl text-[#2E2C34] font-bold">
+            <CountUp
+              className="text-2xl text-[#2E2C34]  font-bold"
+              end={80.25}
+              duration={5}
+              decimals={2}
+            />
+            %
+          </p>
           <p className="text-xs text-[#6FC773] ">+30%</p>
         </div>
       </div>
@@ -146,7 +189,10 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div>
-              <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm">
+              <button
+                onClick={campaignsetup}
+                className="px-6 flex hover:scale-105 duration-300 ease-in  gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+              >
                 <GoPlus />
                 Create claim links
               </button>
@@ -157,7 +203,10 @@ const DashBoardHome = () => {
               <h2 className="text-lg text-[#2E2C34] font-bold">
                 My NFT contracts
               </h2>
-              <button className="flex items-center text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md">
+              <button
+                onClick={campaignsetup}
+                className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              >
                 <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
@@ -270,7 +319,10 @@ const DashBoardHome = () => {
               </div>
             )}
             <div>
-              <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm">
+              <button
+                onClick={campaignsetup}
+                className="px-6 flex gap-2 hover:scale-105 duration-300 ease-in items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+              >
                 <GoPlus />
                 Create claim links
               </button>
@@ -281,7 +333,7 @@ const DashBoardHome = () => {
               <h2 className="text-lg text-[#2E2C34] font-bold">
                 My NFT contracts
               </h2>
-              <button className="flex items-center text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md">
+              <button className="flex items-center hover:scale-105 duration-300 ease-in  text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md">
                 <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
@@ -374,7 +426,10 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div>
-              <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm">
+              <button
+                onClick={campaignsetup}
+                className="px-6 flex gap-2 items-center hover:scale-105 duration-300 ease-in justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+              >
                 <GoPlus />
                 Create claim links
               </button>
@@ -385,7 +440,7 @@ const DashBoardHome = () => {
               <h2 className="text-lg text-[#2E2C34] font-bold">
                 My NFT contracts
               </h2>
-              <button className="flex items-center text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md">
+              <button className="flex items-center text-sm gap-2 hover:scale-105 duration-300 ease-in bg-[#564BF1] px-2 py-1 text-white rounded-md">
                 <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
@@ -478,7 +533,10 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div>
-              <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm">
+              <button
+                onClick={campaignsetup}
+                className="px-6 flex gap-2 items-center hover:scale-105 duration-300 ease-in justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+              >
                 <GoPlus />
                 Create claim links
               </button>
@@ -501,7 +559,7 @@ const DashBoardHome = () => {
                     </h2>
                     <p className="text-[#84818A] text-base">15</p>
                   </div>
-                  <button className="flex items-center text-sm  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
+                  <button className="flex items-center text-sm  hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
                     <GoPlus className="md:text-2xl text-sm" /> New contract
                   </button>
                 </div>
@@ -564,7 +622,10 @@ const DashBoardHome = () => {
                     </h2>
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
-                  <button className="flex items-center text-sm  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
+                  <button
+                    onClick={campaignsetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                  >
                     <GoPlus className="md:text-2xl text-sm" /> New campaign
                   </button>
                 </div>
@@ -573,6 +634,7 @@ const DashBoardHome = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.9 }}
                   className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
+                  onClick={campaignsetup}
                 >
                   <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
                     <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
@@ -598,7 +660,10 @@ const DashBoardHome = () => {
                   </h2>
                   <p className="text-[#84818A] text-base">15</p>
                 </div>
-                <button className="flex items-center text-sm  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
+                <button
+                  onClick={dispenserSetup}
+                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                >
                   <GoPlus className="md:text-2xl text-sm" /> Create new
                   dispenser
                 </button>
@@ -670,7 +735,10 @@ const DashBoardHome = () => {
                   </h2>
                   <p className="text-[#84818A] text-base">15</p>
                 </div>
-                <button className="flex items-center text-sm  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
+                <button
+                  onClick={qrSetup}
+                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                >
                   <GoPlus className="md:text-2xl text-sm" /> Create QR
                 </button>
               </div>
@@ -728,7 +796,10 @@ const DashBoardHome = () => {
                   </h2>
                   <p className="text-[#84818A] text-base">15</p>
                 </div>
-                <button className="flex items-center text-sm  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
+                <button
+                  onClick={createContract}
+                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                >
                   <GoPlus className="md:text-2xl text-sm" /> Deploy new contract
                 </button>
               </div>

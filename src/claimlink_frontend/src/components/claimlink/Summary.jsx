@@ -1,6 +1,26 @@
 import React from "react";
 
 const Summary = () => {
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <div className="bg-white border-l hidden sm:block border-gray-300  p-6 w-80">
       <h2 className="text-xl font-semibold mb-4">Summary</h2>

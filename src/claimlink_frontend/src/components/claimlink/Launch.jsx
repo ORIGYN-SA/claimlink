@@ -5,6 +5,7 @@ import Summary from "./Summary";
 import Stepper from "../../common/Stepper";
 import { SlCalender } from "react-icons/sl";
 import { TbInfoHexagon } from "react-icons/tb";
+import { motion } from "framer-motion";
 
 const Launch = () => {
   const [expirationDate, setExpirationDate] = useState("");
@@ -15,10 +16,37 @@ const Launch = () => {
   const [hour, setHour] = useState("12");
   const [minute, setMinute] = useState("50");
 
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
       <Stepper currentStep={4} />
-      <div className="flex justify-between">
+      <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="flex justify-between"
+      >
         <div className="p-6   sm:w-[70%]   space-y-6">
           <h1 className="text-3xl font-semibold">Wallet option</h1>
           <div>
@@ -229,7 +257,7 @@ const Launch = () => {
           </div>
         </div>
         <Summary />
-      </div>
+      </motion.div>
     </>
   );
 };

@@ -28,14 +28,35 @@ const CampaignSetup = () => {
   const handleContractSelect = (contractType) => {
     setSelectedContract(contractType);
   };
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
 
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
       <Stepper currentStep={currentStep} />
       <motion.div
-        initial={{ opacity: 0.5, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
       >
         <div className="flex justify-between">
           <div className="h-full sm:w-[70%] w-screen space-y-6 p-6 ">

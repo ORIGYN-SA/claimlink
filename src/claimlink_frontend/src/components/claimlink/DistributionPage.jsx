@@ -5,8 +5,8 @@ import { AiOutlineLink } from "react-icons/ai";
 import Summary from "./Summary";
 import { TbWallet } from "react-icons/tb";
 import { Link } from "react-router-dom";
-import Stepper from "../../common/Stepper";
-
+import Stepper from "../common/Stepper";
+import { motion } from "framer-motion";
 const DistributionPage = () => {
   const [claimType, setClaimType] = useState("");
   const [sponsorGas, setSponsorGas] = useState(false);
@@ -28,11 +28,37 @@ const DistributionPage = () => {
     // handle form submission
     console.log({ claimType, sponsorGas, tokenIds });
   };
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
 
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
     <>
       <Stepper currentStep={3} />
-      <div className="flex justify-between">
+      <motion.div
+        initial="initial"
+        animate="in"
+        exit="out"
+        variants={pageVariants}
+        transition={pageTransition}
+        className="flex justify-between"
+      >
         <div className="p-8 sm:w-[70%] w-full">
           <h2 className=" text-2xl text-gray-900 font-semibold mb-4">
             Distribution
@@ -147,7 +173,7 @@ const DistributionPage = () => {
           </div>
         </div>
         <Summary />
-      </div>
+      </motion.div>
     </>
   );
 };

@@ -52,7 +52,7 @@ const Minter = () => {
                         className="rounded-lg"
                       />
                       <div className="">
-                        <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]  ">
+                        <h2 className="md:text-lg text-sm font-semibold text-[#2E2C34]  ">
                           Test collection
                         </h2>
                         <p className="text-[#84818A] md:text-sm text-xs ">
@@ -132,7 +132,7 @@ const Minter = () => {
                 onClick={createContract}
               >
                 <div className="bg-white p-2 m-2 rounded-md">
-                  <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
+                  <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
                 </div>
                 <h2 className="text-[#564BF1] text-lg  font-bold mt-3 text-center">
                   Deploy new contract
@@ -151,14 +151,38 @@ const Minter = () => {
                   className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                   onClick={openmynft}
                 >
-                  <img
-                    width="80px"
-                    height="80px"
-                    src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                    alt="Dispenser"
-                    className="rounded-md"
-                  />
-                  <h2 className="text-lg  font-bold text-[#2E2C34] mt-3 ">
+                  <div className="flex justify-start  space-x-4">
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 3,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 2,
+                        marginLeft: -24,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 1,
+                        marginLeft: -24,
+                      }}
+                    />
+                  </div>
+                  <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
                     Test collection
                   </h2>
                   <p className="text-xs text-[#84818A] mt-1 ">April 5, 13:34</p>

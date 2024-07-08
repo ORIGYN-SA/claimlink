@@ -6,6 +6,7 @@ import InfoCard from "../common/InfoCard";
 import { motion } from "framer-motion";
 import { IoIosAdd } from "react-icons/io";
 import Breadcrumb from "../components/Breadcrumb";
+import { TfiPlus } from "react-icons/tfi";
 
 const QrManager = () => {
   return (
@@ -60,10 +61,15 @@ const QrManager = () => {
 
 const NewCampaignCard = () => {
   return (
-    <div className=" hidden sm:block w-full h-full">
+    <motion.div
+      initial={{ scale: 1, opacity: 1 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.9 }}
+      className=" hidden sm:block w-full h-full"
+    >
       <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797]  text-center">
-        <div className=" w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
-          <FaPlus className="text-[#5542F6]" />
+        <div className="bg-white p-2 m-2 rounded-md">
+          <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
         </div>
         <h2 className="text-lg font-semibold text-[#5542F6] mb-2">
           Create QR codes
@@ -72,7 +78,7 @@ const NewCampaignCard = () => {
           Create QR codes and connnect to claim links
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

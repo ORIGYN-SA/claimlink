@@ -1,9 +1,37 @@
+import { motion } from "framer-motion";
 import React from "react";
 
 const QrSetup = () => {
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
+
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
-    <div className="p-6">
-      <div className="h-screen    ">
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="p-6"
+    >
+      <div className="h-screen    p-6 ">
         <p className="text-2xl text-gray-900 font-semibold">New QR set</p>
 
         <div className="space-y-3 mt-6">
@@ -26,7 +54,7 @@ const QrSetup = () => {
           Next
         </button>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

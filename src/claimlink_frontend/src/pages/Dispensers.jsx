@@ -129,21 +129,21 @@ const Dispensers = () => {
               <option value="old">Old</option>
             </select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  2xl:grid-cols-4 gap-5 mt-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  2xl:grid-cols-4 gap-3 mt-5">
             <motion.div
               initial={{ scale: 1, opacity: 1 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.9 }}
-              className="bg-[#E9E8FC] px-4 py-4 rounded-xl flex flex-col items-center justify-center cursor-pointer"
+              className="bg-[#E9E8FC] px-3 py-4 rounded-xl flex flex-col items-center justify-center cursor-pointer"
               onClick={DispenserSetup}
             >
-              <div className="bg-white p-2 m-2 rounded-md">
-                <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
+              <div className=" w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
+                <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
               </div>
-              <h2 className="text-[#564BF1] text-lg  font-bold mt-3 text-center">
+              <h2 className="text-lg font-semibold text-[#5542F6] mb-2">
                 Create new dispenser
               </h2>
-              <p className="text-[#564BF1] text-xs text-center mt-2">
+              <p className="text-[#5542F6] text-xs px-4 text-center">
                 Dispenser is represented by a single link or QR code that you
                 can share for multiple users to scan to claim a unique token.
               </p>
@@ -155,17 +155,41 @@ const Dispensers = () => {
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
-                className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                className="bg-white px-5 py-4 rounded-xl flex flex-col cursor-pointer"
                 onClick={createDispenser}
               >
-                <img
-                  width="80px"
-                  height="80px"
-                  src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                  alt="Dispenser"
-                  className="rounded-md"
-                />
-                <h2 className="text-lg  font-bold text-[#2E2C34] mt-3 ">
+                <div className="flex justify-start  space-x-4">
+                  <img
+                    src="https://via.placeholder.com/100"
+                    alt="Campaign"
+                    className="w-12 h-12 object-cover rounded-md"
+                    style={{
+                      border: "2px solid white",
+                      zIndex: 3,
+                    }}
+                  />
+                  <img
+                    src="https://via.placeholder.com/100"
+                    alt="Campaign"
+                    className="w-12 h-12 object-cover rounded-md"
+                    style={{
+                      border: "2px solid white",
+                      zIndex: 2,
+                      marginLeft: -24,
+                    }}
+                  />
+                  <img
+                    src="https://via.placeholder.com/100"
+                    alt="Campaign"
+                    className="w-12 h-12 object-cover rounded-md"
+                    style={{
+                      border: "2px solid white",
+                      zIndex: 1,
+                      marginLeft: -24,
+                    }}
+                  />
+                </div>
+                <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
                   Title
                 </h2>
                 <p className="text-xs text-[#84818A] mt-1 ">April 5, 13:34</p>

@@ -7,13 +7,14 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { IoIosAdd } from "react-icons/io";
 
 import Breadcrumb from "../components/Breadcrumb";
+import { TfiPlus } from "react-icons/tfi";
 const DashboardContainer = () => {
   return (
     <>
       <div className="min-h-screen p-4 ">
         <div className="  bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-4 m-2"></div>
         <div className="flex items-center justify-between w-full p-2">
-          <p className="text-xl font-semibold">Campaign</p>
+          <p className="text-xl font-bold">Campaign</p>
           <div className="sm:hidden">
             <Link
               to="/campaign-setup"
@@ -79,10 +80,16 @@ const DashboardContainer = () => {
 
 const NewCampaignCard = () => {
   return (
-    <div className="hidden sm:block h-full">
+    <motion.div
+      initial={{ scale: 1, opacity: 1 }}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.9 }}
+      duration={2}
+      className="hidden sm:block h-full"
+    >
       <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797]  text-center">
         <div className=" w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
-          <FaPlus className="text-[#5542F6]" />
+          <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
         </div>
         <h2 className="text-lg font-semibold text-[#5542F6] mb-2">
           New campaign
@@ -91,7 +98,7 @@ const NewCampaignCard = () => {
           Create a campaign to distribute your NFTs via claim links
         </p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
@@ -169,7 +176,7 @@ const CampaignCard = () => {
           </div>
         </div>
       </div>
-      <div className="max-w-sm mx-auto sm:block hidden bg-white   rounded-lg overflow-hidden">
+      <div className="max-w-sm mx-auto sm:block hidden bg-white  cursor-pointer   rounded-lg overflow-hidden">
         <div className="relative h-12 mt-6 px-6">
           <div className="flex justify-start  space-x-4">
             <img

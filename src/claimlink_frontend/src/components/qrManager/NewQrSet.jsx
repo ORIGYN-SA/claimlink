@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { IoIosAdd } from "react-icons/io";
 import QRSet from "../../common/QrSet";
+import { motion } from "framer-motion";
 
 const QRSetForm = () => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -13,10 +14,36 @@ const QRSetForm = () => {
   const handleCampaignChange = (event) => {
     setCampaign(event.target.value);
   };
+  const pageVariants = {
+    initial: {
+      opacity: 0,
+      x: "-100vw",
+    },
+    in: {
+      opacity: 1,
+      x: 0,
+    },
+    out: {
+      opacity: 0,
+      x: "100vw",
+    },
+  };
 
+  const pageTransition = {
+    type: "tween",
+    ease: "anticipate",
+    duration: 0.8,
+  };
   return (
-    <div className="flex justify-between  ">
-      <div className="p-8 sm:w-[60%]    rounded-xl  ">
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="flex justify-between "
+    >
+      <div className="p-8   mx-auto  rounded-xl  ">
         <h1 className="text-2xl font-bold mb-4">New QR set</h1>
         <div className="mb-4">
           <h2 className="text-lg font-semibold">Connect to claim links</h2>
@@ -87,7 +114,7 @@ const QRSetForm = () => {
         </div>
       </div>
       <QRSet />
-    </div>
+    </motion.div>
   );
 };
 

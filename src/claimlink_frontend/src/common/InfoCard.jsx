@@ -20,7 +20,7 @@ const InfoCard = () => {
         <div className="grid grid-cols-2 gap-0">
           <div className="flex flex-col border p-4 border-l-0  border-gray-300">
             <span className="text-sm text-gray-500">Status</span>
-            <span className="font-medium text-red-500">Not uploaded</span>
+            <span className="font-semibold text-red-500">Not uploaded</span>
           </div>
           <div className="flex flex-col border p-4  border-r-0 border-gray-300">
             <span className="text-sm text-gray-500">Additional</span>
@@ -46,29 +46,30 @@ const InfoCard = () => {
           <h1 className="text-xl font-bold">Title</h1>
           <p className="text-gray-500">April 5, 13:54</p>
         </div>
-        <div className="space-y-2 text-xs font-semibold">
+        <div className="border border-gra-200"></div>
+        <div className="space-y-2 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-500 font-semibold ">Status</span>
+            <span className="text-gray-500">Status</span>
             <span className="text-red-500 font-semibold">Not uploaded</span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500 font-semibold">Additional</span>
-            <span className="text-gray-800 font-semibold">
+          <div className="flex justify-between gap-7">
+            <span className="text-gray-500">Additional</span>
+            <span className="text-gray-800 font-semibold truncate	">
               Not sent to printer
             </span>
           </div>
-          <div className="flex justify-between">
-            <span className="text-gray-500 font-semibold">Start date</span>
-            <span className="text-gray-800 font-semibold">
+          <div className="flex justify-between gap-7">
+            <span className="text-gray-500 truncate">Start date</span>
+            <span className="text-gray-800 truncate  font-semibold">
               April 11, 2024 <span className="text-gray-400">13:54</span>
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500 font-semibold">Quantity</span>
+            <span className="text-gray-500">Quantity</span>
             <span className="text-gray-800 font-semibold">10</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-500 font-semibold">Linked campaign</span>
+            <span className="text-gray-500">Linked campaign</span>
             <span className="text-gray-800 font-semibold">e-cards</span>
           </div>
         </div>

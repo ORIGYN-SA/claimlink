@@ -23,6 +23,7 @@
     "framer-motion": "^11.2.11",
     "ic-auth": "^0.9.1",
     "identityvault": "^0.1.11",
+    "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",

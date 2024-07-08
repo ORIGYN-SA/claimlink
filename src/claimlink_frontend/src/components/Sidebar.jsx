@@ -19,10 +19,9 @@ const Sidebar = ({ setSidebarOpen }) => {
   const { login, isAuthenticated, principal, logout } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
-  
 
   const menuItems = [
-    { path: "/", label: "Dashboard", icon: MdDashboard },
+    { path: "/dashboard", label: "Dashboard", icon: MdDashboard },
     { path: "/claim-link", label: "Claim links", icon: AiOutlineLink },
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
