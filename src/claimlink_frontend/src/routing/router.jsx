@@ -22,6 +22,7 @@ import DistributionPages from "../components/minter/DistributionPages";
 import LoginPage from "../components/LoginPage";
 import Contract from "../components/minter/Contract";
 import MainHome from "../pages/MainHome";
+import ClaimForm from "../components/claimlink/ClaimForm";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -87,7 +88,7 @@ const approutes = createBrowserRouter([
     path: "/campaign-setup",
     element: (
       <Dashboard stepper={true}>
-        <CampaignSetup />
+        <ClaimForm />
       </Dashboard>
     ),
   },
@@ -99,14 +100,7 @@ const approutes = createBrowserRouter([
       </Dashboard>
     ),
   },
-  {
-    path: "/claim-pattern",
-    element: (
-      <Dashboard stepper={true}>
-        <ClaimPattern />
-      </Dashboard>
-    ),
-  },
+
   {
     path: "/minter/new-contract",
     element: (

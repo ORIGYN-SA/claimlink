@@ -13,7 +13,11 @@ import { IoSettingsOutline } from "react-icons/io5";
 const AddTokenHome = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
+  const [fordata, setFormdata] = useState({
+    title: "",
+    contract: "",
+    collection: "",
+  });
   const addToken = () => {
     navigate("/minter/new-contract/token-home/add-token");
   };

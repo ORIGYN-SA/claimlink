@@ -189,3 +189,15 @@
 .animate-scroll {
   animation: scroll 15s linear infinite;
 }
+
+.react-select-container {
+  margin: 0px 2px;
+  border: none;
+}
+.react-select-container:active {
+  border: none;
+  outline: none;
+}
+.react-select__control {
+  outline: none;
+}

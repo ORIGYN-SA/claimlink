@@ -1,11 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IoImagesOutline } from "react-icons/io5";
-import { CiWallet } from "react-icons/ci";
-import { TbInfoHexagon } from "react-icons/tb";
-import StepperComponent from "../../common/StepperComponent";
-import MainButton from "../../common/Buttons";
 import { motion } from "framer-motion";
+import MainButton from "../../common/Buttons";
+import toast from "react-hot-toast";
 
 const SelectContractType = ({ handleNext }) => {
   const [selectedContract, setSelectedContract] = useState("");
@@ -20,9 +17,10 @@ const SelectContractType = ({ handleNext }) => {
     if (selectedContract) {
       handleNext();
     } else {
-      alert("Please select a contract type.");
+      toast.error("Please select a contract type.");
     }
   };
+
   const pageVariants = {
     initial: {
       opacity: 0,

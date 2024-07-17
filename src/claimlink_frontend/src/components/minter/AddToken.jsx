@@ -10,7 +10,11 @@ import { MobileHeader } from "../../common/Header";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
-
+  const [fordata, setFormdata] = useState({
+    title: "",
+    contract: "",
+    collection: "",
+  });
   const pageVariants = {
     initial: {
       opacity: 0,

@@ -25,8 +25,10 @@
     "identityvault": "^0.1.11",
     "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",
+    "react-hot-toast": "^2.4.1",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",
+    "react-select": "^5.8.0",
     "react-toggle": "^4.1.3"
   }
 }

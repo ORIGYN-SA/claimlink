@@ -1,18 +1,67 @@
 import { motion } from "framer-motion";
-import React, { useMemo } from "react";
+import React, { useState } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
-import { TfiPlus } from "react-icons/tfi";
 import StyledDropzone from "../../common/StyledDropzone";
-import Toggle from "react-toggle";
-import { GoDownload } from "react-icons/go";
-import { BsCopy, BsQrCode } from "react-icons/bs";
-import { MobileHeader } from "../../common/Header";
-import { useLocation, useNavigate } from "react-router-dom";
-import StepperComponent from "../../common/StepperComponent";
 import MainButton, { BackButton } from "../../common/Buttons";
+import { MobileHeader } from "../../common/Header";
+import { useNavigate } from "react-router-dom";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
+
+  // State for form data and validation
+  const [formData, setFormData] = useState({
+    title: "",
+    symbol: "",
+  });
+
+  const [formErrors, setFormErrors] = useState({
+    title: "",
+    symbol: "",
+  });
+
+  // Handle input change
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  // Form validation function
+  const validateForm = () => {
+    let errors = {};
+    let formIsValid = true;
+
+    // Title validation
+    if (!formData.title.trim()) {
+      errors.title = "Title is required";
+      formIsValid = false;
+    }
+
+    // Symbol validation (optional, so no required check)
+    if (formData.symbol.trim().length > 5) {
+      errors.symbol = "Symbol should be max 5 characters";
+      formIsValid = false;
+    }
+
+    setFormErrors(errors);
+    return formIsValid;
+  };
+
+  // Handle form submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (validateForm()) {
+      // Proceed with form submission
+      handleNext();
+    } else {
+      // Handle invalid form submission (optional)
+      console.log("Form validation failed");
+    }
+  };
+
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -33,6 +82,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     ease: "anticipate",
     duration: 0.8,
   };
+
   return (
     <>
       <motion.div
@@ -53,29 +103,38 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
             </h2>
           </div>
           <div>
-            <form action="">
-              <div className=" flex flex-col md:mt-4 mt-2 ">
+            <form onSubmit={handleSubmit}>
+              <div className="flex flex-col md:mt-4 mt-2">
                 <label
                   htmlFor="title"
-                  className="text-base text-[#2E2C34] font-semibold py-3 "
+                  className="text-base text-[#2E2C34] font-semibold py-3"
                 >
                   Collection title{" "}
-                  <span className="text-gray-400 text-base mb-3 font-normal ">
+                  <span className="text-gray-400 text-base mb-3 font-normal">
                     (max 200 symbols)
                   </span>
                 </label>
                 <input
                   type="text"
-                  name=""
-                  id=""
-                  className="bg-white px-2 py-2 outline-none border border-[#EBEAED] rounded-md"
-                  placeholder="text"
+                  name="title"
+                  id="title"
+                  value={formData.title}
+                  onChange={handleChange}
+                  className={`bg-white px-2 py-2 outline-none border rounded-md ${
+                    formErrors.title ? "border-red-500" : "border-[#EBEAED]"
+                  }`}
+                  placeholder="Enter title"
                 />
+                {formErrors.title && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {formErrors.title}
+                  </span>
+                )}
               </div>
-              <div className=" flex flex-col ">
+              <div className="flex flex-col mt-4">
                 <label
-                  htmlFor="title"
-                  className="text-base text-[#2E2C34] font-semibold py-3 "
+                  htmlFor="symbol"
+                  className="text-base text-[#2E2C34] font-semibold py-3"
                 >
                   Collection symbol{" "}
                   <span className="text-gray-400 text-base mb-3 font-normal">
@@ -84,12 +143,21 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                 </label>
                 <input
                   type="text"
-                  name=""
-                  id=""
-                  className="bg-white px-2 py-2 outline-none border border-[#EBEAED] rounded-md"
-                  placeholder="text"
+                  name="symbol"
+                  id="symbol"
+                  value={formData.symbol}
+                  onChange={handleChange}
+                  className={`bg-white px-2 py-2 outline-none border rounded-md ${
+                    formErrors.symbol ? "border-red-500" : "border-[#EBEAED]"
+                  }`}
+                  placeholder="Enter symbol"
                 />
-                <div className="flex items-center gap-4 mt-3 ">
+                {formErrors.symbol && (
+                  <span className="text-red-500 text-sm mt-1">
+                    {formErrors.symbol}
+                  </span>
+                )}
+                <div className="flex items-center gap-4 mt-3">
                   <TbInfoHexagon className="text-[#564BF1]" />
                   <p className="text-sm text-[#84818A]">
                     If you don’t know what a symbol is, keep it blank, and we
@@ -97,10 +165,10 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                   </p>
                 </div>
               </div>
-              <div className="mt-2 flex flex-col ">
+              <div className="mt-4 flex flex-col">
                 <label
-                  htmlFor="title"
-                  className="text-base text-[#2E2C34] font-semibold py-3 "
+                  htmlFor="thumbnail"
+                  className="text-base text-[#2E2C34] font-semibold py-3"
                 >
                   Collection thumbnail{" "}
                   <span className="text-gray-400 text-base mb-3 font-normal">
@@ -109,19 +177,22 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                 </label>
                 <div className="flex gap-4 flex-col md:flex-row">
                   <img
-                    className="rounded-xl  md:w-22 md:h-24 w-28"
+                    className="rounded-xl md:w-22 md:h-24 w-28"
                     src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
                     alt=""
                   />
                   <StyledDropzone />
                 </div>
               </div>
+              <div className="flex gap-4 md:w-auto w-full mt-10">
+                <BackButton onClick={handleBack} text={"Back"} />
+                <MainButton
+                  type="submit"
+                  text={"Deploy collection"}
+                  onClick={handleSubmit}
+                />
+              </div>
             </form>
-            <div className="flex gap-4 md:w-auto w-full md:mt-0 mt-10">
-              <BackButton onClick={handleBack} text={"Back"} />
-
-              <MainButton onClick={handleNext} text={" Deploy collection"} />
-            </div>
           </div>
         </div>
       </motion.div>
