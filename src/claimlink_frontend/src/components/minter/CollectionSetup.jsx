@@ -5,11 +5,15 @@ import StyledDropzone from "../../common/StyledDropzone";
 import MainButton, { BackButton } from "../../common/Buttons";
 import { MobileHeader } from "../../common/Header";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { submitForm } from "../../redux/features/formSlice";
+import toast from "react-hot-toast";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error, success } = useSelector((state) => state.form);
 
-  // State for form data and validation
   const [formData, setFormData] = useState({
     title: "",
     symbol: "",
@@ -20,7 +24,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     symbol: "",
   });
 
-  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({
@@ -29,18 +32,15 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     });
   };
 
-  // Form validation function
   const validateForm = () => {
     let errors = {};
     let formIsValid = true;
 
-    // Title validation
     if (!formData.title.trim()) {
       errors.title = "Title is required";
       formIsValid = false;
     }
 
-    // Symbol validation (optional, so no required check)
     if (formData.symbol.trim().length > 5) {
       errors.symbol = "Symbol should be max 5 characters";
       formIsValid = false;
@@ -50,14 +50,19 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     return formIsValid;
   };
 
-  // Handle form submission
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Proceed with form submission
-      handleNext();
+      dispatch(submitForm(formData))
+        .unwrap()
+        .then(() => {
+          toast.success("Form submitted successfully!");
+          handleNext();
+        })
+        .catch((error) => {
+          toast.error(error);
+        });
     } else {
-      // Handle invalid form submission (optional)
       console.log("Form validation failed");
     }
   };

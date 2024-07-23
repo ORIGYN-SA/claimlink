@@ -1,33 +1,33 @@
+import React, { useState, useEffect } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { RxHamburgerMenu } from "react-icons/rx";
-
-import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
-import { Principal } from "@dfinity/principal";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { useAuth } from "../connect/useClient";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/features/authSlice";
+import WalletModal from "./WalletModal";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { isAuthenticated, principal } = useSelector((state) => state.auth);
   const [showLogout, setShowLogout] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [principals, setPrincipal] = useState("connect wallet");
 
   const handleDropdownClick = () => {
     setShowLogout((prev) => !prev);
   };
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
-  const { login, isAuthenticated, principal, logout } = useAuth();
-  const [principals, setPrincipal] = useState("webfa-uwebfs-sesud");
-  console.log(isAuthenticated);
 
-  setTimeout(() => {
-    if (isAuthenticated) {
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
+  useEffect(() => {
+    if (isAuthenticated && principal) {
       setPrincipal(principal.toText());
     }
-  }, 5000);
+  }, [isAuthenticated, principal]);
 
   return (
     <>
@@ -50,24 +50,35 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
 
       <div className="flex items-center space-x-4 font-semibold justify-end">
         <span className="text-[#2E2C34] font-bold">0 ICP</span>
+
         <span
-          className="flex items-center justify-center text-[#2E2C34]  font-Manrope  rounded-3xl bg-gray-200 px-3 py-2"
+          className="flex items-center justify-center text-[#2E2C34]   font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}
         >
-          <p className=" w-44 truncate font-bold">{principals}</p>
+          <p className="w-44 truncate font-bold">{principals}</p>
           <MdOutlineArrowDropDown size={24} className="text-gray-500" />
         </span>
       </div>
       {showLogout && (
-        <button
-          className="absolute right-6 top-16 mt-2 bg-gray-200 font-xs text-[#2E2C34] font-semibold rounded-3xl px-3 py-2 w-36"
-          onClick={() => {
-            handleLogout();
-          }}
-        >
-          {isAuthenticated ? " Logout" : "Login"}
-        </button>
+        <div className="absolute right-6 top-16 mt-2 bg-gray-200 rounded-3xl p-2">
+          {isAuthenticated ? (
+            <button
+              className="font-xs text-[#2E2C34] font-semibold px-3 py-2 w-36"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          ) : (
+            <button
+              className="font-xs text-[#2E2C34] font-semibold px-3 py-2 w-36"
+              onClick={() => setShowModal(true)}
+            >
+              Login
+            </button>
+          )}
+        </div>
       )}
+      <WalletModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 };

@@ -1,11 +1,20 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { TfiPlus } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
 import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
-
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMinterData } from "../redux/features/minterSlice";
 const Minter = () => {
+  const dispatch = useDispatch();
+  const minterData = useSelector((state) => state.minter.data);
+  const minterStatus = useSelector((state) => state.minter.status);
+  useEffect(() => {
+    if (minterStatus === "idle") {
+      dispatch(fetchMinterData());
+    }
+  }, [minterStatus, dispatch]);
   const navigate = useNavigate();
 
   const createContract = () => {

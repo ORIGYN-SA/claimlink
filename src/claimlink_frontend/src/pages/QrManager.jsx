@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
@@ -7,8 +7,18 @@ import { motion } from "framer-motion";
 import { IoIosAdd } from "react-icons/io";
 import Breadcrumb from "../components/Breadcrumb";
 import { TfiPlus } from "react-icons/tfi";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchQrData } from "../redux/features/qrManagerSlice";
 
 const QrManager = () => {
+  const dispatch = useDispatch();
+  const qrData = useSelector((state) => state.qrManager.data);
+  const qrStatus = useSelector((state) => state.qrManager.status);
+  useEffect(() => {
+    if (qrStatus === "idle") {
+      dispatch(fetchQrData());
+    }
+  }, [qrStatus, dispatch]);
   return (
     <>
       {" "}
