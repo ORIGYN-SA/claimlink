@@ -29,7 +29,10 @@ dfx start --background
 
 # Deploys your canisters to the replica and generates your candid interface
 dfx deploy
+
+dfx deploy --network ic
 ```
+
 
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
 
