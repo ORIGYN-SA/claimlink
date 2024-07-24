@@ -1,14 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
+import {
+  PlugLogin,
+  StoicLogin,
+  NFIDLogin,
+  IdentityLogin,
+  CreateActor,
+} from "ic-auth";
 import { Principal } from "@dfinity/principal";
-import { createActor } from "../../../../declarations/claimlink_backend";
+import { idlFactory } from "../../../../../.dfx/local/canisters/claimlink_backend/service.did.js";
 
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 
+const isAuthenticated = sessionStorage.getItem("isAuthenticated") === "true";
+const principal = sessionStorage.getItem("principal");
+const identity = sessionStorage.getItem("identity")
+  ? JSON.parse(sessionStorage.getItem("identity"))
+  : null;
+
 const initialState = {
-  isAuthenticated: false,
-  principal: null,
-  identity: null,
+  isAuthenticated,
+  principal: principal ? Principal.fromText(principal) : null,
+  identity,
   backendActor: null,
 };
 
@@ -51,12 +63,13 @@ export const login = (provider) => async (dispatch) => {
       userObject = await IdentityLogin();
     }
 
+    if (!userObject.agent) {
+      throw new Error("Agent not initialized");
+    }
+
     const identity = userObject.agent._identity;
     const principal = Principal.fromText(userObject.principal);
-    const actor = createActor(canisterID, { agentOptions: { identity } });
-    const result = await actor.greet("identity");
-    console.log("actor is ", actor);
-    console.log("result is ", result);
+    const actor = await CreateActor(userObject.agent, idlFactory, canisterID);
 
     dispatch(
       setAuthState({
