@@ -24,4 +24,4 @@ dist/
 # environment variables
 .env
 
-.vessel
+.vessel/
