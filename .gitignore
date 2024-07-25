@@ -24,8 +24,4 @@ dist/
 # environment variables
 .env
 
-<<<<<<< HEAD
 .vessel/
-=======
-.mops
->>>>>>> 38c748b (update)
