@@ -35,7 +35,7 @@ const MainHome = () => {
   const navigate = useNavigate();
 
   const lunch = () => {
-    navigate("/dashboard");
+    navigate("/login");
   };
   return (
     <>
@@ -172,7 +172,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   const lunch = () => {
-    navigate("/dashboard");
+    navigate("/login");
   };
 
   return (

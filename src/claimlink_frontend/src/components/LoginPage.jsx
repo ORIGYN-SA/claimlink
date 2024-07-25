@@ -5,15 +5,16 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@headlessui/react";
 import { MdArrowOutward } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
+import WalletModal from "../common/WalletModal";
 
 const LoginPage = () => {
-  const { login, isAuthenticated, principal } = useAuth();
-  console.log(isAuthenticated, principal, "login");
-  const [enabled, setEnabled] = useState(false);
+  const { isAuthenticated, principal } = useSelector((state) => state.auth);
+  const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
   const Login = () => {
     if (isAuthenticated) {
-      navigate("/");
+      navigate("/dashboard");
     }
   };
 
@@ -114,12 +115,13 @@ const LoginPage = () => {
           </div>
           <button
             className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl   transition duration-200"
-            onClick={() => login("NFID")}
+            onClick={() => setShowModal(true)}
           >
             Sign in
           </button>
         </div>
       </div>
+      <WalletModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 };

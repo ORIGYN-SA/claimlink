@@ -21,6 +21,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
 
   const handleLogout = () => {
     dispatch(logout());
+    navigate("/");
   };
 
   useEffect(() => {

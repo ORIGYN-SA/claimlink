@@ -14,7 +14,7 @@ const WalletModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center ">
+    <div className="fixed inset-0 z-10 bg-gray-500 bg-opacity-75 flex items-center justify-center ">
       <div className="bg-white rounded p-4 w-96">
         <div className="flex justify-between items-center ">
           <h2 className="text-xl font-bold">Select Wallet</h2>
