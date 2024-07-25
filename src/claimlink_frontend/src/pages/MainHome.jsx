@@ -76,7 +76,7 @@ const MainHome = () => {
               claimlink
               <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
             </div>
-            <div>
+            {/* <div>
               <div>
                 {menuItems.map((item) => (
                   <Link
@@ -92,7 +92,7 @@ const MainHome = () => {
                   </Link>
                 ))}
               </div>
-            </div>
+            </div> */}
             <div>
               <button
                 onClick={lunch}
@@ -148,7 +148,7 @@ const Navbar = ({ setSidebarOpen, isSidebarOpen }) => {
       </header>
 
       <div className="border-t mb-6 border-gray-300"></div>
-      <div className="px-4 flex flex-col space-y-4">
+      {/* <div className="px-4 flex flex-col space-y-4">
         {menuItems.map((item) => (
           <Link
             onClick={setSidebarOpen}
@@ -163,7 +163,7 @@ const Navbar = ({ setSidebarOpen, isSidebarOpen }) => {
             {item.label}
           </Link>
         ))}
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -189,7 +189,7 @@ const Home = () => {
             backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         ></div>
-        <div className="relative w-1/5  h-96 z-10">
+        <div className=" h-screen overflow-hidden z-10">
           <img
             src={bgmain1}
             alt=""
@@ -218,7 +218,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="relative   h-96 z-10 ">
+        <div className="   h-screen overflow-hidden  z-10 ">
           <img
             src={bgmain2}
             alt=""
@@ -227,7 +227,7 @@ const Home = () => {
         </div>
       </div>
 
-      <div className="bg-white p-6">
+      {/* <div className="bg-white p-6">
         <h4 className="text-center text-xl text-black">TRUSTED BY</h4>
         <div className="overflow-hidden relative">
           <div className="flex animate-scroll gap-6">
@@ -501,7 +501,7 @@ const Home = () => {
             </div>{" "}
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
