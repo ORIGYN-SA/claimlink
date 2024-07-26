@@ -294,6 +294,7 @@ actor class EXTNFT(init_owner: Principal) = this {
   private stable var config_royalty : [(AccountIdentifier, Nat64)] = [(AID.fromPrincipal(config_owner, null), 3000)];
   private stable var config_initial_sale_royalty_address : AccountIdentifier = AID.fromPrincipal(config_owner, null);
   private stable var config_collection_name : Text  = "[PLEASE CHANGE]";
+  private stable var config_collection_symbol : Text  = "[PLEASE CHANGE]";
   private stable var config_collection_data : Text  = "{}";
   private stable var config_marketplace_open : Time  = 0;
   
@@ -577,9 +578,10 @@ actor class EXTNFT(init_owner: Principal) = this {
     assert(_isAdmin(msg.caller));
     await _createAssetCanister();
   };
-  public shared(msg) func ext_setCollectionMetadata(name : Text, metadata : Text) : async () {
+  public shared(msg) func ext_setCollectionMetadata(name : Text, symbol : Text, metadata : Text) : async () {
     assert(_isAdmin(msg.caller));
     config_collection_name := name;
+    config_collection_symbol := symbol;
     config_collection_data := metadata;
   };
   public shared(msg) func ext_setMarketplaceOpen(mpo : Time) : async () {

@@ -5,6 +5,7 @@ import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
 import List "mo:base/List";
 import Nat64 "mo:base/Nat64";
+import Array "mo:base/Array";
 import ExtCore "../extv2/motoko/ext/Core";
 
 actor Main{
@@ -44,10 +45,18 @@ actor Main{
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
     
 
-    public shared ({caller = user}) func createExtCollection() : async (Principal,Principal) {
+    public shared ({caller = user}) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal,Principal) {
         Cycles.add<system>(500_500_000_000);
         let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
         let extCollectionCanisterId = await extToken.getCanisterId();
+        let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor{
+            ext_setCollectionMetadata : (
+                name : Text, 
+                symbol : Text, 
+                metadata : Text
+            ) -> async ()
+        };
+        await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
         let collections = usersCollectionMap.get(user);
         switch(collections){
             case null {
@@ -64,8 +73,22 @@ actor Main{
             
     };
 
+    public shared ({caller = user}) func getUserCollections() : async ?[Principal] {
+        return usersCollectionMap.get(user);
+        
+    };
+    public shared func getAllCollections() : async [(Principal, [Principal])] {
+        var result : [(Principal, [Principal])] = [];
+        for ((key, value) in usersCollectionMap.entries()) {
+            result := Array.append([(key, value)], result);
+        };
+        return result;
+        
+    };
+
     public shared func mintExt(
         _collectionCanisterId : Principal,
+        _amount : Nat64,
         _request : [(AccountIdentifier, Metadata)]
 
     ) : async [TokenIndex] {
