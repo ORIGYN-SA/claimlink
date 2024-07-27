@@ -1,16 +1,24 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TbInfoHexagon } from "react-icons/tb";
 import StyledDropzone from "../../common/StyledDropzone";
 import MainButton, { BackButton } from "../../common/Buttons";
 import { MobileHeader } from "../../common/Header";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../connect/useClient";
+import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
-  const { identity, backendActor, principal } = useAuth();
+  const dispatch = useDispatch();
+
+  const { identity, backendActor, principal } = useSelector(
+    (state) => state.auth
+  );
+  const [collections, setCollection] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     symbol: "",
@@ -24,6 +32,24 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   });
 
   const [image, setImage] = useState("");
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backendActor?.getAllCollections();
+        setCollection(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    if (backendActor) {
+      loadData();
+    }
+  }, [backendActor]);
 
   const imageToFileBlob = (imageFile) => {
     return new Promise((resolve, reject) => {
@@ -105,35 +131,28 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
     console.log("Starting collection creation");
-    console.log("Actor instance:", backendActor);
-    console.log("Principal:", principal);
 
     if (!backendActor) {
       toast.error("Backend actor not initialized");
       return;
     }
 
-    // Validate the form
     if (!validateForm()) {
       return;
     }
 
     try {
-      // Check if formData.img is in the correct format
       console.log("Form data:", formData);
-
-      // Use principal directly
       console.log("Principal:", principal.toText());
 
-      // Make the API call
-      const res = await backendActor.createExtCollection(
+      const res = await backendActor?.createExtCollection(
         formData.title,
         formData.symbol,
         formData.img
       );
 
-      if (res) {
-        console.log("Collection created successfully:", res);
+      if (res.payload) {
+        console.log("Collection created successfully:", res.payload);
         toast.success("Collection created successfully!");
         handleNext();
       } else {
@@ -176,6 +195,17 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       transition={pageTransition}
       className="flex"
     >
+      <div>
+        <h2>Collection Data</h2>
+        {collections?.map((data, index) => (
+          <div key={index}>
+            <div>{data}</div>
+            <div>{index}</div>
+          </div>
+        ))}
+        {collections?.length > 0 ? "no data" : "data is found"}
+      </div>
+
       <div className="p-6 w-full md:w-3/5">
         <div>
           <div className="flex md:hidden justify-start">

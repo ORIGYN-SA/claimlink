@@ -16,7 +16,7 @@ import { RiStackFill } from "react-icons/ri";
 
 const Sidebar = ({ setSidebarOpen }) => {
   const [isWhiteBackground, setWhiteBackground] = useState(true);
-  const { login, isAuthenticated, principal, logout } = useAuth();
+  // const { login, isAuthenticated, principal, logout } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
 

@@ -3,12 +3,16 @@ import { BsArrowLeft } from "react-icons/bs";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../connect/useClient";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../redux/features/authSlice";
 import WalletModal from "./WalletModal";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
-  const { isAuthenticated, principal, login, logout } = useAuth();
+  const dispatch = useDispatch();
+  const { isAuthenticated, principal } = useSelector(
+    (state) => state.auth || {}
+  );
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [principalText, setPrincipalText] = useState("connect wallet");
@@ -18,13 +22,15 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
   };
 
   const handleLogout = () => {
-    logout();
+    dispatch(logout());
     navigate("/");
   };
 
   useEffect(() => {
     if (isAuthenticated && principal) {
       setPrincipalText(principal.toText());
+    } else {
+      setPrincipalText("connect wallet");
     }
   }, [isAuthenticated, principal]);
 
@@ -88,7 +94,7 @@ export function MobileHeader({ htext }) {
   return (
     <div className="flex gap-4 items-center justify-start">
       <div
-        className="bg-[#564bf136] p-2  rounded-md"
+        className="bg-[#564bf136] p-2 rounded-md"
         onClick={() => navigate(-1)}
       >
         <BsArrowLeft className="text-[#564BF1] w-5 h-5 font-semibold" />

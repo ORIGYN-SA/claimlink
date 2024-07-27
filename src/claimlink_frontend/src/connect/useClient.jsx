@@ -7,8 +7,7 @@ import {
   CreateActor,
 } from "ic-auth";
 import { Principal } from "@dfinity/principal";
-import { idlFactory } from "../../../declarations/claimlink_backend/claimlink_backend.did.js";
-import { HttpAgent, Actor } from "@dfinity/agent";
+// import { idlFactory } from "../../../../.dfx/local/canisters/claimlink_backend/claimlink_backend.did.js";
 
 const AuthContext = createContext();
 
@@ -20,60 +19,50 @@ export const useAuthClient = () => {
   const [identity, setIdentity] = useState(null);
   const [backendActor, setBackendActor] = useState(null);
 
-  const loginStatus = sessionStorage.getItem("isAuthenticated") === "true";
-
-  const recreateActor = async (identity) => {
-    try {
-      const agent = new HttpAgent({ identity, host: "https://ic0.app" });
-      if (process.env.DFX_NETWORK === "local") {
-        agent.fetchRootKey();
-      }
-      return Actor.createActor(idlFactory, {
-        agent,
-        canisterId: canisterID,
-      });
-    } catch (error) {
-      console.error("Error recreating actor: ", error);
-    }
-  };
-
   useEffect(() => {
-    if (loginStatus) {
-      const savedPrincipal = sessionStorage.getItem("principal");
-      const savedIdentity = sessionStorage.getItem("identity");
-      const backendActorProperties = sessionStorage.getItem("backendActor");
+    const checkSession = () => {
+      try {
+        const savedPrincipal = sessionStorage.getItem("principal");
+        const savedIdentity = sessionStorage.getItem("identity");
 
-      if (savedPrincipal && savedIdentity && backendActorProperties) {
-        try {
+        if (savedPrincipal && savedIdentity) {
+          const parsedPrincipal = Principal.fromText(savedPrincipal);
           const parsedIdentity = JSON.parse(savedIdentity);
-          setPrincipal(Principal.fromText(savedPrincipal));
-          recreateActor(parsedIdentity).then(setBackendActor);
+          setPrincipal(parsedPrincipal);
           setIdentity(parsedIdentity);
           setIsAuthenticated(true);
-        } catch (error) {
-          console.error("Error parsing session storage data: ", error);
-          logout(); // Optionally clear session on error
         }
+      } catch (error) {
+        console.error("Error checking session: ", error);
       }
-    }
-  }, [loginStatus]);
-
-  const login = async (provider) => {
-    let userObject = {
-      principal: "Not Connected.",
-      agent: undefined,
-      provider: "N/A",
     };
 
+    checkSession();
+  }, []);
+
+  const login = async (provider) => {
     try {
-      if (provider === "Plug") {
-        userObject = await PlugLogin();
-      } else if (provider === "Stoic") {
-        userObject = await StoicLogin();
-      } else if (provider === "NFID") {
-        userObject = await NFIDLogin();
-      } else if (provider === "Identity") {
-        userObject = await IdentityLogin();
+      let userObject = {
+        principal: "Not Connected.",
+        agent: undefined,
+        provider: "N/A",
+      };
+
+      switch (provider) {
+        case "Plug":
+          userObject = await PlugLogin();
+          break;
+        case "Stoic":
+          userObject = await StoicLogin();
+          break;
+        case "NFID":
+          userObject = await NFIDLogin();
+          break;
+        case "Identity":
+          userObject = await IdentityLogin();
+          break;
+        default:
+          throw new Error("Unknown provider");
       }
 
       if (!userObject.agent) {

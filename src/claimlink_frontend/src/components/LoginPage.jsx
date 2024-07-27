@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
-import { useAuth } from "../connect/useClient";
+import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@headlessui/react";
 import { MdArrowOutward } from "react-icons/md";
 import WalletModal from "../common/WalletModal";
+import { login } from "../redux/features/authSlice";
 
 const LoginPage = () => {
-  const { isAuthenticated, login } = useAuth(); // Use context for authentication
-  const [showModal, setShowModal] = useState(false);
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,7 +23,7 @@ const LoginPage = () => {
     try {
       // Trigger the login process with the selected provider
       // This example uses "Plug" as the provider; adjust based on your requirements
-      await login("Plug");
+      await dispatch(login("Plug"));
       setShowModal(false);
     } catch (error) {
       console.error("Login failed:", error);

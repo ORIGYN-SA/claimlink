@@ -1,0 +1,6 @@
+[dependencies]
+base = "0.12.0"
+array = "https://github.com/aviate-labs/array.mo#v0.1.1"
+encoding = "https://github.com/aviate-labs/encoding.mo#v0.3.1"
+matchers = "https://github.com/kritzcreek/motoko-matchers#3dac8a071b69e4e651b25a7d9683fe831eb7cffd"
+cap = "https://github.com/stephenandrews/cap-motoko-library#v1.0.4-alt"

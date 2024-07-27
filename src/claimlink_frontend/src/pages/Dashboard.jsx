@@ -20,7 +20,7 @@ const Dashboard = ({
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const whitelist = ["oyjva-2yaaa-aaaam-qbaya-cai"];
-  const { isAuthenticated } = useAuth();
+  // const { isAuthenticated } = useAuth();
 
   const handleLogin = async () => {
     const userObject = await PlugLogin(whitelist);

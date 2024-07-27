@@ -1,12 +1,13 @@
 import React from "react";
 import { RxCross1 } from "react-icons/rx";
-import { useAuth } from "../connect/useClient";
+import { useDispatch } from "react-redux";
+import { login } from "../redux/features/authSlice";
 
 const WalletModal = ({ isOpen, onClose }) => {
-  const { login } = useAuth();
+  const dispatch = useDispatch();
 
   const handleLogin = (provider) => {
-    login(provider);
+    dispatch(login(provider));
     onClose();
   };
 
