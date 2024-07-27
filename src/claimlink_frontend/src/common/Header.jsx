@@ -3,30 +3,28 @@ import { BsArrowLeft } from "react-icons/bs";
 import { MdOutlineArrowDropDown } from "react-icons/md";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { logout } from "../redux/features/authSlice";
+import { useAuth } from "../connect/useClient";
 import WalletModal from "./WalletModal";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { isAuthenticated, principal } = useSelector((state) => state.auth);
+  const { isAuthenticated, principal, login, logout } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [principals, setPrincipal] = useState("connect wallet");
+  const [principalText, setPrincipalText] = useState("connect wallet");
 
   const handleDropdownClick = () => {
     setShowLogout((prev) => !prev);
   };
 
   const handleLogout = () => {
-    dispatch(logout());
+    logout();
     navigate("/");
   };
 
   useEffect(() => {
     if (isAuthenticated && principal) {
-      setPrincipal(principal.toText());
+      setPrincipalText(principal.toText());
     }
   }, [isAuthenticated, principal]);
 
@@ -53,10 +51,10 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         <span className="text-[#2E2C34] font-bold">0 ICP</span>
 
         <span
-          className="flex items-center justify-center text-[#2E2C34]   font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
+          className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}
         >
-          <p className="w-44 truncate font-bold">{principals}</p>
+          <p className="w-44 truncate font-bold">{principalText}</p>
           <MdOutlineArrowDropDown size={24} className="text-gray-500" />
         </span>
       </div>

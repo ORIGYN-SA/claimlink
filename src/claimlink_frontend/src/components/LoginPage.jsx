@@ -1,35 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { useAuth } from "../connect/useClient";
-import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Checkbox } from "@headlessui/react";
 import { MdArrowOutward } from "react-icons/md";
-import { useDispatch, useSelector } from "react-redux";
 import WalletModal from "../common/WalletModal";
 
 const LoginPage = () => {
-  const { isAuthenticated, principal } = useSelector((state) => state.auth);
+  const { isAuthenticated, login } = useAuth(); // Use context for authentication
   const [showModal, setShowModal] = useState(false);
   const navigate = useNavigate();
-  const Login = () => {
+
+  useEffect(() => {
     if (isAuthenticated) {
       navigate("/dashboard");
     }
-  };
+  }, [isAuthenticated, navigate]);
 
-  useEffect(() => {
-    Login();
-  }, [isAuthenticated]);
+  const handleLoginClick = async () => {
+    try {
+      // Trigger the login process with the selected provider
+      // This example uses "Plug" as the provider; adjust based on your requirements
+      await login("Plug");
+      setShowModal(false);
+    } catch (error) {
+      console.error("Login failed:", error);
+    }
+  };
 
   return (
     <>
-      <div className="flex  flex-col  justify-center items-center h-screen bg-gray-100">
-        <p className="text-2xl w-full px-3 absolute top-6 tracking-wide h-[88px] text-[#2E2C34] font-quicksand  gap-1   flex">
+      <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
+        <p className="text-2xl w-full px-3 absolute top-6 tracking-wide h-[88px] text-[#2E2C34] font-quicksand gap-1 flex">
           claimlink
           <MdArrowOutward className="bg-[#3B00B9] rounded text-white mt-1" />
         </p>
-        <div className="bg-white p-8 rounded-xl shadow-lg sm:w-[28%] mt-24   h-[70%]">
+        <div className="bg-white p-8 rounded-xl shadow-lg sm:w-[28%] mt-24 h-[70%]">
           <div className="flex justify-center mb-6">
             <FaArrowLeft className="text-[#5542F6] text-xl" />
           </div>
@@ -41,7 +47,7 @@ const LoginPage = () => {
               <div className="w-6 h-6 mt-3">
                 <Checkbox
                   checked={true}
-                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6] "
+                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
                 >
                   {/* Checkmark icon */}
                   <svg
@@ -62,11 +68,11 @@ const LoginPage = () => {
                 Connect wallet
               </span>
             </label>
-            <label className="flex items-center space-x-3  ">
+            <label className="flex items-center space-x-3">
               <div className="w-6 h-6">
                 <Checkbox
                   checked={true}
-                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6] "
+                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
                 >
                   {/* Checkmark icon */}
                   <svg
@@ -91,7 +97,7 @@ const LoginPage = () => {
               <div className="w-6 h-6">
                 <Checkbox
                   checked={true}
-                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6] "
+                  className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
                 >
                   {/* Checkmark icon */}
                   <svg
@@ -114,14 +120,18 @@ const LoginPage = () => {
             </label>
           </div>
           <button
-            className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl   transition duration-200"
+            className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
             onClick={() => setShowModal(true)}
           >
             Sign in
           </button>
         </div>
       </div>
-      <WalletModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <WalletModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        onLogin={handleLoginClick}
+      />
     </>
   );
 };

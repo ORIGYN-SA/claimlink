@@ -105,7 +105,7 @@ const SelectContractType = ({ handleNext }) => {
                   strokeLinecap="round"
                 />
               </svg>
-              <h4 className="text-base font-bold">ERC-1155</h4>
+              <h4 className="text-base font-bold">EXTV-2</h4>
               <p className="text-sm mt-1">
                 Multiple copies of token with a common image. The most versatile
                 selection for most marketing goals.
@@ -113,15 +113,18 @@ const SelectContractType = ({ handleNext }) => {
             </div>
             <div className="flex md:flex-row flex-col w-full md:gap-4">
               <div
-                onClick={() => handleSelection("ICRC-7")}
+                // onClick={() => handleSelection("ICRC-7")}
                 className={`mt-6 ${
                   selectedContract === "ICRC-7"
                     ? "bg-[#564BF1] text-white"
                     : "bg-white text-[#2E2C34]"
-                } w-full md:w-1/2 flex flex-col md:py-4 py-4 rounded-xl border border-[#EBEAED] px-4 cursor-pointer`}
+                } w-full md:w-1/2 flex flex-col relative disabled rounded-xl border border-[#EBEAED]  cursor-pointer`}
               >
+                <div className="absolute text-xl bg-gray-100 text-blue-700 rounded-xl opacity-90 w-full h-full py-4 px-4 text-center flex items-center justify-center">
+                  Comming Soon...
+                </div>
                 <svg
-                  className="mb-4 w-9 h-9 "
+                  className="mb-4 w-9 h-9 mt-4 ml-4 "
                   viewBox="0 0 32 32"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -135,22 +138,25 @@ const SelectContractType = ({ handleNext }) => {
                     strokeLinecap="round"
                   />
                 </svg>
-                <h4 className="text-base font-bold">ICRC-7</h4>
-                <p className="text-sm mt-1">
+                <h4 className="text-base font-bold px-4 py-2">ICRC-7</h4>
+                <p className="text-sm mt-1 px-4 py-2">
                   Unique tokens with individual images. Currently available
                   manually by request.
                 </p>
               </div>
               <div
-                onClick={() => handleSelection("IRC-20")}
+                // onClick={() => handleSelection("IRC-20")}
                 className={`mt-6 ${
                   selectedContract === "IRC-20"
                     ? "bg-[#564BF1] text-white"
                     : "bg-white text-[#2E2C34]"
-                } w-full md:w-1/2 flex flex-col md:py-4 py-4 rounded-xl border border-[#EBEAED] px-4 cursor-pointer`}
+                } w-full md:w-1/2 flex flex-col  relative h-full   rounded-xl border border-[#EBEAED]  cursor-pointer`}
               >
+                <div className="absolute text-xl bg-gray-100 text-blue-700 rounded-xl opacity-90 w-full h-full py-4 px-4 text-center flex items-center justify-center">
+                  Comming Soon...
+                </div>
                 <svg
-                  className="mb-4 w-9 h-9"
+                  className="mb-4 w-9 h-9 mt-4 ml-4"
                   viewBox="0 0 32 32"
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
@@ -172,8 +178,8 @@ const SelectContractType = ({ handleNext }) => {
                     strokeLinejoin="round"
                   />
                 </svg>
-                <h4 className="text-base font-bold">IRC-20</h4>
-                <p className="text-sm mt-1">
+                <h4 className="text-base font-bold px-4 py-2">IRC-20</h4>
+                <p className="text-sm mt-1 px-4 py-2">
                   Assets with no media, consider USDT as an example. Currently
                   available manually by request.
                 </p>

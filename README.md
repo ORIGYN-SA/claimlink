@@ -22,6 +22,9 @@ dfx canister --help
 ## Running the project locally
 
 If you want to test your project locally, you can use the following commands:
+dfx generate
+
+cp src/declarations/claimlink_backend/\* .dfx/local/canisters/claimlink_backend/
 
 ```bash
 # Starts the replica, running in the background
@@ -32,7 +35,6 @@ dfx deploy
 
 dfx deploy --network ic
 ```
-
 
 Once the job completes, your application will be available at `http://localhost:4943?canisterId={asset_canister_id}`.
 

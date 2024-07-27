@@ -30,9 +30,15 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-export default function StyledDropzone(props) {
-  const { getRootProps, getInputProps, isFocused, isDragAccept, isDragReject } =
-    useDropzone({ accept: { "image/*": [] } });
+export default function StyledDropzone({ onDrop }) {
+  const {
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+    acceptedFiles,
+  } = useDropzone({ accept: { "image/*": [] }, onDrop });
 
   const style = useMemo(
     () => ({
@@ -50,7 +56,6 @@ export default function StyledDropzone(props) {
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center">
           <TfiPlus className="text-[#564BF1] w-6 h-6 font-semibold" />
-
           <p>
             <span className="text-[#564BF1] underline">Choose a file</span> or
             drag it here
