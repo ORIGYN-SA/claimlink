@@ -7,113 +7,132 @@ import {
   CreateActor,
 } from "ic-auth";
 import { Principal } from "@dfinity/principal";
-// import { idlFactory } from "../../../../.dfx/local/canisters/claimlink_backend/claimlink_backend.did.js";
+import { createActor } from "../../../../.dfx/local/canisters/claimlink_backend";
+import { AuthClient } from "@dfinity/auth-client";
+import { idlFactory } from "../../../declarations/claimlink_backend/claimlink_backend.did.js";
 
 const AuthContext = createContext();
 
-const canisterID = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+const canisterID = "xjhju-3aaaa-aaaak-akv5q-cai";
+const whitelist = ["xjhju-3aaaa-aaaak-akv5q-cai"];
 
 export const useAuthClient = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [principal, setPrincipal] = useState(null);
+  const [backend, setBackend] = useState(null);
   const [identity, setIdentity] = useState(null);
-  const [backendActor, setBackendActor] = useState(null);
+  const [authClient, setAuthClient] = useState(null);
+  const loginStatus = localStorage.getItem("loginStatus");
 
   useEffect(() => {
-    const checkSession = () => {
-      try {
-        const savedPrincipal = sessionStorage.getItem("principal");
-        const savedIdentity = sessionStorage.getItem("identity");
+    const initAuthClient = async () => {
+      const client = await AuthClient.create();
+      setAuthClient(client);
+      const isConnected = await client.isAuthenticated();
+      const identity = client.getIdentity();
+      const principal = identity.getPrincipal();
+      setIsConnected(isConnected);
+      setIdentity(identity);
+      setPrincipal(principal);
 
-        if (savedPrincipal && savedIdentity) {
-          const parsedPrincipal = Principal.fromText(savedPrincipal);
-          const parsedIdentity = JSON.parse(savedIdentity);
-          setPrincipal(parsedPrincipal);
-          setIdentity(parsedIdentity);
-          setIsAuthenticated(true);
-        }
-      } catch (error) {
-        console.error("Error checking session: ", error);
+      if (createActor && loginStatus === null) {
+        const backendActor = createActor(canisterID, {
+          agentOptions: { identity },
+        });
+        setBackend(backendActor);
+      }
+    };
+    initAuthClient();
+  }, []);
+
+  useEffect(() => {
+    const handlePlugLogin = async () => {
+      const plugPrincipal = principal?.toText();
+      if (plugPrincipal === "2vxsx-fae") {
+        let userObject = await PlugLogin(whitelist);
+        const agent = userObject.agent;
+        const principal = Principal.fromText(userObject.principal);
+        const actor = await CreateActor(agent, idlFactory, canisterID);
+        setBackend(actor);
+        setIsConnected(true);
+        setPrincipal(principal);
+        setIdentity(agent._identity);
+
+        await authClient.login({
+          agent,
+          onSuccess: () => {
+            setIsConnected(true);
+            setPrincipal(principal);
+            setIdentity(agent._identity);
+          },
+        });
       }
     };
 
-    checkSession();
-  }, []);
+    if (loginStatus) {
+      handlePlugLogin();
+    }
+  }, [principal]);
 
   const login = async (provider) => {
-    try {
+    if (authClient) {
       let userObject = {
         principal: "Not Connected.",
         agent: undefined,
         provider: "N/A",
       };
-
-      switch (provider) {
-        case "Plug":
-          userObject = await PlugLogin();
-          break;
-        case "Stoic":
-          userObject = await StoicLogin();
-          break;
-        case "NFID":
-          userObject = await NFIDLogin();
-          break;
-        case "Identity":
-          userObject = await IdentityLogin();
-          break;
-        default:
-          throw new Error("Unknown provider");
+      if (provider === "Plug") {
+        userObject = await PlugLogin(whitelist);
+      } else if (provider === "Stoic") {
+        userObject = await StoicLogin();
+      } else if (provider === "NFID") {
+        userObject = await NFIDLogin();
+      } else if (provider === "Identity") {
+        userObject = await IdentityLogin();
       }
 
-      if (!userObject.agent) {
-        throw new Error("Agent not initialized");
-      }
-
-      const identity = userObject.agent._identity;
+      console.log("User Object:", userObject);
+      const agent = userObject.agent;
+      const identity = await userObject.agent._identity;
       const principal = Principal.fromText(userObject.principal);
-      const actor = await CreateActor(userObject.agent, idlFactory, canisterID);
-
-      setIsAuthenticated(true);
+      const actor = await CreateActor(agent, idlFactory, canisterID);
+      setBackend(actor);
+      setIsConnected(true);
       setPrincipal(principal);
       setIdentity(identity);
-      setBackendActor(actor);
 
-      const expirationTime = Date.now() + 1000 * 60 * 60 * 24;
-      sessionStorage.setItem("isAuthenticated", "true");
-      sessionStorage.setItem("principal", userObject.principal);
-      sessionStorage.setItem("identity", JSON.stringify(identity));
-      sessionStorage.setItem(
-        "backendActor",
-        JSON.stringify({
-          canisterId: canisterID,
-          identity: JSON.stringify(identity),
-        })
-      );
-      sessionStorage.setItem("expirationTime", expirationTime.toString());
-    } catch (error) {
-      console.error("Login error: ", error);
+      if (userObject.provider !== "Plug") {
+        await authClient.login({
+          identity,
+          onSuccess: () => {
+            setIsConnected(true);
+            setPrincipal(principal);
+            setIdentity(identity);
+          },
+        });
+      }
+      if (!isConnected && userObject.provider === "Plug") {
+        localStorage.setItem("loginStatus", true);
+      }
     }
   };
 
-  const logout = () => {
-    setIsAuthenticated(false);
-    setPrincipal(null);
-    setIdentity(null);
-    setBackendActor(null);
-
-    sessionStorage.removeItem("isAuthenticated");
-    sessionStorage.removeItem("principal");
-    sessionStorage.removeItem("identity");
-    sessionStorage.removeItem("backendActor");
-    sessionStorage.removeItem("expirationTime");
+  const disconnect = async () => {
+    if (authClient) {
+      await authClient.logout();
+      setIsConnected(false);
+      setPrincipal(null);
+      setIdentity(null);
+    }
+    localStorage.removeItem("loginStatus");
   };
 
   return {
-    isAuthenticated,
+    isConnected,
     login,
-    logout,
+    disconnect,
     principal,
-    backendActor,
+    backend,
     identity,
   };
 };
@@ -122,5 +141,7 @@ export const AuthProvider = ({ children }) => {
   const auth = useAuthClient();
   return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
 };
+
+export const useBackend = () => {};
 
 export const useAuth = () => useContext(AuthContext);

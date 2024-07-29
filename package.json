@@ -16,6 +16,7 @@
     "src/claimlink_frontend"
   ],
   "dependencies": {
+    "@dfinity/auth-client": "^2.0.0",
     "@fontsource-variable/manrope": "^5.0.20",
     "@fontsource/quicksand": "^5.0.18",
     "@headlessui/react": "^2.1.0",

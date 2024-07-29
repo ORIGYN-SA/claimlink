@@ -7,18 +7,16 @@ import { MobileHeader } from "../../common/Header";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
+import { useAuth } from "../../connect/useClient";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { identity, backendActor, principal } = useSelector(
-    (state) => state.auth
-  );
-  const [collections, setCollection] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const { identity, backend, principal } = useAuth();
 
+  const [error, setError] = useState(null);
+  // const [loading,setLoading]=useState("")
   const [formData, setFormData] = useState({
     title: "",
     symbol: "",
@@ -32,24 +30,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   });
 
   const [image, setImage] = useState("");
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await backendActor?.getAllCollections();
-        setCollection(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Data loading error:", error);
-        setError(error);
-        setLoading(false);
-      }
-    };
-
-    if (backendActor) {
-      loadData();
-    }
-  }, [backendActor]);
 
   const imageToFileBlob = (imageFile) => {
     return new Promise((resolve, reject) => {
@@ -132,7 +112,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     e.preventDefault();
     console.log("Starting collection creation");
 
-    if (!backendActor) {
+    if (!backend) {
       toast.error("Backend actor not initialized");
       return;
     }
@@ -145,14 +125,14 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       console.log("Form data:", formData);
       console.log("Principal:", principal.toText());
 
-      const res = await backendActor?.createExtCollection(
+      const res = await backend?.createExtCollection(
         formData.title,
         formData.symbol,
         formData.img
       );
 
-      if (res.payload) {
-        console.log("Collection created successfully:", res.payload);
+      if (res) {
+        console.log("Collection created successfully:", res);
         toast.success("Collection created successfully!");
         handleNext();
       } else {
@@ -195,17 +175,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       transition={pageTransition}
       className="flex"
     >
-      <div>
-        <h2>Collection Data</h2>
-        {collections?.map((data, index) => (
-          <div key={index}>
-            <div>{data}</div>
-            <div>{index}</div>
-          </div>
-        ))}
-        {collections?.length > 0 ? "no data" : "data is found"}
-      </div>
-
       <div className="p-6 w-full md:w-3/5">
         <div>
           <div className="flex md:hidden justify-start">

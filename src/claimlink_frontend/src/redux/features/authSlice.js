@@ -10,8 +10,8 @@ import {
 import { Principal } from "@dfinity/principal";
 import { idlFactory } from "../../../../declarations/claimlink_backend/claimlink_backend.did.js";
 
-const canisterID = "be2us-64aaa-aaaaa-qaabq-cai";
-const whitelist = ["be2us-64aaa-aaaaa-qaabq-cai"];
+const canisterID = "xjhju-3aaaa-aaaak-akv5q-cai";
+const whitelist = ["xjhju-3aaaa-aaaak-akv5q-cai"];
 
 const initialState = {
   isAuthenticated: false,
@@ -65,7 +65,7 @@ export const login = (provider) => async (dispatch) => {
 
     const identity = userObject.agent._identity;
     const principal = Principal.fromText(userObject.principal);
-    const actor = await CreateActor(userObject.agent, idlFactory, canisterID);
+    const actor = await CreateActor(userObject.agent, HelloIDL, canisterID);
 
     dispatch(
       setAuthState({

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { TfiPlus } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
@@ -6,16 +6,14 @@ import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMinterData } from "../redux/features/minterSlice";
+import { useAuth } from "../connect/useClient";
+import { Principal } from "@dfinity/principal";
 const Minter = () => {
-  const dispatch = useDispatch();
-  const minterData = useSelector((state) => state.minter.data);
-  const minterStatus = useSelector((state) => state.minter.status);
-  useEffect(() => {
-    if (minterStatus === "idle") {
-      dispatch(fetchMinterData());
-    }
-  }, [minterStatus, dispatch]);
+  const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+  const { identity, backend, principal } = useAuth();
 
   const createContract = () => {
     navigate("/minter/new-contract");
@@ -23,6 +21,32 @@ const Minter = () => {
   const openmynft = () => {
     navigate("/minter/new-contract/token-home");
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backend?.getAllCollections();
+        setCollections(data);
+        console.log("collection is", collections);
+        // const principal = Principal.fromUint8Array(
+        //   collections?.[0]?.[1]?.[0]?._arr
+        // );
+        // const principalText = principal.toText();
+
+        console.log("prin is", Principal(collections?.[0]?.[1]?.[0]).toText());
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
   return (
     <>
       <div className=" p-6 min-h-full">
@@ -41,7 +65,7 @@ const Minter = () => {
                 <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
-            {[1, 2, 3, 4, 5, 6].map((index) => (
+            {collections.map((index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
@@ -151,7 +175,7 @@ const Minter = () => {
                 </p>
               </motion.div>
 
-              {[1, 2, 3].map((index) => (
+              {collections.map((data, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0 }}
@@ -200,7 +224,7 @@ const Minter = () => {
                     <div className="flex justify-between">
                       <p className="text-xs text-[#84818A] ">Address</p>
                       <p className="text-[#564BF1] text-xs font-semibold">
-                        0xf8c...992h4
+                        {/* {data[1]?._Principal?.toText()} */}
                       </p>
                     </div>
                     <div className="flex justify-between mt-2">
