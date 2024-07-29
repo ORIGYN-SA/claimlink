@@ -584,6 +584,9 @@ actor class EXTNFT(init_owner: Principal) = this {
     config_collection_symbol := symbol;
     config_collection_data := metadata;
   };
+  public shared query func getCollectionDetails() : async (Text, Text, Text) {
+      return (config_collection_name, config_collection_symbol, config_collection_data);
+  };
   public shared(msg) func ext_setMarketplaceOpen(mpo : Time) : async () {
     assert(_isAdmin(msg.caller));
     config_marketplace_open := mpo;
