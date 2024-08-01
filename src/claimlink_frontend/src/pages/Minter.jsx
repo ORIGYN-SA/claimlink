@@ -11,7 +11,7 @@ import { Principal } from "@dfinity/principal";
 const Minter = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
 
@@ -25,7 +25,7 @@ const Minter = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await backend?.getAllCollections();
+        const data = await backend?.getUserCollectionDetails();
         setCollections(data);
         console.log("collection is", collections);
         // const principal = Principal.fromUint8Array(
@@ -174,74 +174,135 @@ const Minter = () => {
                   Mint a new token.
                 </p>
               </motion.div>
-
-              {collections.map((data, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                  onClick={openmynft}
-                >
-                  <div className="flex justify-start  space-x-4">
-                    <img
-                      src="https://via.placeholder.com/100"
-                      alt="Campaign"
-                      className="w-12 h-12 object-cover rounded-md"
-                      style={{
-                        border: "2px solid white",
-                        zIndex: 3,
-                      }}
-                    />
-                    <img
-                      src="https://via.placeholder.com/100"
-                      alt="Campaign"
-                      className="w-12 h-12 object-cover rounded-md"
-                      style={{
-                        border: "2px solid white",
-                        zIndex: 2,
-                        marginLeft: -24,
-                      }}
-                    />
-                    <img
-                      src="https://via.placeholder.com/100"
-                      alt="Campaign"
-                      className="w-12 h-12 object-cover rounded-md"
-                      style={{
-                        border: "2px solid white",
-                        zIndex: 1,
-                        marginLeft: -24,
-                      }}
-                    />
-                  </div>
-                  <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                    Test collection
-                  </h2>
-                  <p className="text-xs text-[#84818A] mt-1 ">April 5, 13:34</p>
-                  <div className="border border-gray-300 my-4 w-full"></div>
-                  <div className="mt-2 w-full">
-                    <div className="flex justify-between">
-                      <p className="text-xs text-[#84818A] ">Address</p>
-                      <p className="text-[#564BF1] text-xs font-semibold">
-                        {/* {data[1]?._Principal?.toText()} */}
-                      </p>
+              {loading
+                ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
+                    <div
+                      className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                      key={index}
+                    >
+                      <div className="flex justify-start  space-x-4 animate-pulse">
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 3,
+                          }}
+                        />
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 2,
+                            marginLeft: -24,
+                          }}
+                        />
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 1,
+                            marginLeft: -24,
+                          }}
+                        />
+                      </div>
+                      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 animate-pulse w-20 h-8 bg-gray-200"></h2>
+                      <p className=" animate-pulse  w-20 h-4  rounded-sm bg-gray-200 mt-2"></p>
+                      <div className="border border-gray-300 my-4 w-full"></div>
+                      <div className="mt-2 w-full">
+                        <div className="flex justify-between">
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-xs text-[#84818A] ">
-                        All token copies
+                  ))
+                : collections.map((data, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1 }}
+                      className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                      onClick={openmynft}
+                    >
+                      <div className="flex justify-start  space-x-4">
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 3,
+                          }}
+                        />
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 2,
+                            marginLeft: -24,
+                          }}
+                        />
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 1,
+                            marginLeft: -24,
+                          }}
+                        />
+                      </div>
+                      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
+                        Test collection
+                      </h2>
+                      <p className="text-xs text-[#84818A] mt-1 ">
+                        April 5, 13:34
                       </p>
-                      <p className="text-[#2E2C34] text-xs font-semibold">10</p>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-xs text-[#84818A] ">Token standard</p>
-                      <p className="text-[#2E2C34] text-xs  font-semibold">
-                        ERC1155
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                      <div className="border border-gray-300 my-4 w-full"></div>
+                      <div className="mt-2 w-full">
+                        <div className="flex justify-between">
+                          <p className="text-xs text-[#84818A] ">Address</p>
+                          <p className="text-[#564BF1] text-xs font-semibold">
+                            {/* {data[1]?._Principal?.toText()} */}
+                          </p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className="text-xs text-[#84818A] ">
+                            All token copies
+                          </p>
+                          <p className="text-[#2E2C34] text-xs font-semibold">
+                            10
+                          </p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className="text-xs text-[#84818A] ">
+                            Token standard
+                          </p>
+                          <p className="text-[#2E2C34] text-xs  font-semibold">
+                            ERC1155
+                          </p>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
             </div>
           </div>
         )}

@@ -13,8 +13,8 @@ import { idlFactory } from "../../../declarations/claimlink_backend/claimlink_ba
 
 const AuthContext = createContext();
 
-const canisterID = "xjhju-3aaaa-aaaak-akv5q-cai";
-const whitelist = ["xjhju-3aaaa-aaaak-akv5q-cai"];
+const canisterID = "bkyz2-fmaaa-aaaaa-qaaaq-cai";
+const whitelist = ["bkyz2-fmaaa-aaaaa-qaaaq-cai"];
 
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
