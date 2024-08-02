@@ -4,7 +4,6 @@ import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
 import List "mo:base/List";
-import Nat64 "mo:base/Nat64";
 import Array "mo:base/Array";
 import Nat "mo:base/Nat";
 import Time "mo:base/Time";
@@ -40,6 +39,7 @@ actor Main {
         };
         #nonfungible : {
         name : Text;
+        description : Text;
         asset : Text;
         thumbnail : Text;
         metadata: ?MetadataContainer;
@@ -56,9 +56,13 @@ actor Main {
     };
     type User = ExtCore.User;
 
+    // Maps user and the collection canisterIds they create
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
+    
+    // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
 
+    // Collection creation
     public shared ({caller = user}) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal,Principal) {
         Cycles.add<system>(500_500_000_000);
         let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
@@ -68,9 +72,13 @@ actor Main {
                 name : Text, 
                 symbol : Text, 
                 metadata : Text
-            ) -> async ()
+            ) -> async ();
+            setMinter : ( minter : Principal)-> async();
+            ext_admin : () -> async Principal
         };
+        await collectionCanisterActor.setMinter(user);
         await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
+        // Updating the userCollectionMap 
         let collections = usersCollectionMap.get(user);
         switch(collections){
             case null {
@@ -87,6 +95,7 @@ actor Main {
             
     };
 
+    // Getting Collection Metadata 
     public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Principal, Text, Text, Text)] {
         let collections = usersCollectionMap.get(user);
         switch (collections) {
@@ -107,12 +116,13 @@ actor Main {
         };
     };
 
-
+    // Getting Collections that user own(only gets canisterIds of respective collections)
     public shared query ({caller = user}) func getUserCollections() : async ?[Principal] {
         return usersCollectionMap.get(user);
         
     };
     
+    // Getting all the collections ever created(only gets the canisterIds)
     public shared query func getAllCollections() : async [(Principal, [Principal])] {
         var result : [(Principal, [Principal])] = [];
         for ((key, value) in usersCollectionMap.entries()) {
@@ -122,8 +132,25 @@ actor Main {
     };
 
     
-
+    // Minting  a token pass the collection canisterId in which you want to mint and the request obj [(ownerOfToken,Metadata)] this enables minting multiple tokens
     public shared func mintExt(
+        _collectionCanisterId : Principal,
+        _request : [(AccountIdentifier, Metadata)]
+
+    ) : async [TokenIndex] {
+        
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            ext_mint : (
+                request : [(AccountIdentifier, Metadata)]
+            ) -> async [TokenIndex]
+        };
+        let extMint = await collectionCanisterActor.ext_mint(_request);
+        extMint
+
+    };
+
+    // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
+    public shared func mintAtClaim(
         _collectionCanisterId : Principal,
         _request : [(AccountIdentifier, Metadata)]
 
@@ -143,7 +170,7 @@ actor Main {
         #principal(principal)
     };
 
-
+    // Token will be transfered to this Vault and gives you req details to construct a link out of it, which you can share
     public shared ({caller = user}) func createLink(
         _collectionCanisterId : Principal,
         _tokenId : TokenIndex,
@@ -155,7 +182,7 @@ actor Main {
                    request: TransferRequest
                 ) ->async TransferResponse
             };
-            
+           
             let userFrom: User = principalToUser(user);
 
             let userTo: User = principalToUser(Principal.fromActor(Main));
@@ -166,7 +193,7 @@ actor Main {
                 token = tokenIdentifier;              
                 amount = 1;                        
                 memo = "";                        
-                notify = true;                    
+                notify = false;                    
                 subaccount = null;                 
             };
 
@@ -205,9 +232,6 @@ actor Main {
                         };
                         case (#Unauthorized(accountId)) {
                             Debug.print("Error: Unauthorized account " # accountId);
-                            Debug.print("Error: Unauthorized account " # ExtCore.User.toAID(userFrom));
-                            Debug.print("Error: Unauthorized account " # ExtCore.User.toAID(principalToUser(_collectionCanisterId)));
-                            Debug.print("Error: Unauthorized account " # AID.fromPrincipal(user, transferRequest.subaccount));
                         };
                     };
                     -1
@@ -215,6 +239,8 @@ actor Main {
             }
              
     };
+
+    // Token will be transfered to user who claims through the shared link
     public shared ({caller = user}) func claimLink(
         _collectionCanisterId : Principal,
         _depositIndex : Nat,
@@ -237,7 +263,7 @@ actor Main {
                 token = tokenIdentifier;              
                 amount = 1;                        
                 memo = "";                        
-                notify = true;                    
+                notify = false;                    
                 subaccount = null;                 
             };
 
@@ -273,28 +299,17 @@ actor Main {
                         };
                         case (#Unauthorized(accountId)) {
                             Debug.print("Error: Unauthorized account " # accountId);
-                            Debug.print("Error: Unauthorized account " # ExtCore.User.toAID(userFrom));
-                            Debug.print("Error: Unauthorized account " # ExtCore.User.toAID(principalToUser(_collectionCanisterId)));
-                            Debug.print("Error: Unauthorized account " # AID.fromPrincipal(user, transferRequest.subaccount));
                         };
                     };
                     -1
                 };
             }
-
-
              
     };
 
-
-
+    // Gets all details about the tokens that were transfered into this vault 
     public shared query func getDeposits() : async [Deposit] {
         return deposits;
     };
-
-    
-
-
-           
 
 }

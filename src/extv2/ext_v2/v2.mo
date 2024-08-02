@@ -80,6 +80,7 @@ actor class EXTNFT(init_owner: Principal) = this {
     };
     #nonfungible : {
       name : Text;
+      description : Text;
       asset : Text;
       thumbnail : Text;
       metadata: ?MetadataContainer;
@@ -287,12 +288,12 @@ actor class EXTNFT(init_owner: Principal) = this {
   private stable var cap_rootBucketId : ?Text = null;
   
   //CONFIG
-  private stable var config_owner : Principal  = init_owner;
-  private stable var config_admin : Principal  = config_owner;
+  private stable var config_owner : List.List<Principal> = List.make<Principal>(init_owner);
+  private stable var config_admin : List.List<Principal> = config_owner;
   // private stable var config_royalty_address : AccountIdentifier = AID.fromPrincipal(config_owner, null);
   // private stable var config_royalty_fee : Nat64  = 3000;
-  private stable var config_royalty : [(AccountIdentifier, Nat64)] = [(AID.fromPrincipal(config_owner, null), 3000)];
-  private stable var config_initial_sale_royalty_address : AccountIdentifier = AID.fromPrincipal(config_owner, null);
+  private stable var config_royalty : [(AccountIdentifier, Nat64)] = [(AID.fromPrincipal(init_owner, null), 3000)];
+  private stable var config_initial_sale_royalty_address : AccountIdentifier = AID.fromPrincipal(init_owner, null);
   private stable var config_collection_name : Text  = "[PLEASE CHANGE]";
   private stable var config_collection_symbol : Text  = "[PLEASE CHANGE]";
   private stable var config_collection_data : Text  = "{}";
@@ -314,7 +315,7 @@ actor class EXTNFT(init_owner: Principal) = this {
   var _tokenListing : HashMap.HashMap<TokenIndex, Listing> = HashMap.fromIter(data_tokenListingTableState.vals(), 0, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash);
   var _paymentSettlements : HashMap.HashMap<AccountIdentifier, Payment> = HashMap.fromIter(data_paymentSettlementsTableState.vals(), 0, AID.equal, AID.hash);
   var _saleGroups : HashMap.HashMap<AccountIdentifier, Nat> = HashMap.fromIter(data_saleGroupsTableState.vals(), 0, AID.equal, AID.hash);
-  
+  // var _allowances : HashMap.HashMap<ExtCore.TokenIdentifier, (Principal,[ExtCore.TokenAllowance])> = HashMap.HashMap<ExtCore.TokenIdentifier, (Principal,[ExtCore.TokenAllowance])>(0,ExtCore.TokenIdentifier.equal,ExtCore.TokenIdentifier.hash);
   //Variables
   let ASSET_CANISTER_CYCLES_TOPUP : Nat = 5_000_000_000_000;
   let ASSET_CANISTER_MIN_CYCLES : Nat = 1_000_000_000_000;
@@ -557,11 +558,11 @@ actor class EXTNFT(init_owner: Principal) = this {
   //Management
   public shared(msg) func ext_setOwner(p: Principal) : async () {
     assert(_isOwner(msg.caller));
-    config_owner := p;
+    config_owner := List.make(p);
   };
   public shared(msg) func ext_setAdmin(p: Principal) : async () {
     assert(_isOwner(msg.caller) or _isAdmin(msg.caller));
-    config_admin := p;
+    config_admin := List.make(p);
   };
   public shared(msg) func ext_setRoyalty( request : [ (AccountIdentifier, Nat64)]) : async () {
     assert(_isAdmin(msg.caller));
@@ -592,7 +593,7 @@ actor class EXTNFT(init_owner: Principal) = this {
     config_marketplace_open := mpo;
   };
   
-  public query func ext_admin() : async Principal {
+  public query func ext_admin() : async List.List<Principal> {
     config_admin;
   };
   public query func ext_extensions() : async [Extension] {
@@ -1538,10 +1539,13 @@ actor class EXTNFT(init_owner: Principal) = this {
     paymentAddress;
   };
   func _isOwner(p : Principal) : Bool {
-    return (p == config_owner);
+    return (List.some(config_owner, func (c : Principal) : Bool { c == p }));
   };
   func _isAdmin(p : Principal) : Bool {
-    return (p == config_admin);
+    if(List.some(config_admin, func (c : Principal) : Bool { c == p })){
+    }else{
+    };
+    return (List.some(config_admin, func (c : Principal) : Bool { c == p }));
   };
   func _expiredPaymentSettlements() : [(AccountIdentifier, Payment)] {
     Array.filter<(AccountIdentifier, Payment)>(Iter.toArray(_paymentSettlements.entries()), func(a : (AccountIdentifier, Payment)) : Bool { 
@@ -1870,7 +1874,7 @@ actor class EXTNFT(init_owner: Principal) = this {
     let owner = ExtCore.User.toAID(request.from);
     let spender = AID.fromPrincipal(caller, request.subaccount);
     let receiver = ExtCore.User.toAID(request.to);
-		if (AID.equal(owner, spender) == false) {
+		if (not List.some(config_admin, func (c : Principal) : Bool { AID.fromPrincipal(c, request.subaccount) == spender }) and AID.equal(owner, spender) == false){
       return #err(#Unauthorized(spender));
     };
     switch (_registry.get(token)) {
@@ -1924,7 +1928,7 @@ actor class EXTNFT(init_owner: Principal) = this {
   };
   public shared(msg) func setMinter(minter : Principal) : async () {
     assert(_isOwner(msg.caller) or _isAdmin(msg.caller));
-    config_admin := minter;
+    config_admin := List.reverse(List.push<Principal>(minter, List.reverse(config_admin)));
   };
   public shared(msg) func addThumbnail(handle : AssetHandle, data : Blob) : async () {
     await _ext_internal_assetAdd(msg.caller, handle, "image/png", handle, #direct([]) : AssetType, 0);
@@ -1989,8 +1993,11 @@ actor class EXTNFT(init_owner: Principal) = this {
   public shared(msg) func list(request: ListRequest) : async Result.Result<(), CommonError> {
     await _ext_internal_marketplaceList(msg.caller, request);
   };
-  public query func getMinter() : async Principal {
-    config_admin;
+  public query func getMinter() : async ?Principal {
+    switch (List.get(config_admin,0)){
+      case (minter) minter;
+      case null null
+    }
   };
   public query func extensions() : async [Extension] {
     EXTENSIONS;
