@@ -32,17 +32,17 @@ actor Main {
     };
     type Metadata = {
         #fungible : {
-        name : Text;
-        symbol : Text;
-        decimals : Nat8;
-        metadata: ?MetadataContainer;
+            name : Text;
+            symbol : Text;
+            decimals : Nat8;
+            metadata: ?MetadataContainer;
         };
         #nonfungible : {
-        name : Text;
-        description : Text;
-        asset : Text;
-        thumbnail : Text;
-        metadata: ?MetadataContainer;
+            name : Text;
+            description : Text;
+            asset : Text;
+            thumbnail : Text;
+            metadata: ?MetadataContainer;
         };
     };
     type TransferRequest = ExtCore.TransferRequest;
@@ -132,10 +132,15 @@ actor Main {
     };
 
     
-    // Minting  a token pass the collection canisterId in which you want to mint and the request obj [(ownerOfToken,Metadata)] this enables minting multiple tokens
-    public shared func mintExt(
+    // Minting  a NFT pass the collection canisterId in which you want to mint and the required details to add, this enables minting multiple tokens
+    public shared ({caller = user}) func mintExtNonFungible(
         _collectionCanisterId : Principal,
-        _request : [(AccountIdentifier, Metadata)]
+        name : Text,
+        desc : Text,
+        asset : Text,
+        thumb : Text,
+        metadata : ?MetadataContainer,
+        amount : Nat
 
     ) : async [TokenIndex] {
         
@@ -144,11 +149,58 @@ actor Main {
                 request : [(AccountIdentifier, Metadata)]
             ) -> async [TokenIndex]
         };
-        let extMint = await collectionCanisterActor.ext_mint(_request);
+        let metadataNonFungible : Metadata = #nonfungible{
+            name = name;
+            description = desc;
+            asset = asset;
+            thumbnail = thumb;
+            metadata = metadata;
+        };
+
+        let receiver = AID.fromPrincipal(user,null);
+        var request : [(AccountIdentifier,Metadata)] = [];
+        var i : Nat = 0;
+        while (i < amount) {
+            request := Array.append(request , [(receiver,metadataNonFungible)]);
+            i := i + 1;
+        }; 
+        let extMint = await collectionCanisterActor.ext_mint(request);
         extMint
-
     };
+    
+    // Minting  a Fungible token pass the collection canisterId in which you want to mint and the required details to add, this enables minting multiple tokens
+    public shared ({caller = user}) func mintExtFungible(
+        _collectionCanisterId : Principal,
+        name : Text,
+        symbol : Text,
+        decimals : Nat8,
+        metadata: ?MetadataContainer,
+        amount : Nat
 
+    ) : async [TokenIndex] {
+        
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            ext_mint : (
+                request : [(AccountIdentifier, Metadata)]
+            ) -> async [TokenIndex]
+        };
+        let metadataFungible : Metadata = #fungible{
+            name = name;
+            symbol = symbol;
+            decimals = decimals;
+            metadata = metadata;
+        };
+
+        let receiver = AID.fromPrincipal(user,null);
+        var request : [(AccountIdentifier,Metadata)] = [];
+        var i : Nat = 0;
+        while (i < amount) {
+            request := Array.append(request , [(receiver,metadataFungible)]);
+            i := i + 1;
+        }; 
+        let extMint = await collectionCanisterActor.ext_mint(request);
+        extMint
+    };
     // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
     public shared func mintAtClaim(
         _collectionCanisterId : Principal,
