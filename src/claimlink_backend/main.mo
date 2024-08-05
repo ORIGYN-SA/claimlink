@@ -201,6 +201,17 @@ actor Main {
         let extMint = await collectionCanisterActor.ext_mint(request);
         extMint
     };
+
+    // Get tokens for specific collection
+    public shared func getTokens(
+        _collectionCanisterId : Principal
+    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            getAllTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        };
+        await collectionCanisterActor.getAllTokenData();
+    };
+
     // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
     public shared func mintAtClaim(
         _collectionCanisterId : Principal,

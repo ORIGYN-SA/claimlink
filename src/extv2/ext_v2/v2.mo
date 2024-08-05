@@ -27,6 +27,7 @@ import ExtNonFungible "../motoko/ext/NonFungible";
 //EXTv2 SALE
 import Int64 "mo:base/Int64";
 import List "mo:base/List";
+import Buffer "mo:base/Buffer";
 import Encoding "mo:encoding/Binary";
 //Cap
 import Cap "mo:cap/Cap";
@@ -2045,6 +2046,20 @@ actor class EXTNFT(init_owner: Principal) = this {
     Iter.toArray(HashMap.map<TokenIndex, Metadata, MetadataLegacy>(_tokenMetadata, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash, func (a : (TokenIndex, Metadata)) : MetadataLegacy {
       _convertToLegacyMetadata(a.1);
     }).entries());
+  };
+  public query func getAllTokenData() : async [(TokenIndex, AccountIdentifier, Metadata)] {
+      if (_tokenMetadata.size() == 0) {
+          return [];
+      };
+      let tokenData = Buffer.Buffer<(TokenIndex, AccountIdentifier, Metadata)>(_tokenMetadata.size());
+      for ((tokenIndex, metadata) in _tokenMetadata.entries()) {
+          let owner = switch (_registry.get(tokenIndex)) {
+              case (?owner) { owner };
+              case (null) { AID.fromPrincipal(Principal.fromText("aaaaa-aa"), null) };
+          };
+          tokenData.add((tokenIndex, owner, metadata));
+      };
+      return Buffer.toArray(tokenData);
   };
   public query func getTokens() : async [(TokenIndex, MetadataLegacy)] {
     Iter.toArray(HashMap.map<TokenIndex, Metadata, MetadataLegacy>(_tokenMetadata, ExtCore.TokenIndex.equal, ExtCore.TokenIndex.hash, func (a : (TokenIndex, Metadata)) : MetadataLegacy {
