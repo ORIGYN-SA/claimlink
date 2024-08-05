@@ -6,11 +6,15 @@ import { BsArrowRightSquare } from "react-icons/bs";
 import { MobileHeader } from "../../common/Header";
 import { useAuth } from "../../connect/useClient";
 import toast from "react-hot-toast";
+import { Principal } from "@dfinity/principal";
+import { useParams } from "react-router-dom";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
   const [tokenType, setTokenType] = useState("fungible");
   const { identity, backend, principal } = useAuth();
+  const { id } = useParams();
+  console.log("id", id);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -100,7 +104,7 @@ const AddToken = () => {
       console.error("Error converting image to blob:", error);
     }
   };
-
+  console.log(tokenType);
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Starting NFT creation");
@@ -109,10 +113,7 @@ const AddToken = () => {
       toast.error("Backend actor not initialized");
       return;
     }
-
-    if (!validateForm()) {
-      return;
-    }
+    console.log(backend);
 
     try {
       console.log("Form data:", formData);
@@ -141,19 +142,49 @@ const AddToken = () => {
         },
       };
 
-      const res = await backend?.mintExt(principal, [nftData]);
+      let idd = Principal.fromText(id);
 
-      if (res) {
-        console.log("Collection created successfully:", res);
-        toast.success("Collection created successfully!");
-        handleNext();
+      if (tokenType == "nonfungible") {
+        console.log(tokenType);
+        const res = await backend?.mintExtNonFungible(
+          idd,
+          formData.name,
+          formData.description,
+          formData.thumbnail,
+          formData.asset,
+          [{ json: "hello" }],
+          0
+        );
+
+        if (res) {
+          console.log(" non fungible nft created successfully:", res);
+          toast.success(" non fungible nft created successfully!");
+        } else {
+          console.log("Failed to create nft, no response received");
+          toast.error("Failed to create nft");
+        }
       } else {
-        console.log("Failed to create collection, no response received");
-        toast.error("Failed to create collection");
+        console.log(tokenType);
+        const res = await backend?.mintExtFungible(
+          idd,
+          formData.name,
+          formData.description,
+          parseInt(formData.decimals),
+          [{ json: "hello" }],
+          0
+        );
+
+        if (res) {
+          console.log("nft created successfully:", res);
+          toast.success("nft created successfully!");
+        } else {
+          console.log("Failed to create nft, no response received");
+          toast.error("Failed to create nft");
+        }
       }
     } catch (error) {
-      console.error("Error creating collection:", error);
-      toast.error(`Error creating collection: ${error.message}`);
+      console.error("Error creating nft:", error);
+      toast.error(`Error creating nft: ${error.message}`);
     }
   };
 

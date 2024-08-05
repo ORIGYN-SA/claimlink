@@ -9,6 +9,7 @@ import { BsCopy, BsQrCode } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import CommonModal from "../../common/CommonModel";
 import { IoSettingsOutline } from "react-icons/io5";
+import { useParams } from "react-router-dom";
 
 const AddTokenHome = () => {
   const navigate = useNavigate();
@@ -18,11 +19,12 @@ const AddTokenHome = () => {
     contract: "",
     collection: "",
   });
+  const {id}=useParams()
   const addToken = () => {
-    navigate("/minter/new-contract/token-home/add-token");
+    navigate(`/minter/${id}/token-home/add-token`);
   };
   const addcompaign = () => {
-    navigate("/minter/new-contract/distribution-setup");
+    navigate("/minter/:id/distribution-setup");
   };
 
   const toggleModal = () => {

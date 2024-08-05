@@ -150,7 +150,7 @@ const approutes = createBrowserRouter([
   //   ),
   // },
   {
-    path: "/minter/new-contract/token-home",
+    path: "/minter/:id/token-home",
     element: (
       <Dashboard>
         <AddTokenHome />
@@ -158,7 +158,7 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/minter/new-contract/token-home/add-token",
+    path: "/minter/:id/token-home/add-token",
     element: (
       <Dashboard>
         <AddToken />

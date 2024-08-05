@@ -8,32 +8,34 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMinterData } from "../redux/features/minterSlice";
 import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
+import { useParams } from "react-router-dom";
 const Minter = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
+  const { id } = useParams();
 
   const createContract = () => {
     navigate("/minter/new-contract");
   };
   const openmynft = () => {
-    navigate("/minter/new-contract/token-home");
+    navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
 
   useEffect(() => {
     const loadData = async () => {
       try {
         const data = await backend?.getUserCollectionDetails();
-        setCollections(data);
-        console.log("collection is", collections);
+        setCollections(data[0]);
+        console.log("collection is", data);
         // const principal = Principal.fromUint8Array(
         //   collections?.[0]?.[1]?.[0]?._arr
         // );
         // const principalText = principal.toText();
 
-        console.log("prin is", Principal(collections?.[0]?.[1]?.[0]).toText());
+        console.log("prin is", collections[1]?.[0].toText());
 
         setLoading(false);
       } catch (error) {
@@ -65,7 +67,7 @@ const Minter = () => {
                 <GoPlus className="md:text-2xl text-sm" /> New contract
               </button>
             </div>
-            {collections.map((index) => (
+            {collections.map((index, collection) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
@@ -237,7 +239,9 @@ const Minter = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                      onClick={openmynft}
+                      onClick={()=>{navigate(
+                        `/minter/${data[0].toText()}/token-home`
+                      )}}
                     >
                       <div className="flex justify-start  space-x-4">
                         <img
@@ -271,7 +275,7 @@ const Minter = () => {
                         />
                       </div>
                       <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                        Test collection
+                        {data[1]}
                       </h2>
                       <p className="text-xs text-[#84818A] mt-1 ">
                         April 5, 13:34
