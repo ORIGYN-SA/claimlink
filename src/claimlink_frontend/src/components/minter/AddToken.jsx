@@ -153,7 +153,7 @@ const AddToken = () => {
           formData.thumbnail,
           formData.asset,
           [{ json: "hello" }],
-          0
+          1
         );
 
         if (res) {
@@ -165,13 +165,17 @@ const AddToken = () => {
         }
       } else {
         console.log(tokenType);
-        const res = await backend?.mintExtFungible(
+        const res = await backend.mintExtFungible(
           idd,
           formData.name,
-          formData.description,
+          formData.symbol,
           parseInt(formData.decimals),
-          [{ json: "hello" }],
-          0
+          [
+            {
+              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+            },
+          ],
+          1
         );
 
         if (res) {

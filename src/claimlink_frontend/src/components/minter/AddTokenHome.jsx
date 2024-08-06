@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
 import { TfiPlus } from "react-icons/tfi";
 import StyledDropzone from "../../common/StyledDropzone";
@@ -10,6 +10,8 @@ import { useNavigate } from "react-router-dom";
 import CommonModal from "../../common/CommonModel";
 import { IoSettingsOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
+import { useAuth } from "../../connect/useClient";
+import { Principal } from "@dfinity/principal";
 
 const AddTokenHome = () => {
   const navigate = useNavigate();
@@ -19,17 +21,57 @@ const AddTokenHome = () => {
     contract: "",
     collection: "",
   });
-  const {id}=useParams()
+  const { id } = useParams();
+  const [nft, getNft] = useState();
+  const [collections, setCollections] = useState();
+
+  const { backend } = useAuth();
   const addToken = () => {
     navigate(`/minter/${id}/token-home/add-token`);
   };
   const addcompaign = () => {
     navigate("/minter/:id/distribution-setup");
   };
-
+  [];
   const toggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserCollectionDetails();
+
+        const res = data[0].filter((data) => id == data[0]?.toText());
+
+        console.log(res, "collection details");
+        setCollections(res);
+      } catch (error) {
+        console.error("Data loading error:", error);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
+
+  const getTokensNft = async () => {
+    try {
+      let idd = Principal.fromText(id);
+      const res = await backend.getTokens(idd);
+
+      console.log(res);
+      getNft(res);
+    } catch (error) {
+      console.log("Error getting nfts ", error);
+    }
+  };
+
+  useEffect(() => {
+    getTokensNft();
+  }, [backend]);
+
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -181,7 +223,7 @@ const AddTokenHome = () => {
                 </p>
               </motion.div>
 
-              {[1, 2, 3].map((index) => (
+              {nft?.map((nft, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0 }}
@@ -196,15 +238,15 @@ const AddTokenHome = () => {
                     alt="Dispenser"
                   />
                   <h2 className="text-xl black  font-bold  mt-5 ">
-                    Test Token
+                    {nft[2]?.fungible?.name}
                   </h2>
                   <p className="text-xs gray mt-1">April 5, 13:34</p>
                   <div className="border border-gray-200 my-4 w-full"></div>
                   <div className=" w-full">
                     <div className="flex justify-between">
                       <p className="text-xs gray ">Address</p>
-                      <p className="text-[#564BF1] text-xs font-semibold">
-                        0xf8c...992h4
+                      <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
+                        {nft[1]}
                       </p>
                     </div>
                     <div className="flex justify-between mt-2">
@@ -213,7 +255,7 @@ const AddTokenHome = () => {
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs gray		">ID </p>
-                      <p className="text-xs font-semibold"> 0</p>
+                      <p className="text-xs font-semibold"> {nft[0]}</p>
                     </div>
                     <div className="flex justify-between mt-2">
                       <p className="text-xs gray		">Description </p>

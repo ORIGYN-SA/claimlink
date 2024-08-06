@@ -239,9 +239,9 @@ const Minter = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                      onClick={()=>{navigate(
-                        `/minter/${data[0].toText()}/token-home`
-                      )}}
+                      onClick={() => {
+                        navigate(`/minter/${data[0].toText()}/token-home`);
+                      }}
                     >
                       <div className="flex justify-start  space-x-4">
                         <img
@@ -284,8 +284,8 @@ const Minter = () => {
                       <div className="mt-2 w-full">
                         <div className="flex justify-between">
                           <p className="text-xs text-[#84818A] ">Address</p>
-                          <p className="text-[#564BF1] text-xs font-semibold">
-                            {/* {data[1]?._Principal?.toText()} */}
+                          <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
+                            {data[0]?.toText()}
                           </p>
                         </div>
                         <div className="flex justify-between mt-2">
