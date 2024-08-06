@@ -202,14 +202,24 @@ actor Main {
         extMint
     };
 
-    // Get tokens for specific collection
-    public shared func getTokens(
+    // Get Fungible token details for specific collection
+    public shared func getFungibleTokens(
         _collectionCanisterId : Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-            getAllTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+            getAllFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
         };
-        await collectionCanisterActor.getAllTokenData();
+        await collectionCanisterActor.getAllFungibleTokenData();
+    };
+    
+    // Get NFT details for specific collection
+    public shared func getNonFungibleTokens(
+        _collectionCanisterId : Principal
+    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        };
+        await collectionCanisterActor.getAllNonFungibleTokenData();
     };
 
     // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
