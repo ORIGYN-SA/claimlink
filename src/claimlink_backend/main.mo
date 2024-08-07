@@ -55,9 +55,26 @@ actor Main {
         pubKey : Principal;
     };
     type User = ExtCore.User;
+    type Campaign = {
+        id: Text;
+        title: Text;
+        tokenType: Text;
+        collection : Principal;
+        claimPattern: Text;
+        tokenIds: [TokenIndex];
+        walletOption: Text;
+        displayWallets : [Text];
+        expirationDate: ?Time.Time;
+        createdBy: Principal;
+    };
+
 
     // Maps user and the collection canisterIds they create
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
+    //  Maps related to Campaigns
+    private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
+    private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
+
     
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
@@ -211,7 +228,7 @@ actor Main {
         };
         await collectionCanisterActor.getAllFungibleTokenData();
     };
-    
+
     // Get NFT details for specific collection
     public shared func getNonFungibleTokens(
         _collectionCanisterId : Principal
@@ -379,6 +396,65 @@ actor Main {
             }
              
     };
+
+    // Campaign creation
+    public shared ({caller = user}) func createCampaign (
+        title: Text,
+        tokenType: Text,
+        collection : Principal,
+        claimPattern: Text,
+        tokenIds: [TokenIndex],
+        walletOption: Text,
+        displayWallets : [Text],
+        expirationDate: ?Time.Time,
+    ) : async Text {
+        let campaignId = generateCampaignId(user);
+        let campaign: Campaign = {
+            id = campaignId;
+            title = title;
+            tokenType = tokenType;
+            collection = collection;
+            claimPattern = claimPattern;
+            tokenIds = tokenIds;
+            walletOption = walletOption;
+            displayWallets = displayWallets;
+            expirationDate = expirationDate;
+            createdBy = user;
+        };
+        campaigns.put(campaignId, campaign);
+
+        let userCampaigns = userCampaignsMap.get(user);
+        switch (userCampaigns) {
+            case null {
+                userCampaignsMap.put(user, [campaign]);
+            };
+            case (?userCampaigns) {
+                userCampaignsMap.put(user, Array.append(userCampaigns, [campaign]));
+            };
+        };
+
+        return campaignId;
+    };
+
+    // Get details of a specific Campaign
+    public shared query func getCampaignDetails(campaignId: Text) : async ?Campaign {
+        campaigns.get(campaignId);
+    };
+
+    // Get all campaigns created by a user
+    public shared query ({caller = user}) func getUserCampaigns() : async ?[Campaign] {
+        userCampaignsMap.get(user);
+    };
+
+    // Generation of unique campaign ID
+    private func generateCampaignId(user: Principal) : Text {
+        // Using user ID (Principal) and current timestamp to generate a unique campaign ID
+        let timestamp = Time.now();
+        let userId = Principal.toText(user);
+        Debug.print(userId # "_" # Int.toText(timestamp));
+        userId # "_" # Int.toText(timestamp)
+    };
+
 
     // Gets all details about the tokens that were transfered into this vault 
     public shared query func getDeposits() : async [Deposit] {
