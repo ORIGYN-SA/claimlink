@@ -1,12 +1,17 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CiImageOn, CiWallet } from "react-icons/ci";
 import Summary from "./Summary";
 import { BsArrowLeft } from "react-icons/bs";
 import { motion } from "framer-motion";
 import Select from "react-select";
 import MainButton from "../../common/Buttons";
+import { useAuth } from "../../connect/useClient";
 
 const CampaignSetup = ({ handleNext, handleBack }) => {
+  const [collections, setCollections] = useState([]);
+  const { identity, backend, principal } = useAuth();
+  const [error, setError] = useState(null);
+
   const [formData, setFormData] = useState({
     title: "",
     contract: "",
@@ -16,11 +21,34 @@ const CampaignSetup = ({ handleNext, handleBack }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [errors, setErrors] = useState({});
 
-  const options = [
-    { value: "chocolate", label: "Chocolate" },
-    { value: "strawberry", label: "Strawberry" },
-    { value: "vanilla", label: "Vanilla" },
-  ];
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backend?.getAllCollections();
+        console.log("Collection is", data);
+
+        if (data.length > 0) {
+          const formattedCollections = data.map((collection, index) => {
+            return {
+              value: collection[1][0].toText(),
+              label: `Collection ${index + 1}: ${collection[1][0].toText()}`,
+            };
+          });
+          setCollections(formattedCollections);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+        setLoading(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
 
   const handleContractSelect = (contractType) => {
     setSelectedContract(contractType);
@@ -209,7 +237,7 @@ const CampaignSetup = ({ handleNext, handleBack }) => {
                   onChange={handleSelectChange}
                   className="react-select-container"
                   classNamePrefix="react-select"
-                  options={options}
+                  options={collections}
                   styles={{
                     control: (baseStyles, state) => ({
                       ...baseStyles,

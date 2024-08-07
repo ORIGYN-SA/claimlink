@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { FaCog, FaCode, FaGasPump, FaTimes } from "react-icons/fa";
 import { IoSettingsOutline } from "react-icons/io5";
 import { AiOutlineLink } from "react-icons/ai";
-import Summary from "./Summary";
 import { TbWallet } from "react-icons/tb";
 import { motion } from "framer-motion";
 import MainButton, { BackButton } from "../../common/Buttons";
+import Summary from "./Summary";
 
 const DistributionPage = ({ handleNext, handleBack }) => {
   const [claimType, setClaimType] = useState("");
@@ -81,11 +80,15 @@ const DistributionPage = ({ handleNext, handleBack }) => {
           </p>
 
           <div className="mb-4">
-            <div className="sm:w-[75%] w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer">
+            <div
+              className={`sm:w-[75%] w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer ${
+                claimType === "manual" ? "border-[#5542F6]" : ""
+              }`}
+              onClick={() => handleClaimTypeChange("manual")}
+            >
               <IoSettingsOutline
                 size={24}
                 className="text-[#5542F6] flex items-center h-full"
-                onClick={() => handleClaimTypeChange("manual")}
               />
               <div>
                 <p className="font-semibold">Manual</p>
@@ -94,11 +97,15 @@ const DistributionPage = ({ handleNext, handleBack }) => {
                 </p>
               </div>
             </div>
-            <div className="sm:w-[75%] w-full mt-4 flex rounded-lg h-24 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer">
+            <div
+              className={`sm:w-[75%] w-full mt-4 flex rounded-lg h-24 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer ${
+                claimType === "sdk" ? "border-[#5542F6]" : ""
+              }`}
+              onClick={() => handleClaimTypeChange("sdk")}
+            >
               <AiOutlineLink
                 size={32}
                 className="text-[#5542F6] flex items-center h-full"
-                onClick={() => handleClaimTypeChange("sdk")}
               />
               <div>
                 <p className="font-semibold">SDK</p>
@@ -112,11 +119,16 @@ const DistributionPage = ({ handleNext, handleBack }) => {
           <div className="mb-4 mt-4">
             <h3 className="text-xl font-semibold mb-4">Gasless claiming</h3>
             <p className="text-sm text-gray-500 sm:w-[75%] w-full mb-4">
-              Selecting to sponsors transactions will allow users to claim
-              tokens without having any ICP in their wallet, otherwise users
-              will pay gas to cover transactions themselves
+              Selecting to sponsor transactions will allow users to claim tokens
+              without having any ICP in their wallet, otherwise users will pay
+              gas to cover transactions themselves
             </p>
-            <div className="sm:w-[75%] text-sm sm:text-lg w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100 bg-white">
+            <div
+              className={`sm:w-[75%] text-sm sm:text-lg w-full flex rounded-lg h-20 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer ${
+                sponsorGas ? "border-[#5542F6]" : ""
+              }`}
+              onClick={() => handleSponsorGasChange(true)}
+            >
               <TbWallet
                 size={32}
                 className="text-[#5542F6] flex items-center h-full"
@@ -124,22 +136,27 @@ const DistributionPage = ({ handleNext, handleBack }) => {
               <button
                 type="button"
                 className={`p-2 ${
-                  sponsorGas ? "bg-blue-500 text-white" : " font-semibold"
+                  sponsorGas ? "bg-blue-500 text-white" : "font-semibold"
                 }`}
-                onClick={() => handleSponsorGasChange(true)}
               >
                 Sponsor claiming gas fees (+ 0.3 ICP per link)
               </button>
             </div>
-            <div className="sm:w-[75%] w-full flex mt-4 rounded-lg font-semibold h-20 gap-4 border-2 p-4 border-gray-100 bg-white">
+            <div
+              className={`sm:w-[75%] w-full flex mt-4 rounded-lg font-semibold h-20 gap-4 border-2 p-4 border-gray-100 bg-white cursor-pointer ${
+                !sponsorGas ? "border-[#5542F6]" : ""
+              }`}
+              onClick={() => handleSponsorGasChange(false)}
+            >
               <TbWallet
                 size={32}
                 className="text-[#5542F6] flex items-center h-full"
               />
               <button
                 type="button"
-                className={`p-2 ${!sponsorGas ? "font-semibold" : "bg-white"}`}
-                onClick={() => handleSponsorGasChange(false)}
+                className={`p-2 ${
+                  !sponsorGas ? "bg-blue-500 text-white" : "font-semibold"
+                }`}
               >
                 No sponsoring
               </button>

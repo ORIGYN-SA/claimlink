@@ -9,6 +9,7 @@ import Breadcrumb from "../components/Breadcrumb";
 import { TfiPlus } from "react-icons/tfi";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchQrData } from "../redux/features/qrManagerSlice";
+import QRCode from "react-qr-code";
 
 const QrManager = () => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const QrManager = () => {
       dispatch(fetchQrData());
     }
   }, [qrStatus, dispatch]);
+  const value = "ritesh";
   return (
     <>
       {" "}
@@ -49,6 +51,22 @@ const QrManager = () => {
           <Link to="/qr-setup" className="w-full   mb-4   ">
             <NewCampaignCard />
           </Link>
+          <div
+            className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full   text-center"
+            style={{
+              height: "auto",
+              margin: "0 auto",
+              maxWidth: 64,
+              width: "100%",
+            }}
+          >
+            <QRCode
+              size={256}
+              style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+              value={value}
+              viewBox={`0 0 256 256`}
+            />
+          </div>
           {Array(3)
             .fill(0)
             .map((_, index) => (
