@@ -22,6 +22,7 @@
     "@headlessui/react": "^2.1.0",
     "@heroicons/react": "^2.1.4",
     "@reduxjs/toolkit": "^2.2.6",
+    "browser-image-compression": "^2.0.2",
     "framer-motion": "^11.2.11",
     "ic-auth": "^0.9.1",
     "identityvault": "^0.1.11",

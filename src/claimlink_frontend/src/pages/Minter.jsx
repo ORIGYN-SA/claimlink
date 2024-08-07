@@ -232,7 +232,7 @@ const Minter = () => {
                       </div>
                     </div>
                   ))
-                : collections.map((data, index) => (
+                : collections?.map((data, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, scale: 0 }}

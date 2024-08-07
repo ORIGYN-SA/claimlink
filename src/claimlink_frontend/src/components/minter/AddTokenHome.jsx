@@ -23,7 +23,10 @@ const AddTokenHome = () => {
   });
   const { id } = useParams();
   const [nft, getNft] = useState();
+  const [nonFungibleNft, getNonFungibleNft] = useState();
   const [collections, setCollections] = useState();
+  const [filter, setFilter] = useState("fungible");
+  const [loader, setLoader] = useState(true);
 
   const { backend } = useAuth();
   const addToken = () => {
@@ -58,19 +61,42 @@ const AddTokenHome = () => {
 
   const getTokensNft = async () => {
     try {
+      setLoader(true);
       let idd = Principal.fromText(id);
-      const res = await backend.getTokens(idd);
+      const res = await backend.getFungibleTokens(idd);
 
       console.log(res);
       getNft(res);
     } catch (error) {
       console.log("Error getting nfts ", error);
+    } finally {
+      setLoader(false);
+    }
+  };
+
+  const getNonfungibleTokensNft = async () => {
+    try {
+      setLoader(true);
+      let idd = Principal.fromText(id);
+      console.log("HELLO FROM THE NON  FUNGIBLE ");
+      const res = await backend.getNonFungibleTokens(idd);
+
+      console.log(res);
+      getNft(res);
+    } catch (error) {
+      console.log("Error getting nfts ", error);
+    } finally {
+      setLoader(false);
     }
   };
 
   useEffect(() => {
-    getTokensNft();
-  }, [backend]);
+    if (filter == "non-fungible") {
+      getNonfungibleTokensNft();
+    } else {
+      getTokensNft();
+    }
+  }, [backend, filter]);
 
   const pageVariants = {
     initial: {
@@ -203,9 +229,26 @@ const AddTokenHome = () => {
           className="flex"
         >
           <div className="p-6 w-2/3">
-            <div>
+            <div className="flex justify-between">
               <h2 className="text-xl font-semibold">My NFTs </h2>
+              <select
+                name="Filter"
+                id="filter"
+                className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
+                onChange={(e) => {
+                  const selectedValue = e.target.value;
+                  if (selectedValue === "new") {
+                    setFilter("fungible");
+                  } else if (selectedValue === "old") {
+                    setFilter("non-fungible");
+                  }
+                }}
+              >
+                <option value="new">Fungible</option>
+                <option value="old">Non-Fungible</option>
+              </select>
             </div>
+
             <div className="grid grid-cols-3 gap-4">
               <motion.div
                 initial={{ scale: 1, opacity: 1 }}
@@ -223,69 +266,112 @@ const AddTokenHome = () => {
                 </p>
               </motion.div>
 
-              {nft?.map((nft, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
-                >
-                  <img
-                    width="80px"
-                    height="80px"
-                    src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                    alt="Dispenser"
-                  />
-                  <h2 className="text-xl black  font-bold  mt-5 ">
-                    {nft[2]?.fungible?.name}
-                  </h2>
-                  <p className="text-xs gray mt-1">April 5, 13:34</p>
-                  <div className="border border-gray-200 my-4 w-full"></div>
-                  <div className=" w-full">
-                    <div className="flex justify-between">
-                      <p className="text-xs gray ">Address</p>
-                      <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
-                        {nft[1]}
-                      </p>
+              {loader ? (
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
+                  <div
+                    className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                    key={index}
+                  >
+                    <div className="flex justify-start  space-x-4 animate-pulse">
+                      <img
+                        src="https://via.placeholder.com/100"
+                        alt="Campaign"
+                        className="w-12 h-12 object-cover rounded-md"
+                        style={{
+                          border: "2px solid white",
+                          zIndex: 3,
+                        }}
+                      />
                     </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-xs gray">Copies</p>
-                      <p className="text-xs font-semibold">10</p>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-xs gray		">ID </p>
-                      <p className="text-xs font-semibold"> {nft[0]}</p>
-                    </div>
-                    <div className="flex justify-between mt-2">
-                      <p className="text-xs gray		">Description </p>
-                      <p className="text-xs font-semibold"> -</p>
+                    <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 animate-pulse w-20 h-8 bg-gray-200"></h2>
+                    <p className=" animate-pulse  w-20 h-4  rounded-sm bg-gray-200 mt-2"></p>
+                    <div className="border border-gray-300 my-4 w-full"></div>
+                    <div className="mt-2 w-full">
+                      <div className="flex justify-between">
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                      </div>
+                      <div className="flex justify-between mt-2">
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                      </div>
                     </div>
                   </div>
-                  <div className="border border-gray-200 my-4"></div>
-                  <button
-                    onClick={toggleModal}
-                    className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
-                  >
-                    <GoLink />
-                    Create claim links
-                  </button>
-                  {isModalOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 bg-[#7979792e]   z-40"
-                        onClick={toggleModal}
-                      ></div>
-                      <div className="fixed inset-0 flex  items-center justify-center z-50">
-                        <CommonModal
-                          toggleModal={toggleModal}
-                          title="Transfer NFT"
+                ))
+              ) : (
+                <>
+                  {nft?.map((nft, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1 }}
+                      className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
+                    >
+                      {nft[2]?.nonfungible?.thumbnail && (
+                        <img
+                          width="80px"
+                          height="80px"
+                          src={nft[2]?.nonfungible?.thumbnail}
+                          alt="Dispenser"
+                          className="w-16  h-16"
                         />
+                      )}
+                      <h2 className="text-xl black  font-bold  mt-5 ">
+                        {nft[2]?.fungible?.name || nft[2]?.nonfungible?.name}
+                      </h2>
+                      <p className="text-xs gray mt-1">April 5, 13:34</p>
+                      <div className="border border-gray-200 my-4 w-full"></div>
+                      <div className=" w-full">
+                        <div className="flex justify-between">
+                          <p className="text-xs gray ">Address</p>
+                          <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
+                            {nft[1]}
+                          </p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className="text-xs gray">Copies</p>
+                          <p className="text-xs font-semibold">10</p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className="text-xs gray		">ID </p>
+                          <p className="text-xs font-semibold"> {nft[0]}</p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className="text-xs gray		">Description </p>
+                          <p className="text-xs font-semibold"> -</p>
+                        </div>
                       </div>
-                    </>
-                  )}
-                </motion.div>
-              ))}
+                      <div className="border border-gray-200 my-4"></div>
+                      <button
+                        onClick={toggleModal}
+                        className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+                      >
+                        <GoLink />
+                        Create claim links
+                      </button>
+                      {isModalOpen && (
+                        <>
+                          <div
+                            className="fixed inset-0 bg-[#7979792e]   z-40"
+                            onClick={toggleModal}
+                          ></div>
+                          <div className="fixed inset-0 flex  items-center justify-center z-50">
+                            <CommonModal
+                              toggleModal={toggleModal}
+                              title="Transfer NFT"
+                            />
+                          </div>
+                        </>
+                      )}
+                    </motion.div>
+                  ))}
+                </>
+              )}
             </div>
           </div>
           <div className="w-1/3 bg-white p-6">
@@ -327,13 +413,13 @@ const AddTokenHome = () => {
             </div>
             <div className="border border-gray-200 my-4"></div>
 
-            <button
+            {/* <button
               onClick={addcompaign}
               className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
             >
               <GoLink />
               Create claim links
-            </button>
+            </button> */}
           </div>
         </motion.div>
       )}

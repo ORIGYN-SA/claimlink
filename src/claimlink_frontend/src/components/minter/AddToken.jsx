@@ -8,11 +8,13 @@ import { useAuth } from "../../connect/useClient";
 import toast from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
+import imageCompression from "browser-image-compression";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
   const [tokenType, setTokenType] = useState("fungible");
   const { identity, backend, principal } = useAuth();
+  const [thumbnail, setThumbnail] = useState();
   const { id } = useParams();
   console.log("id", id);
 
@@ -93,10 +95,21 @@ const AddToken = () => {
     }
 
     try {
+      const options = {
+        maxSizeMB: 0.1,
+        maxWidthOrHeight: 200,
+        useWebWorker: true,
+      };
+
+      const compressedFile = await imageCompression(file, options);
+      console.log(file);
+      console.log(compressedFile);
+      const logoBlob2 = await imageToFileBlob(compressedFile);
       const logoBlob = await imageToFileBlob(file);
       setFormData((prevFormData) => ({
         ...prevFormData,
-        img: logoBlob,
+        asset: logoBlob,
+        thumbnail: logoBlob2,
       }));
       setImage(URL.createObjectURL(file));
       console.log("Blob for logo:", logoBlob);
@@ -125,23 +138,6 @@ const AddToken = () => {
         json: formData.metadata.json ? formData.metadata.json : null,
       };
 
-      const nftData = {
-        fungible: {
-          decimals: formData.decimals,
-          metadata:
-            metadata.blob || metadata.data || metadata.json ? metadata : null,
-          name: formData.name,
-          symbol: formData.symbol,
-        },
-        nonfungible: {
-          thumbnail: formData.thumbnail,
-          asset: formData.asset,
-          metadata:
-            metadata.blob || metadata.data || metadata.json ? metadata : null,
-          name: formData.name,
-        },
-      };
-
       let idd = Principal.fromText(id);
 
       if (tokenType == "nonfungible") {
@@ -150,9 +146,13 @@ const AddToken = () => {
           idd,
           formData.name,
           formData.description,
-          formData.thumbnail,
           formData.asset,
-          [{ json: "hello" }],
+          formData.thumbnail,
+          [
+            {
+              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+            },
+          ],
           1
         );
 
@@ -208,15 +208,26 @@ const AddToken = () => {
         </div>
         <div>
           <form onSubmit={handleSubmit}>
-            <div className="mt-2 flex flex-col ">
-              <label className="text-md font-semibold py-3 ">
-                Upload a file
-                <span className="text-gray-400 text-sm mb-3 font-normal ">
-                  (PNG, JPG, GIF, MP4. Max 5MB)
-                </span>
-              </label>
-              <StyledDropzone onDrop={handleProfileChange} />
-            </div>
+            {tokenType == "nonfungible" && (
+              <div className="mt-2 flex flex-col ">
+                <label className="text-md font-semibold py-3 ">
+                  Upload a file
+                  <span className="text-gray-400 text-sm mb-3 font-normal ">
+                    (PNG, JPG, GIF. Max 5MB)
+                  </span>
+                </label>
+                <div className="flex gap-4 flex-col md:flex-row">
+                  {image && (
+                    <img
+                      className="rounded-xl md:w-22 md:h-24 w-28"
+                      src={image}
+                      alt="Selected Thumbnail"
+                    />
+                  )}
+                  <StyledDropzone onDrop={handleProfileChange} />
+                </div>
+              </div>
+            )}
 
             <div className="flex flex-col mt-4">
               <label className="text-md font-semibold py-3 ">Token Type</label>
@@ -242,17 +253,21 @@ const AddToken = () => {
               />
             </div>
 
-            <div className="flex flex-col mt-4">
-              <label className="text-md font-semibold py-3 ">Description</label>
-              <input
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                placeholder="Description"
-              />
-            </div>
+            {tokenType === "nonfungible" && (
+              <div className="flex flex-col mt-4">
+                <label className="text-md font-semibold py-3 ">
+                  Description
+                </label>
+                <input
+                  type="text"
+                  name="description"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  placeholder="Description"
+                />
+              </div>
+            )}
 
             {tokenType === "fungible" && (
               <>
@@ -279,38 +294,6 @@ const AddToken = () => {
                     onChange={handleInputChange}
                     className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
                     placeholder="Symbol"
-                  />
-                </div>
-              </>
-            )}
-
-            {tokenType === "nonfungible" && (
-              <>
-                <div className="flex flex-col mt-4">
-                  <label className="text-md font-semibold py-3 ">
-                    Thumbnail URL
-                  </label>
-                  <input
-                    type="text"
-                    name="thumbnail"
-                    value={formData.thumbnail}
-                    onChange={handleInputChange}
-                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                    placeholder="Thumbnail URL"
-                  />
-                </div>
-
-                <div className="flex flex-col mt-4">
-                  <label className="text-md font-semibold py-3 ">
-                    Asset URL
-                  </label>
-                  <input
-                    type="text"
-                    name="asset"
-                    value={formData.asset}
-                    onChange={handleInputChange}
-                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                    placeholder="Asset URL"
                   />
                 </div>
               </>
