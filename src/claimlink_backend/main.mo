@@ -10,6 +10,8 @@ import Time "mo:base/Time";
 import Debug "mo:base/Debug";
 import Int "mo:base/Int";
 import Iter "mo:base/Iter";
+import Error "mo:base/Error";
+import Nat32 "mo:base/Nat32";
 import AID "../extv2/motoko/util/AccountIdentifier";
 
 import ExtCore "../extv2/motoko/ext/Core";
@@ -66,7 +68,8 @@ actor Main {
         displayWallets : [Text];
         expirationDate: ?Time.Time;
         createdBy: Principal;
-        createdAt : Time.Time
+        createdAt : Time.Time;
+        depositIndices: [Int];
     };
     type QRSet = {
         id: Text;
@@ -421,6 +424,17 @@ actor Main {
         expirationDate: ?Time.Time,
     ) : async (Text,[Int]) {
         let campaignId = generateCampaignId(user);
+        var linkResponses: [Int] = [];
+
+        for (tokenId in tokenIds.vals()) {
+            let linkIndex = await createLink(collection, user, tokenId, user);
+            if (linkIndex == -1) {
+                // If createLink fails, throw an error and abort campaign creation
+                throw Error.reject("Failed to create campaign: createLink failed for tokenId " # Nat32.toText(tokenId));
+            };
+            linkResponses := Array.append(linkResponses, [linkIndex]);
+        };
+
         let campaign: Campaign = {
             id = campaignId;
             title = title;
@@ -432,7 +446,8 @@ actor Main {
             displayWallets = displayWallets;
             expirationDate = expirationDate;
             createdBy = user;
-            createdAt = Time.now()
+            createdAt = Time.now();
+            depositIndices = linkResponses;
         };
         campaigns.put(campaignId, campaign);
 
@@ -446,13 +461,7 @@ actor Main {
             };
         };
 
-        var linkIndices: [Int] = [];
-        for (tokenId in tokenIds.vals()) {
-            let linkIndex = await createLink(collection, user, tokenId, user);
-            linkIndices := Array.append(linkIndices, [linkIndex]);
-        };
-
-        return (campaignId, linkIndices);
+        return (campaignId, linkResponses);
     };
 
     // Get details of a specific Campaign
