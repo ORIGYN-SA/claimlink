@@ -5,10 +5,29 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { IoSettingsOutline } from "react-icons/io5";
 import { IoIosAdd } from "react-icons/io";
-
+import { useState, useEffect } from "react";
 import Breadcrumb from "../components/Breadcrumb";
 import { TfiPlus } from "react-icons/tfi";
+import { useAuth } from "../connect/useClient";
 const DashboardContainer = () => {
+  const [campaign, setCampaign] = useState();
+
+  const { backend } = useAuth();
+
+  const getCampaign = async () => {
+    try {
+      const res = await backend.getUserCampaigns();
+      setCampaign(res[0]);
+      console.log(res[0], "campaign");
+    } catch (error) {
+      console.log("Error in getting campaign", error);
+    }
+  };
+
+  useEffect(() => {
+    getCampaign();
+  }, [backend]);
+
   return (
     <>
       <div className="min-h-screen p-4 ">
@@ -42,22 +61,20 @@ const DashboardContainer = () => {
           <Link to="/campaign-setup" className="w-full   mb-4   ">
             <NewCampaignCard />
           </Link>
-          {Array(3)
-            .fill(0)
-            .map((_, index) => (
-              <div key={index} className="w-full  p-2 ">
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                >
-                  <CampaignCard />
-                </motion.div>
-              </div>
-            ))}
+          {campaign?.map((campaign, index) => (
+            <div key={index} className="w-full  p-2 ">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <CampaignCard campaign={campaign} />
+              </motion.div>
+            </div>
+          ))}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
+        {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
           {Array(10)
             .fill(0)
             .map((_, index) => (
@@ -72,7 +89,7 @@ const DashboardContainer = () => {
                 </motion.div>
               </div>
             ))}
-        </div>
+        </div> */}
       </div>
     </>
   );
@@ -102,7 +119,7 @@ const NewCampaignCard = () => {
   );
 };
 
-const CampaignCard = () => {
+const CampaignCard = ({ campaign }) => {
   return (
     <>
       <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
@@ -211,13 +228,15 @@ const CampaignCard = () => {
           </div>
         </div>
         <div className="px-6 py-4">
-          <div className="font-semibold text-lg mb-2">Test campaign</div>
+          <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
           <p className="text-gray-500 text-xs">April 5, 13:54</p>
           <hr className="my-4" />
           <div className="text-xs">
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Contract</span>
-              <span className="text-blue-500 font-semibold">0xf8c...992h4</span>
+              <span className="text-blue-500 font-semibold line-clamp-1 w-24">
+                {campaign?.collection.toText()}
+              </span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Network</span>
@@ -225,7 +244,7 @@ const CampaignCard = () => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Token standard</span>
-              <span className="font-semibold">ERC1155</span>
+              <span className="font-semibold">{campaign?.tokenType}</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Links</span>
@@ -243,7 +262,7 @@ const CampaignCard = () => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claim pattern</span>
-              <span className="font-semibold">Transfer</span>
+              <span className="font-semibold">{campaign?.claimPattern}</span>
             </div>
           </div>
         </div>
