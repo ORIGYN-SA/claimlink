@@ -1,21 +1,56 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StepperComponent from "../../common/StepperComponent";
+import { useAuth } from "../../connect/useClient";
+import toast from "react-hot-toast";
 
 const QrSetup = () => {
   const steps = [{ id: 1, name: "QR setup" }];
   const [currentStep, setCurrentStep] = useState(1);
+  const { backend } = useAuth();
   const [formData, setFormData] = useState({
     setName: "",
     quality: "",
+    campaignId: "", // Added campaignId in formData
   });
   const [errors, setErrors] = useState({});
+  const [campaignIds, setCampaignIds] = useState([]); // State to store campaign IDs
 
   const handleNext = () => {
     if (validateForm()) {
       setCurrentStep((prev) => Math.min(prev + 1, 2));
     }
   };
+
+  const createQR = async () => {
+    try {
+      const res = await backend.createQRSet(
+        formData.setName,
+        parseInt(formData.quality),
+        formData.campaignId
+      );
+
+      if (res) {
+        toast.success("Successfully created");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const getCampaignId = async () => {
+    try {
+      const res = await backend.getUserCampaigns();
+      const ids = res[0].map((campaign) => campaign.id); // Assuming each campaign object has an `id` field
+      setCampaignIds(ids);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    getCampaignId();
+  }, [backend]);
 
   const validateForm = () => {
     const newErrors = {};
@@ -26,6 +61,10 @@ const QrSetup = () => {
 
     if (!formData.quality) {
       newErrors.quality = "Quality is required.";
+    }
+
+    if (!formData.campaignId) {
+      newErrors.campaignId = "Campaign ID is required.";
     }
 
     setErrors(newErrors);
@@ -45,6 +84,7 @@ const QrSetup = () => {
     e.preventDefault();
     if (validateForm()) {
       // Handle form submission
+      createQR();
       console.log(formData);
     }
   };
@@ -105,17 +145,36 @@ const QrSetup = () => {
               )}
             </div>
             <div className="space-y-3 mt-6">
-              <p className="text-gray-900 font-semibold">Quality</p>
+              <p className="text-gray-900 font-semibold">Quantity</p>
               <input
-                type="text"
+                type="number"
                 name="quality"
                 className="sm:w-[50%] h-10 w-full outline-none rounded border-2 px-3 border-gray-100"
-                placeholder="Text"
+                placeholder="number"
                 value={formData.quality}
                 onChange={handleChange}
               />
               {errors.quality && (
                 <p className="text-red-500 text-sm mt-1">{errors.quality}</p>
+              )}
+            </div>
+            <div className="space-y-3 mt-6">
+              <p className="text-gray-900 font-semibold">Select Campaign ID</p>
+              <select
+                name="campaignId"
+                className="sm:w-[50%] h-10 w-full outline-none rounded border-2 px-3 border-gray-100"
+                value={formData.campaignId}
+                onChange={handleChange}
+              >
+                <option value="">Select a campaign</option>
+                {campaignIds.map((id) => (
+                  <option key={id} value={id}>
+                    {id}
+                  </option>
+                ))}
+              </select>
+              {errors.campaignId && (
+                <p className="text-red-500 text-sm mt-1">{errors.campaignId}</p>
               )}
             </div>
             <button

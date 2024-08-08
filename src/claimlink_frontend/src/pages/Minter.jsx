@@ -29,13 +29,13 @@ const Minter = () => {
       try {
         const data = await backend?.getUserCollectionDetails();
         setCollections(data[0]);
-        console.log("collection is", data);
+        console.log("collection is", data[0]);
         // const principal = Principal.fromUint8Array(
         //   collections?.[0]?.[1]?.[0]?._arr
         // );
         // const principalText = principal.toText();
 
-        console.log("prin is", collections[1]?.[0].toText());
+        console.log("prin is", data[0][0][1].toText());
 
         setLoading(false);
       } catch (error) {
@@ -240,7 +240,7 @@ const Minter = () => {
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                       onClick={() => {
-                        navigate(`/minter/${data[0].toText()}/token-home`);
+                        navigate(`/minter/${data[1]?.toText()}/token-home`);
                       }}
                     >
                       <div className="flex justify-start  space-x-4">
@@ -275,7 +275,7 @@ const Minter = () => {
                         />
                       </div>
                       <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                        {data[1]}
+                        {data[2]}
                       </h2>
                       <p className="text-xs text-[#84818A] mt-1 ">
                         April 5, 13:34
@@ -285,7 +285,7 @@ const Minter = () => {
                         <div className="flex justify-between">
                           <p className="text-xs text-[#84818A] ">Address</p>
                           <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
-                            {data[0]?.toText()}
+                            {data[1]?.toText()}
                           </p>
                         </div>
                         <div className="flex justify-between mt-2">
