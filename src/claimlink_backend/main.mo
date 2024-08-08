@@ -66,15 +66,28 @@ actor Main {
         displayWallets : [Text];
         expirationDate: ?Time.Time;
         createdBy: Principal;
+        createdAt : Time.Time
+    };
+    type QRSet = {
+        id: Text;
+        title: Text;
+        quantity: Nat;
+        campaignId: Text;
+        createdAt: Time.Time;
+        creator: Principal;
     };
 
 
+
+
     // Maps user and the collection canisterIds they create
-    private var usersCollectionMap = TrieMap.TrieMap<Principal, [Principal]>(Principal.equal, Principal.hash);
+    private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
-
+    // Maps related to QR set
+    private var qrSetMap = TrieMap.TrieMap<Text, QRSet>(Text.equal, Text.hash);
+    private var userQRSetMap = TrieMap.TrieMap<Principal, [QRSet]>(Principal.equal, Principal.hash);
     
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
@@ -99,12 +112,12 @@ actor Main {
         let collections = usersCollectionMap.get(user);
         switch(collections){
             case null {
-                let updatedCollections = [extCollectionCanisterId];
+                let updatedCollections = [(Time.now(), extCollectionCanisterId)];
                 usersCollectionMap.put(user,updatedCollections);
                 return (user, extCollectionCanisterId);
             };
             case (?collections){
-                let updatedObj = List.push(extCollectionCanisterId,List.fromArray(collections));
+                let updatedObj = List.push((Time.now(), extCollectionCanisterId),List.fromArray(collections));
                 usersCollectionMap.put(user,List.toArray(updatedObj));
                 return (user, extCollectionCanisterId);
             };
@@ -113,20 +126,20 @@ actor Main {
     };
 
     // Getting Collection Metadata 
-    public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Principal, Text, Text, Text)] {
+    public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
         let collections = usersCollectionMap.get(user);
         switch (collections) {
             case (null) {
                 return null;
             };
             case (?collections) {
-                var result: [(Principal, Text, Text, Text)] = [];
-                for (collectionCanisterId in collections.vals()) {
+                var result: [(Time.Time, Principal, Text, Text, Text)] = [];
+                for ((timestamp, collectionCanisterId) in collections.vals()) {
                     let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
                         getCollectionDetails: () -> async (Text, Text, Text);
                     };
                     let details = await collectionCanister.getCollectionDetails();
-                    result := Array.append(result, [(collectionCanisterId, details.0, details.1, details.2)]);
+                    result := Array.append(result, [(timestamp, collectionCanisterId, details.0, details.1, details.2)]);
                 };
                 return ?result;
             };
@@ -134,14 +147,13 @@ actor Main {
     };
 
     // Getting Collections that user own(only gets canisterIds of respective collections)
-    public shared query ({caller = user}) func getUserCollections() : async ?[Principal] {
+    public shared query ({caller = user}) func getUserCollections() : async ?[(Time.Time,Principal)] {
         return usersCollectionMap.get(user);
-        
     };
     
     // Getting all the collections ever created(only gets the canisterIds)
-    public shared query func getAllCollections() : async [(Principal, [Principal])] {
-        var result : [(Principal, [Principal])] = [];
+    public shared query func getAllCollections() : async [(Principal, [(Time.Time, Principal)])] {
+        var result : [(Principal, [(Time.Time, Principal)])] = [];
         for ((key, value) in usersCollectionMap.entries()) {
             result := Array.append([(key, value)], result);
         };
@@ -231,7 +243,7 @@ actor Main {
 
     // Get NFT details for specific collection
     public shared func getNonFungibleTokens(
-        _collectionCanisterId : Principal
+        _collectionCanisterId : Principal    
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
@@ -263,6 +275,7 @@ actor Main {
     // Token will be transfered to this Vault and gives you req details to construct a link out of it, which you can share
     public shared ({caller = user}) func createLink(
         _collectionCanisterId : Principal,
+        _from : Principal,
         _tokenId : TokenIndex,
         _pubKey : Principal,
 
@@ -273,8 +286,7 @@ actor Main {
                 ) ->async TransferResponse
             };
            
-            let userFrom: User = principalToUser(user);
-
+            let userFrom: User = principalToUser(_from);
             let userTo: User = principalToUser(Principal.fromActor(Main));
             let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, _tokenId);
             let transferRequest: TransferRequest = {
@@ -407,7 +419,7 @@ actor Main {
         walletOption: Text,
         displayWallets : [Text],
         expirationDate: ?Time.Time,
-    ) : async Text {
+    ) : async (Text,[Int]) {
         let campaignId = generateCampaignId(user);
         let campaign: Campaign = {
             id = campaignId;
@@ -420,6 +432,7 @@ actor Main {
             displayWallets = displayWallets;
             expirationDate = expirationDate;
             createdBy = user;
+            createdAt = Time.now()
         };
         campaigns.put(campaignId, campaign);
 
@@ -433,7 +446,13 @@ actor Main {
             };
         };
 
-        return campaignId;
+        var linkIndices: [Int] = [];
+        for (tokenId in tokenIds.vals()) {
+            let linkIndex = await createLink(collection, user, tokenId, user);
+            linkIndices := Array.append(linkIndices, [linkIndex]);
+        };
+
+        return (campaignId, linkIndices);
     };
 
     // Get details of a specific Campaign
@@ -451,9 +470,60 @@ actor Main {
         // Using user ID (Principal) and current timestamp to generate a unique campaign ID
         let timestamp = Time.now();
         let userId = Principal.toText(user);
-        Debug.print(userId # "_" # Int.toText(timestamp));
-        userId # "_" # Int.toText(timestamp)
+        "Campaign" # userId # "_" # Int.toText(timestamp)
     };
+
+    // QR Set Creation
+    public shared({caller = user}) func createQRSet(
+        title: Text,
+        quantity: Nat,
+        campaignId: Text
+    ) : async Text {
+
+        let qrSetId = generateQRSetId(user);
+
+        let newQRSet: QRSet = {
+            id = qrSetId;
+            title = title;
+            quantity = quantity;
+            campaignId = campaignId;
+            createdAt = Time.now();
+            creator = user;
+        };
+
+        qrSetMap.put(qrSetId, newQRSet);
+
+        let userQRSets = userQRSetMap.get(user);
+        switch (userQRSets) {
+            case (null) {
+                userQRSetMap.put(user, [newQRSet]);
+            };
+            case (?userQRSets) {
+                userQRSetMap.put(user, Array.append(userQRSets, [newQRSet]));
+            };
+        };
+
+        qrSetId
+    };
+
+    private func generateQRSetId(user: Principal) : Text {
+        // Using user ID (Principal) and current timestamp to generate a unique campaign ID
+        let timestamp = Time.now();
+        let userId = Principal.toText(user);
+        "QR-" #userId # "_" # Int.toText(timestamp)
+    };
+
+    // Get details of a specific QR set
+    public shared query func getQRSetById(qrSetId: Text) : async ?QRSet {
+        qrSetMap.get(qrSetId)
+    };
+
+    // Get all QR sets created by a user
+    public shared query ({caller = user}) func getUserQRSets() : async ?[QRSet] {
+        userQRSetMap.get(user)
+    };
+
+
 
 
     // Gets all details about the tokens that were transfered into this vault 
