@@ -12,6 +12,8 @@ import { IoSettingsOutline } from "react-icons/io5";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
+import DescriptionComponent from "../../common/DescriptionModel";
+import { RxCross2 } from "react-icons/rx";
 
 const AddTokenHome = () => {
   const navigate = useNavigate();
@@ -27,6 +29,7 @@ const AddTokenHome = () => {
   const [collections, setCollections] = useState();
   const [filter, setFilter] = useState("fungible");
   const [loader, setLoader] = useState(true);
+  const [descriptionModel, setDescriptionModel] = useState();
 
   const { backend } = useAuth();
   const addToken = () => {
@@ -45,7 +48,7 @@ const AddTokenHome = () => {
       try {
         const data = await backend?.getUserCollectionDetails();
 
-        const res = data[0].filter((data) => id == data[0]?.toText());
+        const res = data[0].filter((data) => id == data[1]?.toText());
 
         console.log(res, "collection details");
         setCollections(res);
@@ -90,6 +93,27 @@ const AddTokenHome = () => {
     }
   };
 
+  const handleDes = () => {
+    setDescriptionModel(!descriptionModel);
+  };
+  function formatTimestamp(timestamp) {
+    // Convert nanoseconds to milliseconds by dividing by 1,000,000
+    const milliseconds = Number(timestamp / 1000000n);
+
+    // Create a new Date object with the milliseconds
+    const date = new Date(milliseconds);
+
+    // Extract the components of the date
+    const month = date.toLocaleString("en-US", { month: "long" });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    // Format the date as "Month Day, Year Hour:Minute"
+    return `${month} ${day}, ${year} ${hours}:${minutes}`;
+  }
+
   useEffect(() => {
     if (filter == "non-fungible") {
       getNonfungibleTokensNft();
@@ -130,7 +154,7 @@ const AddTokenHome = () => {
           >
             <div className="px-6">
               <div className=" ">
-                <h2 className="text-md font-bold  black">Test collection</h2>
+                <h2 className="text-md font-bold  black">collections</h2>
               </div>
               <div className="border bg-[#EBEAED] mt-4 w-full"></div>
               <div className=" w-full">
@@ -267,7 +291,7 @@ const AddTokenHome = () => {
               </motion.div>
 
               {loader ? (
-                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
+                [1, 2].map((index) => (
                   <div
                     className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                     key={index}
@@ -341,10 +365,66 @@ const AddTokenHome = () => {
                           <p className="text-xs gray		">ID </p>
                           <p className="text-xs font-semibold"> {nft[0]}</p>
                         </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs gray		">Description </p>
-                          <p className="text-xs font-semibold"> -</p>
-                        </div>
+                        {filter == "non-fungible" && (
+                          <div className="flex justify-between mt-2">
+                            <p className="text-xs gray		">Description </p>
+                            <p
+                              className="text-xs font-semibold text-[#564BF1] underline"
+                              onClick={handleDes}
+                            >
+                              view
+                            </p>
+                            {descriptionModel && (
+                              <>
+                                <div
+                                  className="fixed inset-0 bg-[#7979792e]   z-40"
+                                  onClick={handleDes}
+                                ></div>
+                                <div className="fixed inset-0  items-center justify-center bg z-50">
+                                  <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-transparent ">
+                                    <motion.div
+                                      initial={{ scale: 0, opacity: 0 }}
+                                      animate={{
+                                        scale: 1,
+                                        opacity: 1,
+                                        transition: {
+                                          ease: "easeInOut",
+                                          duration: 0.4,
+                                        },
+                                      }}
+                                      className="filter-card px-2 py-2 bg-white  rounded-xl w-[400px] h-[260px]"
+                                    >
+                                      <div className="flex justify-between items-center">
+                                        <h1 className="text-2xl px-6 font-medium">
+                                          Description
+                                        </h1>
+                                        <button
+                                          className=" p-2 rounded-md bg-[#564BF1] hover:bg-[#4039c8]"
+                                          onClick={handleDes}
+                                        >
+                                          <RxCross2 className="text-white w-5 h-5" />
+                                        </button>
+                                      </div>
+                                      <p className="text-gray-500 px-6 text-sm mt-2">
+                                        Lorem Ipsum is simply dummy text of the
+                                        printing and typesetting industry. Lorem
+                                        Ipsum has been the industry's standard
+                                        dummy text ever since the 1500s, when an
+                                        unknown printer took a galley of type
+                                        and scrambled it to make a type specimen
+                                        book. It has survived not only five
+                                        centuries, but also the leap into
+                                        electronic typesetting, remaining
+                                        essentially unchanged.
+                                      </p>
+                                      <div className="flex justify-end mt-4"></div>
+                                    </motion.div>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        )}
                       </div>
                       <div className="border border-gray-200 my-4"></div>
                       <button
@@ -375,17 +455,29 @@ const AddTokenHome = () => {
             </div>
           </div>
           <div className="w-1/3 bg-white p-6">
-            <h2 className="font-bold text-xl">Test collection</h2>
+            {collections ? (
+              <h2 className="font-bold text-xl">{collections[0][2]}</h2>
+            ) : (
+              <h2 className="font-bold text-xl">test collection</h2>
+            )}
             <div className="mt-4 w-full">
               <div className="flex justify-between">
                 <p className="gray text-sm">Collection symbol</p>
-                <p className="black font-semibold text-sm">TST</p>
+                {collections ? (
+                  <p className="black font-semibold text-sm">
+                    {collections[0][3]}
+                  </p>
+                ) : (
+                  <p className="black font-semibold text-sm">TST</p>
+                )}
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token address</p>
                 <div className="flex items-center gap-2">
                   {" "}
-                  <p className=" blue font-semibold text-sm">0xf8c...992h4</p>
+                  <p className=" blue font-semibold text-sm truncate w-32">
+                    {id}
+                  </p>
                   <BsCopy className="w-3 h-3 text-[#564BF1]" />
                 </div>{" "}
               </div>
@@ -402,13 +494,20 @@ const AddTokenHome = () => {
             <div className="mt-2 w-full">
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Date of create</p>
-                <p className="black font-semibold text-sm">
-                  April 11, 2024 13:54
-                </p>
+                {collections ? (
+                  <p className=" blue font-semibold text-sm">
+                    {" "}
+                    {formatTimestamp(collections[0][0])}
+                  </p>
+                ) : (
+                  <p className=" blue font-semibold text-sm">
+                    August 1, 2024 12:10
+                  </p>
+                )}
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">All token copies</p>
-                <p className="black font-semibold text-sm">0</p>
+                <p className="black font-semibold text-sm">1</p>
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>

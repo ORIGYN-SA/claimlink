@@ -1,14 +1,33 @@
 import React from "react";
 import { IoSettingsOutline } from "react-icons/io5";
 
-const InfoCard = () => {
+const InfoCard = ({ data }) => {
+  const timestamp = data.createdAt;
+
+  // Convert nanoseconds to milliseconds by dividing by 1,000,000
+  const milliseconds = Number(timestamp / 1000000n);
+
+  // Create a new Date object with the milliseconds
+  const date = new Date(milliseconds);
+
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  // Format the date as "Month Day, Year Hour:Minute"
+  const formattedDate = `${month} ${day}, ${year}, ${hours}:${minutes}`;
+
+  // Output the formatted date
+  console.log(formattedDate);
   return (
     <div>
       {" "}
       <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="px-4">
-            <h2 className="text-lg font-semibold">Title</h2>
+            <h2 className="text-lg font-semibold">{data?.title}</h2>
             <p className="text-sm text-gray-500">December 5, 13:54</p>
           </div>
           <div>
@@ -32,7 +51,7 @@ const InfoCard = () => {
           </div>
           <div className="flex flex-col border p-4 border-r-0 border-gray-300">
             <span className="text-sm text-gray-500">Quantity</span>
-            <span className="font-medium">10</span>
+            <span className="font-medium">{parseInt(data.quantity)}</span>
           </div>
         </div>
         <div className="   p-4">
@@ -43,8 +62,10 @@ const InfoCard = () => {
       {/* new card for desktop */}
       <div className="p-6 max-w-xs hidden sm:block mx-auto bg-white rounded-xl   space-y-4">
         <div className="">
-          <h1 className="text-xl font-bold">Title</h1>
-          <p className="text-gray-500">April 5, 13:54</p>
+          <h1 className="text-xl font-bold">{data?.title}</h1>
+          <p className="text-gray-500">
+            {month} {day},{hours}:{minutes}
+          </p>
         </div>
         <div className="border border-gra-200"></div>
         <div className="space-y-2 text-sm">
@@ -58,15 +79,17 @@ const InfoCard = () => {
               Not sent to printer
             </span>
           </div>
-          <div className="flex justify-between gap-7">
-            <span className="text-gray-500 truncate">Start date</span>
-            <span className="text-gray-800 truncate  font-semibold">
-              April 11, 2024 <span className="text-gray-400">13:54</span>
+          <div className="flex justify-between gap">
+            <span className="text-gray-500 ">Start date</span>
+            <span className="text-gray-800   font-semibold">
+              {formattedDate}
             </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Quantity</span>
-            <span className="text-gray-800 font-semibold">10</span>
+            <span className="text-gray-800 font-semibold">
+              {parseInt(data?.quantity)}
+            </span>
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Linked campaign</span>

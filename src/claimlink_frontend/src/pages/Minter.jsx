@@ -49,6 +49,24 @@ const Minter = () => {
       loadData();
     }
   }, [backend]);
+
+  function formatTimestamp(timestamp) {
+    // Convert nanoseconds to milliseconds by dividing by 1,000,000
+    const milliseconds = Number(timestamp / 1000000n);
+
+    // Create a new Date object with the milliseconds
+    const date = new Date(milliseconds);
+
+    // Extract the components of the date
+    const month = date.toLocaleString("en-US", { month: "long" });
+    const day = date.getDate();
+    const year = date.getFullYear();
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+
+    // Format the date as "Month Day, Year Hour:Minute"
+    return `${month} ${day},   ${hours}:${minutes}`;
+  }
   return (
     <>
       <div className=" p-6 min-h-full">
@@ -119,7 +137,7 @@ const Minter = () => {
                             All token copies
                           </p>
                           <p className="text-[#2E2C34] font-semibold text-sm">
-                            10
+                            1
                           </p>
                         </div>
                       </div>
@@ -278,7 +296,7 @@ const Minter = () => {
                         {data[2]}
                       </h2>
                       <p className="text-xs text-[#84818A] mt-1 ">
-                        April 5, 13:34
+                        {formatTimestamp(data[0])}
                       </p>
                       <div className="border border-gray-300 my-4 w-full"></div>
                       <div className="mt-2 w-full">

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { Link } from "react-router-dom";
@@ -10,11 +10,30 @@ import { TfiPlus } from "react-icons/tfi";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchQrData } from "../redux/features/qrManagerSlice";
 import QRCode from "react-qr-code";
+import { useAuth } from "../connect/useClient";
 
 const QrManager = () => {
   const dispatch = useDispatch();
   const qrData = useSelector((state) => state.qrManager.data);
   const qrStatus = useSelector((state) => state.qrManager.status);
+
+  const [data, setData] = useState();
+  const { backend } = useAuth();
+
+  const getData = async () => {
+    try {
+      const res = await backend.getUserQRSets();
+      console.log(res[0]);
+      setData(res[0]);
+    } catch (error) {
+      console.log("Error while getting data", error);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, [backend]);
+
   useEffect(() => {
     if (qrStatus === "idle") {
       dispatch(fetchQrData());
@@ -51,7 +70,7 @@ const QrManager = () => {
           <Link to="/qr-setup" className="w-full   mb-4   ">
             <NewCampaignCard />
           </Link>
-          <div
+          {/* <div
             className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full   text-center"
             style={{
               height: "auto",
@@ -65,22 +84,20 @@ const QrManager = () => {
               style={{ height: "auto", maxWidth: "100%", width: "100%" }}
               value={"Avanish"}
               viewBox={`0 0 256 256`}
-            />
-          </div>
-          {Array(3)
-            .fill(0)
-            .map((_, index) => (
-              <div key={index} className="w-full  p-2 ">
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                >
-                  <InfoCard />
-                </motion.div>
-              </div>
-            ))}
+            /> 
+          </div> */}
+          {data?.map((data, index) => (
+            <div key={index} className="w-full  p-2 ">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <InfoCard data={data} />
+              </motion.div>
+            </div>
+          ))}
         </div>
       </div>
     </>
