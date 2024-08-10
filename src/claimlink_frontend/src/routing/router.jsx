@@ -23,6 +23,7 @@ import LoginPage from "../components/LoginPage";
 import Contract from "../components/minter/Contract";
 import MainHome from "../pages/MainHome";
 import ClaimForm from "../components/claimlink/ClaimForm";
+import QrForm from "../components/qrManager/QrForm";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -129,7 +130,7 @@ const approutes = createBrowserRouter([
     path: "/qr-setup",
     element: (
       <Dashboard stepper={true}>
-        <QrSetup />
+        <QrForm />
       </Dashboard>
     ),
   },

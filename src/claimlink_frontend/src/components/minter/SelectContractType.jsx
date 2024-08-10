@@ -105,7 +105,7 @@ const SelectContractType = ({ handleNext }) => {
                   strokeLinecap="round"
                 />
               </svg>
-              <h4 className="text-base font-bold">EXTV-2</h4>
+              <h4 className="text-base font-bold">EXT</h4>
               <p className="text-sm mt-1">
                 Multiple copies of token with a common image. The most versatile
                 selection for most marketing goals.

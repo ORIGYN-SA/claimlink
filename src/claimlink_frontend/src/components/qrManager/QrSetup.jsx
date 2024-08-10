@@ -4,53 +4,23 @@ import StepperComponent from "../../common/StepperComponent";
 import { useAuth } from "../../connect/useClient";
 import toast from "react-hot-toast";
 
-const QrSetup = () => {
+const QrSetup = ({ handleNext, setName, setQuantity }) => {
   const steps = [{ id: 1, name: "QR setup" }];
   const [currentStep, setCurrentStep] = useState(1);
   const { backend } = useAuth();
+
   const [formData, setFormData] = useState({
     setName: "",
     quality: "",
-    campaignId: "", // Added campaignId in formData
+    // Added campaignId in formData
   });
   const [errors, setErrors] = useState({});
-  const [campaignIds, setCampaignIds] = useState([]); // State to store campaign IDs
+  // State to store campaign IDs
 
-  const handleNext = () => {
-    if (validateForm()) {
-      setCurrentStep((prev) => Math.min(prev + 1, 2));
-    }
-  };
+  
+  
 
-  const createQR = async () => {
-    try {
-      const res = await backend.createQRSet(
-        formData.setName,
-        parseInt(formData.quality),
-        formData.campaignId
-      );
-
-      if (res) {
-        toast.success("Successfully created");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getCampaignId = async () => {
-    try {
-      const res = await backend.getUserCampaigns();
-      const ids = res[0].map((campaign) => campaign.id); // Assuming each campaign object has an `id` field
-      setCampaignIds(ids);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    getCampaignId();
-  }, [backend]);
+ 
 
   const validateForm = () => {
     const newErrors = {};
@@ -63,9 +33,7 @@ const QrSetup = () => {
       newErrors.quality = "Quality is required.";
     }
 
-    if (!formData.campaignId) {
-      newErrors.campaignId = "Campaign ID is required.";
-    }
+    
 
     setErrors(newErrors);
 
@@ -74,10 +42,20 @@ const QrSetup = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
+    const updatedFormData = {
       ...formData,
       [name]: value,
-    });
+    };
+
+    setFormData(updatedFormData);
+
+    if (name === "setName") {
+      setName(value);
+    }
+
+    if (name === "quality") {
+      setQuantity(value);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -112,13 +90,6 @@ const QrSetup = () => {
 
   return (
     <>
-      <StepperComponent
-        steps={steps}
-        currentStep={currentStep}
-        completedColor="green-500"
-        activeColor="blue-500"
-        defaultColor="gray-300"
-      />
       <motion.div
         initial="initial"
         animate="in"
@@ -158,27 +129,13 @@ const QrSetup = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.quality}</p>
               )}
             </div>
-            <div className="space-y-3 mt-6">
-              <p className="text-gray-900 font-semibold">Select Campaign ID</p>
-              <select
-                name="campaignId"
-                className="sm:w-[50%] h-10 w-full outline-none rounded border-2 px-3 border-gray-100"
-                value={formData.campaignId}
-                onChange={handleChange}
-              >
-                <option value="">Select a campaign</option>
-                {campaignIds.map((id) => (
-                  <option key={id} value={id}>
-                    {id}
-                  </option>
-                ))}
-              </select>
-              {errors.campaignId && (
-                <p className="text-red-500 text-sm mt-1">{errors.campaignId}</p>
-              )}
-            </div>
+             
+              
+              
+         
             <button
               type="submit"
+              onClick={handleNext}
               className="px-4 py-3 mt-8 sm:w-[12.5%] w-full bg-[#5542F6] text-xs font-quicksand rounded transition duration-200 hover:bg-blue-600 text-white"
             >
               Next
