@@ -1,82 +1,95 @@
 import React from "react";
+import { motion } from "framer-motion";
 
-const Summary = () => {
+const Summary = ({ formData }) => {
   const pageVariants = {
-    initial: {
-      opacity: 0,
-      x: "-100vw",
-    },
-    in: {
-      opacity: 1,
-      x: 0,
-    },
-    out: {
-      opacity: 0,
-      x: "100vw",
-    },
+    initial: { opacity: 0, x: "-100vw" },
+    in: { opacity: 1, x: 0 },
+    out: { opacity: 0, x: "100vw" },
   };
 
-  const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.8,
-  };
+  const pageTransition = { type: "tween", ease: "anticipate", duration: 0.8 };
+
   return (
-    <div className="bg-white border-l hidden sm:block border-gray-300  p-6 w-80">
+    <motion.div
+      initial="initial"
+      animate="in"
+      exit="out"
+      variants={pageVariants}
+      transition={pageTransition}
+      className="bg-white border-l hidden sm:block border-gray-300 p-6 w-80"
+    >
       <h2 className="text-xl font-semibold mb-4">Summary</h2>
       <p className="text-gray-500 mb-6">Check and confirm details</p>
 
-      <div className="mb-4 flex justify-between ">
+      <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Title of campaign</h3>
-        <p className=" font-semibold">Title</p>
+        <p className="font-semibold">{formData.title || "Not specified"}</p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token address</h3>
-        <p className=" text-[#5542F6] font-semibold">0xf8c...992n4</p>
+        <p className="text-[#5542F6] font-semibold">
+          {formData.tokenAddress || "Not specified"}
+        </p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token name</h3>
-        <p className=" font-semibold">ICRC-7 Token</p>
+        <p className="font-semibold">{formData.tokenName || "Not specified"}</p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token standard</h3>
-        <p className=" font-semibold">ICRC-7</p>
+        <p className="font-semibold">
+          {formData.tokenStandard || "Not specified"}
+        </p>
       </div>
-      <div className="bg-gray-400  border border-gray-100"></div>
+
+      <div className="bg-gray-400 border border-gray-100"></div>
+
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">ID/Copies</h3>
-        <p className=" font-semibold">1/1 per link / 10 links</p>
+        <p className="font-semibold">{`${
+          formData.idPerLink || "N/A"
+        } per link / ${formData.totalLinks || "N/A"} links`}</p>
       </div>
-      <div className="bg-gray-400  border border-gray-100"></div>
+
+      <div className="bg-gray-400 border border-gray-100"></div>
 
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total links</h3>
-        <p className=" font-semibold">10</p>
+        <p className="font-semibold">
+          {formData.totalLinks || "Not specified"}
+        </p>
       </div>
+
       <div className="bg-gray-400 border border-gray-100"></div>
+
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Claim pattern</h3>
-        <p className=" font-semibold">Transfer</p>
+        <p className="font-semibold">
+          {formData.claimPattern || "Not specified"}
+        </p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">To be secured</h3>
-        <p className="font-semibold">0.0 ICP</p>
+        <p className="font-semibold">{formData.securedAmount || "0.0 ICP"}</p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Included into the links</h3>
-        <p className="  font-semibold">0.0 ICP</p>
+        <p className="font-semibold">{formData.includedAmount || "0.0 ICP"}</p>
       </div>
-      <div className="bg-gray-400   border border-gray-100"></div>
+
+      <div className="bg-gray-400 border border-gray-100"></div>
+
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total amount</h3>
-        <p className=" font-semibold">0.0 ICP</p>
+        <p className="font-semibold">{formData.totalAmount || "0.0 ICP"}</p>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

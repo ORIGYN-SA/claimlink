@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import StepperComponent from "../../common/StepperComponent";
-
 import CampaignSetup from "./CampaignSetup";
 import ClaimPattern from "./ClaimPattern";
 import DistributionPage from "./DistributionPage";
@@ -13,18 +12,49 @@ const steps = [
   { id: 4, name: "Launch" },
 ];
 
-const StepContent = ({ currentStep, handleNext, handleBack }) => {
+const StepContent = ({
+  currentStep,
+  handleNext,
+  handleBack,
+  formData,
+  setFormData,
+}) => {
   switch (currentStep) {
     case 1:
-      return <CampaignSetup handleNext={handleNext} />;
+      return (
+        <CampaignSetup
+          handleNext={handleNext}
+          setFormData={setFormData}
+          formData={formData}
+        />
+      );
     case 2:
-      return <ClaimPattern handleNext={handleNext} handleBack={handleBack} />;
+      return (
+        <ClaimPattern
+          handleNext={handleNext}
+          handleBack={handleBack}
+          setFormData={setFormData}
+          formData={formData}
+        />
+      );
     case 3:
       return (
-        <DistributionPage handleNext={handleNext} handleBack={handleBack} />
+        <DistributionPage
+          handleNext={handleNext}
+          handleBack={handleBack}
+          setFormData={setFormData}
+          formData={formData}
+        />
       );
     case 4:
-      return <Launch handleNext={handleNext} handleBack={handleBack} />;
+      return (
+        <Launch
+          handleNext={handleNext}
+          handleBack={handleBack}
+          setFormData={setFormData}
+          formData={formData}
+        />
+      );
     default:
       return null;
   }
@@ -32,6 +62,23 @@ const StepContent = ({ currentStep, handleNext, handleBack }) => {
 
 const ClaimForm = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [formData, setFormData] = useState({
+    title: "",
+    tokenType: "",
+    collection: "",
+    claimPattern: "transfer",
+    tokenIds: [],
+    walletOption: "",
+    displayWallets: [],
+    expirationDate: 2024 - 10 - 10,
+    walletOptions: {
+      internetIdentity: false,
+      plugWallet: false,
+      other: false,
+    },
+    icpAmount: 0,
+    includeICP: false,
+  });
 
   const handleNext = () => {
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
@@ -54,6 +101,8 @@ const ClaimForm = () => {
         currentStep={currentStep}
         handleNext={handleNext}
         handleBack={handleBack}
+        formData={formData}
+        setFormData={setFormData}
       />
     </div>
   );
