@@ -30,13 +30,15 @@ const Summary = ({ formData }) => {
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token address</h3>
         <p className="text-[#5542F6] font-semibold">
-          {formData.tokenAddress || "Not specified"}
+          {formData.tokenIds.value || "Not specified"}
         </p>
       </div>
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token name</h3>
-        <p className="font-semibold">{formData.tokenName || "Not specified"}</p>
+        <p className="font-semibold">
+          {formData.tokenIds.label || "Not specified"}
+        </p>
       </div>
 
       <div className="mb-4 flex justify-between">

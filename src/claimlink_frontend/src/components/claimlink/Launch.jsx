@@ -77,11 +77,28 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       const collectionPrincipal = Principal.fromText(formData.collection);
       const tokenIds = Number(formData.tokenIds.value);
 
-      const expirationDate = formData.expirationDate
-        ? Date.parse(
-            `${formData.expirationDate}T${formData.hour}:${formData.minute}:00Z`
-          )
-        : 10;
+      const selectedWalletOptions = Object.keys(formData.walletOptions)
+        .filter((option) => formData.walletOptions[option])
+        .map((option) => {
+          switch (option) {
+            case "internetIdentity":
+              return "internetidentity";
+            case "plugWallet":
+              return "plug";
+            case "other":
+              return "other";
+
+            default:
+              return option;
+          }
+        });
+
+      console.log(selectedWalletOptions);
+
+      const date = new Date(
+        `${formData.expirationDate}T${formData.hour}:${formData.minute}:00Z`
+      );
+      const timestampMillis = date.getTime();
 
       const res = await backend?.createCampaign(
         formData.title,
@@ -90,8 +107,8 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         formData.claimPattern,
         [tokenIds],
         formData.walletOption,
-        ["plug", "internetidentity"],
-        Time.fromMillis(1691794810000)
+        selectedWalletOptions,
+        timestampMillis
       );
 
       if (res) {

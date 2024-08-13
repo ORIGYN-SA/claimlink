@@ -15,7 +15,7 @@ import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 
 actor Main {
-
+    type Time = Int;
     type AccountIdentifier = ExtCore.AccountIdentifier;
     type TokenIndex = ExtCore.TokenIndex;
     type TokenIdentifier = ExtCore.TokenIdentifier;
@@ -67,7 +67,7 @@ actor Main {
         tokenIds : [TokenIndex];
         walletOption : Text;
         displayWallets : [Text];
-        expirationDate : ?Time.Time;
+        expirationDate : Time;
         createdBy : Principal;
     };
 
@@ -406,7 +406,7 @@ actor Main {
         tokenIds : [TokenIndex],
         walletOption : Text,
         displayWallets : [Text],
-        expirationDate : ?Time.Time,
+        expirationDate : Time,
     ) : async Text {
         let campaignId = generateCampaignId(user);
         let campaign : Campaign = {
@@ -435,7 +435,6 @@ actor Main {
 
         return campaignId;
     };
-
     // Get details of a specific Campaign
     public shared query func getCampaignDetails(campaignId : Text) : async ?Campaign {
         campaigns.get(campaignId);
