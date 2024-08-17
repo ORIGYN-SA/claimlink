@@ -258,7 +258,7 @@ const Minter = () => {
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                       onClick={() => {
-                        navigate(`/minter/${data[1]?.toText()}/token-home`);
+                        navigate(`/minter/${data[0]?.toText()}/token-home`);
                       }}
                     >
                       <div className="flex justify-start  space-x-4">
@@ -293,17 +293,17 @@ const Minter = () => {
                         />
                       </div>
                       <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                        {data[2]}
+                        {data[1]}
                       </h2>
-                      <p className="text-xs text-[#84818A] mt-1 ">
+                      {/* <p className="text-xs text-[#84818A] mt-1 ">
                         {formatTimestamp(data[0])}
-                      </p>
+                      </p> */}
                       <div className="border border-gray-300 my-4 w-full"></div>
                       <div className="mt-2 w-full">
                         <div className="flex justify-between">
                           <p className="text-xs text-[#84818A] ">Address</p>
                           <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
-                            {data[1]?.toText()}
+                            {data[0]?.toText()}
                           </p>
                         </div>
                         <div className="flex justify-between mt-2">

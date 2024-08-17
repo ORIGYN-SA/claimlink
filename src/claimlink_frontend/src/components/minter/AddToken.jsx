@@ -192,6 +192,65 @@ const AddToken = () => {
     }
   };
 
+  const mintatclaim = async (e) => {
+    e.preventDefault();
+    console.log("Starting NFT creation");
+
+    if (!backend) {
+      toast.error("Backend actor not initialized");
+      return;
+    }
+    console.log(backend);
+
+    try {
+      console.log("Form data:", formData);
+      console.log("Principal:", principal.toText());
+
+      let idd = Principal.fromText(id);
+
+      // Construct the metadata correctly based on the expected structure
+      let metadata = formData.metadata.blob
+        ? { blob: formData.metadata.blob }
+        : {
+            data: formData.metadata.data.map((item) => ({
+              text: item.key,
+              variant: { text: item.value }, // Assuming the value should be a text variant
+            })),
+          };
+
+      // Create the variantData structure
+      const variantData = {
+        fungible: {
+          decimals: parseInt(formData.decimals),
+          metadata: metadata,
+          name: formData.name,
+          symbol: formData.symbol,
+        },
+        nonfungible: {
+          thumbnail: formData.thumbnail,
+          asset: formData.asset,
+          metadata: metadata,
+          name: formData.name,
+          description: formData.description,
+        },
+      };
+
+      // Call the backend method with the correct structure
+      const res = await backend.mintAtClaim(idd, [variantData]);
+
+      if (res) {
+        console.log("NFT created successfully:", res);
+        toast.success("NFT created successfully!");
+      } else {
+        console.log("Failed to create NFT, no response received");
+        toast.error("Failed to create NFT");
+      }
+    } catch (error) {
+      console.error("Error creating NFT:", error);
+      toast.error(`Error creating NFT: ${error.message}`);
+    }
+  };
+
   return (
     <motion.div
       initial={{ scale: 1, opacity: 0 }}
@@ -333,9 +392,15 @@ const AddToken = () => {
             </div>
 
             <div className="flex gap-4 mt-6">
-              <button className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white rounded-md text-sm">
-                Mint Item
+              <button className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm">
+                Mint Now
               </button>
+              {/* <button
+                onClick={mintatclaim}
+                className="px-6 py-3 md:w-auto w-full bg-[#f1f1f1] text-[#5542F6] border shadow-lg border-[#5542F6] rounded-md text-sm"
+              >
+                Mint at Claim
+              </button> */}
             </div>
           </form>
         </div>
