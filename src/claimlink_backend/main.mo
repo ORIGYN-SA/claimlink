@@ -14,7 +14,6 @@ import Error "mo:base/Error";
 import Nat32 "mo:base/Nat32";
 import Hash "mo:base/Hash";
 import AID "../extv2/motoko/util/AccountIdentifier";
-
 import ExtCore "../extv2/motoko/ext/Core";
 
 actor Main {
@@ -67,7 +66,7 @@ actor Main {
         tokenIds : [TokenIndex];
         walletOption : Text;
         displayWallets : [Text];
-        expirationDate : ?Time.Time;
+        expirationDate : Text;
         createdBy : Principal;
         createdAt : Time.Time;
         depositIndices : [Int];
@@ -80,6 +79,16 @@ actor Main {
         createdAt: Time.Time;
         creator: Principal;
     };
+    type Dispenser = {
+        id : Text;
+        title : Text;
+        startDate : Time.Time;
+        createdAt: Time.Time;
+        createdBy: Principal;
+        duration : Text;
+        campaignId : Text;
+        whitelist : ?[Principal]
+    };
 
 
 
@@ -88,7 +97,11 @@ actor Main {
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
+    private var campaignLinks = TrieMap.TrieMap<Text, [Int]>(Text.equal, Text.hash);
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
+    // Maps related to dispensers
+    private var dispensers = TrieMap.TrieMap<Text, Dispenser>(Text.equal, Text.hash);
+    private var userDispensersMap = TrieMap.TrieMap<Principal, [Dispenser]>(Principal.equal, Principal.hash);
     // Maps related to QR set
     private var qrSetMap = TrieMap.TrieMap<Text, QRSet>(Text.equal, Text.hash);
     private var userQRSetMap = TrieMap.TrieMap<Principal, [QRSet]>(Principal.equal, Principal.hash);
@@ -97,10 +110,14 @@ actor Main {
         let natValue = Nat32.toNat(value);
         return Hash.hash(natValue);
     };
-    private var tokensDataToBeMinted = TrieMap.TrieMap<Nat32,Metadata>(Nat32.equal,nat32Hash);
+    private var tokensDataToBeMinted = TrieMap.TrieMap<Principal,[(Nat32,Metadata)]>(Principal.equal,Principal.hash);
     private var nextTokenIndex : Nat32 = 0;
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
+
+    public shared query func getDeposits() : async [Deposit] {
+        return deposits;
+    };
 
     // Collection creation
     public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
@@ -241,6 +258,7 @@ actor Main {
         extMint
     };
 
+    // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
     public shared func storeTokendetails(
         _collectionCanisterId : Principal,
         name : Text,
@@ -262,7 +280,12 @@ actor Main {
         var i = 0;
         var responses : [Int] = [];
         while (i < amount) {
-            tokensDataToBeMinted.put(nextTokenIndex, metadataNonFungible);
+            let currentTokens = switch(tokensDataToBeMinted.get(_collectionCanisterId)) {
+                case (?existingTokens) existingTokens;
+                case null [];
+            };
+            let updatedTokens = Array.append(currentTokens, [(nextTokenIndex, metadataNonFungible)]);
+            tokensDataToBeMinted.put(_collectionCanisterId, updatedTokens);
             let response = await createLinkForNonMinted(_collectionCanisterId,nextTokenIndex);
             responses := Array.append(responses,[response]);
             nextTokenIndex := nextTokenIndex + 1;
@@ -271,26 +294,76 @@ actor Main {
         responses
     };
 
+    public shared func getStoredTokens(
+        _collectionCanisterId : Principal    
+    ) : async ?[(Nat32, Metadata)] {
+        tokensDataToBeMinted.get(_collectionCanisterId)
+    };
+
     public shared ({caller = user}) func mintAtClaim(
         _collectionCanisterId : Principal,
         _depositIndex : Nat
 
-    ) : async () {
+    ) : async Int {
         
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
             ) -> async [TokenIndex]
         };
+        if (_depositIndex >= Array.size(deposits)) {
+            Debug.print("Invalid deposit index");
+            return -1;
+        };
+
         let depositItem = deposits[_depositIndex];
-        switch(tokensDataToBeMinted.get(depositItem.tokenId)){
-            case(?(metadata)){
-                let receiver = AID.fromPrincipal(user,null);
-                let request = [(receiver, metadata)];
-                let response = await collectionCanisterActor.ext_mint(request);
+
+        if (_collectionCanisterId != depositItem.collectionCanister) {
+            Debug.print("Collection canister ID mismatch");
+            return -1;
+        };
+
+        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
+            case (?tokensList) {
+                var foundToken: ?(Nat32, Metadata) = null;
+                var remainingTokens: [(Nat32, Metadata)] = [];
+
+                for (token in tokensList.vals()) {
+                    if (token.0 == depositItem.tokenId) {
+                        foundToken := ?token;
+                    } else {
+                        remainingTokens := Array.append(remainingTokens, [token]);
+                    };
+                };
+
+                switch (foundToken) {
+                    case (?(_, metadata)) {
+                        let receiver = AID.fromPrincipal(user, null);
+                        let request: [(AccountIdentifier, Metadata)] = [(receiver, metadata)]; 
+
+                        let response = await collectionCanisterActor.ext_mint(request);
+
+                        // Assuming minting was successful
+                        deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
+                            return d != depositItem;
+                        });
+                        if (Array.size(remainingTokens) > 0) {
+                            tokensDataToBeMinted.put(depositItem.collectionCanister, remainingTokens);
+                        } else {
+                            tokensDataToBeMinted.delete(_collectionCanisterId);
+                        };
+
+                        return 0;
+                    };
+                    case null {
+                        Debug.print("Token ID does not match any in the deposit object");
+                        return -1;
+                    };
+                };
             };
             case null {
-                
+                Debug.print("No metadata found for the given token");
+                return -1;
             };
         };
       
@@ -316,7 +389,9 @@ actor Main {
         await collectionCanisterActor.getAllNonFungibleTokenData();
     };
 
-    // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
+    
+    
+
 
     func principalToUser(principal: Principal) : User {
         #principal(principal)
@@ -355,7 +430,7 @@ actor Main {
                 case (#ok(balance)) {
                     let newDeposit: Deposit = {
                         tokenId = _tokenId;
-                        sender = user;
+                        sender = _from;
                         collectionCanister = _collectionCanisterId;
                         timestamp = Time.now();
                         pubKey = _pubKey;
@@ -406,7 +481,7 @@ actor Main {
             };
             deposits := Array.append(deposits, [newDeposit]);
             Array.size(deposits) - 1
-                    
+       
 
     };
 
@@ -419,7 +494,7 @@ actor Main {
         _depositIndex : Nat,
 
     ) : async Int {
-
+            
             let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
                 ext_transfer : (
                    request: TransferRequest
@@ -444,14 +519,33 @@ actor Main {
 
             switch(response) {
                 case (#ok(balance)) {
-                    var newDeposits: [Deposit] = [];
-                    for (i in Iter.range(0,(Array.size(deposits) - 1)) ) {
-                        if (i != _depositIndex) {
-                            newDeposits := Array.append(newDeposits, [deposits[i]]);
+                        deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
+                        return d != depositObj;
+                    });
+                    for (campaignId in campaignLinks.keys()) {
+                        switch (campaignLinks.get(campaignId)) {
+                            case (?linkIndices) {
+                                var newIndices: [Int] = [];
+
+                                // Adjust indices and filter out the claimed one
+                                var i = 0;
+                                while (i < Array.size(linkIndices)) {
+                                    let index = linkIndices[i];
+                                    if (index != _depositIndex) {
+                                        newIndices := Array.append(newIndices, [if (index > _depositIndex) index - 1 else index]);
+                                    };
+                                    i := i + 1;
+                                };
+                                
+                                // Store the updated indices back in campaignLinks
+                                campaignLinks.put(campaignId, newIndices);
+                            };
+                            case null {
+                                Debug.print("No link created while campaign creation")
+                            }; // CampaignId not found in campaignLinks
                         };
                     };
-                    deposits := newDeposits;
-                    0
+                    return 0; 
                 };
                 case (#err(err)) {
                     switch(err) {
@@ -489,7 +583,7 @@ actor Main {
         tokenIds: [TokenIndex],
         walletOption: Text,
         displayWallets : [Text],
-        expirationDate: ?Time.Time,
+        expirationDate: Text,
     ) : async (Text,[Int]) {
         let campaignId = generateCampaignId(user);
         var linkResponses: [Int] = [];
@@ -501,6 +595,7 @@ actor Main {
                 throw Error.reject("Failed to create campaign: createLink failed for tokenId " # Nat32.toText(tokenId));
             };
             linkResponses := Array.append(linkResponses, [linkIndex]);
+            campaignLinks.put(campaignId,linkResponses);
         };
 
         let campaign: Campaign = {
@@ -536,7 +631,10 @@ actor Main {
     public shared query func getCampaignDetails(campaignId: Text) : async ?Campaign {
         campaigns.get(campaignId);
     };
-
+    // Get Links created inside a Campaign
+    public shared query func getCampaignLinks(campaignId: Text) : async ?[Int] {
+        campaignLinks.get(campaignId);
+    };
     // Get all campaigns created by a user
     public shared query ({caller = user}) func getUserCampaigns() : async ?[Campaign] {
         userCampaignsMap.get(user);
@@ -547,7 +645,7 @@ actor Main {
         // Using user ID (Principal) and current timestamp to generate a unique campaign ID
         let timestamp = Time.now();
         let userId = Principal.toText(user);
-        "Campaign" # userId # "_" # Int.toText(timestamp)
+        "Campaign-" # userId # "_" # Int.toText(timestamp)
     };
 
     // QR Set Creation
@@ -600,10 +698,7 @@ actor Main {
         userQRSetMap.get(user)
     };
 
-    // Gets all details about the tokens that were transfered into this vault 
-    public shared query func getDeposits() : async [Deposit] {
-        return deposits;
-    };
+   
 
     // public shared({caller = user}) func deleteQRSet(qrSetId: Text) : async Int {
     //     // Check if the QRSet exists
@@ -632,6 +727,59 @@ actor Main {
     //         };
     //     }
     // };
+
+    public shared ({caller = user}) func createDispenser (
+        _title : Text,
+        _startDate : Time.Time,
+        _duration : Text,
+        _campaignId : Text,
+        _whitelist : ?[Principal]
+    ) : async Text {
+        let dispenserId = generateDispenserId(user);
+
+        let dispenser : Dispenser = {
+            id = dispenserId;
+            title = _title;
+            startDate = _startDate;
+            createdAt = Time.now();
+            createdBy = user;
+            duration  = _duration;
+            campaignId = _campaignId;
+            whitelist = _whitelist
+        };
+
+        dispensers.put(dispenserId, dispenser);
+
+        let userDispensers = userDispensersMap.get(user);
+        switch (userDispensers) {
+            case null {
+                userDispensersMap.put(user, [dispenser]);
+            };
+            case (?userDispensers) {
+                userDispensersMap.put(user, Array.append(userDispensers, [dispenser]));
+            };
+        };
+
+        return dispenserId;
+    };
+
+    // Get details of a specific Dispenser
+    public shared query func getDispenserDetails(dispenserId: Text) : async ?Dispenser {
+        dispensers.get(dispenserId);
+    };
+
+    // Get all dispensers created by a user
+    public shared query ({caller = user}) func getUserDispensers() : async ?[Dispenser] {
+        userDispensersMap .get(user);
+    };
+
+    // Generation of unique dispenser ID
+    private func generateDispenserId(user: Principal) : Text {
+        // Using user ID (Principal) and current timestamp to generate a unique dispenser ID
+        let timestamp = Time.now();
+        let userId = Principal.toText(user);
+        "Dispenser-" # userId # "_" # Int.toText(timestamp)
+    };
 
 
 }
