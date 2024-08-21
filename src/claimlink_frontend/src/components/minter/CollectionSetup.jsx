@@ -16,7 +16,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   const { identity, backend, principal } = useAuth();
 
   const [error, setError] = useState(null);
-  // const [loading,setLoading]=useState("")
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     symbol: "",
@@ -134,6 +134,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       if (res) {
         console.log("Collection created successfully:", res);
         toast.success("Collection created successfully!");
+        navigate(-1);
         handleNext();
       } else {
         console.log("Failed to create collection, no response received");

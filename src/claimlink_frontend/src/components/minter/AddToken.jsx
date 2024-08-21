@@ -7,7 +7,7 @@ import { MobileHeader } from "../../common/Header";
 import { useAuth } from "../../connect/useClient";
 import toast from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 
 const AddToken = () => {
@@ -16,6 +16,7 @@ const AddToken = () => {
   const { identity, backend, principal } = useAuth();
   const [thumbnail, setThumbnail] = useState();
   const { id } = useParams();
+  const navigate = useNavigate();
   console.log("id", id);
 
   const [formData, setFormData] = useState({
@@ -118,6 +119,7 @@ const AddToken = () => {
     }
   };
   console.log(tokenType);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Starting NFT creation");
@@ -159,6 +161,7 @@ const AddToken = () => {
         if (res) {
           console.log(" non fungible nft created successfully:", res);
           toast.success(" non fungible nft created successfully!");
+          navigate(-1);
         } else {
           console.log("Failed to create nft, no response received");
           toast.error("Failed to create nft");
@@ -206,48 +209,64 @@ const AddToken = () => {
       console.log("Form data:", formData);
       console.log("Principal:", principal.toText());
 
-      let idd = Principal.fromText(id);
-
-      // Construct the metadata correctly based on the expected structure
-      let metadata = formData.metadata.blob
-        ? { blob: formData.metadata.blob }
-        : {
-            data: formData.metadata.data.map((item) => ({
-              text: item.key,
-              variant: { text: item.value }, // Assuming the value should be a text variant
-            })),
-          };
-
-      // Create the variantData structure
-      const variantData = {
-        fungible: {
-          decimals: parseInt(formData.decimals),
-          metadata: metadata,
-          name: formData.name,
-          symbol: formData.symbol,
-        },
-        nonfungible: {
-          thumbnail: formData.thumbnail,
-          asset: formData.asset,
-          metadata: metadata,
-          name: formData.name,
-          description: formData.description,
-        },
+      const metadata = {
+        blob: formData.metadata.blob ? formData.metadata.blob : null,
+        data: formData.metadata.data.length ? formData.metadata.data : null,
+        json: formData.metadata.json ? formData.metadata.json : null,
       };
 
-      // Call the backend method with the correct structure
-      const res = await backend.mintAtClaim(idd, [variantData]);
+      let idd = Principal.fromText(id);
 
-      if (res) {
-        console.log("NFT created successfully:", res);
-        toast.success("NFT created successfully!");
+      if (tokenType == "nonfungible") {
+        console.log(tokenType);
+        const res = await backend?.storeTokendetails(
+          idd,
+          formData.name,
+          formData.description,
+          formData.asset,
+          formData.thumbnail,
+          [
+            {
+              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+            },
+          ],
+          1
+        );
+
+        if (res) {
+          console.log(" non fungible nft created successfully:", res);
+          toast.success(" non fungible nft created successfully!");
+          navigate(-1);
+        } else {
+          console.log("Failed to create nft, no response received");
+          toast.error("Failed to create nft");
+        }
       } else {
-        console.log("Failed to create NFT, no response received");
-        toast.error("Failed to create NFT");
+        console.log(tokenType);
+        const res = await backend.storeTokendetails(
+          idd,
+          formData.name,
+          formData.symbol,
+          parseInt(formData.decimals),
+          [
+            {
+              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+            },
+          ],
+          1
+        );
+
+        if (res) {
+          console.log("nft created successfully:", res);
+          toast.success("nft created successfully!");
+        } else {
+          console.log("Failed to create nft, no response received");
+          toast.error("Failed to create nft");
+        }
       }
     } catch (error) {
-      console.error("Error creating NFT:", error);
-      toast.error(`Error creating NFT: ${error.message}`);
+      console.error("Error creating nft:", error);
+      toast.error(`Error creating nft: ${error.message}`);
     }
   };
 
@@ -395,12 +414,14 @@ const AddToken = () => {
               <button className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm">
                 Mint Now
               </button>
-              {/* <button
-                onClick={mintatclaim}
-                className="px-6 py-3 md:w-auto w-full bg-[#f1f1f1] text-[#5542F6] border shadow-lg border-[#5542F6] rounded-md text-sm"
-              >
-                Mint at Claim
-              </button> */}
+              {tokenType === "fungible" ? null : (
+                <button
+                  onClick={mintatclaim}
+                  className="px-6 py-3 md:w-auto w-full bg-[#f1f1f1] text-[#5542F6] border shadow-lg border-[#5542F6] rounded-md text-sm"
+                >
+                  Mint at Claim
+                </button>
+              )}
             </div>
           </form>
         </div>
