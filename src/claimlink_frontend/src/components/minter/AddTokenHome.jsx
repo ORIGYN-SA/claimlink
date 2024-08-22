@@ -27,7 +27,7 @@ const AddTokenHome = () => {
   const [nft, getNft] = useState();
   const [nonFungibleNft, getNonFungibleNft] = useState();
   const [collections, setCollections] = useState();
-  const [filter, setFilter] = useState("fungible");
+  const [filter, setFilter] = useState("non-fungible");
   const [loader, setLoader] = useState(true);
   const [descriptionModel, setDescriptionModel] = useState();
 
@@ -261,15 +261,15 @@ const AddTokenHome = () => {
                 className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
                 onChange={(e) => {
                   const selectedValue = e.target.value;
-                  if (selectedValue === "new") {
+                  if (selectedValue === "old") {
                     setFilter("fungible");
-                  } else if (selectedValue === "old") {
+                  } else if (selectedValue === "new") {
                     setFilter("non-fungible");
                   }
                 }}
               >
-                <option value="new">Fungible</option>
-                <option value="old">Non-Fungible</option>
+                <option value="new">Non-Fungible</option>
+                <option value="old">Fungible</option>
               </select>
             </div>
 

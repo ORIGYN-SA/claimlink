@@ -70,9 +70,7 @@ const Summary = ({ formData }) => {
 
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Claim pattern</h3>
-        <p className="font-semibold">
-          {formData.claimPattern || "Not specified"}
-        </p>
+        <p className="font-semibold">{formData.pattern || "Not specified"}</p>
       </div>
 
       <div className="mb-4 flex justify-between">

@@ -66,7 +66,7 @@ const ClaimForm = () => {
     title: "",
     tokenType: "",
     collection: "",
-    claimPattern: "transfer",
+    pattern: "transfer",
     tokenIds: [],
     walletOption: "",
     displayWallets: [],

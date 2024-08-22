@@ -26,6 +26,8 @@ const DistributionPage = ({
       console.log("coll", formData.collection);
     }
   }, [formData.contract, setFormData]);
+
+  console.log(backend);
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -35,22 +37,22 @@ const DistributionPage = ({
         }
 
         console.log("clid:", clid);
-        const id = Principal.fromText(clid.toString());
+        const id = Principal.fromText(clid);
 
-        if (formData.contract === "nfts") {
+        if (formData.pattern === "transfer") {
           const nftData = await backend.getNonFungibleTokens(id);
           setNftOptions(
             nftData.map((nft, index) => ({
               value: nft[0].toString(),
-              label: `NFT #${index + 1}`,
+              label: nft[2].nonfungible.name,
             }))
           );
-        } else if (formData.contract === "tokens") {
-          const tokenData = await backend.getFungibleTokens(id);
+        } else if (formData.pattern === "mint") {
+          const tokenData = await backend.getStoredTokens(id);
           setTokenOptions(
-            tokenData.map((token, index) => ({
+            tokenData[0].map((token, index) => ({
               value: token[0].toString(),
-              label: `Token ID ${index + 1}`,
+              label: token[1].nonfungible.name,
             }))
           );
         }
@@ -67,21 +69,22 @@ const DistributionPage = ({
   useEffect(() => {
     const loadData = async () => {
       try {
-        const id = Principal.fromText(clid);
-        if (formData.contract === "nfts") {
+        if (formData.pattern === "transfer") {
           const nftData = await backend.getNonFungibleTokens(id);
           setNftOptions(
             nftData.map((nft, index) => ({
-              value: nft[0],
-              label: `NFT #${index + 1}`,
+              value: nft[0].toString(),
+              label: nft[2].nonfungible.name,
             }))
           );
-        } else if (formData.contract === "tokens") {
-          const tokenData = await backend.getFungibleTokens(id);
+        } else if (formData.pattern === "mint") {
+          const id = Principal.fromText("br5f7-7uaaa-aaaaa-qaaca-cai");
+          const tokenData = await backend.getStoredTokens(id);
+          console.log(tokenData[0], "tokendat");
           setTokenOptions(
-            tokenData.map((token, index) => ({
-              value: token[0],
-              label: `Token ID ${index + 1}`,
+            tokenData[0].map((token, index) => ({
+              value: token[0].toString(),
+              label: token[1].nonfungible.name,
             }))
           );
         }
@@ -178,7 +181,9 @@ const DistributionPage = ({
           <Select
             value={formData.tokenIds}
             onChange={handleSelectChange}
-            options={formData.contract === "nfts" ? nftOptions : tokenOptions}
+            options={
+              formData.pattern === "transfer" ? nftOptions : tokenOptions
+            }
             placeholder="Select Collection"
             className={`${errors.tokenIds ? "border-red-500" : ""}`}
           />
@@ -191,31 +196,6 @@ const DistributionPage = ({
           If you have a big set of different tokens to distribute, you could
           also provide the information by a JSON file
         </p>
-        <h3 className="text-lg font-semibold mb-2">Sponsor gas</h3>
-        <div className="mb-8 flex gap-4">
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="sponsorGas"
-              value="true"
-              checked={sponsorGas === true}
-              onChange={() => handleSponsorGasChange(true)}
-              className="mr-2"
-            />
-            Yes
-          </label>
-          <label className="flex items-center">
-            <input
-              type="radio"
-              name="sponsorGas"
-              value="false"
-              checked={sponsorGas === false}
-              onChange={() => handleSponsorGasChange(false)}
-              className="mr-2"
-            />
-            No
-          </label>
-        </div>
 
         <div className="flex gap-4">
           <BackButton text="back" type="button" onClick={handleBack} />

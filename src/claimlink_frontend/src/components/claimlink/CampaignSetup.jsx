@@ -154,11 +154,11 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
                           : "text-gray-500"
                       }`}
                     >
-                      DIP-721/ICRC-7
+                      EXT
                     </p>
                   </div>
                 </div>
-                <div
+                {/* <div
                   className={`sm:w-[50%] rounded-md h-36 border-2 space-y-6 p-4 cursor-pointer ${
                     selectedContract === "tokens"
                       ? "bg-[#5542F6] border-[#5542F6]"
@@ -192,7 +192,7 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
                       DIP-20/ICRC-1
                     </p>
                   </div>
-                </div>
+                </div> */}
               </div>
               {errors.contract && (
                 <p className="text-red-500 text-sm">{errors.contract}</p>

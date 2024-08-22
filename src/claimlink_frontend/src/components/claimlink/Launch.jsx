@@ -104,11 +104,11 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         formData.title,
         formData.tokenType,
         collectionPrincipal,
-        formData.claimPattern,
+        formData.pattern,
         [tokenIds],
         formData.walletOption,
         selectedWalletOptions,
-        10
+        "b dwd"
       );
 
       if (res) {

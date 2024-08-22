@@ -12,9 +12,10 @@ import imageCompression from "browser-image-compression";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
-  const [tokenType, setTokenType] = useState("fungible");
+  const [tokenType, setTokenType] = useState("nonfungible");
   const { identity, backend, principal } = useAuth();
-  const [thumbnail, setThumbnail] = useState();
+  const [operation, setOperation] = useState("Mint");
+
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
@@ -142,7 +143,7 @@ const AddToken = () => {
 
       let idd = Principal.fromText(id);
 
-      if (tokenType == "nonfungible") {
+      if (operation == "Mint") {
         console.log(tokenType);
         const res = await backend?.mintExtNonFungible(
           idd,
@@ -167,27 +168,28 @@ const AddToken = () => {
           toast.error("Failed to create nft");
         }
       } else {
-        console.log(tokenType);
-        const res = await backend.mintExtFungible(
-          idd,
-          formData.name,
-          formData.symbol,
-          parseInt(formData.decimals),
-          [
-            {
-              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
-            },
-          ],
-          1
-        );
+        console.log(operation);
+        // const res = await backend.mintExtFungible(
+        //   idd,
+        //   formData.name,
+        //   formData.symbol,
+        //   parseInt(formData.decimals),
+        //   [
+        //     {
+        //       data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+        //     },
+        //   ],
+        //   1
+        // );
 
-        if (res) {
-          console.log("nft created successfully:", res);
-          toast.success("nft created successfully!");
-        } else {
-          console.log("Failed to create nft, no response received");
-          toast.error("Failed to create nft");
-        }
+        // if (res) {
+        //   console.log("nft created successfully:", res);
+        //   toast.success("nft created successfully!");
+        // } else {
+        //   console.log("Failed to create nft, no response received");
+        //   toast.error("Failed to create nft");
+        // }
+        mintatclaim();
       }
     } catch (error) {
       console.error("Error creating nft:", error);
@@ -195,8 +197,9 @@ const AddToken = () => {
     }
   };
 
-  const mintatclaim = async (e) => {
-    e.preventDefault();
+  const mintatclaim = async () => {
+    console.log("uwenuwenu");
+
     console.log("Starting NFT creation");
 
     if (!backend) {
@@ -218,7 +221,7 @@ const AddToken = () => {
       let idd = Principal.fromText(id);
 
       if (tokenType == "nonfungible") {
-        console.log(tokenType);
+        console.log(tokenType, "mint at claim");
         const res = await backend?.storeTokendetails(
           idd,
           formData.name,
@@ -234,8 +237,8 @@ const AddToken = () => {
         );
 
         if (res) {
-          console.log(" non fungible nft created successfully:", res);
-          toast.success(" non fungible nft created successfully!");
+          console.log(" non fungible nft stored successfully:", res);
+          toast.success(" non fungible nft stored successfully!");
           navigate(-1);
         } else {
           console.log("Failed to create nft, no response received");
@@ -257,8 +260,8 @@ const AddToken = () => {
         );
 
         if (res) {
-          console.log("nft created successfully:", res);
-          toast.success("nft created successfully!");
+          console.log("nft stored successfully:", res);
+          toast.success("nft stored successfully!");
         } else {
           console.log("Failed to create nft, no response received");
           toast.error("Failed to create nft");
@@ -269,6 +272,7 @@ const AddToken = () => {
       toast.error(`Error creating nft: ${error.message}`);
     }
   };
+  console.log(operation);
 
   return (
     <motion.div
@@ -314,7 +318,7 @@ const AddToken = () => {
                 onChange={(e) => setTokenType(e.target.value)}
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
               >
-                <option value="fungible">Fungible</option>
+                {/* <option value="fungible">Fungible</option> */}
                 <option value="nonfungible">Non-Fungible</option>
               </select>
             </div>
@@ -376,6 +380,17 @@ const AddToken = () => {
                 </div>
               </>
             )}
+            <div className="flex flex-col mt-4">
+              <label className="text-md font-semibold py-3 ">Token Type</label>
+              <select
+                value={operation}
+                onChange={(e) => setOperation(e.target.value)}
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+              >
+                <option value="Mint">Mint</option>
+                <option value="Mintatclaim">Mint at claim</option>
+              </select>
+            </div>
 
             <div className="flex flex-col mt-4">
               <label className="text-md font-semibold py-3 ">
@@ -411,17 +426,12 @@ const AddToken = () => {
             </div>
 
             <div className="flex gap-4 mt-6">
-              <button className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm">
-                Mint Now
+              <button
+                className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm"
+                onClick={handleSubmit}
+              >
+                Submit
               </button>
-              {tokenType === "fungible" ? null : (
-                <button
-                  onClick={mintatclaim}
-                  className="px-6 py-3 md:w-auto w-full bg-[#f1f1f1] text-[#5542F6] border shadow-lg border-[#5542F6] rounded-md text-sm"
-                >
-                  Mint at Claim
-                </button>
-              )}
             </div>
           </form>
         </div>

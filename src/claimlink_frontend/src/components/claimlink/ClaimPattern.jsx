@@ -8,19 +8,19 @@ import { CiImageOn, CiWallet } from "react-icons/ci";
 const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
 
-  useEffect(() => {
-    if (formData.contract === "tokens") {
-      setFormData((prevData) => ({
-        ...prevData,
-        pattern: "transfer",
-      }));
-    } else if (formData.contract === "nfts") {
-      setFormData((prevData) => ({
-        ...prevData,
-        pattern: "mint",
-      }));
-    }
-  }, [formData.contract, setFormData]);
+  // useEffect(() => {
+  //   if (formData.contract === "tokens") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       pattern: "transfer",
+  //     }));
+  //   } else if (formData.contract === "nfts") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       pattern: "mint",
+  //     }));
+  //   }
+  // }, [formData.contract, setFormData]);
 
   const validate = () => {
     let tempErrors = {};
@@ -78,13 +78,8 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                     formData.pattern === "transfer"
                       ? "bg-[#5542F6]"
                       : "bg-white"
-                  } ${
-                    formData.contract === "nfts"
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
+                  }  `}
                   onClick={() =>
-                    formData.contract !== "nfts" &&
                     setFormData({ ...formData, pattern: "transfer" })
                   }
                 >
@@ -119,15 +114,8 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                 <div
                   className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                     formData.pattern === "mint" ? "bg-[#5542F6]" : "bg-white"
-                  } ${
-                    formData.contract === "tokens"
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
-                  }`}
-                  onClick={() =>
-                    formData.contract !== "tokens" &&
-                    setFormData({ ...formData, pattern: "mint" })
-                  }
+                  } `}
+                  onClick={() => setFormData({ ...formData, pattern: "mint" })}
                 >
                   <CiWallet
                     size={36}
