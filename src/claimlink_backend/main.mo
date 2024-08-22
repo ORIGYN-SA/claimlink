@@ -267,8 +267,7 @@ actor Main {
         thumb : Text,
         metadata : ?MetadataContainer,
         amount : Nat
-
-    ) : async [Int] {
+    ) : async [Nat32] {
         
         let metadataNonFungible : Metadata = #nonfungible{
             name = name;
@@ -277,21 +276,28 @@ actor Main {
             thumbnail = thumb;
             metadata = metadata;
         };
+
         var i = 0;
-        var responses : [Int] = [];
+        var nextTokenIds : [Nat32] = [];
         while (i < amount) {
-            let currentTokens = switch(tokensDataToBeMinted.get(_collectionCanisterId)) {
-                case (?existingTokens) existingTokens;
-                case null [];
-            };
-            let updatedTokens = Array.append(currentTokens, [(nextTokenIndex, metadataNonFungible)]);
-            tokensDataToBeMinted.put(_collectionCanisterId, updatedTokens);
-            let response = await createLinkForNonMinted(_collectionCanisterId,nextTokenIndex);
-            responses := Array.append(responses,[response]);
-            nextTokenIndex := nextTokenIndex + 1;
-            i := i + 1;
+            try {
+                let currentTokens = switch(tokensDataToBeMinted.get(_collectionCanisterId)) {
+                    case (?existingTokens) existingTokens;
+                    case null [];
+                };
+                let updatedTokens = Array.append(currentTokens, [(nextTokenIndex, metadataNonFungible)]);
+                tokensDataToBeMinted.put(_collectionCanisterId, updatedTokens);
+                
+                nextTokenIds := Array.append(nextTokenIds, [nextTokenIndex]);
+                nextTokenIndex := nextTokenIndex + 1;
+                i := i + 1;
+
+            } catch (e) {
+                throw Error.reject("Error occurred while storing token details");
+            }
         };
-        responses
+
+        return nextTokenIds;
     };
 
     public shared func getStoredTokens(
@@ -468,21 +474,46 @@ actor Main {
     };
 
     public shared ({caller = user}) func createLinkForNonMinted(
-        _collectionCanisterId: Principal,
-        _dummyTokenId: TokenIndex,
+        _collectionCanisterId : Principal,
+        _tokenId : Nat32
     ) : async Int {
-        
-            let newDeposit: Deposit = {
-                tokenId = _dummyTokenId;
-                sender = user;
-                collectionCanister = _collectionCanisterId;
-                timestamp = Time.now();
-                pubKey = user
-            };
-            deposits := Array.append(deposits, [newDeposit]);
-            Array.size(deposits) - 1
-       
+        // Check if the tokenId exists in the tokensDataToBeMinted for the given collection
+        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
+            case (?tokensList) {
+                var matchingToken: ?(Nat32, Metadata) = null;
 
+                for (token in tokensList.vals()) {
+                    if (token.0 == _tokenId) {
+                        matchingToken := ?token;
+                    }
+                };
+
+                switch (matchingToken) {
+                    case (?(_, metadata)) {
+                        // Create a deposit entry for the non-minted token
+                        let newDeposit: Deposit = {
+                            tokenId = _tokenId;
+                            sender = user;
+                            collectionCanister = _collectionCanisterId;
+                            timestamp = Time.now();
+                            pubKey = user;
+                        };
+                        deposits := Array.append(deposits, [newDeposit]);
+
+                        // Return the index of the deposit in the deposits array
+                        return Array.size(deposits) - 1;
+                    };
+                    case null {
+                        throw Error.reject("Token ID does not match any stored metadata");
+                        return -1;
+                    };
+                };
+            };
+            case null {
+                throw Error.reject("No stored tokens found for the given collection canister");
+                return -1;
+            };
+        };
     };
 
     
@@ -589,13 +620,22 @@ actor Main {
         var linkResponses: [Int] = [];
 
         for (tokenId in tokenIds.vals()) {
-            let linkIndex = await createLink(collection, user, tokenId, user);
-            if (linkIndex == -1) {
-                // If createLink fails, throw an error and abort campaign creation
-                throw Error.reject("Failed to create campaign: createLink failed for tokenId " # Nat32.toText(tokenId));
+            var linkIndex: Int = -1;
+            if(claimPattern == "transfer"){
+                linkIndex := await createLink(collection, user, tokenId, user);
+            } else if (claimPattern == "mint") {
+                linkIndex := await createLinkForNonMinted(collection, tokenId);
+            } else {
+                throw Error.reject("Invalid claimPattern: " # claimPattern);
             };
+
+            if (linkIndex == -1) {
+                // If createLink or createLinksForNonMinted fails, throw an error and abort campaign creation
+                throw Error.reject("Failed to create campaign: " # claimPattern # " failed for tokenId " # Nat32.toText(tokenId));
+            };
+
             linkResponses := Array.append(linkResponses, [linkIndex]);
-            campaignLinks.put(campaignId,linkResponses);
+            campaignLinks.put(campaignId, linkResponses);
         };
 
         let campaign: Campaign = {
