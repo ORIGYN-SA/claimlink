@@ -123,7 +123,6 @@ const AddToken = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Starting NFT creation");
 
     if (!backend) {
       toast.error("Backend actor not initialized");
@@ -160,12 +159,12 @@ const AddToken = () => {
         );
 
         if (res) {
-          console.log(" non fungible nft created successfully:", res);
-          toast.success(" non fungible nft created successfully!");
+          console.log(" non fungible token created successfully:", res);
+          toast.success(" non fungible token created successfully!");
           navigate(-1);
         } else {
-          console.log("Failed to create nft, no response received");
-          toast.error("Failed to create nft");
+          console.log("Failed to create token, no response received");
+          toast.error("Failed to create token");
         }
       } else {
         console.log(operation);
@@ -193,15 +192,10 @@ const AddToken = () => {
       }
     } catch (error) {
       console.error("Error creating nft:", error);
-      toast.error(`Error creating nft: ${error.message}`);
     }
   };
 
   const mintatclaim = async () => {
-    console.log("uwenuwenu");
-
-    console.log("Starting NFT creation");
-
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -237,12 +231,12 @@ const AddToken = () => {
         );
 
         if (res) {
-          console.log(" non fungible nft stored successfully:", res);
-          toast.success(" non fungible nft stored successfully!");
+          console.log(" non fungible token stored successfully:", res);
+          toast.success(" non fungible token stored successfully!");
           navigate(-1);
         } else {
-          console.log("Failed to create nft, no response received");
-          toast.error("Failed to create nft");
+          console.log("Failed to create token, no response received");
+          toast.error("Failed to create token");
         }
       } else {
         console.log(tokenType);
@@ -260,16 +254,15 @@ const AddToken = () => {
         );
 
         if (res) {
-          console.log("nft stored successfully:", res);
-          toast.success("nft stored successfully!");
+          console.log("non fungible token stored successfully:", res);
+          toast.success("non fungible token stored successfully!");
         } else {
           console.log("Failed to create nft, no response received");
-          toast.error("Failed to create nft");
+          toast.error("Failed to create non fungible token");
         }
       }
     } catch (error) {
-      console.error("Error creating nft:", error);
-      toast.error(`Error creating nft: ${error.message}`);
+      console.error("Error creating:", error);
     }
   };
   console.log(operation);
@@ -381,7 +374,7 @@ const AddToken = () => {
               </>
             )}
             <div className="flex flex-col mt-4">
-              <label className="text-md font-semibold py-3 ">Token Type</label>
+              <label className="text-md font-semibold py-3 "> Type</label>
               <select
                 value={operation}
                 onChange={(e) => setOperation(e.target.value)}

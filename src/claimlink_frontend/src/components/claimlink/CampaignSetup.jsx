@@ -20,11 +20,11 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
     const loadData = async () => {
       try {
         const data = await backend?.getUserCollections();
-        console.log("coll from capm", data);
+        console.log("coll from capm", data[0]);
         if (data.length > 0) {
-          const formattedCollections = data.map((collection, index) => ({
-            value: collection[0][1].toText(),
-            label: `Collection ${index + 1}: ${collection[0][1].toText()}`,
+          const formattedCollections = data[0].map((collection, index) => ({
+            value: collection[1].toText(),
+            label: `Collection ${index + 1}: ${collection[1].toText()}`,
           }));
           setCollections(formattedCollections);
         }

@@ -120,6 +120,24 @@ const NewCampaignCard = () => {
 };
 
 const CampaignCard = ({ campaign }) => {
+  function convertNanosecondsToDate(nanosecondTimestamp) {
+    // Convert nanoseconds to milliseconds
+    const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+
+    // Create a Date object
+    const date = new Date(millisecondTimestamp);
+
+    // Define options for formatting the date
+    const options = {
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    // Format the date to a human-readable string
+    return date.toLocaleString("en-US", options);
+  }
   return (
     <>
       <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
@@ -229,7 +247,9 @@ const CampaignCard = ({ campaign }) => {
         </div>
         <div className="px-6 py-4">
           <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
-          <p className="text-gray-500 text-xs">April 5, 13:54</p>
+          <p className="text-gray-500 text-xs">
+            {convertNanosecondsToDate(campaign?.createdAt)}
+          </p>
           <hr className="my-4" />
           <div className="text-xs">
             <div className="flex justify-between py-1">

@@ -108,7 +108,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         [tokenIds],
         formData.walletOption,
         selectedWalletOptions,
-        "b dwd"
+        "23-8-2025"
       );
 
       if (res) {
