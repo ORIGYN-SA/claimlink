@@ -13,6 +13,8 @@ import Iter "mo:base/Iter";
 import Error "mo:base/Error";
 import Nat32 "mo:base/Nat32";
 import Hash "mo:base/Hash";
+import Timer "mo:base/Timer";
+import Nat64 "mo:base/Nat64";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 
@@ -54,6 +56,8 @@ actor Main {
         sender : Principal;
         collectionCanister : Principal;
         timestamp : Time.Time;
+        claimPattern : Text;
+        status :Text;
         pubKey : Principal;
     };
     type User = ExtCore.User;
@@ -66,7 +70,7 @@ actor Main {
         tokenIds : [TokenIndex];
         walletOption : Text;
         displayWallets : [Text];
-        expirationDate : Text;
+        expirationDate : Time.Time;
         createdBy : Principal;
         createdAt : Time.Time;
         depositIndices : [Int];
@@ -84,8 +88,8 @@ actor Main {
         title : Text;
         startDate : Time.Time;
         createdAt: Time.Time;
+        duration : Int;
         createdBy: Principal;
-        duration : Text;
         campaignId : Text;
         whitelist : ?[Principal]
     };
@@ -112,6 +116,9 @@ actor Main {
     };
     private var tokensDataToBeMinted = TrieMap.TrieMap<Principal,[(Nat32,Metadata)]>(Principal.equal,Principal.hash);
     private var nextTokenIndex : Nat32 = 0;
+    // Campaign Timer
+    private var campaignTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
+
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
 
@@ -439,6 +446,8 @@ actor Main {
                         sender = _from;
                         collectionCanister = _collectionCanisterId;
                         timestamp = Time.now();
+                        claimPattern = "transfer";
+                        status = "created";
                         pubKey = _pubKey;
                     };
 
@@ -496,6 +505,8 @@ actor Main {
                             sender = user;
                             collectionCanister = _collectionCanisterId;
                             timestamp = Time.now();
+                            claimPattern = "mint";
+                            status = "created";
                             pubKey = user;
                         };
                         deposits := Array.append(deposits, [newDeposit]);
@@ -614,7 +625,7 @@ actor Main {
         tokenIds: [TokenIndex],
         walletOption: Text,
         displayWallets : [Text],
-        expirationDate: Text,
+        expirationDate: Time.Time,
     ) : async (Text,[Int]) {
         let campaignId = generateCampaignId(user);
         var linkResponses: [Int] = [];
@@ -664,8 +675,87 @@ actor Main {
             };
         };
 
+        switch (?expirationDate) {
+            case (?exp) await scheduleCampaignDeletion(campaignId, exp);
+            case null Debug.print("Invalid expiration date format");
+        };
+
         return (campaignId, linkResponses);
     };
+
+    func scheduleCampaignDeletion(campaignId: Text, expiration: Time.Time) : async () {
+        let now = Time.now();
+        let duration = if (expiration > now) expiration - now else now - expiration;
+        let natDuration = Nat64.toNat(Nat64.fromIntWrap(duration));
+        if (duration > 0) {
+            let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
+                deleteCampaign(campaignId);
+            });
+            campaignTimers.put(campaignId, id);
+        };
+    };
+
+    // internal function to take care of link expiration
+    func deleteCampaign(campaignId: Text) {
+        // Delete QR sets related to the campaign
+        qrSetMap.delete(campaignId);
+
+        // Delete dispensers related to the campaign
+        dispensers.delete(campaignId);
+
+        // Delete links related to the campaign
+        campaignLinks.delete(campaignId);
+
+        // Delete the campaign itself
+        campaigns.delete(campaignId);
+
+        // Cancel the scheduled timer if it exists
+        switch (campaignTimers.get(campaignId)) {
+            case (?timerId) {
+                Timer.cancelTimer(timerId);
+                campaignTimers.delete(campaignId);
+            };
+            case null {};
+        };
+
+        // Remove the campaign from the user's campaign map
+        for ((user, userCampaigns) in userCampaignsMap.entries()) {
+            let updatedCampaigns = Array.filter<Campaign>(userCampaigns ,func (campaign) : Bool {
+                campaign.id != campaignId
+            });
+            if (updatedCampaigns.size() == 0) {
+                userCampaignsMap.delete(user);
+            } else {
+                userCampaignsMap.put(user, updatedCampaigns);
+            };
+        };
+
+        // Remove related QR sets from user's QR set map
+        for ((user, userQRSets) in userQRSetMap.entries()) {
+            let updatedQRSets = Array.filter<QRSet>(userQRSets ,func (qrSet) : Bool {
+                qrSet.campaignId != campaignId
+            });
+            if (updatedQRSets.size() == 0) {
+                userQRSetMap.delete(user);
+            } else {
+                userQRSetMap.put(user, updatedQRSets);
+            };
+        };
+
+        // Remove related dispensers from user's dispenser map
+        for ((user, userDispensers) in userDispensersMap.entries()) {
+            let updatedDispensers = Array.filter<Dispenser>(userDispensers ,func (dispenser) : Bool {
+                dispenser.campaignId != campaignId
+            });
+            if (updatedDispensers.size() == 0) {
+                userDispensersMap.delete(user);
+            } else {
+                userDispensersMap.put(user, updatedDispensers);
+            };
+        };
+    };
+
+
 
     // Get details of a specific Campaign
     public shared query func getCampaignDetails(campaignId: Text) : async ?Campaign {
@@ -771,7 +861,7 @@ actor Main {
     public shared ({caller = user}) func createDispenser (
         _title : Text,
         _startDate : Time.Time,
-        _duration : Text,
+        _duration : Int,
         _campaignId : Text,
         _whitelist : ?[Principal]
     ) : async Text {
