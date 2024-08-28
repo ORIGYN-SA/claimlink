@@ -319,7 +319,7 @@ const Minter = () => {
                             Token standard
                           </p>
                           <p className="text-[#2E2C34] text-xs  font-semibold">
-                            ERC1155
+                            EXT
                           </p>
                         </div>
                       </div>

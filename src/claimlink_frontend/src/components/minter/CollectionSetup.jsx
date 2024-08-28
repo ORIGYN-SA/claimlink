@@ -123,7 +123,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
 
     try {
       console.log("Form data:", formData);
-      console.log("Principal:", principal.toText());
 
       const res = await backend?.createExtCollection(
         formData.title,

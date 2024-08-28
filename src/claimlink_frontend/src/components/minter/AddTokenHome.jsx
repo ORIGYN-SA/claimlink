@@ -30,6 +30,7 @@ const AddTokenHome = () => {
   const [filter, setFilter] = useState("non-fungible");
   const [loader, setLoader] = useState(true);
   const [descriptionModel, setDescriptionModel] = useState();
+  const [ids, setIds] = useState(false);
 
   const { backend } = useAuth();
   const addToken = () => {
@@ -66,10 +67,10 @@ const AddTokenHome = () => {
     try {
       setLoader(true);
       let idd = Principal.fromText(id);
-      const res = await backend.getFungibleTokens(idd);
+      const res = await backend.getStoredTokens(idd);
 
       console.log(res);
-      getNft(res);
+      getNft(res[0]);
     } catch (error) {
       console.log("Error getting nfts ", error);
     } finally {
@@ -90,6 +91,7 @@ const AddTokenHome = () => {
       console.log("Error getting nfts ", error);
     } finally {
       setLoader(false);
+      setIds(true);
     }
   };
 
@@ -115,12 +117,14 @@ const AddTokenHome = () => {
   }
 
   useEffect(() => {
-    if (filter == "non-fungible") {
-      getNonfungibleTokensNft();
-    } else {
+    if (filter == "stored") {
       getTokensNft();
+    } else {
+      getNonfungibleTokensNft();
     }
   }, [backend, filter]);
+
+  console.log(filter);
 
   const pageVariants = {
     initial: {
@@ -261,15 +265,15 @@ const AddTokenHome = () => {
                 className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
                 onChange={(e) => {
                   const selectedValue = e.target.value;
-                  if (selectedValue === "old") {
-                    setFilter("fungible");
-                  } else if (selectedValue === "new") {
+                  if (selectedValue == "stored") {
+                    setFilter("stored");
+                  } else if (selectedValue == "non-fungible") {
                     setFilter("non-fungible");
                   }
                 }}
               >
-                <option value="new">Non-Fungible</option>
-                <option value="old">Fungible</option>
+                <option value="non-fungible">Non-Fungible</option>
+                <option value="stored">Stored</option>
               </select>
             </div>
 
@@ -336,7 +340,7 @@ const AddTokenHome = () => {
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
                     >
-                      {nft[2]?.nonfungible?.thumbnail && (
+                      {filter == "non-fungible" ? (
                         <img
                           width="80px"
                           height="80px"
@@ -344,22 +348,39 @@ const AddTokenHome = () => {
                           alt="Dispenser"
                           className="w-16  h-16"
                         />
+                      ) : (
+                        <img
+                          width="80px"
+                          height="80px"
+                          src={nft[1]?.nonfungible?.thumbnail}
+                          alt="Dispenser"
+                          className="w-16  h-16"
+                        />
                       )}
-                      <h2 className="text-xl black  font-bold  mt-5 ">
-                        {nft[2]?.fungible?.name || nft[2]?.nonfungible?.name}
-                      </h2>
+                      {filter == "non-fungible" ? (
+                        <h2 className="text-xl black  font-bold  mt-5 ">
+                          {nft[2]?.nonfungible?.name}
+                        </h2>
+                      ) : (
+                        <h2 className="text-xl black  font-bold  mt-5 ">
+                          {nft[1]?.nonfungible?.name}
+                        </h2>
+                      )}
                       <p className="text-xs gray mt-1">April 5, 13:34</p>
                       <div className="border border-gray-200 my-4 w-full"></div>
                       <div className=" w-full">
-                        <div className="flex justify-between">
-                          <p className="text-xs gray ">Address</p>
-                          <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
-                            {nft[1]}
-                          </p>
-                        </div>
+                        {filter == "non-fungible" && (
+                          <div className="flex justify-between">
+                            <p className="text-xs gray ">Address</p>
+
+                            <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
+                              {typeof nft[1] === "object" ? "" : nft[1]}{" "}
+                            </p>
+                          </div>
+                        )}
                         <div className="flex justify-between mt-2">
                           <p className="text-xs gray">Copies</p>
-                          <p className="text-xs font-semibold">10</p>
+                          <p className="text-xs font-semibold">1</p>
                         </div>
                         <div className="flex justify-between mt-2">
                           <p className="text-xs gray		">ID </p>
@@ -486,11 +507,11 @@ const AddTokenHome = () => {
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token type</p>
-                <p className="black font-semibold text-sm">ICRC-7 Token</p>
+                <p className="black font-semibold text-sm">EXT Token</p>
               </div>
               <div className="flex justify-between mt-2">
                 <p className="gray text-sm">Token standart</p>
-                <p className="black font-semibold text-sm">ICRC-7</p>
+                <p className="black font-semibold text-sm">EXT</p>
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
@@ -514,14 +535,6 @@ const AddTokenHome = () => {
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
-
-            {/* <button
-              onClick={addcompaign}
-              className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
-            >
-              <GoLink />
-              Create claim links
-            </button> */}
           </div>
         </motion.div>
       )}
