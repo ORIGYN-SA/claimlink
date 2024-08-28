@@ -19,7 +19,7 @@ const Dashboard = ({
   stepper = false,
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const whitelist = ["oyjva-2yaaa-aaaam-qbaya-cai"];
+  const whitelist = [process.env.CANISTER_ID_CLAIMLINK_BACKEND];
   // const { isAuthenticated } = useAuth();
 
   const handleLogin = async () => {

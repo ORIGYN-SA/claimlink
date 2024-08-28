@@ -10,8 +10,8 @@ import {
 import { Principal } from "@dfinity/principal";
 import { idlFactory } from "../../../../declarations/claimlink_backend/claimlink_backend.did.js";
 
-const canisterID = "xjhju-3aaaa-aaaak-akv5q-cai";
-const whitelist = ["xjhju-3aaaa-aaaak-akv5q-cai"];
+const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
+const whitelist = [process.env.CANISTER_ID_CLAIMLINK_BACKEND];
 
 const initialState = {
   isAuthenticated: false,
