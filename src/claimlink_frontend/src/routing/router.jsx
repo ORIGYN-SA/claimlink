@@ -24,6 +24,7 @@ import Contract from "../components/minter/Contract";
 import MainHome from "../pages/MainHome";
 import ClaimForm from "../components/claimlink/ClaimForm";
 import QrForm from "../components/qrManager/QrForm";
+import LinkClaiming from "../LinkClaiming";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -173,6 +174,10 @@ const approutes = createBrowserRouter([
         <DistributionPages />
       </Dashboard>
     ),
+  },
+  {
+    path: "/linkclaiming/:id/:id",
+    element: <LinkClaiming />,
   },
 ]);
 

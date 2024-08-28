@@ -16,6 +16,11 @@ const CreateDispenser = () => {
     whitelistCsv: null,
     redirectEnabled: false,
     whitelistEnabled: false,
+    title: "", // Add title state
+    tokenAmount: 0, // Add token amount state
+    metadata: "", // Add metadata state
+    additionalInfo: "", // Add additional info state
+    whitelist: [], // Add whitelist state
   });
 
   const [errors, setErrors] = useState({});
@@ -40,11 +45,22 @@ const CreateDispenser = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      // Handle form submission
-      console.log(formData);
+      // Assuming you have an async function `createDispenser` to handle dispenser creation
+      try {
+        const response = await createDispenser(
+          formData.title,
+          formData.tokenAmount,
+          formData.metadata,
+          formData.additionalInfo,
+          formData.whitelistEnabled ? formData.whitelist : null
+        );
+        console.log("Dispenser created:", response);
+      } catch (error) {
+        console.error("Failed to create dispenser:", error);
+      }
     }
   };
 
@@ -106,98 +122,95 @@ const CreateDispenser = () => {
           <p className="text-gray-400 text-sm mt-2">
             Dispenser app is represented by a single link or QR code that you
             can share for multiple users to scan to claim a unique token.
-            Scanning is limited within a certain timeframe
+            Scanning is limited within a certain timeframe.
           </p>
         </div>
         <div className="border border-gray-300 my-6"></div>
         <div>
           <form onSubmit={handleSubmit}>
+            {/* Title input */}
             <div className="flex flex-col">
-              <label htmlFor="campaign" className="text-md font-semibold py-3">
-                Connect to claim links
+              <label htmlFor="title" className="text-md font-semibold py-3">
+                Title
               </label>
-              <p className="text-gray-400 text-sm mb-3">
-                Choose an existing campaign or upload a CSV file with links.
-                Number of rows in the file should be equal to the number of QR
-                codes.
-              </p>
-              <select
-                name="campaign"
-                id="campaign"
+              <input
+                type="text"
+                name="title"
+                id="title"
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                value={formData.campaign}
+                value={formData.title}
                 onChange={handleChange}
-              >
-                <option value="">Choose campaign</option>
-                <option value="lastCampaign1">My last campaign</option>
-                <option value="lastCampaign2">My last campaign</option>
-              </select>
-              <div className="flex mt-2 gap-3">
-                <p className="px-2 py-1 text-gray-400 text-sm rounded-lg bg-gray-300">
-                  My last campaign
-                </p>
-                <p className="px-2 py-1 text-gray-400 text-sm rounded-lg bg-gray-300">
-                  My last campaign
-                </p>
-              </div>
-              {errors.campaign && (
-                <p className="text-red-500 text-sm mt-1">{errors.campaign}</p>
-              )}
-            </div>
-            <div className="mt-2 flex flex-col">
-              <label htmlFor="csvFile" className="text-md font-semibold py-3">
-                Upload CSV
-              </label>
-              <StyledDropzone
-                onFileChange={(file) => handleFileChange(file, "csvFile")}
               />
-              {errors.csvFile && (
-                <p className="text-red-500 text-sm mt-1">{errors.csvFile}</p>
+              {errors.title && (
+                <p className="text-red-500 text-sm mt-1">{errors.title}</p>
               )}
             </div>
-            <div className="mt-8 flex justify-between items-center">
+
+            {/* Token Amount input */}
+            <div className="flex flex-col mt-4">
               <label
-                htmlFor="redirectEnabled"
-                className="text-md font-semibold"
+                htmlFor="tokenAmount"
+                className="text-md font-semibold py-3"
               >
-                Redirect to another URL
+                Token Amount
               </label>
-              <Toggle
-                className="px-3 py-2"
-                id="redirectEnabled"
-                checked={formData.redirectEnabled}
-                onChange={() => handleToggleChange("redirectEnabled")}
+              <input
+                type="number"
+                name="tokenAmount"
+                id="tokenAmount"
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                value={formData.tokenAmount}
+                onChange={handleChange}
               />
+              {errors.tokenAmount && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.tokenAmount}
+                </p>
+              )}
             </div>
-            <p className="text-gray-400 text-sm mt-2">
-              When your campaign is finished, users can be redirected to a link
-              or website.
-            </p>
-            {formData.redirectEnabled && (
-              <div className="mt-2 flex flex-col">
-                <label
-                  htmlFor="redirectUrl"
-                  className="text-md font-semibold py-3"
-                >
-                  Redirect link
-                </label>
-                <input
-                  type="text"
-                  name="redirectUrl"
-                  id="redirectUrl"
-                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  placeholder="Enter Link"
-                  value={formData.redirectUrl}
-                  onChange={handleChange}
-                />
-                {errors.redirectUrl && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.redirectUrl}
-                  </p>
-                )}
-              </div>
-            )}
-            <div className="border border-gray-300 my-6"></div>
+
+            {/* Metadata input */}
+            <div className="flex flex-col mt-4">
+              <label htmlFor="metadata" className="text-md font-semibold py-3">
+                Metadata
+              </label>
+              <input
+                type="text"
+                name="metadata"
+                id="metadata"
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                value={formData.metadata}
+                onChange={handleChange}
+              />
+              {errors.metadata && (
+                <p className="text-red-500 text-sm mt-1">{errors.metadata}</p>
+              )}
+            </div>
+
+            {/* Additional Info input */}
+            <div className="flex flex-col mt-4">
+              <label
+                htmlFor="additionalInfo"
+                className="text-md font-semibold py-3"
+              >
+                Additional Info
+              </label>
+              <input
+                type="text"
+                name="additionalInfo"
+                id="additionalInfo"
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                value={formData.additionalInfo}
+                onChange={handleChange}
+              />
+              {errors.additionalInfo && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.additionalInfo}
+                </p>
+              )}
+            </div>
+
+            {/* Whitelist setup */}
             <div className="mt-8 flex justify-between items-center">
               <label
                 htmlFor="whitelistEnabled"
@@ -212,16 +225,13 @@ const CreateDispenser = () => {
                 onChange={() => handleToggleChange("whitelistEnabled")}
               />
             </div>
-            <p className="text-gray-400 text-sm mt-2">
-              Only addresses entered below will be able to claim
-            </p>
             {formData.whitelistEnabled && (
               <div className="mt-2 flex flex-col">
                 <label
                   htmlFor="whitelistCsv"
                   className="text-md font-semibold py-3"
                 >
-                  Recepient’s address
+                  Upload Whitelist CSV
                 </label>
                 <StyledDropzone
                   onFileChange={(file) =>
@@ -235,6 +245,7 @@ const CreateDispenser = () => {
                 )}
               </div>
             )}
+
             <button
               type="submit"
               className="px-6 py-3 w-full md:w-auto mt-6 bg-[#5542F6] text-white rounded-md text-sm"
@@ -245,6 +256,7 @@ const CreateDispenser = () => {
         </div>
       </div>
       <div className="w-1/3 md:inline hidden bg-white p-6">
+        {/* Sidebar content */}
         <h2 className="font-semibold text-xl">Dispenser</h2>
         <div className="mt-2 w-full">
           <div className="flex justify-between">
@@ -266,48 +278,56 @@ const CreateDispenser = () => {
         <div className="mt-2 w-full">
           <div className="flex justify-between">
             <p className="text-gray-800 font-medium">Statistics</p>
-            <div className="text-[#564BF1] flex items-center gap-1">
-              <GoDownload />
-              <p className="underline">Download full report</p>
+            <div className="flex space-x-2">
+              <button className="text-[#5542F6]">
+                <BsCopy />
+              </button>
+              <button className="text-[#5542F6]">
+                <BsQrCode />
+              </button>
+              <button className="text-[#5542F6]">
+                <GoDownload />
+              </button>
             </div>
           </div>
           <div className="flex justify-between mt-2">
-            <p className="text-gray-500">Total links</p>
-            <p>10</p>
+            <p className="text-gray-500">Claimed Tokens</p>
+            <p className="text-gray-800">0</p>
           </div>
           <div className="flex justify-between mt-2">
-            <p className="text-gray-500">Scanned</p>
-            <p className="text-gray-800">14</p>
-          </div>
-          <div className="flex justify-between mt-2">
-            <p className="text-gray-500">Links left</p>
-            <p>10</p>
-          </div>
-          <div className="flex justify-between mt-2">
-            <p className="text-gray-500">Claimed</p>
-            <p>0</p>
+            <p className="text-gray-500">Total Tokens</p>
+            <p className="text-gray-800">0</p>
           </div>
         </div>
         <div className="border border-gray-300 my-6"></div>
-
-        <div className="flex flex-col">
-          <label htmlFor="title" className="text-md font-semibold pb-3">
-            Link
-          </label>
-          <div className="flex items-center gap-2">
-            <div className="bg-white px-2 py-2 w-full outline-none border text-[#5542F6] border-gray-200 rounded-md">
-              https://claim.link/6DJ8KK
-            </div>
-            <div className="bg-[#564bf11d] px-2 py-2 outline-none border border-[#E9E8FC] rounded-md">
-              <BsCopy className="w-5 h-5 text-[#564BF1]" />
-            </div>
+        <div className="flex justify-between items-center">
+          <p className="text-gray-800 font-medium">Distribution</p>
+          <button className="px-4 py-2 bg-[#5542F6] text-white rounded-md text-sm">
+            View
+          </button>
+        </div>
+        <div className="mt-2 w-full">
+          <div className="flex justify-between">
+            <p className="text-gray-500">Campaign</p>
+            <p className="text-gray-800">Not linked</p>
+          </div>
+          <div className="flex justify-between mt-2">
+            <p className="text-gray-500">CSV Uploaded</p>
+            <p className="text-gray-800">{formData.csvFile ? "Yes" : "No"}</p>
           </div>
         </div>
         <div className="border border-gray-300 my-6"></div>
-        <button className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-md text-sm">
-          <BsQrCode />
-          Download QR
-        </button>
+        <div className="flex justify-between items-center">
+          <p className="text-gray-800 font-medium">Preview QR Code</p>
+          <div className="flex space-x-2">
+            <button className="px-4 py-2 bg-[#5542F6] text-white rounded-md text-sm">
+              Copy
+            </button>
+            <button className="px-4 py-2 bg-[#5542F6] text-white rounded-md text-sm">
+              Download
+            </button>
+          </div>
+        </div>
       </div>
     </motion.div>
   );

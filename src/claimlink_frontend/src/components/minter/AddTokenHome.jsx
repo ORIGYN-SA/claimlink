@@ -443,6 +443,9 @@ const AddTokenHome = () => {
                           <div className="fixed inset-0 flex  items-center justify-center z-50">
                             <CommonModal
                               toggleModal={toggleModal}
+                              canisterid={id}
+                              maxquntity={10}
+                              nftid={nft[0]}
                               title="Transfer NFT"
                             />
                           </div>

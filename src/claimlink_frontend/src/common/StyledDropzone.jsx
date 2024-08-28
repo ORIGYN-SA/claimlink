@@ -50,6 +50,32 @@ export default function StyledDropzone({ onDrop }) {
     [isFocused, isDragAccept, isDragReject]
   );
 
+  const handleFileUpload = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("File uploaded successfully:", result);
+      } else {
+        console.error("File upload failed:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
+  const handleDrop = (acceptedFiles) => {
+    onDrop(acceptedFiles);
+    acceptedFiles.forEach((file) => handleFileUpload(file));
+  };
+
   return (
     <div className="container">
       <div {...getRootProps({ style })}>
@@ -62,6 +88,16 @@ export default function StyledDropzone({ onDrop }) {
           </p>
         </div>
       </div>
+      <aside className="mt-4">
+        <h4>Files</h4>
+        <ul>
+          {acceptedFiles.map((file) => (
+            <li key={file.path}>
+              {file.path} - {file.size} bytes
+            </li>
+          ))}
+        </ul>
+      </aside>
     </div>
   );
 }
