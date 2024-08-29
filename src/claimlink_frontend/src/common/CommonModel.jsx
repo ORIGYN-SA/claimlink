@@ -31,9 +31,9 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
       return;
     }
 
-    if (!validateForm()) {
-      return;
-    }
+    // if (!validateForm()) {
+    //   return;
+    // }
 
     setLoading(true);
 
@@ -72,7 +72,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
           opacity: 1,
           transition: { ease: "easeInOut", duration: 0.4 },
         }}
-        className="filter-card px-6 py-2 bg-white rounded-xl w-[400px] h-[260px]"
+        className="filter-card px-6 py-2 bg-white rounded-xl w-[400px] h-[180px]"
       >
         <div className="flex flex-col mt-2">
           <div className="flex justify-between gap-4">
@@ -90,10 +90,10 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
 
           <div className="mt-4">
             <form onSubmit={handleCreate} className="flex flex-col">
-              <label htmlFor="quantity" className="text-lg my-2">
+              {/* <label htmlFor="quantity" className="text-lg my-2">
                 Quantity
-              </label>
-              <input
+              </label> */}
+              {/* <input
                 type="number"
                 name="quantity"
                 id="quantity"
@@ -104,7 +104,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
                 min="1"
                 max={maxquntity}
               />
-              {error && <p className="text-red-500 mt-2">{error}</p>}
+              {error && <p className="text-red-500 mt-2">{error}</p>} */}
               <div className="flex justify-end items-end pt-4 gap-4">
                 <button
                   type="submit"
