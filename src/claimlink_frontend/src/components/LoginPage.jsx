@@ -6,15 +6,17 @@ import { Checkbox } from "@headlessui/react";
 import { MdArrowOutward } from "react-icons/md";
 import WalletModal from "../common/WalletModal";
 import { login } from "../redux/features/authSlice";
+import { useAuth } from "../connect/useClient";
 
 const LoginPage = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const [showModal, setShowModal] = useState(false);
-
+  const { backend, principal, connectWallet, disconnect, isConnected } =
+    useAuth();
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isConnected) {
       navigate("/dashboard");
     }
   }, [isAuthenticated, navigate]);
