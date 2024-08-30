@@ -24,6 +24,7 @@
     "@reduxjs/toolkit": "^2.2.6",
     "@tsparticles/react": "^3.0.0",
     "browser-image-compression": "^2.0.2",
+    "dotenv": "^16.4.5",
     "framer-motion": "^11.2.11",
     "html-to-image": "^1.11.11",
     "ic-auth": "^0.9.1",

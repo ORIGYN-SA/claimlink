@@ -35,6 +35,7 @@ const LinkClaiming = () => {
   }, [canisterId, nftIndex]);
 
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
 
   useEffect(() => {
     if (isConnected && principal) {
@@ -45,6 +46,7 @@ const LinkClaiming = () => {
   }, [isConnected, principal]);
 
   useEffect(() => {
+    setLoading2(true);
     const getNfts = async () => {
       try {
         const canister = Principal.fromText(canisterId);
@@ -55,11 +57,12 @@ const LinkClaiming = () => {
         console.log("Error fetching NFTs:", error);
       }
     };
-
+    setLoading2(false);
     getNfts();
   }, [backend, canisterId]);
 
   useEffect(() => {
+    setLoading2(true);
     const getDeposits = async () => {
       try {
         const detail = await backend.getDeposits();
@@ -69,7 +72,7 @@ const LinkClaiming = () => {
         console.log("Error fetching deposits:", error);
       }
     };
-
+    setLoading2(false);
     getDeposits();
   }, [backend]);
 
@@ -82,7 +85,7 @@ const LinkClaiming = () => {
     setLoading(true);
     try {
       const canister = Principal.fromText(canisterId);
-      const res = await backend?.claimLink(canister, Number(nftIndex));
+      const res = await backend?.claimToken(canister, Number(nftIndex));
       console.log("Response of claim:", res);
       if (res == 0) {
         toast.success("NFT claimed successfully!");
@@ -145,9 +148,17 @@ const LinkClaiming = () => {
     }
 
     return (
-      <div className=" my-auto mt-16 text-3xl text-red-500  ">
-        No matching NFT found.
-      </div>
+      <>
+        <div className=" my-auto mt-16 text-3xl text-red-500  ">
+          No matching NFT found.
+        </div>
+
+        {loading2 ? (
+          <div className=" my-auto mt-16 text-3xl text-gray-300 animate-pulse  ">
+            Loading.....
+          </div>
+        ) : null}
+      </>
     );
   };
 
@@ -199,7 +210,7 @@ const LinkClaiming = () => {
               <button
                 onClick={handleClaim}
                 disabled={loading}
-                className={`button px-4 py-2 rounded-md text-white ${
+                className={`button px-4 z-20 py-2 rounded-md text-white ${
                   loading ? "bg-gray-500" : "bg-[#564BF1]"
                 }`}
               >
