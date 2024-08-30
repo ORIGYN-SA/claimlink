@@ -9,6 +9,7 @@ import { Principal } from "@dfinity/principal";
 const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
+  const url = process.env.REACT_APP_LIVE_URL;
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -48,7 +49,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
       );
 
       if (index != -1 && index !== undefined) {
-        const claimLink = `http://localhost:3000/linkclaiming/${canisterid}/${index}`;
+        const claimLink = `${url}/linkclaiming/${canisterid}/${index}`;
         console.log("Link created successfully:", claimLink);
         toast.success("Link created successfully!");
       } else {
@@ -72,7 +73,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
           opacity: 1,
           transition: { ease: "easeInOut", duration: 0.4 },
         }}
-        className="filter-card px-6 py-2 bg-white rounded-xl w-[400px] h-[180px]"
+        className="filter-card px-6 py-2 bg-white rounded-xl w-[400px] h-[150px]"
       >
         <div className="flex flex-col mt-2">
           <div className="flex justify-between gap-4">
@@ -84,9 +85,9 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
               <RxCross2 className="text-gray-800 w-5 h-5" />
             </button>
           </div>
-          <p className="text-gray-500 text-sm mt-2">
+          {/* <p className="text-gray-500 text-sm mt-2">
             How many claim links do you want to create?
-          </p>
+          </p> */}
 
           <div className="mt-4">
             <form onSubmit={handleCreate} className="flex flex-col">

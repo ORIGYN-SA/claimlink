@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Checkbox, Switch } from "@headlessui/react";
+import { Switch } from "@headlessui/react";
 import { motion } from "framer-motion";
 import { TbInfoHexagon } from "react-icons/tb";
 import Summary from "./Summary";
@@ -7,11 +7,12 @@ import MainButton, { BackButton } from "../../common/Buttons";
 import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import toast from "react-hot-toast";
-
 const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
-  const { identity, backend, principal } = useAuth();
-
+  const { backend, principal } = useAuth();
+  const liveUrl =
+    process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
+  console.log("Live URL:", liveUrl);
   const validateForm = () => {
     const newErrors = {};
 
@@ -23,7 +24,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       newErrors.walletOptions = "Please select at least one wallet option.";
     }
 
-    if (!formData.expirationDate) {
+    if (formData.enabled && !formData.expirationDate) {
       newErrors.expirationDate = "Please select an expiration date.";
     }
 
@@ -34,13 +35,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = () => {
-    if (validateForm()) {
-      console.log(formData);
-      handleNext();
-    }
   };
 
   const handleWalletOptionChange = (option) => {
@@ -93,8 +87,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           }
         });
 
-      console.log(selectedWalletOptions);
-
       const date = new Date(
         `${formData.expirationDate}T${formData.hour}:${formData.minute}:00Z`
       );
@@ -108,10 +100,12 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         [tokenIds],
         formData.walletOption,
         selectedWalletOptions,
-        "23-8-2025"
+        timestampMillis
       );
 
       if (res) {
+        // const claimLink = `http://localhost:3000/linkclaiming/${formData.collection}/${tokenIds}`;
+
         console.log("Campaign created successfully:", res);
         toast.success("Campaign created successfully!");
         handleNext();
@@ -133,6 +127,16 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
 
   const pageTransition = { type: "tween", ease: "anticipate", duration: 0.8 };
 
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    return { dateStr, hour, minute };
+  };
+
+  const { dateStr, hour, minute } = getCurrentDateTime();
+
   return (
     <motion.div
       initial="initial"
@@ -142,7 +146,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       transition={pageTransition}
       className="flex justify-between"
     >
-      <div className="p-6 sm:w-[70%] space-y-6">
+      <div className="pl-4 py-4 sm:w-[70%] space-y-6">
         <h1 className="text-3xl font-semibold">Wallet Option</h1>
         <div>
           <p className="font-semibold text-sm text-gray-400 my-4">
@@ -193,7 +197,15 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             <p className="font-semibold text-lg">Link Expiration</p>
             <Switch
               checked={formData.enabled}
-              onChange={(enabled) => setFormData({ ...formData, enabled })}
+              onChange={(enabled) =>
+                setFormData({
+                  ...formData,
+                  enabled,
+                  expirationDate: enabled ? dateStr : "",
+                  hour: enabled ? hour : "",
+                  minute: enabled ? minute : "",
+                })
+              }
               className="group inline-flex h-6 w-12 items-center rounded-full bg-gray-200 transition"
             >
               <span className="size-4 translate-x-1 rounded-full bg-[#5542F6] transition group-data-[checked]:translate-x-7" />
@@ -203,118 +215,122 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             You can set up the link expiration, so that users will not be able
             to claim after a certain day and time
           </p>
-          <div className="mt-6 space-y-4 sm:w-[75%]">
-            <h1 className="text-lg font-semibold">Expiration Date</h1>
-            <div className="flex md:flex-row flex-col w-full justify-between gap-4">
-              <input
-                type="date"
-                name="expirationDate"
-                id="expirationDate"
-                className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
-                value={formData.expirationDate}
-                onChange={(e) =>
-                  setFormData({ ...formData, expirationDate: e.target.value })
-                }
-              />
-              <div className="flex md:justify-normal justify-between gap-4">
-                <select
-                  name="startHour"
-                  id="startHour"
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.hour}
+          {formData.enabled && (
+            <div className="mt-6 space-y-4 sm:w-[75%]">
+              <h1 className="text-lg font-semibold">Expiration Date</h1>
+              <div className="flex md:flex-row flex-col w-full justify-between gap-4">
+                <input
+                  type="date"
+                  name="expirationDate"
+                  id="expirationDate"
+                  className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
+                  value={formData.expirationDate}
+                  min={dateStr}
                   onChange={(e) =>
-                    setFormData({ ...formData, hour: e.target.value })
+                    setFormData({ ...formData, expirationDate: e.target.value })
                   }
-                >
-                  {Array.from({ length: 24 }, (_, i) => i).map((hr) => (
-                    <option key={hr} value={hr}>
-                      {hr}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="startMinute"
-                  id="startMinute"
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.minute}
-                  onChange={(e) =>
-                    setFormData({ ...formData, minute: e.target.value })
-                  }
-                >
-                  {Array.from({ length: 60 }, (_, i) => i).map((min) => (
-                    <option key={min} value={min}>
-                      {min}
-                    </option>
-                  ))}
-                </select>
+                />
+                <div className="flex md:justify-normal justify-between gap-4">
+                  <select
+                    name="startHour"
+                    id="startHour"
+                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                    value={formData.hour}
+                    onChange={(e) =>
+                      setFormData({ ...formData, hour: e.target.value })
+                    }
+                  >
+                    {Array.from({ length: 24 }, (_, i) => i).map((hr) => (
+                      <option key={hr} value={hr}>
+                        {hr}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    name="startMinute"
+                    id="startMinute"
+                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                    value={formData.minute}
+                    onChange={(e) =>
+                      setFormData({ ...formData, minute: e.target.value })
+                    }
+                  >
+                    {Array.from({ length: 60 }, (_, i) => i).map((min) => (
+                      <option key={min} value={min}>
+                        {min}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
+              {errors.expirationDate && (
+                <p className="text-red-500 text-sm mt-1">
+                  {errors.expirationDate}
+                </p>
+              )}
             </div>
-            {errors.expirationDate && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.expirationDate}
-              </p>
-            )}
-          </div>
-          <div className="flex items-center gap-2 mt-2">
-            <TbInfoHexagon className="text-[#564BF1]" size={20} />
-            <p className="text-sm text-gray-500">Enter expiration date</p>
-          </div>
-          <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
+          )}
         </div>
+
+        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
 
         <div>
           <div className="flex items-center justify-between sm:w-[75%]">
-            <p className="font-semibold text-lg">Include Extra ICP</p>
+            <p className="font-semibold text-lg">Include ICP</p>
             <Switch
               checked={formData.includeICP}
-              onChange={handleIncludeICPChange}
+              onChange={(include) => handleIncludeICPChange(include)}
               className="group inline-flex h-6 w-12 items-center rounded-full bg-gray-200 transition"
             >
               <span className="size-4 translate-x-1 rounded-full bg-[#5542F6] transition group-data-[checked]:translate-x-7" />
             </Switch>
           </div>
-          <div className="mt-2">
-            <span className="font-semibold text-gray-400 text-sm">
-              Include native tokens to each link as an extra bonus for the
-              receiver
-            </span>
-            {formData.includeICP && (
-              <div>
-                <p className="text-gray-900 text-lg font-semibold mt-4">
-                  ICP to Include
-                </p>
+          <p className="font-semibold text-sm text-gray-400 my-4">
+            Include ICP in the link for users to claim
+          </p>
+          {formData.includeICP && (
+            <div className="mt-6 space-y-4 sm:w-[75%]">
+              <h1 className="text-lg font-semibold">Amount of ICP</h1>
+              <div className="flex flex-col w-full justify-between gap-4">
                 <input
-                  type="text"
-                  className="sm:w-[75%] mt-4 w-full h-12 rounded border-2 px-3 outline-none border-gray-100"
-                  placeholder="Amount of ICP"
+                  type="number"
+                  name="icpAmount"
+                  id="icpAmount"
+                  className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[50%] w-full rounded-md"
                   value={formData.icpAmount}
                   onChange={(e) =>
                     setFormData({ ...formData, icpAmount: e.target.value })
                   }
+                  placeholder="0.0"
                 />
-                {errors.icpAmount && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.icpAmount}
-                  </p>
-                )}
               </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 mt-3">
-            <TbInfoHexagon className="text-[#564BF1]" size={20} />
-            <p className="text-sm text-gray-500">
-              This amount of native tokens will be included in each link as a
-              bonus for the receiver
-            </p>
-          </div>
+              {errors.icpAmount && (
+                <p className="text-red-500 text-sm mt-1">{errors.icpAmount}</p>
+              )}
+            </div>
+          )}
         </div>
 
-        <div className="mt-16 flex space-x-3">
-          <BackButton text={"Back"} onClick={handleBack} />
-          <MainButton text={"Launch Campaign"} onClick={handleCreate} />
+        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
+
+        <div className="flex items-center sm:w-[75%]">
+          <TbInfoHexagon className="mr-4 text-2xl" />
+          <p className="font-semibold text-sm text-gray-400 my-4">
+            The users will receive an NFT with a valid link after successful
+            claim
+          </p>
+        </div>
+
+        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
+
+        <div className="flex justify-between items-center">
+          <BackButton onClick={handleBack} text={"back"}></BackButton>
+          <MainButton onClick={handleCreate} text={"submit"}></MainButton>
         </div>
       </div>
-      <Summary formData={formData} />
+      <div className="p-6 flex items-center w-[30%] sm:block hidden">
+        <Summary formData={formData} />
+      </div>
     </motion.div>
   );
 };
