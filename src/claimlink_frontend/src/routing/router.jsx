@@ -25,6 +25,7 @@ import MainHome from "../pages/MainHome";
 import ClaimForm from "../components/claimlink/ClaimForm";
 import QrForm from "../components/qrManager/QrForm";
 import LinkClaiming from "../LinkClaiming";
+import TestCollection from "../components/claimlink/TestCampaign";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -43,6 +44,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard stepper={false} headerText={"Test Campaign"} menubar={false}>
         <Dashboardcontainer />
+      </Dashboard>
+    ),
+  },
+  {
+    path: `/claim-link/:campaignId`,
+    element: (
+      <Dashboard stepper={false} headerText={"Test Campaign"} menubar={false}>
+        <TestCollection />
       </Dashboard>
     ),
   },

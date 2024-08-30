@@ -211,7 +211,10 @@ const CampaignCard = ({ campaign }) => {
           </div>
         </div>
       </div>
-      <div className="max-w-sm mx-auto sm:block hidden bg-white  cursor-pointer   rounded-lg overflow-hidden">
+      <Link
+        className="max-w-sm mx-auto sm:block hidden bg-white  cursor-pointer   rounded-lg overflow-hidden"
+        to={`/claim-link/${campaign?.id}`}
+      >
         <div className="relative h-12 mt-6 px-6">
           <div className="flex justify-start  space-x-4">
             <img
@@ -286,7 +289,7 @@ const CampaignCard = ({ campaign }) => {
             </div>
           </div>
         </div>
-      </div>
+      </Link>
     </>
   );
 };

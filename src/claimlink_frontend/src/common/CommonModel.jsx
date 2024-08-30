@@ -9,7 +9,9 @@ import { Principal } from "@dfinity/principal";
 const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
-  const url = process.env.REACT_APP_LIVE_URL;
+  const url = process.env.PROD
+    ? process.env.CANISTER_ID_CLAIMLINK_BACKEND
+    : "http://localhost:3000";
 
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
