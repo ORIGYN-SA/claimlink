@@ -9,21 +9,45 @@ import toast from "react-hot-toast";
 import { Principal } from "@dfinity/principal";
 import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
+import { CiImageOn, CiWallet } from "react-icons/ci";
+import { AiOutlineLink } from "react-icons/ai";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
   const [tokenType, setTokenType] = useState("nonfungible");
   const { identity, backend, principal } = useAuth();
-  const [operation, setOperation] = useState("Mint");
+  const [operation, setOperation] = useState("mint");
 
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
+  const [errors, setErrors] = useState({});
+
+  // useEffect(() => {
+  //   if (formData.contract === "tokens") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       pattern: "transfer",
+  //     }));
+  //   } else if (formData.contract === "nfts") {
+  //     setFormData((prevData) => ({
+  //       ...prevData,
+  //       pattern: "mint",
+  //     }));
+  //   }
+  // }, [formData.contract, setFormData]);
+
+  const validate = () => {
+    let tempErrors = {};
+    tempErrors.pattern = operation ? "" : " Required.";
+    setErrors(tempErrors);
+    return Object.values(tempErrors).every((x) => x === "");
+  };
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    decimals: "",
+    decimals: 1,
     name: "",
     symbol: "",
     thumbnail: "",
@@ -142,8 +166,9 @@ const AddToken = () => {
 
       let idd = Principal.fromText(id);
 
-      if (operation == "Mint") {
+      if (operation == "mint") {
         console.log(tokenType);
+        console.log(formData);
         const res = await backend?.mintExtNonFungible(
           idd,
           formData.name,
@@ -155,7 +180,7 @@ const AddToken = () => {
               data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
             },
           ],
-          1
+          parseInt(formData.decimals)
         );
 
         if (res) {
@@ -288,7 +313,7 @@ const AddToken = () => {
                 <label className="text-md font-semibold py-3 ">
                   Upload a file
                   <span className="text-gray-400 text-sm mb-3 font-normal ">
-                    (PNG, JPG, GIF. Max 5MB)
+                    (PNG . Max 5MB)
                   </span>
                 </label>
                 <div className="flex gap-4 flex-col md:flex-row">
@@ -374,15 +399,79 @@ const AddToken = () => {
               </>
             )}
             <div className="flex flex-col mt-4">
-              <label className="text-md font-semibold py-3 "> Type</label>
-              <select
-                value={operation}
-                onChange={(e) => setOperation(e.target.value)}
-                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-              >
-                <option value="Mint">Mint</option>
-                <option value="Mintatclaim">Mint at claim</option>
-              </select>
+              <label className="text-md font-semibold py-3 ">Minting</label>
+              <div className=" w-full space-y-3 ">
+                <div className="sm:flex sm:gap-4 space-y-4 sm:space-y-0">
+                  <div
+                    className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
+                      operation === "mintatclaim" ? "bg-[#5542F6]" : "bg-white"
+                    }  `}
+                    onClick={() => setOperation("mintatclaim")}
+                  >
+                    <AiOutlineLink
+                      size={24}
+                      className={`${
+                        operation === "mintatclaim"
+                          ? "text-white"
+                          : "text-[#5542F6]"
+                      }`}
+                    />
+                    <div>
+                      <p
+                        className={`font-semibold mt-10 ${
+                          operation === "mintatclaim" ? "text-white" : ""
+                        }`}
+                      >
+                        Mint at Claim
+                      </p>
+                      <p
+                        className={`text-sm ${
+                          operation === "mintatclaim"
+                            ? "text-gray-200"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Meta data will be uploaded now and tokens will be mint
+                        at later via Claim Links
+                      </p>
+                    </div>
+                  </div>
+                  <div
+                    className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
+                      operation === "mint" ? "bg-[#5542F6]" : "bg-white"
+                    } `}
+                    onClick={() => setOperation("mint")}
+                  >
+                    <CiWallet
+                      size={24}
+                      className={`${
+                        operation === "mint" ? "text-white" : "text-[#5542F6]"
+                      }`}
+                    />
+                    <div>
+                      <p
+                        className={`font-semibold mt-10 ${
+                          operation === "mint" ? "text-white" : ""
+                        }`}
+                      >
+                        Mint
+                      </p>
+                      <p
+                        className={`text-sm ${
+                          operation === "mint"
+                            ? "text-gray-200"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        Tokens will be minted to user address at claim
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                {errors.pattern && (
+                  <p className="text-red-500 text-sm">{errors.pattern}</p>
+                )}
+              </div>
             </div>
 
             <div className="flex flex-col mt-4">
@@ -390,13 +479,13 @@ const AddToken = () => {
                 Metadata (Optional)
               </label>
               {formData.metadata.data.map((item, index) => (
-                <div key={index} className="flex gap-4 mb-2">
+                <div key={index} className="flex flex-wrap w-[100%] gap-4 mb-2">
                   <input
                     type="text"
                     name="key"
                     value={item.key}
                     onChange={(e) => handleMetadataChange(index, e)}
-                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                    className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
                     placeholder="Key"
                   />
                   <input
@@ -404,7 +493,7 @@ const AddToken = () => {
                     name="value"
                     value={item.value}
                     onChange={(e) => handleMetadataChange(index, e)}
-                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                    className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
                     placeholder="Value"
                   />
                 </div>
@@ -417,6 +506,23 @@ const AddToken = () => {
                 + Add Metadata
               </button>
             </div>
+            {operation === "mint" && (
+              <>
+                <div className="flex flex-col mt-4">
+                  <label className="text-md font-semibold py-3 ">
+                    Number of copies
+                  </label>
+                  <input
+                    type="number"
+                    name="decimals"
+                    value={formData.decimals}
+                    onChange={handleInputChange}
+                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                    placeholder="Decimals"
+                  />
+                </div>
+              </>
+            )}
 
             <div className="flex gap-4 mt-6">
               <button

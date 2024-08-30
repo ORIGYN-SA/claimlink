@@ -158,7 +158,13 @@ const AddTokenHome = () => {
           >
             <div className="px-6">
               <div className=" ">
-                <h2 className="text-md font-bold  black">collections</h2>
+                {collections ? (
+                  <h2 className="text-md font-bold  black">
+                    {collections[0][2]}
+                  </h2>
+                ) : (
+                  <h2 className="text-md font-bold  black">collections</h2>
+                )}
               </div>
               <div className="border bg-[#EBEAED] mt-4 w-full"></div>
               <div className=" w-full">
@@ -166,7 +172,13 @@ const AddTokenHome = () => {
                   <div className="w-1/2 p-2 flex justify-start ">
                     <div className="flex flex-col justify-start">
                       <p className="gray text-xs">Collection symbol</p>
-                      <p className="black font-semibold text-sm">TST </p>
+                      {collections ? (
+                        <h2 className="text-md font-bold  black">
+                          {collections[0][3]}
+                        </h2>
+                      ) : (
+                        <h2 className="text-md font-bold  black">TST</h2>
+                      )}
                     </div>
                   </div>
                   <div className="w-1/2  p-2 flex flex-col justify-start relative">
@@ -175,8 +187,8 @@ const AddTokenHome = () => {
                       <p className="gray text-xs">Token address</p>
                       <div className="flex items-center gap-2 font-medium text-lg">
                         {" "}
-                        <p className="text-[#564BF1] font-semibold text-sm">
-                          0xf8c...992h4
+                        <p className="text-[#564BF1] font-semibold text-sm truncate w-28">
+                          {id}
                         </p>
                         <BsCopy className="w-3 h-3 text-[#564BF1]" />
                       </div>
@@ -189,16 +201,14 @@ const AddTokenHome = () => {
                   <div className="w-1/2 p-2 flex justify-start">
                     <div className="flex flex-col justify-start">
                       <p className="gray text-xs">Token type</p>
-                      <p className="font-semibold text-sm black">
-                        ICRC-7 Token{" "}
-                      </p>
+                      <p className="font-semibold text-sm black">EXT Token </p>
                     </div>
                   </div>
                   <div className="w-1/2 p-2 flex flex-col justify-start relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                     <div className="flex flex-col justify-start pl-4">
                       <p className="gray text-xs">Token standart</p>
-                      <p className="font-semibold text-sm black">ICRC-7</p>
+                      <p className="font-semibold text-sm black">EXT</p>
                     </div>
                   </div>
                 </div>
@@ -207,9 +217,16 @@ const AddTokenHome = () => {
                   <div className="w-1/2 p-2 flex justify-start">
                     <div className="flex flex-col justify-start">
                       <p className="gray text-xs">Date of create</p>
-                      <p className=" font-semibold text-sm black">
-                        Dec. 11, 2024 13:54{" "}
-                      </p>
+                      {collections ? (
+                        <p className=" blue font-semibold text-sm">
+                          {" "}
+                          {formatTimestamp(collections[0][0])}
+                        </p>
+                      ) : (
+                        <p className=" blue font-semibold text-sm">
+                          August 1, 2024 12:10
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="w-1/2 p-2 flex flex-col justify-start relative">
@@ -272,7 +289,7 @@ const AddTokenHome = () => {
                   }
                 }}
               >
-                <option value="non-fungible">Non-Fungible</option>
+                <option value="non-fungible">Minted</option>
                 <option value="stored">Stored</option>
               </select>
             </div>
@@ -433,10 +450,7 @@ const AddTokenHome = () => {
                                         dummy text ever since the 1500s, when an
                                         unknown printer took a galley of type
                                         and scrambled it to make a type specimen
-                                        book. It has survived not only five
-                                        centuries, but also the leap into
-                                        electronic typesetting, remaining
-                                        essentially unchanged.
+                                        book.
                                       </p>
                                       <div className="flex justify-end mt-4"></div>
                                     </motion.div>
@@ -478,7 +492,7 @@ const AddTokenHome = () => {
               )}
             </div>
           </div>
-          <div className="w-1/3 bg-white p-6">
+          <div className="w-1/3 h- bg-white p-6">
             {collections ? (
               <h2 className="font-bold text-xl">{collections[0][2]}</h2>
             ) : (

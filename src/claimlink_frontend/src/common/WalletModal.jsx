@@ -33,23 +33,12 @@ const WalletModal = ({ isOpen, onClose }) => {
           >
             Plug Wallet
           </button>
-          <button
-            onClick={() => handleLogin("Stoic")}
-            className="mt-2 hover:bg-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
-          >
-            Stoic Wallet
-          </button>
+
           <button
             onClick={() => handleLogin("NFID")}
             className="mt-2 hover:bg-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
           >
             NFID
-          </button>
-          <button
-            onClick={() => handleLogin("Identity")}
-            className="mt-2 hover:bg-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
-          >
-            Identity
           </button>
         </div>
       </div>
