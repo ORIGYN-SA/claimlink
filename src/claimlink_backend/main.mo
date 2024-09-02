@@ -15,6 +15,7 @@ import Nat32 "mo:base/Nat32";
 import Hash "mo:base/Hash";
 import Timer "mo:base/Timer";
 import Nat64 "mo:base/Nat64";
+import Bool "mo:base/Bool";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 
@@ -58,7 +59,6 @@ actor Main {
         timestamp : Time.Time;
         claimPattern : Text;
         status :Text;
-        pubKey : Principal;
     };
     type User = ExtCore.User;
     type Campaign = {
@@ -73,7 +73,7 @@ actor Main {
         expirationDate : Time.Time;
         createdBy : Principal;
         createdAt : Time.Time;
-        depositIndices : [Int];
+        depositIndices : [Nat32];
     };
     type QRSet = {
         id: Text;
@@ -103,8 +103,8 @@ actor Main {
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
-    private var campaignLinks = TrieMap.TrieMap<Text, [Int]>(Text.equal, Text.hash);
-    private stable var stableCampaignLinks : [(Text, [Int])] = [];
+    private var campaignLinks = TrieMap.TrieMap<Text, [Nat32]>(Text.equal, Text.hash);
+    private stable var stableCampaignLinks : [(Text, [Nat32])] = [];
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
     private stable var stableUserCampaignsMap : [(Principal, [Campaign])] = [];
     // Maps related to dispensers
@@ -131,7 +131,15 @@ actor Main {
 
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
-    private var depositItemsMap = TrieMap.TrieMap<Text, Deposit>(Text.equal, Text.hash);
+    private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
+
+    public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
+        var result : [(Nat32, Deposit)] = [];
+        for ((key, value) in depositItemsMap.entries()) {
+            result := Array.append([(key, value)], result);
+        };
+        return result;
+    };
 
 
     system func preupgrade() {
@@ -167,8 +175,68 @@ actor Main {
         return deposits;
     };
 
-    func generateKey(user: Principal, timestamp: Time.Time, tokenId: TokenIndex): Text {
-        return Principal.toText(user) # "-" # Int.toText(timestamp) # "-" # Nat32.toText(tokenId);
+    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, tokenId: TokenIndex): Hash.Hash {
+        let callerNat = AID.hash(caller);
+        let timestampNat = Int.hash(timestamp);
+        let combinedNat : Nat = Nat32.toNat((callerNat) + (timestampNat) + (tokenId));
+        return Hash.hash(combinedNat);
+    };
+
+    // func knowAdmin(caller : Principal) : async Bool{
+    //     let extToken = await ExtTokenClass.EXTNFT(caller);
+    //     extToken._isAdmin(caller);
+    // };
+
+    public shared ({caller = user }) func addCollectionToUserMap (collection_id : Principal) : async Text {
+
+        let userCollections = usersCollectionMap.get(user);
+        let currentTime = Time.now();
+        switch (userCollections) {
+            case null {
+                // No collections exist, create a new list with the current collection
+                let newCollections: [(Time.Time, Principal)] = [(currentTime, collection_id)];
+                usersCollectionMap.put(user, newCollections);
+                return "Collection added";
+            };
+            case (?collections) {
+                // Check if the collection already exists
+                let collectionExists = List.some<(Time.Time, Principal)>(
+                    List.fromArray(collections),
+                    func x { x.1 == collection_id }
+                );
+                if (collectionExists) {
+                    return "Collection already added";
+                } else {
+                    // Add the new collection with a timestamp
+                    let updatedCollections = List.push<(Time.Time, Principal)>((currentTime, collection_id), List.fromArray(collections));
+                    usersCollectionMap.put(user, List.toArray(updatedCollections));
+                    return "Collection added";
+                };
+            };
+        };
+    }; 
+
+    public shared ({caller = user}) func removeCollectionFromUserMap (collection_id : Principal) : async Text {
+
+        let userCollections = usersCollectionMap.get(user);
+        switch (userCollections) {
+            case null {
+                return "There are no collections added yet!";
+            };
+            case (?collections) {
+                // Filter out the collection to remove
+                let updatedCollections = List.filter<(Time.Time, Principal)>(
+                    List.fromArray(collections),
+                    func x { x.1 != collection_id }
+                );
+                if (List.isNil(updatedCollections)) {
+                    usersCollectionMap.delete(user);
+                } else {
+                    usersCollectionMap.put(user, List.toArray(updatedCollections));
+                };
+                return "Collection removed";
+            };
+        };
     };
 
     // Collection creation
@@ -361,7 +429,8 @@ actor Main {
     public shared ({caller = user}) func mintAtClaim(
         user : Principal,
         _collectionCanisterId : Principal,
-        _depositIndex : Nat
+        _depositItem : Deposit,
+        _depositKey : Nat32
 
     ) : async Int {
         
@@ -370,12 +439,12 @@ actor Main {
                 request : [(AccountIdentifier, Metadata)]
             ) -> async [TokenIndex]
         };
-        if (_depositIndex >= Array.size(deposits)) {
-            throw Error.reject("Invalid deposit Index (out of bounds)");
-            return -1;
-        };
+        // if (_depositIndex >= Array.size(deposits)) {
+        //     throw Error.reject("Invalid deposit Index (out of bounds)");
+        //     return -1;
+        // };
 
-        let depositItem = deposits[_depositIndex];
+        let depositItem : Deposit = _depositItem;
 
         if (_collectionCanisterId != depositItem.collectionCanister) {
             throw Error.reject("Collection canister ID mismatch");
@@ -406,6 +475,7 @@ actor Main {
                         deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
                             return d != depositItem;
                         });
+                        depositItemsMap.delete(_depositKey);
                         if (Array.size(remainingTokens) > 0) {
                             tokensDataToBeMinted.put(depositItem.collectionCanister, remainingTokens);
                         } else {
@@ -461,9 +531,8 @@ actor Main {
         _collectionCanisterId : Principal,
         _from : Principal,
         _tokenId : TokenIndex,
-        _pubKey : Principal,
 
-    ) : async Int {
+    ) : async Nat32 {
             let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
                 ext_transfer : (
                    request: TransferRequest
@@ -482,11 +551,12 @@ actor Main {
                 notify = false;                    
                 subaccount = null;                 
             };
-
+            let userAID = AID.fromPrincipal(_from,null); 
             let response = await collectionCanisterActor.ext_transfer(transferRequest);
 
             switch(response) {
                 case (#ok(balance)) {
+                    let key = generateKey(userAID, Time.now(), _tokenId);
                     let newDeposit: Deposit = {
                         tokenId = _tokenId;
                         sender = _from;
@@ -494,35 +564,37 @@ actor Main {
                         timestamp = Time.now();
                         claimPattern = "transfer";
                         status = "created";
-                        pubKey = _pubKey;
                     };
+                    depositItemsMap.put(key,newDeposit);
 
                     deposits := Array.append(deposits, [newDeposit]);
 
-                    Array.size(deposits) - 1
+                    // Array.size(deposits) - 1
+                    key
                 };
                 case (#err(err)) {
                      switch(err) {
                         case (#CannotNotify(accountId)) {
-                            Debug.print("Error: Cannot notify account " # accountId);
+                            throw Error.reject("Error: Cannot notify account " # accountId);
                         };
                         case (#InsufficientBalance) {
-                            Debug.print("Error: Insufficient balance");
+                            throw Error.reject("Error: Insufficient balance");
                         };
                         case (#InvalidToken(tokenId)) {
-                            Debug.print("Error: Invalid token " # tokenId);
+                            throw Error.reject("Error: Invalid token " # tokenId);
                         };
                         case (#Other(text)) {
-                            Debug.print("Error: " # text);
+                            throw Error.reject("Error: " # text);
                         };
                         case (#Rejected) {
-                            Debug.print("Error: Transfer rejected");
+                            throw Error.reject("Error: Transfer rejected");
                         };
                         case (#Unauthorized(accountId)) {
-                            Debug.print("Error: Unauthorized account " # accountId);
+                            throw Error.reject("Error: Unauthorized account " # accountId);
                         };
                     };
-                    -1
+                    throw Error.reject("Error");
+                    0
                 };
             }
              
@@ -530,8 +602,9 @@ actor Main {
 
     public shared ({caller = user}) func createLinkForNonMinted(
         _collectionCanisterId : Principal,
+        _from : Principal,
         _tokenId : Nat32
-    ) : async Int {
+    ) : async Nat32 {
         // Check if the tokenId exists in the tokensDataToBeMinted for the given collection
         switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
             case (?tokensList) {
@@ -542,57 +615,68 @@ actor Main {
                         matchingToken := ?token;
                     }
                 };
+                let userAID = AID.fromPrincipal(_from,null); 
 
                 switch (matchingToken) {
                     case (?(_, metadata)) {
                         // Create a deposit entry for the non-minted token
+                        let key = generateKey(userAID, Time.now(), _tokenId);
                         let newDeposit: Deposit = {
                             tokenId = _tokenId;
-                            sender = user;
+                            sender = _from;
                             collectionCanister = _collectionCanisterId;
                             timestamp = Time.now();
                             claimPattern = "mint";
                             status = "created";
-                            pubKey = user;
                         };
+                        depositItemsMap.put(key,newDeposit);
+
                         deposits := Array.append(deposits, [newDeposit]);
 
                         // Return the index of the deposit in the deposits array
-                        return Array.size(deposits) - 1;
+                        // return Array.size(deposits) - 1;
+                        key;
                     };
                     case null {
                         throw Error.reject("Token ID does not match any stored metadata");
-                        return -1;
+                        return 0;
                     };
                 };
             };
             case null {
                 throw Error.reject("No stored tokens found for the given collection canister");
-                return -1;
+                return 0;
             };
         };
     };
 
     public shared ({caller = user}) func claimToken(
         _collectionCanisterId: Principal,
-        _depositIndex: Nat
+        _depositKey: Nat32
     ) : async Int {
-        if (_depositIndex >= Array.size(deposits)) {
-            throw Error.reject("Invalid deposit Index (out of bounds)");
-            return -1;
+        // if (_depositIndex >= Array.size(deposits)) {
+        //     throw Error.reject("Invalid deposit Index (out of bounds)");
+        //     return -1;
+        // };
+
+        // let depositItem = deposits[_depositIndex];
+        let depositItem = switch(depositItemsMap.get(_depositKey)){
+            case(?deposit){
+                deposit
+            };
+            case null throw Error.reject("Deposit index not found");
         };
 
-        let depositItem = deposits[_depositIndex];
 
         // Determine the claim pattern and call the appropriate function
         switch (depositItem.claimPattern) {
             case ("transfer") {
                 // Call claimLink for already minted tokens
-                return await claimLink(user, _collectionCanisterId, _depositIndex);
+                return await claimLink(user, _collectionCanisterId, depositItem,_depositKey);
             };
             case ("mint") {
                 // Call mintAtClaim for tokens that need to be minted
-                return await mintAtClaim(user, _collectionCanisterId, _depositIndex);
+                return await mintAtClaim(user, _collectionCanisterId, depositItem, _depositKey);
             };
             case _ {
                 Debug.print("Invalid claim pattern: " # depositItem.claimPattern);
@@ -608,8 +692,8 @@ actor Main {
     func claimLink(
         user : Principal,
         _collectionCanisterId : Principal,
-        _depositIndex : Nat,
-
+        _depositItem : Deposit,
+        _depositKey : Nat32
     ) : async Int {
             
             let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
@@ -618,12 +702,12 @@ actor Main {
                 ) ->async TransferResponse
             };
 
-            if (_depositIndex >= Array.size(deposits)) {
-                throw Error.reject("Invalid deposit Index (out of bounds)");
-                return -1;
-            };
+            // if (_depositIndex >= Array.size(deposits)) {
+            //     throw Error.reject("Invalid deposit Index (out of bounds)");
+            //     return -1;
+            // };
 
-            let depositObj : Deposit = deposits[_depositIndex];
+            let depositObj : Deposit = _depositItem;
 
             if (_collectionCanisterId != depositObj.collectionCanister) {
                 throw Error.reject("Collection canister ID mismatch");
@@ -647,26 +731,21 @@ actor Main {
 
             switch(response) {
                 case (#ok(balance)) {
-                        deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
+                    deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
                         return d != depositObj;
                     });
+                    depositItemsMap.delete(_depositKey);
                     for (campaignId in campaignLinks.keys()) {
                         switch (campaignLinks.get(campaignId)) {
                             case (?linkIndices) {
-                                var newIndices: [Int] = [];
-
+                                var newLinks : [Nat32] = [];
                                 // Adjust indices and filter out the claimed one
-                                var i = 0;
-                                while (i < Array.size(linkIndices)) {
-                                    let index = linkIndices[i];
-                                    if (index != _depositIndex) {
-                                        newIndices := Array.append(newIndices, [if (index > _depositIndex) index - 1 else index]);
-                                    };
-                                    i := i + 1;
-                                };
+                                newLinks := Array.filter<Nat32>(linkIndices, func(key: Nat32) : Bool {
+                                    return key != _depositKey;
+                                });
                                 
                                 // Store the updated indices back in campaignLinks
-                                campaignLinks.put(campaignId, newIndices);
+                                campaignLinks.put(campaignId, newLinks);
                             };
                             case null {
                                 Debug.print("No link created while campaign creation")
@@ -712,26 +791,26 @@ actor Main {
         walletOption: Text,
         displayWallets : [Text],
         expirationDate: Time.Time,
-    ) : async (Text,[Int]) {
+    ) : async (Text,[Nat32]) {
         let campaignId = generateCampaignId(user);
-        var linkResponses: [Int] = [];
+        var linkResponses: [Nat32] = [];
 
         for (tokenId in tokenIds.vals()) {
-            var linkIndex : Int = -1;
+            var linkKeys : Nat32 = 0;
             if(claimPattern == "transfer"){
-                linkIndex := await createLink(collection, user, tokenId, user);
+                linkKeys := await createLink(collection, user, tokenId);
             } else if (claimPattern == "mint") {
-                linkIndex := await createLinkForNonMinted(collection, tokenId);
+                linkKeys := await createLinkForNonMinted(collection, user, tokenId);
             } else {
                 throw Error.reject("Invalid claimPattern: " # claimPattern);
             };
 
-            if (linkIndex == -1) {
+            if (linkKeys == 0) {
                 // If createLink or createLinksForNonMinted fails, throw an error and abort campaign creation
                 throw Error.reject("Failed to create campaign: " # claimPattern # " failed for tokenId " # Nat32.toText(tokenId));
             };
 
-            linkResponses := Array.append(linkResponses, [linkIndex]);
+            linkResponses := Array.append(linkResponses, [linkKeys]);
             campaignLinks.put(campaignId, linkResponses);
         };
 
@@ -851,7 +930,7 @@ actor Main {
         campaigns.get(campaignId);
     };
     // Get Links created inside a Campaign
-    public shared query func getCampaignLinks(campaignId : Text) : async ?[Int] {
+    public shared query func getCampaignLinks(campaignId : Text) : async ?[Nat32] {
         campaignLinks.get(campaignId);
     };
     // Get all campaigns created by a user
