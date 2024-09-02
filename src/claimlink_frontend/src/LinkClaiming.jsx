@@ -6,7 +6,7 @@ import { useAuth } from "./connect/useClient";
 import { RxCross2 } from "react-icons/rx";
 import { useLocation } from "react-router-dom";
 import { Principal } from "@dfinity/principal";
-import WalletModal from "./common/WalletModal";
+import WalletModal2 from "./common/WalletModel2";
 import bgmain1 from "./assets/img/mainbg1.png";
 import bgmain2 from "./assets/img/mainbg2.png";
 import { MdArrowOutward } from "react-icons/md";
@@ -227,7 +227,7 @@ const LinkClaiming = () => {
           className="transition-transform  h-[90vh] duration-300 transform hover:scale-105 ease-in"
         />
       </div>
-      <WalletModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
     </div>
   );
 };

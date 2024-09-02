@@ -13,7 +13,8 @@ const TestCampaign = () => {
   const campaignDetails = async () => {
     try {
       const res = await backend.getCampaignDetails(campaignId.campaignId);
-      setDetails(res);
+      setDetails(res[0]);
+      console.log(res, "res");
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -22,6 +23,7 @@ const TestCampaign = () => {
   useEffect(() => {
     campaignDetails();
   }, [backend]);
+  console.log(details, "Details");
 
   const pageVariants = {
     initial: {

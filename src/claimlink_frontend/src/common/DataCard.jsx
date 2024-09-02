@@ -3,6 +3,7 @@ import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
 
 const DataCard = ({ campaignDetails }) => {
+  console.log(campaignDetails);
   return (
     <>
       <div className="max-w-sm sm:hidden rounded overflow-hidden shadow-lg p-4">
@@ -40,9 +41,10 @@ const DataCard = ({ campaignDetails }) => {
               alt="Item"
               className="w-10 h-10 rounded-md"
             />
-            <span className="text-gray-800 flex items-center font-semibold gap-2">
-              66182...4be9d <BsCopy className="text-[#564BF1]" />
+            <span className="text-gray-800 flex items-center w-12 truncate font-semibold gap-2">
+              {campaignDetails?.createdBy?.toText()}
             </span>
+            <BsCopy className="text-[#564BF1]" />
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-gray-800 font-semibold ">April 11, 2024</span>
