@@ -61,18 +61,29 @@ const DashboardContainer = () => {
           <Link to="/campaign-setup" className="w-full   mb-4   ">
             <NewCampaignCard />
           </Link>
-          {campaign?.map((campaign, index) => (
-            <div key={index} className="w-full  p-2 ">
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1 }}
-              >
-                <CampaignCard campaign={campaign} />
-              </motion.div>
-            </div>
-          ))}
+          {campaign?.length > 0 ? (
+            campaign?.map((campaign, index) => (
+              <div key={index} className="w-full  p-2 ">
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1 }}
+                >
+                  <CampaignCard campaign={campaign} />
+                </motion.div>
+              </div>
+            ))
+          ) : (
+            <motion.div
+              initial={{ opacity: 0, scale: 0 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1 }}
+              className="h-64 w-56 px-4  mt-2  text-xl text-center my-auto bg-slate-200 rounded-xl flex flex-col items-center justify-center text-violet-500 cursor-pointer"
+            >
+              No Campaign found
+            </motion.div>
+          )}
         </div>
         {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
           {Array(10)

@@ -9,7 +9,9 @@ import { Principal } from "@dfinity/principal";
 import toast from "react-hot-toast";
 const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
   const { backend, principal } = useAuth();
+  const [time, setTime] = useState(0);
   const liveUrl =
     process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
   console.log("Live URL:", liveUrl);
@@ -63,7 +65,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
     if (!validateForm()) {
       return;
     }
-
+    setLoading(true);
     try {
       console.log("Form data:", formData);
       console.log("Principal:", principal.toText());
@@ -87,10 +89,19 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           }
         });
 
-      const date = new Date(
-        `${formData.expirationDate}T${formData.hour}:${formData.minute}:00Z`
-      );
-      const timestampMillis = date.getTime();
+      const paddedHour = formData.hour.padStart(2, "0");
+      const paddedMinute = formData.minute.padStart(2, "0");
+
+      const dateString = `${formData.expirationDate}T${paddedHour}:${paddedMinute}:00Z`;
+      const date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        console.error("Invalid Date generated:", dateString);
+      } else {
+        const timestampMillis = date.getTime();
+        setTime(timestampMillis);
+        console.log("Valid time:", date, "Timestamp:", timestampMillis);
+      }
 
       const res = await backend?.createCampaign(
         formData.title,
@@ -100,7 +111,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         [tokenIds],
         formData.walletOption,
         selectedWalletOptions,
-        timestampMillis
+        time
       );
 
       if (res) {
@@ -116,6 +127,8 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
     } catch (error) {
       console.error("Error creating campaign:", error);
       toast.error(`Error creating campaign: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -168,6 +181,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               <input
                 type="radio"
                 name="wallet"
+                disabled={loading}
                 checked={formData.walletOptions.plugWallet}
                 onChange={() => handleWalletOptionChange("plugWallet")}
                 className="form-radio"
@@ -177,6 +191,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             <label className="inline-flex items-center">
               <input
                 type="radio"
+                disabled={loading}
                 name="wallet"
                 checked={formData.walletOptions.other}
                 onChange={() => handleWalletOptionChange("other")}
@@ -196,6 +211,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           <div className="flex items-center justify-between sm:w-[75%]">
             <p className="font-semibold text-lg">Link Expiration</p>
             <Switch
+              disabled={loading}
               checked={formData.enabled}
               onChange={(enabled) =>
                 setFormData({
@@ -221,6 +237,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               <div className="flex md:flex-row flex-col w-full justify-between gap-4">
                 <input
                   type="date"
+                  disabled={loading}
                   name="expirationDate"
                   id="expirationDate"
                   className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
@@ -233,6 +250,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
                 <div className="flex md:justify-normal justify-between gap-4">
                   <select
                     name="startHour"
+                    disabled={loading}
                     id="startHour"
                     className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
                     value={formData.hour}
@@ -249,6 +267,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
                   <select
                     name="startMinute"
                     id="startMinute"
+                    disabled={loading}
                     className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
                     value={formData.minute}
                     onChange={(e) =>
@@ -278,6 +297,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           <div className="flex items-center justify-between sm:w-[75%]">
             <p className="font-semibold text-lg">Include ICP</p>
             <Switch
+              disabled={loading}
               checked={formData.includeICP}
               onChange={(include) => handleIncludeICPChange(include)}
               className="group inline-flex h-6 w-12 items-center rounded-full bg-gray-200 transition"
@@ -294,6 +314,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               <div className="flex flex-col w-full justify-between gap-4">
                 <input
                   type="number"
+                  disabled={loading}
                   name="icpAmount"
                   id="icpAmount"
                   className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[50%] w-full rounded-md"
@@ -324,8 +345,16 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
 
         <div className="flex justify-between items-center">
-          <BackButton onClick={handleBack} text={"back"}></BackButton>
-          <MainButton onClick={handleCreate} text={"submit"}></MainButton>
+          <BackButton
+            onClick={handleBack}
+            text={"back"}
+            loading={loading}
+          ></BackButton>
+          <MainButton
+            onClick={handleCreate}
+            text={"submit"}
+            loading={loading}
+          ></MainButton>
         </div>
       </div>
       <div className="p-6 flex items-center w-[30%] sm:block hidden">

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useAuth } from "../../connect/useClient";
 import toast from "react-hot-toast"; // Ensure this is imported if you're using toast notifications
 import QRCode from "react-qr-code";
+import MainButton from "../../common/Buttons";
 
 const QRSetForm = ({ name, quantity }) => {
   const [selectedFile, setSelectedFile] = useState(null);
@@ -28,15 +29,18 @@ const QRSetForm = ({ name, quantity }) => {
   }, [backend]);
 
   const createQR = async () => {
+    setLoading(true);
+
     try {
       const res = await backend.createQRSet(name, parseInt(quantity), campaign);
 
       if (res) {
         toast.success("Successfully created");
-        setLoading(true);
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,7 +49,6 @@ const QRSetForm = ({ name, quantity }) => {
   };
 
   const handleCampaignChange = (event) => {
-    setLoading(false);
     setCampaign(event.target.value);
   };
 
@@ -97,6 +100,7 @@ const QRSetForm = ({ name, quantity }) => {
         <div className="mb-4">
           <select
             id="campaign"
+            disabled={loading}
             value={campaign}
             onChange={handleCampaignChange}
             className="mt-1 block w-full pl-3 pr-10 py-2 text-base text-gray-500 border-gray-100 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
@@ -148,12 +152,17 @@ const QRSetForm = ({ name, quantity }) => {
           </div>
         </div> */}
         <div className="flex w-full">
-          <button
+          <MainButton
+            text={"Apply changes"}
+            onClick={createQR}
+            loading={loading}
+          />
+          {/* <button
             className="bg-[#5542F6] w-full sm:w-[25%] text-white px-6 py-3 rounded-md"
             onClick={createQR}
           >
             Apply changes
-          </button>
+          </button> */}
         </div>
       </div>
       <QRSet campaignId={campaign} loading={loading} />

@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 import { RxCross2 } from "react-icons/rx";
 import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
+import MainButton from "./Buttons";
 
 const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
   const navigate = useNavigate();
@@ -28,6 +29,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
     console.log("Starting to create link...");
+    setLoading(true);
 
     if (!backend) {
       toast.error("Backend actor not initialized");
@@ -37,8 +39,6 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
     // if (!validateForm()) {
     //   return;
     // }
-
-    setLoading(true);
 
     try {
       console.log("Principal:", principal.toText());
@@ -108,14 +108,19 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
                 max={maxquntity}
               />
               {error && <p className="text-red-500 mt-2">{error}</p>} */}
-              <div className="flex justify-end items-end pt-4 gap-4">
-                <button
+              <div className="flex justify-end items-end pt-1 gap-4">
+                <MainButton
+                  text={"create"}
+                  onClick={handleCreate}
+                  loading={loading}
+                />
+                {/* <button
                   type="submit"
                   className={`button px-4 py-2 rounded-md text-white bg-[#564BF1]`}
                   disabled={loading}
                 >
                   {loading ? "Creating..." : "Create"}
-                </button>
+                </button> */}
               </div>
             </form>
           </div>

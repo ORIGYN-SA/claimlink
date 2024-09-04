@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { useAuth } from "../../connect/useClient";
+import { TailSpin } from "react-loader-spinner";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
@@ -111,7 +112,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
     console.log("Starting collection creation");
-
+    setLoading(true);
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -142,6 +143,8 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     } catch (error) {
       console.error("Error creating collection:", error);
       toast.error(`Error creating collection: ${error.message}`);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -199,6 +202,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               <input
                 type="text"
                 name="title"
+                disabled={loading}
                 id="title"
                 value={formData.title}
                 onChange={handleChange}
@@ -226,6 +230,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               <input
                 type="text"
                 name="symbol"
+                disabled={loading}
                 id="symbol"
                 value={formData.symbol}
                 onChange={handleChange}
@@ -265,7 +270,10 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                     alt="Selected Thumbnail"
                   />
                 )}
-                <StyledDropzone onDrop={handleProfileChange} />
+                <StyledDropzone
+                  disabled={loading}
+                  onDrop={handleProfileChange}
+                />
               </div>
               {formErrors.img && (
                 <span className="text-red-500 text-sm mt-1">
@@ -274,8 +282,17 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               )}
             </div>
             <div className="flex gap-4 md:w-auto w-full mt-10">
-              <BackButton onClick={handleBack} text={"Back"} />
-              <MainButton type="submit" text={"Deploy collection"} />
+              <BackButton
+                onClick={handleBack}
+                text={"Back"}
+                loading={loading}
+              />
+
+              <MainButton
+                type="submit"
+                text={"Deploy collection"}
+                loading={loading}
+              />
             </div>
           </form>
         </div>

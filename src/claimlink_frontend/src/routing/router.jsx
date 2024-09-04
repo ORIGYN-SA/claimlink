@@ -26,6 +26,8 @@ import ClaimForm from "../components/claimlink/ClaimForm";
 import QrForm from "../components/qrManager/QrForm";
 import LinkClaiming from "../LinkClaiming";
 import TestCollection from "../components/claimlink/TestCampaign";
+import { DisclosurePanel } from "@headlessui/react";
+import DispenserForm from "../components/dispensers/DispenserForm";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -63,19 +65,19 @@ const approutes = createBrowserRouter([
       </Dashboard>
     ),
   },
-  {
-    path: "/dispensers/create-dispenser",
-    element: (
-      <Dashboard>
-        <CreateDispenser />
-      </Dashboard>
-    ),
-  },
+  // {
+  //   path: "/dispensers/create-dispenser",
+  //   element: (
+  //     <Dashboard>
+  //       <CreateDispenser />
+  //     </Dashboard>
+  //   ),
+  // },
   {
     path: "/dispensers/dispenser-setup",
     element: (
       <Dashboard stepper={true} headerText={"New dispeser"} menubar={false}>
-        <DispenserSetup />
+        <DispenserForm />
       </Dashboard>
     ),
   },
