@@ -11,7 +11,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
   const url = process.env.PROD
-    ? process.env.CANISTER_ID_CLAIMLINK_BACKEND
+    ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
     : "http://localhost:3000";
 
   const [error, setError] = useState(null);
