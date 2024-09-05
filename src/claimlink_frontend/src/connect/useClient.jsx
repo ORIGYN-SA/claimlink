@@ -7,7 +7,8 @@ import {
   CreateActor,
 } from "ic-auth";
 import { Principal } from "@dfinity/principal";
-import { createActor } from "../../../../.dfx/local/canisters/claimlink_backend";
+//import { createActor } from "../../../../.dfx/local/canisters/claimlink_backend";
+import { createActor } from "../../../declarations/claimlink_backend";
 import { AuthClient } from "@dfinity/auth-client";
 import { idlFactory } from "../../../declarations/claimlink_backend/claimlink_backend.did.js";
 
