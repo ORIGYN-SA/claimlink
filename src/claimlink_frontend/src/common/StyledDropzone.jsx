@@ -30,7 +30,7 @@ const rejectStyle = {
   borderColor: "#ff1744",
 };
 
-export default function StyledDropzone({ onDrop }) {
+export default function StyledDropzone({ onDrop, loading }) {
   const {
     getRootProps,
     getInputProps,
@@ -77,7 +77,7 @@ export default function StyledDropzone({ onDrop }) {
   };
 
   return (
-    <div className="container">
+    <div className="container" disabled={loading}>
       <div {...getRootProps({ style })}>
         <input {...getInputProps()} />
         <div className="flex flex-col items-center justify-center">

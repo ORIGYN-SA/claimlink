@@ -28,7 +28,6 @@ const LinkClaiming = () => {
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
-
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -36,6 +35,7 @@ const LinkClaiming = () => {
 
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
+  const [loading3, setLoading3] = useState(false);
 
   useEffect(() => {
     if (isConnected && principal) {
@@ -153,7 +153,7 @@ const LinkClaiming = () => {
           No matching NFT found.
         </div>
 
-        {loading2 ? (
+        {deposits?.length ? (
           <div className=" my-auto mt-16 text-3xl text-gray-300 animate-pulse  ">
             Loading.....
           </div>

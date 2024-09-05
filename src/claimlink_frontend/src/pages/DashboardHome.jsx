@@ -23,6 +23,7 @@ const DashBoardHome = () => {
   const [loading2, setLoading2] = useState(true);
   const [loading3, setLoading3] = useState(true);
   const [loading4, setLoading4] = useState(true);
+  const [dashboard, setDasboard] = useState([]);
   const { identity, backend } = useAuth();
 
   const createContract = () => {
@@ -38,6 +39,25 @@ const DashBoardHome = () => {
     navigate("/campaign-setup");
   };
 
+  useEffect(() => {
+    setLoading1(true);
+    const loadData = async () => {
+      try {
+        const data = await backend?.dashboardDetails();
+        setDasboard(data);
+        console.log("dasboard is", data);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading1(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
   useEffect(() => {
     setLoading1(true);
     const loadData = async () => {
@@ -132,7 +152,7 @@ const DashBoardHome = () => {
           <p>
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={235}
+              end={dashboard?.totalLinks}
               duration={5}
             />
           </p>
@@ -143,7 +163,7 @@ const DashBoardHome = () => {
           <p className="text-2xl text-[#2E2C34] font-bold">
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={235}
+              end={dashboard?.claimedLinks}
               duration={5}
             />
           </p>
@@ -192,7 +212,7 @@ const DashBoardHome = () => {
               className=" overflow-hidden w-full mt-6 flex overflow-x-scroll flex-nowrap "
               onScroll={handleScroll}
             >
-              {contracts.map((index) => (
+              {contracts?.map((index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0 }}
@@ -267,7 +287,7 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div className="flex justify-center mt-4">
-              {contracts.map((_, index) => (
+              {contracts?.map((_, index) => (
                 <div
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
@@ -304,7 +324,7 @@ const DashBoardHome = () => {
                   className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
                   onScroll={handleScroll}
                 >
-                  {contracts.map((index) => (
+                  {contracts?.map((index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, scale: 0 }}
@@ -379,7 +399,7 @@ const DashBoardHome = () => {
                   ))}
                 </div>
                 <div className="flex justify-center mt-4">
-                  {contracts.map((_, index) => (
+                  {contracts?.map((_, index) => (
                     <div
                       key={index}
                       className={`h-2 w-2 rounded-full mx-1 ${
@@ -429,7 +449,7 @@ const DashBoardHome = () => {
               className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
               onScroll={handleScroll}
             >
-              {contracts.map((index) => (
+              {contracts?.map((index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0 }}
@@ -504,7 +524,7 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div className="flex justify-center mt-4">
-              {contracts.map((_, index) => (
+              {contracts?.map((_, index) => (
                 <div
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
@@ -536,7 +556,7 @@ const DashBoardHome = () => {
               className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
               onScroll={handleScroll}
             >
-              {contracts.map((index) => (
+              {contracts?.map((index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, scale: 0 }}
@@ -611,7 +631,7 @@ const DashBoardHome = () => {
               ))}
             </div>
             <div className="flex justify-center mt-4">
-              {contracts.map((_, index) => (
+              {contracts?.map((_, index) => (
                 <div
                   key={index}
                   className={`h-2 w-2 rounded-full mx-1 ${
@@ -644,7 +664,7 @@ const DashBoardHome = () => {
                   className="flex justify-center "
                 />
               </div>
-            ) : minter.length > 0 ? (
+            ) : minter?.length > 0 ? (
               <div className="bg-white py-4 w-1/2 rounded-md px-2">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
@@ -658,7 +678,7 @@ const DashBoardHome = () => {
                     <p className="text-[#84818A] text-base">{minter?.length}</p>
                   </div>
                   <button className="flex items-center text-sm  hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
-                    <GoPlus className="md:text-2xl text-sm" /> New contract
+                    <GoPlus className="md:text-2xl text-sm" /> New camapign
                   </button>
                 </div>
                 <div className="mt-4">
@@ -668,7 +688,7 @@ const DashBoardHome = () => {
                     <p>Token</p>
                     <p>Claimed</p>
                   </div>
-                  {minter?.map((index) => (
+                  {minter?.map((data, index) => (
                     <div
                       key={index}
                       className="flex justify-between items-center rounded-md bg-white px-1 py-3"
@@ -677,13 +697,13 @@ const DashBoardHome = () => {
                         <img
                           width="40px"
                           height="60px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                          src={data[4]}
                           alt="Dispenser"
                           className="rounded-sm"
                         />
                         <div>
                           <h2 className="text-xs text-[#2E2C34] font-semibold">
-                            Test collection
+                            {data[2]}
                           </h2>
                         </div>
                       </div>
@@ -746,79 +766,130 @@ const DashBoardHome = () => {
                 </motion.div>
               </div>
             )}
-            <div className="bg-white py-4 w-1/2 rounded-md px-2">
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
-                  <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
-                    <RiStackFill className="text-[#564BF1] text-sm font-bold" />
-                  </div>
-                  <h2 className=" text-base text-[#2E2C34]  font-bold">
-                    {" "}
-                    Dispensers
-                  </h2>
-                  <p className="text-[#84818A] text-base">15</p>
-                </div>
-                <button
-                  onClick={dispenserSetup}
-                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
-                >
-                  <GoPlus className="md:text-2xl text-sm" /> Create new
-                  dispenser
-                </button>
+
+            {loading3 ? (
+              <div className="bg-white flex mx-auto justify-center items-center w-[600px]  h-96 rounded-md ">
+                <InfinitySpin
+                  visible={true}
+                  width="200"
+                  color="#564BF1"
+                  ariaLabel="infinity-spin-loading"
+                  className="flex justify-center "
+                />
               </div>
-              <div className="mt-4">
-                <div className="flex justify-around text-xs text-[#504F54]">
-                  <p className="text-xs text-[#504F54]">Title</p>
-                  <p>Date</p>
-                  <p>Status</p>
-                  <p>Duration</p>
-                  <p>Links</p>
-                </div>
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+            ) : dispenser?.length > 0 ? (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <RiStackFill className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      Dispensers
+                    </h2>
+                    <p className="text-[#84818A] text-base">15</p>
+                  </div>
+                  <button
+                    onClick={dispenserSetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
-                    <div className="flex items-center gap-3">
-                      <img
-                        width="40px"
-                        height="60px"
-                        src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Dispenser"
-                        className="rounded-sm"
-                      />
+                    <GoPlus className="md:text-2xl text-sm" /> Create new
+                    dispenser
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-around text-xs text-[#504F54]">
+                    <p className="text-xs text-[#504F54]">Title</p>
+                    <p>Date</p>
+                    <p>Status</p>
+                    <p>Duration</p>
+                    <p>Links</p>
+                  </div>
+                  {[1, 2, 3, 4, 5].map((index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <img
+                          width="40px"
+                          height="60px"
+                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                          alt="Dispenser"
+                          className="rounded-sm"
+                        />
+                        <div>
+                          <h2 className="text-xs text-[#2E2C34] font-semibold">
+                            Test collection
+                          </h2>
+                        </div>
+                      </div>
                       <div>
-                        <h2 className="text-xs text-[#2E2C34] font-semibold">
-                          Test collection
-                        </h2>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          December 5, 13:54
+                        </p>
+                      </div>
+                      <div>
+                        <button
+                          className={`text-[#3B00B9]  p-1   text-sm ${
+                            index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
+                          } bg-[#564BF1] rounded-md`}
+                        ></button>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          1440m
+                        </p>
+                      </div>
+                      <div className="flex gap-2 items-center">
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          100
+                        </p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        December 5, 13:54
-                      </p>
-                    </div>
-                    <div>
-                      <button
-                        className={`text-[#3B00B9]  p-1   text-sm ${
-                          index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
-                        } bg-[#564BF1] rounded-md`}
-                      ></button>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        1440m
-                      </p>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        100
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white py-4 h-96 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <RiStackFill className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      dispenser
+                    </h2>
+                    <p className="text-[#84818A] text-base">0</p>
+                  </div>
+                  <button
+                    onClick={qrSetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                  >
+                    <GoPlus className="md:text-2xl text-sm" /> New dispenser
+                  </button>
+                </div>
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
+                  onClick={campaignsetup}
+                >
+                  <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
+                    <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
+                  </div>
+                  <h2 className="text-[#564BF1] text-base  font-bold mt-3 text-center">
+                    New dispenser
+                  </h2>
+                  <p className="text-[#564BF1] text-xs text-center mt-2 px-20">
+                    Create a dispenser to distribute your NFTs via QR code
+                  </p>
+                </motion.div>
+              </div>
+            )}
           </div>
           <div className="mt-4 flex justify-between gap-4">
             {loading2 ? (
@@ -934,74 +1005,127 @@ const DashBoardHome = () => {
                 </motion.div>
               </div>
             )}
-            <div className="bg-white py-4 w-1/2 rounded-md px-2">
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
-                  <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
-                    <MdMoney className="text-[#564BF1] text-sm font-bold" />
-                  </div>
-                  <h2 className=" text-base text-[#2E2C34]  font-bold">
-                    {" "}
-                    Minter
-                  </h2>
-                  <p className="text-[#84818A] text-base">15</p>
-                </div>
-                <button
-                  onClick={createContract}
-                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
-                >
-                  <GoPlus className="md:text-2xl text-sm" /> Deploy new contract
-                </button>
+            {loading2 ? (
+              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+                <InfinitySpin
+                  visible={true}
+                  width="200"
+                  color="#564BF1"
+                  ariaLabel="infinity-spin-loading"
+                  className="flex justify-center "
+                />
               </div>
-              <div className="mt-4">
-                <div className="flex justify-around text-xs text-[#504F54]">
-                  <p className="text-xs text-[#504F54]">Title</p>
-                  <p>Date</p>
-                  <p>Token</p>
-                  <p>Copies</p>
-                  <p>Address</p>
-                </div>
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+            ) : qrcodes?.length > 0 ? (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <MdMoney className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      Minter
+                    </h2>
+                    <p className="text-[#84818A] text-base">15</p>
+                  </div>
+                  <button
+                    onClick={createContract}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
-                    <div className="flex items-center gap-3">
-                      <img
-                        width="40px"
-                        height="60px"
-                        src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                        alt="Dispenser"
-                        className="rounded-sm"
-                      />
+                    <GoPlus className="md:text-2xl text-sm" /> Deploy new
+                    contract
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-around text-xs text-[#504F54]">
+                    <p className="text-xs text-[#504F54]">Title</p>
+                    <p>Date</p>
+                    <p>Token</p>
+                    <p>Copies</p>
+                    <p>Address</p>
+                  </div>
+                  {[1, 2, 3, 4, 5].map((index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                    >
+                      <div className="flex items-center gap-3">
+                        <img
+                          width="40px"
+                          height="60px"
+                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                          alt="Dispenser"
+                          className="rounded-sm"
+                        />
+                        <div>
+                          <h2 className="text-xs text-[#2E2C34] font-semibold">
+                            Test collection
+                          </h2>
+                        </div>
+                      </div>
                       <div>
-                        <h2 className="text-xs text-[#2E2C34] font-semibold">
-                          Test collection
-                        </h2>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          December 5, 13:54
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          ERC1155
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          10
+                        </p>
+                      </div>
+                      <div className="flex gap-2 items-center">
+                        <p className="text-xs text-[#564BF1] font-semibold">
+                          0xf8c...992h4
+                        </p>
                       </div>
                     </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        December 5, 13:54
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        ERC1155
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">10</p>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <p className="text-xs text-[#564BF1] font-semibold">
-                        0xf8c...992h4
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <MdMoney className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      minter
+                    </h2>
+                    <p className="text-[#84818A] text-base">0</p>
+                  </div>
+                  <button
+                    onClick={qrSetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                  >
+                    <GoPlus className="md:text-2xl text-sm" /> new collection
+                  </button>
+                </div>
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
+                  onClick={campaignsetup}
+                >
+                  <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
+                    <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
+                  </div>
+                  <h2 className="text-[#564BF1] text-base  font-bold mt-3 text-center">
+                    New collection
+                  </h2>
+                  <p className="text-[#564BF1] text-xs text-center mt-2 px-20">
+                    Create a collection to distribute your NFTs via QR code
+                  </p>
+                </motion.div>
+              </div>
+            )}
           </div>
         </>
       )}
