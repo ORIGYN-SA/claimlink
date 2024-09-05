@@ -11,13 +11,14 @@ import { useNavigate, useParams } from "react-router-dom";
 import imageCompression from "browser-image-compression";
 import { CiImageOn, CiWallet } from "react-icons/ci";
 import { AiOutlineLink } from "react-icons/ai";
+import MainButton from "../../common/Buttons";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(false);
   const [tokenType, setTokenType] = useState("nonfungible");
   const { identity, backend, principal } = useAuth();
   const [operation, setOperation] = useState("mint");
-
+  const [loading, setLoading] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
@@ -147,7 +148,7 @@ const AddToken = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -217,6 +218,8 @@ const AddToken = () => {
       }
     } catch (error) {
       console.error("Error creating nft:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -225,6 +228,7 @@ const AddToken = () => {
       toast.error("Backend actor not initialized");
       return;
     }
+    setLoading(true);
     console.log(backend);
 
     try {
@@ -288,6 +292,8 @@ const AddToken = () => {
       }
     } catch (error) {
       console.error("Error creating:", error);
+    } finally {
+      setLoading(false);
     }
   };
   console.log(operation);
@@ -333,6 +339,7 @@ const AddToken = () => {
               <label className="text-md font-semibold py-3 ">Token Type</label>
               <select
                 value={tokenType}
+                disabled={loading}
                 onChange={(e) => setTokenType(e.target.value)}
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
               >
@@ -345,6 +352,7 @@ const AddToken = () => {
               <label className="text-md font-semibold py-3 ">Token Name</label>
               <input
                 type="text"
+                disabled={loading}
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
@@ -360,6 +368,7 @@ const AddToken = () => {
                 </label>
                 <input
                   type="text"
+                  disabled={loading}
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
@@ -378,6 +387,7 @@ const AddToken = () => {
                   <input
                     type="number"
                     name="decimals"
+                    disabled={loading}
                     value={formData.decimals}
                     onChange={handleInputChange}
                     className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
@@ -390,6 +400,7 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="symbol"
+                    disabled={loading}
                     value={formData.symbol}
                     onChange={handleInputChange}
                     className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
@@ -403,6 +414,7 @@ const AddToken = () => {
               <div className=" w-full space-y-3 ">
                 <div className="sm:flex sm:gap-4 space-y-4 sm:space-y-0">
                   <div
+                    disabled={loading}
                     className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                       operation === "mintatclaim" ? "bg-[#5542F6]" : "bg-white"
                     }  `}
@@ -437,6 +449,7 @@ const AddToken = () => {
                     </div>
                   </div>
                   <div
+                    disabled={loading}
                     className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                       operation === "mint" ? "bg-[#5542F6]" : "bg-white"
                     } `}
@@ -483,6 +496,7 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="key"
+                    disabled={loading}
                     value={item.key}
                     onChange={(e) => handleMetadataChange(index, e)}
                     className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
@@ -491,6 +505,7 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="value"
+                    disabled={loading}
                     value={item.value}
                     onChange={(e) => handleMetadataChange(index, e)}
                     className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
@@ -514,6 +529,8 @@ const AddToken = () => {
                   </label>
                   <input
                     type="number"
+                    disabled={loading}
+                    min={1}
                     name="decimals"
                     value={formData.decimals}
                     onChange={handleInputChange}
@@ -525,12 +542,17 @@ const AddToken = () => {
             )}
 
             <div className="flex gap-4 mt-6">
-              <button
+              <MainButton
+                text={"Submit"}
+                onClick={handleSubmit}
+                loading={loading}
+              />
+              {/* <button
                 className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm"
                 onClick={handleSubmit}
               >
                 Submit
-              </button>
+              </button> */}
             </div>
           </form>
         </div>

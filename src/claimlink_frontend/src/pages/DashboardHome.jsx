@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { AiOutlineLink } from "react-icons/ai";
 import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
@@ -9,10 +9,21 @@ import { RxCross2 } from "react-icons/rx";
 import { TfiPlus } from "react-icons/tfi";
 import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../connect/useClient";
+import { InfinitySpin } from "react-loader-spinner";
 
 const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
+  const [minter, setMinter] = useState([]);
+  const [dispenser, setDispenser] = useState([]);
+  const [campaign, setcampgain] = useState([]);
+  const [qrcodes, setQrcodes] = useState([]);
+  const [loading1, setLoading1] = useState(true);
+  const [loading2, setLoading2] = useState(true);
+  const [loading3, setLoading3] = useState(true);
+  const [loading4, setLoading4] = useState(true);
+  const { identity, backend } = useAuth();
 
   const createContract = () => {
     navigate("/minter/new-contract");
@@ -26,6 +37,83 @@ const DashBoardHome = () => {
   const campaignsetup = () => {
     navigate("/campaign-setup");
   };
+
+  useEffect(() => {
+    setLoading1(true);
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserCollectionDetails();
+        setMinter(data[0]);
+        console.log("collection is", data[0]);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading1(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
+  useEffect(() => {
+    setLoading2(true);
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserDispensers();
+        setDispenser(data[0]);
+        console.log("collection is", data[0]);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading2(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
+  useEffect(() => {
+    setLoading3(true);
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserCampaigns();
+        setcampgain(data[0]);
+        console.log("collection is", data[0]);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading3(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
+  useEffect(() => {
+    setLoading4(true);
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserQRSets();
+        setQrcodes(data[0]);
+        console.log("collection is", data[0]);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading4(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
   const contracts = [1, 2, 3, 4, 5, 6];
   const len = [];
 
@@ -546,7 +634,17 @@ const DashBoardHome = () => {
       ) : (
         <>
           <div className="mt-6 flex justify-between gap-4">
-            {len.length > 0 ? (
+            {loading1 ? (
+              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+                <InfinitySpin
+                  visible={true}
+                  width="200"
+                  color="#564BF1"
+                  ariaLabel="infinity-spin-loading"
+                  className="flex justify-center "
+                />
+              </div>
+            ) : minter.length > 0 ? (
               <div className="bg-white py-4 w-1/2 rounded-md px-2">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
@@ -557,7 +655,7 @@ const DashBoardHome = () => {
                       {" "}
                       Claim links
                     </h2>
-                    <p className="text-[#84818A] text-base">15</p>
+                    <p className="text-[#84818A] text-base">{minter?.length}</p>
                   </div>
                   <button className="flex items-center text-sm  hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
                     <GoPlus className="md:text-2xl text-sm" /> New contract
@@ -570,7 +668,7 @@ const DashBoardHome = () => {
                     <p>Token</p>
                     <p>Claimed</p>
                   </div>
-                  {[1, 2, 3, 4, 5].map((index) => (
+                  {minter?.map((index) => (
                     <div
                       key={index}
                       className="flex justify-between items-center rounded-md bg-white px-1 py-3"
@@ -723,67 +821,119 @@ const DashBoardHome = () => {
             </div>
           </div>
           <div className="mt-4 flex justify-between gap-4">
-            <div className="bg-white py-4 w-1/2 rounded-md px-2">
-              <div className="flex justify-between items-center">
-                <div className="flex gap-2 items-center">
-                  <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
-                    <MdQrCode className="text-[#564BF1] text-sm font-bold" />
-                  </div>
-                  <h2 className=" text-base text-[#2E2C34]  font-bold">
-                    {" "}
-                    QR codes
-                  </h2>
-                  <p className="text-[#84818A] text-base">15</p>
-                </div>
-                <button
-                  onClick={qrSetup}
-                  className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
-                >
-                  <GoPlus className="md:text-2xl text-sm" /> Create QR
-                </button>
+            {loading2 ? (
+              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+                <InfinitySpin
+                  visible={true}
+                  width="200"
+                  color="#564BF1"
+                  ariaLabel="infinity-spin-loading"
+                  className="flex justify-center "
+                />
               </div>
-              <div className="mt-4">
-                <div className="flex justify-between text-xs text-[#504F54]">
-                  <p>Title</p>
-                  <p>Date</p>
-                  <p>Status</p>
-                  <p>Quantity</p>
-                  <p>Linked campaign</p>
-                </div>
-                {[1, 2, 3, 4, 5].map((index) => (
-                  <div
-                    key={index}
-                    className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+            ) : qrcodes?.length > 0 ? (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <MdQrCode className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      QR codes
+                    </h2>
+                    <p className="text-[#84818A] text-base">15</p>
+                  </div>
+                  <button
+                    onClick={qrSetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
-                    <div className="">
-                      <h2 className="text-xs text-[#2E2C34] font-semibold">
-                        Test collection
-                      </h2>
-                    </div>
-                    <div>
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        December 5, 13:54
-                      </p>
-                    </div>
-                    <div>
-                      <button
-                        className={`text-[#3B00B9]  p-1   text-sm ${
-                          index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
-                        } bg-[#564BF1] rounded-md`}
-                      ></button>
-                    </div>
-                    <div className="">
-                      <p className="text-xs text-[#2E2C34] font-semibold">10</p>
-                    </div>
-                    <div className="">
-                      <p className="text-xs text-[#2E2C34] font-semibold">
-                        e-cards e-cards
-                      </p>
-                    </div>
+                    <GoPlus className="md:text-2xl text-sm" /> Create QR
+                  </button>
+                </div>
+                <div className="mt-4">
+                  <div className="flex justify-between text-xs text-[#504F54]">
+                    <p>Title</p>
+                    <p>Date</p>
+                    <p>Status</p>
+                    <p>Quantity</p>
+                    <p>Linked campaign</p>
                   </div>
-                ))}
+                  {[1, 2, 3, 4, 5].map((index) => (
+                    <div
+                      key={index}
+                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                    >
+                      <div className="">
+                        <h2 className="text-xs text-[#2E2C34] font-semibold">
+                          Test collection
+                        </h2>
+                      </div>
+                      <div>
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          December 5, 13:54
+                        </p>
+                      </div>
+                      <div>
+                        <button
+                          className={`text-[#3B00B9]  p-1   text-sm ${
+                            index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
+                          } bg-[#564BF1] rounded-md`}
+                        ></button>
+                      </div>
+                      <div className="">
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          10
+                        </p>
+                      </div>
+                      <div className="">
+                        <p className="text-xs text-[#2E2C34] font-semibold">
+                          e-cards e-cards
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+                <div className="flex justify-between items-center">
+                  <div className="flex gap-2 items-center">
+                    <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
+                      <MdQrCode className="text-[#564BF1] text-sm font-bold" />
+                    </div>
+                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                      {" "}
+                      qr codes
+                    </h2>
+                    <p className="text-[#84818A] text-base">0</p>
+                  </div>
+                  <button
+                    onClick={qrSetup}
+                    className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
+                  >
+                    <GoPlus className="md:text-2xl text-sm" /> NewQr code
+                  </button>
+                </div>
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
+                  onClick={campaignsetup}
+                >
+                  <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
+                    <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
+                  </div>
+                  <h2 className="text-[#564BF1] text-base  font-bold mt-3 text-center">
+                    New QR code
+                  </h2>
+                  <p className="text-[#564BF1] text-xs text-center mt-2 px-20">
+                    Create a qr code to distribute your NFTs via QR code
+                  </p>
+                </motion.div>
+              </div>
+            )}
             <div className="bg-white py-4 w-1/2 rounded-md px-2">
               <div className="flex justify-between items-center">
                 <div className="flex gap-2 items-center">

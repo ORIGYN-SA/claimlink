@@ -349,145 +349,156 @@ const AddTokenHome = () => {
                 ))
               ) : (
                 <>
-                  {nft?.map((nft, index) => (
+                  {nft?.length > 0 ? (
+                    nft?.map((nft, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, scale: 0 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 1 }}
+                        className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
+                      >
+                        {filter == "non-fungible" ? (
+                          <img
+                            width="80px"
+                            height="80px"
+                            src={nft[2]?.nonfungible?.thumbnail}
+                            alt="Dispenser"
+                            className="w-16  h-16"
+                          />
+                        ) : (
+                          <img
+                            width="80px"
+                            height="80px"
+                            src={nft[1]?.nonfungible?.thumbnail}
+                            alt="Dispenser"
+                            className="w-16  h-16"
+                          />
+                        )}
+                        {filter == "non-fungible" ? (
+                          <h2 className="text-xl black  font-bold  mt-5 ">
+                            {nft[2]?.nonfungible?.name}
+                          </h2>
+                        ) : (
+                          <h2 className="text-xl black  font-bold  mt-5 ">
+                            {nft[1]?.nonfungible?.name}
+                          </h2>
+                        )}
+                        <p className="text-xs gray mt-1">April 5, 13:34</p>
+                        <div className="border border-gray-200 my-4 w-full"></div>
+                        <div className=" w-full">
+                          {filter == "non-fungible" && (
+                            <div className="flex justify-between">
+                              <p className="text-xs gray ">Address</p>
+
+                              <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
+                                {typeof nft[1] === "object" ? "" : nft[1]}{" "}
+                              </p>
+                            </div>
+                          )}
+                          <div className="flex justify-between mt-2">
+                            <p className="text-xs gray">Copies</p>
+                            <p className="text-xs font-semibold">1</p>
+                          </div>
+                          <div className="flex justify-between mt-2">
+                            <p className="text-xs gray		">ID </p>
+                            <p className="text-xs font-semibold"> {nft[0]}</p>
+                          </div>
+                          {filter == "non-fungible" && (
+                            <div className="flex justify-between mt-2">
+                              <p className="text-xs gray		">Description </p>
+                              <p
+                                className="text-xs font-semibold text-[#564BF1] underline"
+                                onClick={handleDes}
+                              >
+                                view
+                              </p>
+                              {descriptionModel && (
+                                <>
+                                  <div
+                                    className="fixed inset-0 bg-[#7979792e]   z-40"
+                                    onClick={handleDes}
+                                  ></div>
+                                  <div className="fixed inset-0  items-center justify-center bg z-50">
+                                    <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-transparent ">
+                                      <motion.div
+                                        initial={{ scale: 0, opacity: 0 }}
+                                        animate={{
+                                          scale: 1,
+                                          opacity: 1,
+                                          transition: {
+                                            ease: "easeInOut",
+                                            duration: 0.4,
+                                          },
+                                        }}
+                                        className="filter-card px-2 py-2 bg-white  rounded-xl w-[400px] h-[260px]"
+                                      >
+                                        <div className="flex justify-between items-center">
+                                          <h1 className="text-2xl px-6 font-medium">
+                                            Description
+                                          </h1>
+                                          <button
+                                            className=" p-2 rounded-md bg-[#564BF1] hover:bg-[#4039c8]"
+                                            onClick={handleDes}
+                                          >
+                                            <RxCross2 className="text-white w-5 h-5" />
+                                          </button>
+                                        </div>
+                                        <p className="text-gray-500 px-6 text-sm mt-2">
+                                          Lorem Ipsum is simply dummy text of
+                                          the printing and typesetting industry.
+                                          Lorem Ipsum has been the industry's
+                                          standard dummy text ever since the
+                                          1500s, when an unknown printer took a
+                                          galley of type and scrambled it to
+                                          make a type specimen book.
+                                        </p>
+                                        <div className="flex justify-end mt-4"></div>
+                                      </motion.div>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="border border-gray-200 my-4"></div>
+                        <button
+                          onClick={toggleModal}
+                          className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+                        >
+                          <GoLink />
+                          Create claim links
+                        </button>
+                        {isModalOpen && (
+                          <>
+                            <div
+                              className="fixed inset-0 bg-[#7979792e]   z-40"
+                              onClick={toggleModal}
+                            ></div>
+                            <div className="fixed inset-0 flex  items-center justify-center z-50">
+                              <CommonModal
+                                toggleModal={toggleModal}
+                                canisterid={id}
+                                maxquntity={10}
+                                nftid={nft[0]}
+                                title="Transfer NFT"
+                              />
+                            </div>
+                          </>
+                        )}
+                      </motion.div>
+                    ))
+                  ) : (
                     <motion.div
-                      key={index}
                       initial={{ opacity: 0, scale: 0 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 1 }}
-                      className="bg-white px-4 py-4 mt-8 rounded-xl   cursor-pointer"
+                      className="h-72 w-52 mt-8 px-4 py-4 text-xl text-center my-auto bg-slate-200 rounded-xl flex flex-col items-center justify-center text-violet-500 cursor-pointer"
                     >
-                      {filter == "non-fungible" ? (
-                        <img
-                          width="80px"
-                          height="80px"
-                          src={nft[2]?.nonfungible?.thumbnail}
-                          alt="Dispenser"
-                          className="w-16  h-16"
-                        />
-                      ) : (
-                        <img
-                          width="80px"
-                          height="80px"
-                          src={nft[1]?.nonfungible?.thumbnail}
-                          alt="Dispenser"
-                          className="w-16  h-16"
-                        />
-                      )}
-                      {filter == "non-fungible" ? (
-                        <h2 className="text-xl black  font-bold  mt-5 ">
-                          {nft[2]?.nonfungible?.name}
-                        </h2>
-                      ) : (
-                        <h2 className="text-xl black  font-bold  mt-5 ">
-                          {nft[1]?.nonfungible?.name}
-                        </h2>
-                      )}
-                      <p className="text-xs gray mt-1">April 5, 13:34</p>
-                      <div className="border border-gray-200 my-4 w-full"></div>
-                      <div className=" w-full">
-                        {filter == "non-fungible" && (
-                          <div className="flex justify-between">
-                            <p className="text-xs gray ">Address</p>
-
-                            <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
-                              {typeof nft[1] === "object" ? "" : nft[1]}{" "}
-                            </p>
-                          </div>
-                        )}
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs gray">Copies</p>
-                          <p className="text-xs font-semibold">1</p>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs gray		">ID </p>
-                          <p className="text-xs font-semibold"> {nft[0]}</p>
-                        </div>
-                        {filter == "non-fungible" && (
-                          <div className="flex justify-between mt-2">
-                            <p className="text-xs gray		">Description </p>
-                            <p
-                              className="text-xs font-semibold text-[#564BF1] underline"
-                              onClick={handleDes}
-                            >
-                              view
-                            </p>
-                            {descriptionModel && (
-                              <>
-                                <div
-                                  className="fixed inset-0 bg-[#7979792e]   z-40"
-                                  onClick={handleDes}
-                                ></div>
-                                <div className="fixed inset-0  items-center justify-center bg z-50">
-                                  <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-transparent ">
-                                    <motion.div
-                                      initial={{ scale: 0, opacity: 0 }}
-                                      animate={{
-                                        scale: 1,
-                                        opacity: 1,
-                                        transition: {
-                                          ease: "easeInOut",
-                                          duration: 0.4,
-                                        },
-                                      }}
-                                      className="filter-card px-2 py-2 bg-white  rounded-xl w-[400px] h-[260px]"
-                                    >
-                                      <div className="flex justify-between items-center">
-                                        <h1 className="text-2xl px-6 font-medium">
-                                          Description
-                                        </h1>
-                                        <button
-                                          className=" p-2 rounded-md bg-[#564BF1] hover:bg-[#4039c8]"
-                                          onClick={handleDes}
-                                        >
-                                          <RxCross2 className="text-white w-5 h-5" />
-                                        </button>
-                                      </div>
-                                      <p className="text-gray-500 px-6 text-sm mt-2">
-                                        Lorem Ipsum is simply dummy text of the
-                                        printing and typesetting industry. Lorem
-                                        Ipsum has been the industry's standard
-                                        dummy text ever since the 1500s, when an
-                                        unknown printer took a galley of type
-                                        and scrambled it to make a type specimen
-                                        book.
-                                      </p>
-                                      <div className="flex justify-end mt-4"></div>
-                                    </motion.div>
-                                  </div>
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      <div className="border border-gray-200 my-4"></div>
-                      <button
-                        onClick={toggleModal}
-                        className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
-                      >
-                        <GoLink />
-                        Create claim links
-                      </button>
-                      {isModalOpen && (
-                        <>
-                          <div
-                            className="fixed inset-0 bg-[#7979792e]   z-40"
-                            onClick={toggleModal}
-                          ></div>
-                          <div className="fixed inset-0 flex  items-center justify-center z-50">
-                            <CommonModal
-                              toggleModal={toggleModal}
-                              canisterid={id}
-                              maxquntity={10}
-                              nftid={nft[0]}
-                              title="Transfer NFT"
-                            />
-                          </div>
-                        </>
-                      )}
+                      No NFT found
                     </motion.div>
-                  ))}
+                  )}
                 </>
               )}
             </div>

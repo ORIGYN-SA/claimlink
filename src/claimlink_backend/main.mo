@@ -16,6 +16,8 @@ import Hash "mo:base/Hash";
 import Timer "mo:base/Timer";
 import Nat64 "mo:base/Nat64";
 import Bool "mo:base/Bool";
+import HashMap "mo:base/HashMap";
+import Float "mo:base/Float";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 
@@ -73,7 +75,7 @@ actor Main {
         expirationDate : Time.Time;
         createdBy : Principal;
         createdAt : Time.Time;
-        depositIndices : [Nat32];
+        depositIndices : [Nat];
     };
     type QRSet = {
         id: Text;
@@ -93,6 +95,12 @@ actor Main {
         campaignId : Text;
         whitelist : ?[Principal]
     };
+    type Link = {
+        tokenId : TokenIndex;
+        linkKey : Nat;
+        claimPattern : Text;
+        createdBy : AccountIdentifier
+    };
 
 
 
@@ -100,11 +108,16 @@ actor Main {
     // Maps user and the collection canisterIds they create
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
     private stable var stableuserCollectionMap : [(Principal,[(Time.Time,Principal)])] = [];
+    // Map to store created Links
+    private var userLinks =  TrieMap.TrieMap<Principal, [Link]>(Principal.equal, Principal.hash);
+    private var claimCount : Nat = 0;
+    private var linksCount : Nat = 0;
+    private stable var stableUserLinks : [(Principal,[Link])] = [];
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
-    private var campaignLinks = TrieMap.TrieMap<Text, [Nat32]>(Text.equal, Text.hash);
-    private stable var stableCampaignLinks : [(Text, [Nat32])] = [];
+    private var campaignLinks = TrieMap.TrieMap<Text, [Nat]>(Text.equal, Text.hash);
+    private stable var stableCampaignLinks : [(Text, [Nat])] = [];
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
     private stable var stableUserCampaignsMap : [(Principal, [Campaign])] = [];
     // Maps related to dispensers
@@ -122,6 +135,9 @@ actor Main {
         let natValue = Nat32.toNat(value);
         return Hash.hash(natValue);
     };
+    func natHash(value: Nat) : Hash.Hash {
+        return Hash.hash(value);
+    };
     private var tokensDataToBeMinted = TrieMap.TrieMap<Principal,[(Nat32,Metadata)]>(Principal.equal,Principal.hash);
     private stable var stableTokensDataToBeMinted : [(Principal,[(Nat32,Metadata)])] = [];
     private var nextTokenIndex : Nat32 = 0;
@@ -131,10 +147,11 @@ actor Main {
 
     // Stores details about the tokens coming into this vault
     private stable var deposits : [Deposit] = [];
-    private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
+    private var depositItemsMap = TrieMap.TrieMap<Nat, Deposit>(Nat.equal,natHash);
+    private stable var stableDepositMap : [(Nat, Deposit)] = [];
 
-    public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
-        var result : [(Nat32, Deposit)] = [];
+    public shared query func getAlldepositItemsMap() : async [(Nat, Deposit)] {
+        var result : [(Nat, Deposit)] = [];
         for ((key, value) in depositItemsMap.entries()) {
             result := Array.append([(key, value)], result);
         };
@@ -153,6 +170,7 @@ actor Main {
         stableUserQrSetMap := Iter.toArray(userQRSetMap.entries());
         stableTokensDataToBeMinted := Iter.toArray(tokensDataToBeMinted.entries());
         stableCampaignTimers := Iter.toArray(campaignTimers.entries());
+        stableDepositMap := Iter.toArray(depositItemsMap.entries());
 
     };
 
@@ -169,18 +187,44 @@ actor Main {
         userQRSetMap := TrieMap.fromEntries(stableUserQrSetMap.vals(), Principal.equal, Principal.hash);
         tokensDataToBeMinted := TrieMap.fromEntries(stableTokensDataToBeMinted.vals(), Principal.equal, Principal.hash);
         campaignTimers := TrieMap.fromEntries(stableCampaignTimers.vals(), Text.equal, Text.hash);
+        depositItemsMap := TrieMap.fromEntries(stableDepositMap.vals(), Nat.equal, natHash);
     };
 
     public shared query func getDeposits() : async [Deposit] {
         return deposits;
     };
 
-    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, tokenId: TokenIndex): Hash.Hash {
+    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, tokenId: TokenIndex): Nat {
         let callerNat = AID.hash(caller);
         let timestampNat = Int.hash(timestamp);
         let combinedNat : Nat = Nat32.toNat((callerNat) + (timestampNat) + (tokenId));
-        return Hash.hash(combinedNat);
+        return Nat32.toNat(Hash.hash(combinedNat));
     };
+
+    type DashboardStats = {
+        totalLinks: Nat;
+        claimedLinks: Nat;
+        campaigns: ?[Campaign];
+        qrSets: ?[QRSet];
+        dispensers: ?[Dispenser];
+    };
+
+    // Your updated dashboardDetails function
+    public shared ({caller = user}) func dashboardDetails() : async DashboardStats {
+
+        let campaigns = userCampaignsMap.get(user);
+        let qrSets = userQRSetMap.get(user);
+        let dispensers = userDispensersMap.get(user);
+      
+        return {
+            totalLinks = linksCount;
+            claimedLinks = claimCount;
+            campaigns = campaigns;
+            qrSets = qrSets;
+            dispensers = dispensers;
+        };
+    };
+
 
     // func knowAdmin(caller : Principal) : async Bool{
     //     let extToken = await ExtTokenClass.EXTNFT(caller);
@@ -426,97 +470,49 @@ actor Main {
         tokensDataToBeMinted.get(_collectionCanisterId)
     };
 
-    public shared ({caller = user}) func mintAtClaim(
-        user : Principal,
-        _collectionCanisterId : Principal,
-        _depositItem : Deposit,
-        _depositKey : Nat32
-
-    ) : async Int {
-        
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-            ext_mint : (
-                request : [(AccountIdentifier, Metadata)]
-            ) -> async [TokenIndex]
-        };
-        // if (_depositIndex >= Array.size(deposits)) {
-        //     throw Error.reject("Invalid deposit Index (out of bounds)");
-        //     return -1;
-        // };
-
-        let depositItem : Deposit = _depositItem;
-
-        if (_collectionCanisterId != depositItem.collectionCanister) {
-            throw Error.reject("Collection canister ID mismatch");
-            return -1;
-        };
-
-        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
-            case (?tokensList) {
-                var foundToken: ?(Nat32, Metadata) = null;
-                var remainingTokens: [(Nat32, Metadata)] = [];
-
-                for (token in tokensList.vals()) {
-                    if (token.0 == depositItem.tokenId) {
-                        foundToken := ?token;
-                    } else {
-                        remainingTokens := Array.append(remainingTokens, [token]);
-                    };
-                };
-
-                switch (foundToken) {
-                    case (?(_, metadata)) {
-                        let receiver = AID.fromPrincipal(user, null);
-                        let request: [(AccountIdentifier, Metadata)] = [(receiver, metadata)]; 
-
-                        let response = await collectionCanisterActor.ext_mint(request);
-
-                        // Assuming minting was successful
-                        deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
-                            return d != depositItem;
-                        });
-                        depositItemsMap.delete(_depositKey);
-                        if (Array.size(remainingTokens) > 0) {
-                            tokensDataToBeMinted.put(depositItem.collectionCanister, remainingTokens);
-                        } else {
-                            tokensDataToBeMinted.delete(_collectionCanisterId);
-                        };
-
-                        return 0;
-                    };
-                    case null {
-                        Debug.print("Token ID does not match any in the deposit object");
-                        return -1;
-                    };
-                };
-            };
-            case null {
-                Debug.print("No metadata found for the given token");
-                return -1;
-            };
-        };
-      
-    };
+    
     
     // Get Fungible token details for specific collection
-    public shared func getFungibleTokens(
+    public shared ({ caller = user }) func getFungibleTokens(
         _collectionCanisterId : Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             getAllFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
         };
-        await collectionCanisterActor.getAllFungibleTokenData();
+        let userAID = AID.fromPrincipal(user,null);
+        let allTokens = await collectionCanisterActor.getAllFungibleTokenData();
+        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+            allTokens,
+            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+                let (tokenIndex, owner, metadata) = tokenData;
+                owner == userAID
+            }
+        );
+        return userTokens;
     };
 
     // Get NFT details for specific collection
-    public shared func getNonFungibleTokens(
-        _collectionCanisterId : Principal    
+    public shared ({ caller = user }) func getNonFungibleTokens(
+        _collectionCanisterId: Principal,
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
         };
-        await collectionCanisterActor.getAllNonFungibleTokenData();
+
+        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
+        let userAID = AID.fromPrincipal(user,null);
+
+        // Filter tokens by owner
+        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+            allTokens,
+            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+                let (tokenIndex, owner, metadata) = tokenData;
+                owner == userAID
+            }
+        );
+        return userTokens;
     };
+
 
     
     
@@ -528,83 +524,160 @@ actor Main {
 
     // Token will be transfered to this Vault and gives you req details to construct a link out of it, which you can share
     public shared ({caller = user}) func createLink(
-        _collectionCanisterId : Principal,
-        _from : Principal,
-        _tokenId : TokenIndex,
+        _collectionCanisterId: Principal,
+        _from: Principal,
+        _tokenId: TokenIndex,
+    ) : async Nat {
+        // Check if the link (tokenId) already exists in userLinks for this user
+        let existingLinks = userLinks.get(_from);
 
-    ) : async Nat32 {
-            let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-                ext_transfer : (
-                   request: TransferRequest
-                ) ->async TransferResponse
+        switch (existingLinks) {
+            case null {
+                // No links exist, continue to the next step
             };
-           
-            let userFrom: User = principalToUser(_from);
-            let userTo: User = principalToUser(Principal.fromActor(Main));
-            let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, _tokenId);
-            let transferRequest: TransferRequest = {
-                from = userFrom; 
-                to = userTo;
-                token = tokenIdentifier;              
-                amount = 1;                        
-                memo = "";                        
-                notify = false;                    
-                subaccount = null;                 
+            case (?links) {
+                // Convert the existing array to a List
+                let linksList = List.fromArray(links);
+
+                // Check if the tokenId already exists
+                let tokenExists = List.some<Link>(
+                    linksList,
+                    func(link) { link.tokenId == _tokenId and link.claimPattern == "transfer" }
+                );
+
+                if (tokenExists) {
+                    throw Error.reject("Error: Token ID already exists in user links.");
+                };
             };
-            let userAID = AID.fromPrincipal(_from,null); 
-            let response = await collectionCanisterActor.ext_transfer(transferRequest);
+        };
 
-            switch(response) {
-                case (#ok(balance)) {
-                    let key = generateKey(userAID, Time.now(), _tokenId);
-                    let newDeposit: Deposit = {
-                        tokenId = _tokenId;
-                        sender = _from;
-                        collectionCanister = _collectionCanisterId;
-                        timestamp = Time.now();
-                        claimPattern = "transfer";
-                        status = "created";
+        // If the tokenId is not already in userLinks, proceed with the transfer and data updates
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            ext_transfer: (
+                request: TransferRequest
+            ) -> async TransferResponse
+        };
+
+        let userFrom: User = principalToUser(_from);
+        let userTo: User = principalToUser(Principal.fromActor(Main));
+        let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, _tokenId);
+        let transferRequest: TransferRequest = {
+            from = userFrom;
+            to = userTo;
+            token = tokenIdentifier;
+            amount = 1;
+            memo = "";
+            notify = false;
+            subaccount = null;
+        };
+        let userAID = AID.fromPrincipal(_from, null);
+
+        // Prepare the new deposit and link objects
+        let key = generateKey(userAID, Time.now(), _tokenId);
+        let newDeposit: Deposit = {
+            tokenId = _tokenId;
+            sender = _from;
+            collectionCanister = _collectionCanisterId;
+            timestamp = Time.now();
+            claimPattern = "transfer";
+            status = "created";
+        };
+        let newLink: Link = {
+            tokenId = _tokenId;
+            claimPattern = "transfer";
+            createdBy = userAID;
+            linkKey = key;
+        };
+
+        // Update the userLinks TrieMap with the new link
+        switch (existingLinks) {
+            case null {
+                // No links exist
+                userLinks.put(_from, [newLink]);
+            };
+            case (?links) {
+                // Convert the existing array to a List
+                let linksList = List.fromArray(links);
+
+                // Add the new link to the list
+                let updatedLinksList = List.push(newLink, linksList);
+
+                // Update the user's links in the TrieMap
+                userLinks.put(_from, List.toArray(updatedLinksList));
+            };
+        };
+
+        // Store the new deposit in the depositItemsMap
+        depositItemsMap.put(key, newDeposit);
+        linksCount := linksCount + 1;
+
+        // Now proceed with the token transfer
+        let response = await collectionCanisterActor.ext_transfer(transferRequest);
+
+        switch (response) {
+            case (#ok(balance)) {
+                return key;
+            };
+            case (#err(err)) {
+                // Handle the different error cases and rollback the updates if necessary
+                switch (err) {
+                    case (#CannotNotify(accountId)) {
+                        throw Error.reject("Error: Cannot notify account " # accountId);
                     };
-                    depositItemsMap.put(key,newDeposit);
-
-                    deposits := Array.append(deposits, [newDeposit]);
-
-                    // Array.size(deposits) - 1
-                    key
-                };
-                case (#err(err)) {
-                     switch(err) {
-                        case (#CannotNotify(accountId)) {
-                            throw Error.reject("Error: Cannot notify account " # accountId);
-                        };
-                        case (#InsufficientBalance) {
-                            throw Error.reject("Error: Insufficient balance");
-                        };
-                        case (#InvalidToken(tokenId)) {
-                            throw Error.reject("Error: Invalid token " # tokenId);
-                        };
-                        case (#Other(text)) {
-                            throw Error.reject("Error: " # text);
-                        };
-                        case (#Rejected) {
-                            throw Error.reject("Error: Transfer rejected");
-                        };
-                        case (#Unauthorized(accountId)) {
-                            throw Error.reject("Error: Unauthorized account " # accountId);
-                        };
+                    case (#InsufficientBalance) {
+                        throw Error.reject("Error: Insufficient balance");
                     };
-                    throw Error.reject("Error");
-                    0
+                    case (#InvalidToken(tokenId)) {
+                        throw Error.reject("Error: Invalid token " # tokenId);
+                    };
+                    case (#Other(text)) {
+                        throw Error.reject("Error: " # text);
+                    };
+                    case (#Rejected) {
+                        throw Error.reject("Error: Transfer rejected");
+                    };
+                    case (#Unauthorized(accountId)) {
+                        throw Error.reject("Error: Unauthorized account " # accountId);
+                    };
                 };
-            }
-             
+                // If there's an error, remove the link and deposit added earlier
+                userLinks.delete(_from);
+                depositItemsMap.delete(key);
+
+                throw Error.reject("Error");
+                return 0;
+            };
+        };
     };
+
 
     public shared ({caller = user}) func createLinkForNonMinted(
         _collectionCanisterId : Principal,
         _from : Principal,
         _tokenId : Nat32
-    ) : async Nat32 {
+    ) : async Nat {
+
+        let existingLinks = userLinks.get(_from);
+
+        switch (existingLinks) {
+            case null {
+                // No links exist, continue to the next step
+            };
+            case (?links) {
+                // Convert the existing array to a List
+                let linksList = List.fromArray(links);
+
+                // Check if the tokenId already exists
+                let tokenExists = List.some<Link>(
+                    linksList,
+                    func(link) { link.tokenId == _tokenId and link.claimPattern == "mint" }
+                );
+
+                if (tokenExists) {
+                    throw Error.reject("Error: Token ID already exists in user links.");
+                };
+            };
+        };
         // Check if the tokenId exists in the tokensDataToBeMinted for the given collection
         switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
             case (?tokensList) {
@@ -629,12 +702,32 @@ actor Main {
                             claimPattern = "mint";
                             status = "created";
                         };
+                        let newLink: Link = {
+                            tokenId = _tokenId;
+                            claimPattern = "transfer";
+                            createdBy = userAID;
+                            linkKey = key;
+                        };
+
+                        // Update the userLinks TrieMap with the new link
+                        switch (existingLinks) {
+                            case null {
+                                // No links exist
+                                userLinks.put(_from, [newLink]);
+                            };
+                            case (?links) {
+                                // Convert the existing array to a List
+                                let linksList = List.fromArray(links);
+
+                                // Add the new link to the list
+                                let updatedLinksList = List.push(newLink, linksList);
+
+                                // Update the user's links in the TrieMap
+                                userLinks.put(_from, List.toArray(updatedLinksList));
+                            };
+                        };
                         depositItemsMap.put(key,newDeposit);
-
-                        deposits := Array.append(deposits, [newDeposit]);
-
-                        // Return the index of the deposit in the deposits array
-                        // return Array.size(deposits) - 1;
+                        linksCount := linksCount + 1;
                         key;
                     };
                     case null {
@@ -652,19 +745,14 @@ actor Main {
 
     public shared ({caller = user}) func claimToken(
         _collectionCanisterId: Principal,
-        _depositKey: Nat32
+        _depositKey: Nat
     ) : async Int {
-        // if (_depositIndex >= Array.size(deposits)) {
-        //     throw Error.reject("Invalid deposit Index (out of bounds)");
-        //     return -1;
-        // };
-
-        // let depositItem = deposits[_depositIndex];
+        
         let depositItem = switch(depositItemsMap.get(_depositKey)){
             case(?deposit){
                 deposit
             };
-            case null throw Error.reject("Deposit index not found");
+            case null throw Error.reject("Deposit Key not found, might be claimed already..!");
         };
 
 
@@ -693,7 +781,7 @@ actor Main {
         user : Principal,
         _collectionCanisterId : Principal,
         _depositItem : Deposit,
-        _depositKey : Nat32
+        _depositKey : Nat
     ) : async Int {
             
             let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
@@ -701,11 +789,6 @@ actor Main {
                    request: TransferRequest
                 ) ->async TransferResponse
             };
-
-            // if (_depositIndex >= Array.size(deposits)) {
-            //     throw Error.reject("Invalid deposit Index (out of bounds)");
-            //     return -1;
-            // };
 
             let depositObj : Deposit = _depositItem;
 
@@ -731,16 +814,28 @@ actor Main {
 
             switch(response) {
                 case (#ok(balance)) {
-                    deposits := Array.filter<Deposit>(deposits, func(d: Deposit) : Bool {
-                        return d != depositObj;
-                    });
+
                     depositItemsMap.delete(_depositKey);
+
+                    let existingLinks = userLinks.get(depositObj.sender);
+                    switch (existingLinks) {
+                        case (?links) {
+                            let updatedLinks = Array.filter(links, func(link: Link) : Bool {
+                                link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
+                            });
+                            userLinks.put(depositObj.sender, updatedLinks);
+                        };
+                        case null {
+                            throw Error.reject("No links found for user");
+                        };
+                    };
+
                     for (campaignId in campaignLinks.keys()) {
                         switch (campaignLinks.get(campaignId)) {
                             case (?linkIndices) {
-                                var newLinks : [Nat32] = [];
+                                var newLinks : [Nat] = [];
                                 // Adjust indices and filter out the claimed one
-                                newLinks := Array.filter<Nat32>(linkIndices, func(key: Nat32) : Bool {
+                                newLinks := Array.filter<Nat>(linkIndices, func(key: Nat) : Bool {
                                     return key != _depositKey;
                                 });
                                 
@@ -748,37 +843,118 @@ actor Main {
                                 campaignLinks.put(campaignId, newLinks);
                             };
                             case null {
-                                Debug.print("No link created while campaign creation")
+                                throw Error.reject("No link created while campaign creation")
                             }; // CampaignId not found in campaignLinks
                         };
                     };
-                    return 0; 
+                    claimCount := claimCount + 1;
+                    0
                 };
                 case (#err(err)) {
                     switch(err) {
                         case (#CannotNotify(accountId)) {
-                            Debug.print("Error: Cannot notify account " # accountId);
+                            throw Error.reject("Error: Cannot notify account " # accountId);
                         };
                         case (#InsufficientBalance) {
-                            Debug.print("Error: Insufficient balance");
+                            throw Error.reject("Error: Insufficient balance");
                         };
                         case (#InvalidToken(tokenId)) {
-                            Debug.print("Error: Invalid token " # tokenId);
+                            throw Error.reject("Error: Invalid token " # tokenId);
                         };
                         case (#Other(text)) {
-                            Debug.print("Error: " # text);
+                            throw Error.reject("Error: " # text);
                         };
                         case (#Rejected) {
-                            Debug.print("Error: Transfer rejected");
+                            throw Error.reject("Error: Transfer rejected");
                         };
                         case (#Unauthorized(accountId)) {
-                            Debug.print("Error: Unauthorized account " # accountId);
+                            throw Error.reject("Error: Unauthorized account " # accountId);
                         };
                     };
                     -1
                 };
             }
              
+    };
+
+    func mintAtClaim(
+        user : Principal,
+        _collectionCanisterId : Principal,
+        _depositItem : Deposit,
+        _depositKey : Nat
+
+    ) : async Int {
+        
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            ext_mint : (
+                request : [(AccountIdentifier, Metadata)]
+            ) -> async [TokenIndex]
+        };
+   
+        let depositItem : Deposit = _depositItem;
+
+        if (_collectionCanisterId != depositItem.collectionCanister) {
+            throw Error.reject("Collection canister ID mismatch");
+            return -1;
+        };
+
+        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
+            case (?tokensList) {
+                var foundToken: ?(Nat32, Metadata) = null;
+                var remainingTokens: [(Nat32, Metadata)] = [];
+
+                for (token in tokensList.vals()) {
+                    if (token.0 == depositItem.tokenId) {
+                        foundToken := ?token;
+                    } else {
+                        remainingTokens := Array.append(remainingTokens, [token]);
+                    };
+                };
+
+                switch (foundToken) {
+                    case (?(_, metadata)) {
+                        let receiver = AID.fromPrincipal(user, null);
+                        let request: [(AccountIdentifier, Metadata)] = [(receiver, metadata)]; 
+
+                        let response = await collectionCanisterActor.ext_mint(request);
+
+                        // Assuming minting was successful
+                        depositItemsMap.delete(_depositKey);
+                        if (Array.size(remainingTokens) > 0) {
+                            tokensDataToBeMinted.put(depositItem.collectionCanister, remainingTokens);
+                        } else {
+                            tokensDataToBeMinted.delete(_collectionCanisterId);
+                        };
+
+                        // Remove the link from userLinks
+                        let existingLinks = userLinks.get(depositItem.sender);
+                        switch (existingLinks) {
+                            case (?links) {
+                                let updatedLinks = Array.filter(links, func(link: Link) : Bool {
+                                    link.tokenId != depositItem.tokenId or link.claimPattern != depositItem.claimPattern;
+                                });
+                                userLinks.put(depositItem.sender, updatedLinks);
+                            };
+                            case null {
+                                throw Error.reject("No links found for user");
+                            };
+                        };
+
+                        claimCount := claimCount + 1;
+                        return 0;
+                    };
+                    case null {
+                        throw Error.reject("Token ID does not match any in the deposit object");
+                        return -1;
+                    };
+                };
+            };
+            case null {
+                throw Error.reject("No metadata found for the given token");
+                return -1;
+            };
+        };
+      
     };
 
     // Campaign creation
@@ -791,12 +967,12 @@ actor Main {
         walletOption: Text,
         displayWallets : [Text],
         expirationDate: Time.Time,
-    ) : async (Text,[Nat32]) {
+    ) : async (Text,[Nat]) {
         let campaignId = generateCampaignId(user);
-        var linkResponses: [Nat32] = [];
+        var linkResponses: [Nat] = [];
 
         for (tokenId in tokenIds.vals()) {
-            var linkKeys : Nat32 = 0;
+            var linkKeys : Nat = 0;
             if(claimPattern == "transfer"){
                 linkKeys := await createLink(collection, user, tokenId);
             } else if (claimPattern == "mint") {
@@ -924,13 +1100,12 @@ actor Main {
     };
 
 
-
     // Get details of a specific Campaign
     public shared query func getCampaignDetails(campaignId : Text) : async ?Campaign {
         campaigns.get(campaignId);
     };
     // Get Links created inside a Campaign
-    public shared query func getCampaignLinks(campaignId : Text) : async ?[Nat32] {
+    public shared query func getCampaignLinks(campaignId : Text) : async ?[Nat] {
         campaignLinks.get(campaignId);
     };
     // Get all campaigns created by a user
