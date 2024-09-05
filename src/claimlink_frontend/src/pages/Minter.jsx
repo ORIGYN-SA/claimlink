@@ -14,7 +14,7 @@ const Minter = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { identity, backend, principal } = useAuth();
+  const { identity, backend, principal, isConnected } = useAuth();
   const { id } = useParams();
 
   const createContract = () => {
@@ -23,6 +23,22 @@ const Minter = () => {
   const openmynft = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
+
+  const getBalance = async () => {
+    console.log("Hello from get balance");
+    try {
+      const result = await window.ic.plug.requestBalance();
+      console.log(result);
+    } catch (e) {
+      console.log(e, "Error while getting balance");
+    }
+  };
+
+  useEffect(() => {
+    if (isConnected) {
+      getBalance();
+    }
+  }, [isConnected]);
 
   useEffect(() => {
     const loadData = async () => {

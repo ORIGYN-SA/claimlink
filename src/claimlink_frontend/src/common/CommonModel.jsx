@@ -43,12 +43,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
     try {
       console.log("Principal:", principal.toText());
       const canister = Principal.fromText(canisterid);
-      const index = await backend?.createLink(
-        canister,
-        principal,
-        nftid,
-        principal
-      );
+      const index = await backend?.createLink(canister, principal, nftid);
 
       if (index != -1 && index !== undefined) {
         const claimLink = `${url}/linkclaiming/${canisterid}/${index}`;
