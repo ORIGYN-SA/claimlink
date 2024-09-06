@@ -99,6 +99,7 @@ actor Main {
     };
     type Link = {
         tokenId : TokenIndex;
+        collection : Principal;
         linkKey : Nat;
         claimPattern : Text;
         createdBy : AccountIdentifier
@@ -546,7 +547,7 @@ actor Main {
                 // Check if the tokenId already exists
                 let tokenExists = List.some<Link>(
                     linksList,
-                    func(link) { link.tokenId == _tokenId and link.claimPattern == "transfer" }
+                    func(link) { link.tokenId == _tokenId and link.claimPattern == "transfer" and link.collection == _collectionCanisterId }
                 );
 
                 if (tokenExists) {
@@ -568,6 +569,7 @@ actor Main {
         };
         let newLink: Link = {
             tokenId = _tokenId;
+            collection = _collectionCanisterId;
             claimPattern = "transfer";
             createdBy = userAID;
             linkKey = key;
@@ -653,6 +655,7 @@ actor Main {
                         };
                         let newLink: Link = {
                             tokenId = _tokenId;
+                            collection = _collectionCanisterId;
                             claimPattern = "transfer";
                             createdBy = userAID;
                             linkKey = key;
