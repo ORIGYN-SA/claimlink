@@ -1,12 +1,18 @@
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TfiPlus } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../connect/useClient";
 
 const Dispensers = () => {
   const navigate = useNavigate();
+
+  const [dispnser, setDispenser] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { identity, backend, principal, isConnected } = useAuth();
 
   const createDispenser = () => {
     navigate("/dispensers/create-dispenser");
@@ -14,6 +20,25 @@ const Dispensers = () => {
   const DispenserSetup = () => {
     navigate("/dispensers/dispenser-setup");
   };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserDispensers();
+        setDispenser(data);
+        console.log("dispenser is", data);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
+  }, [backend]);
 
   return (
     <div className=" p-6 ">
@@ -29,7 +54,7 @@ const Dispensers = () => {
               <GoPlus className="text-2xl" /> New dispenser
             </button>
           </div>
-          {[1, 2, 3, 4, 5, 6].map((index) => (
+          {dispnser.map((data, index) => (
             <motion.div
               key={index}
               onClick={createDispenser}
@@ -50,7 +75,7 @@ const Dispensers = () => {
                     />
                     <div className="">
                       <h2 className=" text-sm font-bold text-[#2E2C34]  ">
-                        Title
+                        {data?.title}
                       </h2>
                       <p className="text-[#84818A] md:text-sm text-xs ">
                         April 5, 13:34
@@ -149,7 +174,7 @@ const Dispensers = () => {
               </p>
             </motion.div>
 
-            {[1, 2, 3, 4, 5, 6].map((index) => (
+            {dispnser.map((index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}

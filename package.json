@@ -30,6 +30,7 @@
     "ic-auth": "^0.9.1",
     "identityvault": "^0.1.11",
     "mops": "^3.0.2",
+    "papaparse": "^5.4.1",
     "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",
     "react-hot-toast": "^2.4.1",
