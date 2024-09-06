@@ -3,6 +3,7 @@ import Cycles "mo:base/ExperimentalCycles";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import TrieMap "mo:base/TrieMap";
+import Result "mo:base/Result";
 import List "mo:base/List";
 import Array "mo:base/Array";
 import Nat "mo:base/Nat";
@@ -26,6 +27,7 @@ actor Main {
     type AccountIdentifier = ExtCore.AccountIdentifier;
     type TokenIndex  = ExtCore.TokenIndex;
     type TokenIdentifier  = ExtCore.TokenIdentifier;
+    type CommonError = ExtCore.CommonError;
     type MetadataValue = (Text , {
         #text : Text;
         #blob : Blob;
@@ -110,9 +112,9 @@ actor Main {
     private stable var stableuserCollectionMap : [(Principal,[(Time.Time,Principal)])] = [];
     // Map to store created Links
     private var userLinks =  TrieMap.TrieMap<Principal, [Link]>(Principal.equal, Principal.hash);
+    private stable var stableUserLinks : [(Principal,[Link])] = [];
     private var claimCount : Nat = 0;
     private var linksCount : Nat = 0;
-    private stable var stableUserLinks : [(Principal,[Link])] = [];
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
@@ -144,9 +146,11 @@ actor Main {
     // Campaign Timer
     private var campaignTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
     private stable var stableCampaignTimers : [(Text, Timer.TimerId)] = [];
+    // Dispenser Timer
+    private var dispenserTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
+    private stable var stableDispenserTimers : [(Text, Timer.TimerId)] = [];
 
     // Stores details about the tokens coming into this vault
-    private stable var deposits : [Deposit] = [];
     private var depositItemsMap = TrieMap.TrieMap<Nat, Deposit>(Nat.equal,natHash);
     private stable var stableDepositMap : [(Nat, Deposit)] = [];
 
@@ -163,6 +167,7 @@ actor Main {
         stableuserCollectionMap := Iter.toArray(usersCollectionMap.entries());
         stableCampaigns := Iter.toArray(campaigns.entries());
         stableCampaignLinks := Iter.toArray(campaignLinks.entries());
+        stableUserLinks := Iter.toArray(userLinks.entries());
         stableUserCampaignsMap := Iter.toArray(userCampaignsMap.entries());
         stableDispensers := Iter.toArray(dispensers.entries());
         stableUserDispensersMap := Iter.toArray(userDispensersMap.entries());
@@ -170,16 +175,17 @@ actor Main {
         stableUserQrSetMap := Iter.toArray(userQRSetMap.entries());
         stableTokensDataToBeMinted := Iter.toArray(tokensDataToBeMinted.entries());
         stableCampaignTimers := Iter.toArray(campaignTimers.entries());
+        stableDispenserTimers := Iter.toArray(dispenserTimers.entries());
         stableDepositMap := Iter.toArray(depositItemsMap.entries());
 
     };
 
     // Postupgrade function to restore the data from stable variables
     system func postupgrade() {
-
         usersCollectionMap := TrieMap.fromEntries(stableuserCollectionMap.vals(), Principal.equal, Principal.hash);
         campaigns := TrieMap.fromEntries(stableCampaigns.vals(), Text.equal, Text.hash);
         campaignLinks := TrieMap.fromEntries(stableCampaignLinks.vals(), Text.equal, Text.hash);
+        userLinks := TrieMap.fromEntries(stableUserLinks.vals(), Principal.equal, Principal.hash);
         userCampaignsMap := TrieMap.fromEntries(stableUserCampaignsMap.vals(), Principal.equal, Principal.hash);
         dispensers := TrieMap.fromEntries(stableDispensers.vals(), Text.equal, Text.hash);
         userDispensersMap := TrieMap.fromEntries(stableUserDispensersMap.vals(), Principal.equal, Principal.hash);
@@ -187,12 +193,10 @@ actor Main {
         userQRSetMap := TrieMap.fromEntries(stableUserQrSetMap.vals(), Principal.equal, Principal.hash);
         tokensDataToBeMinted := TrieMap.fromEntries(stableTokensDataToBeMinted.vals(), Principal.equal, Principal.hash);
         campaignTimers := TrieMap.fromEntries(stableCampaignTimers.vals(), Text.equal, Text.hash);
+        dispenserTimers := TrieMap.fromEntries(stableDispenserTimers.vals(), Text.equal, Text.hash);
         depositItemsMap := TrieMap.fromEntries(stableDepositMap.vals(), Nat.equal, natHash);
     };
 
-    public shared query func getDeposits() : async [Deposit] {
-        return deposits;
-    };
 
     func generateKey(caller: AccountIdentifier, timestamp: Time.Time, tokenId: TokenIndex): Nat {
         let callerNat = AID.hash(caller);
@@ -526,7 +530,7 @@ actor Main {
     public shared ({caller = user}) func createLink(
         _collectionCanisterId: Principal,
         _from: Principal,
-        _tokenId: TokenIndex,
+        _tokenId: TokenIndex
     ) : async Nat {
         // Check if the link (tokenId) already exists in userLinks for this user
         let existingLinks = userLinks.get(_from);
@@ -551,28 +555,8 @@ actor Main {
             };
         };
 
-        // If the tokenId is not already in userLinks, proceed with the transfer and data updates
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            ext_transfer: (
-                request: TransferRequest
-            ) -> async TransferResponse
-        };
-
-        let userFrom: User = principalToUser(_from);
-        let userTo: User = principalToUser(Principal.fromActor(Main));
-        let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, _tokenId);
-        let transferRequest: TransferRequest = {
-            from = userFrom;
-            to = userTo;
-            token = tokenIdentifier;
-            amount = 1;
-            memo = "";
-            notify = false;
-            subaccount = null;
-        };
-        let userAID = AID.fromPrincipal(_from, null);
-
         // Prepare the new deposit and link objects
+        let userAID = AID.fromPrincipal(_from, null);
         let key = generateKey(userAID, Time.now(), _tokenId);
         let newDeposit: Deposit = {
             tokenId = _tokenId;
@@ -611,43 +595,8 @@ actor Main {
         depositItemsMap.put(key, newDeposit);
         linksCount := linksCount + 1;
 
-        // Now proceed with the token transfer
-        let response = await collectionCanisterActor.ext_transfer(transferRequest);
-
-        switch (response) {
-            case (#ok(balance)) {
-                return key;
-            };
-            case (#err(err)) {
-                // Handle the different error cases and rollback the updates if necessary
-                switch (err) {
-                    case (#CannotNotify(accountId)) {
-                        throw Error.reject("Error: Cannot notify account " # accountId);
-                    };
-                    case (#InsufficientBalance) {
-                        throw Error.reject("Error: Insufficient balance");
-                    };
-                    case (#InvalidToken(tokenId)) {
-                        throw Error.reject("Error: Invalid token " # tokenId);
-                    };
-                    case (#Other(text)) {
-                        throw Error.reject("Error: " # text);
-                    };
-                    case (#Rejected) {
-                        throw Error.reject("Error: Transfer rejected");
-                    };
-                    case (#Unauthorized(accountId)) {
-                        throw Error.reject("Error: Unauthorized account " # accountId);
-                    };
-                };
-                // If there's an error, remove the link and deposit added earlier
-                userLinks.delete(_from);
-                depositItemsMap.delete(key);
-
-                throw Error.reject("Error");
-                return 0;
-            };
-        };
+        // Return the key for tracking purposes (no token transfer here)
+        return key;
     };
 
 
@@ -778,103 +727,114 @@ actor Main {
 
     // Token will be transfered to user who claims through the shared link
     func claimLink(
-        user : Principal,
-        _collectionCanisterId : Principal,
-        _depositItem : Deposit,
-        _depositKey : Nat
+        user: Principal,
+        _collectionCanisterId: Principal,
+        _depositItem: Deposit,
+        _depositKey: Nat
     ) : async Int {
-            
-            let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-                ext_transfer : (
-                   request: TransferRequest
-                ) ->async TransferResponse
-            };
 
-            let depositObj : Deposit = _depositItem;
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            ext_transfer: (
+                request: TransferRequest
+            ) -> async TransferResponse;
+        };
 
-            if (_collectionCanisterId != depositObj.collectionCanister) {
-                throw Error.reject("Collection canister ID mismatch");
-                return -1;
-            };
+        let depositObj: Deposit = _depositItem;
 
-            let userFrom: User = principalToUser(Principal.fromActor(Main));
-            let userTo: User = principalToUser(user);
-            let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, depositObj.tokenId);
-            let transferRequest: TransferRequest = {
-                from = userFrom; 
-                to = userTo;
-                token = tokenIdentifier;              
-                amount = 1;                        
-                memo = "";                        
-                notify = false;                    
-                subaccount = null;                 
-            };
+        // Check if the collection canister ID matches the deposit
+        if (_collectionCanisterId != depositObj.collectionCanister) {
+            throw Error.reject("Collection canister ID mismatch");
+            return -1;
+        };
 
-            let response = await collectionCanisterActor.ext_transfer(transferRequest);
+        // Set the correct 'from' user (original owner) and 'to' user (claimer)
+        let userFrom: User = principalToUser(depositObj.sender);  // Sender is the original owner
+        let userTo: User = principalToUser(user);                 // Claimer is the caller
 
-            switch(response) {
-                case (#ok(balance)) {
+        let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, depositObj.tokenId);
+        
+        // Prepare the transfer request to directly transfer the token from the original owner to the claimer
+        let transferRequest: TransferRequest = {
+            from = userFrom;
+            to = userTo;
+            token = tokenIdentifier;
+            amount = 1;
+            memo = "";
+            notify = false;
+            subaccount = null;
+        };
 
-                    depositItemsMap.delete(_depositKey);
+        // Execute the transfer
+        let response = await collectionCanisterActor.ext_transfer(transferRequest);
 
-                    let existingLinks = userLinks.get(depositObj.sender);
-                    switch (existingLinks) {
-                        case (?links) {
-                            let updatedLinks = Array.filter(links, func(link: Link) : Bool {
-                                link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
+        // Handle the response
+        switch (response) {
+            case (#ok(balance)) {
+                // Successful transfer, remove the deposit and link information
+                depositItemsMap.delete(_depositKey);
+
+                let existingLinks = userLinks.get(depositObj.sender);
+                switch (existingLinks) {
+                    case (?links) {
+                        // Remove the claimed link from userLinks
+                        let updatedLinks = Array.filter(links, func(link: Link): Bool {
+                            link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
+                        });
+                        userLinks.put(depositObj.sender, updatedLinks);
+                    };
+                    case null {
+                        throw Error.reject("No links found for user");
+                    };
+                };
+
+                // Update the campaign links (remove claimed link)
+                for (campaignId in campaignLinks.keys()) {
+                    switch (campaignLinks.get(campaignId)) {
+                        case (?linkIndices) {
+                            var newLinks: [Nat] = [];
+                            // Adjust indices and filter out the claimed one
+                            newLinks := Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
+                                return key != _depositKey;
                             });
-                            userLinks.put(depositObj.sender, updatedLinks);
+
+                            // Store the updated indices back in campaignLinks
+                            campaignLinks.put(campaignId, newLinks);
                         };
                         case null {
-                            throw Error.reject("No links found for user");
-                        };
+                            throw Error.reject("No link created during campaign creation");
+                        }; // CampaignId not found in campaignLinks
                     };
+                };
 
-                    for (campaignId in campaignLinks.keys()) {
-                        switch (campaignLinks.get(campaignId)) {
-                            case (?linkIndices) {
-                                var newLinks : [Nat] = [];
-                                // Adjust indices and filter out the claimed one
-                                newLinks := Array.filter<Nat>(linkIndices, func(key: Nat) : Bool {
-                                    return key != _depositKey;
-                                });
-                                
-                                // Store the updated indices back in campaignLinks
-                                campaignLinks.put(campaignId, newLinks);
-                            };
-                            case null {
-                                throw Error.reject("No link created while campaign creation")
-                            }; // CampaignId not found in campaignLinks
-                        };
+                claimCount := claimCount + 1;
+                return 0;
+            };
+
+            case (#err(err)) {
+                // Handle transfer errors
+                switch (err) {
+                    case (#CannotNotify(accountId)) {
+                        throw Error.reject("Error: Cannot notify account " # accountId);
                     };
-                    claimCount := claimCount + 1;
-                    0
-                };
-                case (#err(err)) {
-                    switch(err) {
-                        case (#CannotNotify(accountId)) {
-                            throw Error.reject("Error: Cannot notify account " # accountId);
-                        };
-                        case (#InsufficientBalance) {
-                            throw Error.reject("Error: Insufficient balance");
-                        };
-                        case (#InvalidToken(tokenId)) {
-                            throw Error.reject("Error: Invalid token " # tokenId);
-                        };
-                        case (#Other(text)) {
-                            throw Error.reject("Error: " # text);
-                        };
-                        case (#Rejected) {
-                            throw Error.reject("Error: Transfer rejected");
-                        };
-                        case (#Unauthorized(accountId)) {
-                            throw Error.reject("Error: Unauthorized account " # accountId);
-                        };
+                    case (#InsufficientBalance) {
+                        throw Error.reject("Error: Insufficient balance");
                     };
-                    -1
+                    case (#InvalidToken(tokenId)) {
+                        throw Error.reject("Error: Invalid token " # tokenId);
+                    };
+                    case (#Other(text)) {
+                        throw Error.reject("Error: " # text);
+                    };
+                    case (#Rejected) {
+                        throw Error.reject("Error: Transfer rejected");
+                    };
+                    case (#Unauthorized(accountId)) {
+                        throw Error.reject("Error: Unauthorized account " # accountId);
+                    };
                 };
-            }
-             
+                return -1;
+            };
+        };
     };
 
     func mintAtClaim(
@@ -1221,6 +1181,9 @@ actor Main {
 
         dispensers.put(dispenserId, dispenser);
 
+        await scheduleDispenserDeletion(dispenserId, _startDate, _duration);
+
+
         let userDispensers = userDispensersMap.get(user);
         switch (userDispensers) {
             case null {
@@ -1230,9 +1193,57 @@ actor Main {
                 userDispensersMap.put(user, Array.append(userDispensers, [dispenser]));
             };
         };
-
         return dispenserId;
     };
+
+    // Function to schedule dispenser deletion based on start time and duration
+    func scheduleDispenserDeletion(dispenserId : Text, startTime : Time.Time, duration : Int) : async () {
+        let now = Time.now();
+        
+        // Calculate the expiration time
+        let expirationTime = (startTime) + (duration * 60_000_000_000);  // duration is in minutes, converting to nanoseconds
+        let timeRemaining = if (expirationTime > now) expirationTime - now else now - expirationTime;
+        let natDuration = Nat64.toNat(Nat64.fromIntWrap(timeRemaining));
+        
+        if (timeRemaining > 0) {
+            let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
+                deleteDispenser(dispenserId);
+            });
+            dispenserTimers.put(dispenserId, id);
+        };
+    };
+
+    func deleteDispenser(dispenserId: Text) {
+
+        // Delete the dispenser itself
+        dispensers.delete(dispenserId);
+
+        // Cancel the scheduled timer if it exists
+        switch (dispenserTimers.get(dispenserId)) {
+            case (?timerId) {
+                Timer.cancelTimer(timerId);
+                dispenserTimers.delete(dispenserId);
+            };
+            case null {};
+        };
+
+        // Remove the dispenser from the user's dispenser map
+        for ((user, userDispensers) in userDispensersMap.entries()) {
+            let updatedDispensers = Array.filter<Dispenser>(
+                userDispensers,
+                func(dispenser) : Bool {
+                    dispenser.id != dispenserId;
+                },
+            );
+            if (updatedDispensers.size() == 0) {
+                userDispensersMap.delete(user);
+            } else {
+                userDispensersMap.put(user, updatedDispensers);
+            };
+        };
+    };
+
+
 
     // Get details of a specific Dispenser
     public shared query func getDispenserDetails(dispenserId : Text) : async ?Dispenser {
