@@ -95,7 +95,7 @@ actor Main {
         duration : Int;
         createdBy: Principal;
         campaignId : Text;
-        whitelist : ?[Principal]
+        whitelist : [Principal]
     };
     type Link = {
         tokenId : TokenIndex;
@@ -1167,7 +1167,7 @@ actor Main {
         _startDate : Time.Time,
         _duration : Int,
         _campaignId : Text,
-        _whitelist : ?[Principal]
+        _whitelist : [Principal]
     ) : async Text {
         let dispenserId = generateDispenserId(user);
 
