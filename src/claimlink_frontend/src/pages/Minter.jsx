@@ -97,112 +97,103 @@ const Minter = () => {
               Mint a new token.
             </p>
           </motion.div>
-          {loading ? (
-            [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
-              <div
-                className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer animate-pulse"
-                key={index}
-              >
-                {/* Skeleton for loading state */}
-                <div className="flex justify-start space-x-4">
-                  <div className="w-12 h-12 bg-gray-200 rounded-md" />
-                  <div className="w-12 h-12 bg-gray-200 rounded-md" />
-                  <div className="w-12 h-12 bg-gray-200 rounded-md" />
-                </div>
-                <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 w-20 h-8 bg-gray-200"></h2>
-                <p className="w-20 h-4 rounded-sm bg-gray-200 mt-2"></p>
-                <div className="border border-gray-300 my-4 w-full"></div>
-                <div className="mt-2 w-full">
-                  <div className="flex justify-between">
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+          {loading
+            ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].map((index) => (
+                <div
+                  className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer animate-pulse"
+                  key={index}
+                >
+                  {/* Skeleton for loading state */}
+                  <div className="flex justify-start space-x-4">
+                    <div className="w-12 h-12 bg-gray-200 rounded-md" />
+                    <div className="w-12 h-12 bg-gray-200 rounded-md" />
+                    <div className="w-12 h-12 bg-gray-200 rounded-md" />
                   </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
-                    <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : collections?.length > 0 ? (
-            collections?.map((data, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, scale: 0 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1 }}
-                className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                onClick={() => {
-                  navigate(`/minter/${data[1]?.toText()}/token-home`);
-                }}
-              >
-                <div className="flex justify-start space-x-4">
-                  <img
-                    src={data[4]}
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 3,
-                    }}
-                  />
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 2,
-                      marginLeft: -24,
-                    }}
-                  />
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 1,
-                      marginLeft: -24,
-                    }}
-                  />
-                </div>
-                <h2 className="text-lg font-semibold text-[#2E2C34] mt-3">
-                  {data[2]}
-                </h2>
-                <div className="border border-gray-300 my-4 w-full"></div>
-                <div className="mt-2 w-full">
-                  <div className="flex justify-between">
-                    <p className="text-xs text-[#84818A]">Address</p>
-                    <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
-                      {data[1]?.toText()}
-                    </p>
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-[#84818A]">All token copies</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold">10</p>
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-[#84818A]">Token standard</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold">EXT</p>
+                  <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 w-20 h-8 bg-gray-200"></h2>
+                  <p className="w-20 h-4 rounded-sm bg-gray-200 mt-2"></p>
+                  <div className="border border-gray-300 my-4 w-full"></div>
+                  <div className="mt-2 w-full">
+                    <div className="flex justify-between">
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                      <p className="w-20 h-6 rounded-sm bg-gray-200"></p>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            ))
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1 }}
-              className="h-64 w-56 px-4 py-4 text-xl text-center my-auto bg-slate-200 rounded-xl flex flex-col items-center justify-center text-violet-500 cursor-pointer"
-            >
-              No collection found
-            </motion.div>
-          )}
+              ))
+            : collections?.map((data, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 1 }}
+                  className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                  onClick={() => {
+                    navigate(`/minter/${data[1]?.toText()}/token-home`);
+                  }}
+                >
+                  <div className="flex justify-start space-x-4">
+                    <img
+                      src={data[4]}
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 3,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 2,
+                        marginLeft: -24,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 1,
+                        marginLeft: -24,
+                      }}
+                    />
+                  </div>
+                  <h2 className="text-lg font-semibold text-[#2E2C34] mt-3">
+                    {data[2]}
+                  </h2>
+                  <div className="border border-gray-300 my-4 w-full"></div>
+                  <div className="mt-2 w-full">
+                    <div className="flex justify-between">
+                      <p className="text-xs text-[#84818A]">Address</p>
+                      <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
+                        {data[1]?.toText()}
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A]">All token copies</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">10</p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A]">Token standard</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">
+                        EXT
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
         </div>
       </div>
     </>

@@ -15,6 +15,10 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const liveUrl =
     process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
   console.log("Live URL:", liveUrl);
+
+  const url = process.env.PROD
+    ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
+    : "http://localhost:3000";
   const validateForm = () => {
     const newErrors = {};
 
@@ -115,8 +119,10 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       );
 
       if (res) {
-        // const claimLink = `http://localhost:3000/linkclaiming/${formData.collection}/${tokenIds}`;
-
+        if (res[1]?.[0] != -1 && res[1]?.[0] !== undefined) {
+          const claimLink = `${url}/linkclaiming/${formData.collection}/${res[1]?.[0]}`;
+          console.log("Link created successfully:", claimLink);
+        }
         console.log("Campaign created successfully:", res);
         toast.success("Campaign created successfully!");
         handleNext();

@@ -7,6 +7,8 @@ import { GoDownload } from "react-icons/go";
 import { useAuth } from "../../connect/useClient";
 import Select from "react-select";
 import MainButton, { BackButton } from "../../common/Buttons";
+import { Principal } from "@dfinity/principal";
+import toast from "react-hot-toast";
 
 const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
@@ -14,7 +16,45 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [error, setError] = useState(null);
   const [loading, SetLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
+
   const [campaign, setCampaign] = useState([]);
+  const [time, setTime] = useState(0);
+  const [csvData, setCsvData] = useState([]);
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const csv = event.target.result;
+      const rows = csv.split("\n");
+
+      const principalIds = rows.map((row) => row.trim());
+      setCsvData(principalIds);
+    };
+
+    reader.readAsText(file);
+  };
+
+  const handleUploadToBackend = async () => {
+    setLoading2(true);
+    try {
+      const principalIds = csvData.map((id) => Principal.fromText(id));
+      // Assume backend.uploadPrincipalIds(principalIds) uploads the principal ids
+      const result = await backend.uploadPrincipalIds(principalIds);
+      if (result) {
+        toast.success("Principal IDs uploaded successfully!");
+      } else {
+        toast.error("Failed to upload Principal IDs.");
+      }
+    } catch (error) {
+      console.error("Error uploading CSV data:", error);
+      toast.error("Error uploading CSV data.");
+    } finally {
+      setLoading2(false);
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -85,12 +125,20 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       console.log("Form data:", formData);
       console.log("Principal:", principal.toText());
 
-      const date = new Date(`${formData.expirationDate}:00Z`);
-      const timestampMillis = date.getTime();
+      const dateString = new Date(`${formData.expirationDate}:00Z`);
 
+      const date = new Date(dateString);
+
+      if (isNaN(date.getTime())) {
+        console.error("Invalid Date generated:", dateString);
+      } else {
+        const timestampMillis = date.getTime();
+        setTime(timestampMillis);
+        console.log("Valid time:", date, "Timestamp:", timestampMillis);
+      }
       const res = await backend?.createDispenser(
         formData.title,
-        formData.startdate,
+        time,
         formData.duration,
         formData.campaign,
         formData.whitelist
@@ -158,11 +206,30 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
             <p className="text-red-500 text-sm mt-1">{errors.campaign}</p>
           )} */}
         </div>
-        <div className="mt-6 flex flex-col">
+        <div className="mt-4">
           <label className="text-lg font-semibold py-3">
             Or Upload CSV File
           </label>
-          <StyledDropzone disabled={loading} />
+          <input
+            type="file"
+            accept=".csv"
+            onChange={handleFileUpload}
+            className="border rounded p-2 mt-2 w-full"
+            value={formData.whitelist}
+          />
+          {csvData.length > 0 && (
+            <div className="mt-4">
+              <button
+                onClick={handleUploadToBackend}
+                disabled={loading}
+                className={`button px-4 py-2 rounded-md text-white ${
+                  loading ? "bg-gray-500" : "bg-blue-500"
+                }`}
+              >
+                {loading ? "Uploading..." : "Upload Principal IDs"}
+              </button>
+            </div>
+          )}
         </div>
         {/* <div className="mt-6 flex flex-col">
           <label htmlFor="tokenAmount" className="text-lg font-semibold py-3">

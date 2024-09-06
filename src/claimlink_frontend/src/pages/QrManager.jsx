@@ -87,24 +87,18 @@ const QrManager = () => {
             /> 
           </div> */}
 
-          {data?.length > 0 ? (
-            data?.map((data, index) => (
-              <div key={index} className="w-full  p-2 ">
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                >
-                  <InfoCard data={data} />
-                </motion.div>
-              </div>
-            ))
-          ) : (
-            <div className="h-64 w-56   m-2 mb-2    text-xl text-center my-auto bg-slate-200 rounded-xl flex flex-col items-center justify-center text-violet-500 cursor-pointer">
-              No Qr found
+          {data?.map((data, index) => (
+            <div key={index} className="w-full  p-2 ">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 1 }}
+              >
+                <InfoCard data={data} />
+              </motion.div>
             </div>
-          )}
+          ))}
         </div>
       </div>
     </>

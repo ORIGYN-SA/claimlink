@@ -78,6 +78,7 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
             <button
               className="bg-[#F5F4F7] p-2 rounded-md"
               onClick={toggleModal}
+              disabled={loading}
             >
               <RxCross2 className="text-gray-800 w-5 h-5" />
             </button>
