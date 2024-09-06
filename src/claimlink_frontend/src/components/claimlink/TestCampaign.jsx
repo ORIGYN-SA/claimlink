@@ -71,7 +71,9 @@ const TestCampaign = () => {
 
         <div className="mb-4 flex justify-between">
           <h3 className="text-gray-500">Created by</h3>
-          <p className="font-semibold">{details?.createdBy?.toText()}</p>
+          <p className="font-semibold truncate w-36">
+            {details?.createdBy?.toText()}
+          </p>
         </div>
 
         <div className="mb-4 flex justify-between">

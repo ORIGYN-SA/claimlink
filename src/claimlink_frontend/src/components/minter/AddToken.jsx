@@ -186,7 +186,7 @@ const AddToken = () => {
 
         if (res) {
           console.log(" non fungible token created successfully:", res);
-          toast.success(" non fungible token created successfully!");
+          toast.success("Successfully created!");
           navigate(-1);
         } else {
           console.log("Failed to create token, no response received");
@@ -261,7 +261,7 @@ const AddToken = () => {
 
         if (res) {
           console.log(" non fungible token stored successfully:", res);
-          toast.success(" non fungible token stored successfully!");
+          toast.success("Successfully stored!!");
           navigate(-1);
         } else {
           console.log("Failed to create token, no response received");
@@ -319,7 +319,7 @@ const AddToken = () => {
                 <label className="text-md font-semibold py-3 ">
                   Upload a file
                   <span className="text-gray-400 text-sm mb-3 font-normal ">
-                    (PNG . Max 5MB)
+                    (PNG . Max 1MB)
                   </span>
                 </label>
                 <div className="flex gap-4 flex-col md:flex-row">

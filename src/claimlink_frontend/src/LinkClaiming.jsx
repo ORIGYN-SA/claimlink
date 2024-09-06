@@ -121,7 +121,7 @@ const LinkClaiming = () => {
         transition={{ duration: 1 }}
         className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
       >
-        <img
+        {/* <img
           width="80px"
           height="80px"
           src={matchedDeposit?.nonfungible?.thumbnail}
@@ -130,7 +130,7 @@ const LinkClaiming = () => {
         />
         <h2 className="text-xl black font-bold mt-5">
           {matchedDeposit?.nonfungible?.name}
-        </h2>
+        </h2> */}
         <p className="text-xs gray mt-1">
           <p className="text-xs gray mt-1">
             {new Date(

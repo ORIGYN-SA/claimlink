@@ -3,6 +3,7 @@ import { IoSettingsOutline } from "react-icons/io5";
 
 const InfoCard = ({ data }) => {
   const timestamp = data.createdAt;
+  console.log(data);
 
   // Convert nanoseconds to milliseconds by dividing by 1,000,000
   const milliseconds = Number(timestamp / 1000000n);
@@ -39,11 +40,11 @@ const InfoCard = ({ data }) => {
         <div className="grid grid-cols-2 gap-0">
           <div className="flex flex-col border p-4 border-l-0  border-gray-300">
             <span className="text-sm text-gray-500">Status</span>
-            <span className="font-semibold text-red-500">Not uploaded</span>
+            <span className="font-semibold text-Green-500">Uploaded</span>
           </div>
           <div className="flex flex-col border p-4  border-r-0 border-gray-300">
             <span className="text-sm text-gray-500">Additional</span>
-            <span className="font-medium">Not sent to printer</span>
+            <span className="font-medium">sent to printer</span>
           </div>
           <div className="flex flex-col border p-4 border-l-0 border-gray-300">
             <span className="text-sm text-gray-500">Start date</span>
@@ -71,12 +72,12 @@ const InfoCard = ({ data }) => {
         <div className="space-y-2 text-xs">
           <div className="flex justify-between">
             <span className="text-gray-500">Status</span>
-            <span className="text-red-500 font-semibold">Not uploaded</span>
+            <span className="text-green-500 font-semibold">Uploaded</span>
           </div>
           <div className="flex justify-between gap-7">
             <span className="text-gray-500">Additional</span>
             <span className="text-gray-800 font-semibold truncate	">
-              Not sent to printer
+              Sent to printer
             </span>
           </div>
           <div className="flex justify-between gap">
@@ -93,7 +94,9 @@ const InfoCard = ({ data }) => {
           </div>
           <div className="flex justify-between">
             <span className="text-gray-500">Linked campaign</span>
-            <span className="text-gray-800 font-semibold">e-cards</span>
+            <span className="text-gray-800 truncate w-24 font-semibold">
+              {data?.campaignId}
+            </span>
           </div>
         </div>
       </div>

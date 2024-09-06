@@ -271,7 +271,7 @@ const CampaignCard = ({ campaign }) => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Links</span>
-              <span className="font-semibold">10</span>
+              <span className="font-semibold">1</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claims</span>

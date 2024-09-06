@@ -463,7 +463,9 @@ const AddTokenHome = () => {
                       </div>
                       <div className="border border-gray-200 my-4"></div>
                       <button
-                        onClick={toggleModal}
+                        onClick={() => {
+                          navigate("/campaign-setup");
+                        }}
                         className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
                       >
                         <GoLink />

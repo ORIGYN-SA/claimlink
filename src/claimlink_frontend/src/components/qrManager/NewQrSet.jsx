@@ -7,12 +7,13 @@ import toast from "react-hot-toast"; // Ensure this is imported if you're using 
 import QRCode from "react-qr-code";
 import MainButton from "../../common/Buttons";
 
-const QRSetForm = ({ name, quantity }) => {
+const QRSetForm = ({ name, quantity = 1 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [campaignIds, setCampaignIds] = useState([]);
   const [campaign, setCampaign] = useState("");
   const [loading, setLoading] = useState(false);
   const { backend } = useAuth();
+  const [loading1, setLoading1] = useState(false);
 
   const getCampaignId = async () => {
     try {
@@ -30,18 +31,19 @@ const QRSetForm = ({ name, quantity }) => {
   }, [backend]);
 
   const createQR = async () => {
-    setLoading(true);
+    setLoading1(true);
 
     try {
       const res = await backend.createQRSet(name, parseInt(quantity), campaign);
 
       if (res) {
         toast.success("Successfully created");
+        setLoading(true);
       }
     } catch (error) {
       console.log(error);
     } finally {
-      setLoading(false);
+      setLoading1(false);
     }
   };
 
@@ -91,12 +93,12 @@ const QRSetForm = ({ name, quantity }) => {
             Choose existing campaign or upload a CSV file with links. Number of
             rows in the file should be equal to the number of QR codes.
           </p>
-          <div className="bg-red-100 border text-sm border-red-400 text-red-500 px-4 py-3 rounded relative my-4">
+          {/* <div className="bg-red-100 border text-sm border-red-400 text-red-500 px-4 py-3 rounded relative my-4">
             <span className="block sm:inline">
               You will not be able to change the quantity of QRs after uploading
               links.
             </span>
-          </div>
+          </div> */}
         </div>
         <div className="mb-4">
           <select
@@ -115,11 +117,8 @@ const QRSetForm = ({ name, quantity }) => {
           </select>
         </div>
         <div className="mb-4 flex space-x-4">
-          <button className="bg-gray-200 text-gray-700 text-sm px-4 py-1 rounded-3xl">
-            My last campaign
-          </button>
-          <button className="bg-gray-200 text-gray-700 text-sm px-4 py-1 rounded-3xl">
-            My other campaign
+          <button className="bg-gray-200 text-gray-700 text-sm px-4 py-1 truncate w-36 rounded-3xl">
+            {campaignIds[0]}
           </button>
         </div>
         {/* If you plan to uncomment this later, ensure it's working as expected */}
@@ -156,7 +155,7 @@ const QRSetForm = ({ name, quantity }) => {
           <MainButton
             text={"Apply changes"}
             onClick={createQR}
-            loading={loading}
+            loading={loading1}
           />
           {/* <button
             className="bg-[#5542F6] w-full sm:w-[25%] text-white px-6 py-3 rounded-md"

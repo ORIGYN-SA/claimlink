@@ -17,11 +17,6 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
   const [errors, setErrors] = useState({});
   // State to store campaign IDs
 
-  
-  
-
- 
-
   const validateForm = () => {
     const newErrors = {};
 
@@ -32,8 +27,6 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
     if (!formData.quality) {
       newErrors.quality = "Quality is required.";
     }
-
-    
 
     setErrors(newErrors);
 
@@ -51,10 +44,6 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
 
     if (name === "setName") {
       setName(value);
-    }
-
-    if (name === "quality") {
-      setQuantity(value);
     }
   };
 
@@ -115,24 +104,7 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
                 <p className="text-red-500 text-sm mt-1">{errors.setName}</p>
               )}
             </div>
-            <div className="space-y-3 mt-6">
-              <p className="text-gray-900 font-semibold">Quantity</p>
-              <input
-                type="number"
-                name="quality"
-                className="sm:w-[50%] h-10 w-full outline-none rounded border-2 px-3 border-gray-100"
-                placeholder="number"
-                value={formData.quality}
-                onChange={handleChange}
-              />
-              {errors.quality && (
-                <p className="text-red-500 text-sm mt-1">{errors.quality}</p>
-              )}
-            </div>
-             
-              
-              
-         
+
             <button
               type="submit"
               onClick={handleNext}

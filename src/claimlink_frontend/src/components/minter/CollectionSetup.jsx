@@ -259,7 +259,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               >
                 Collection thumbnail{" "}
                 <span className="text-gray-400 text-base mb-3 font-normal">
-                  (PNG ,Max 5MB)
+                  (PNG ,Max 1MB)
                 </span>
               </label>
               <div className="flex gap-4 flex-col md:flex-row">

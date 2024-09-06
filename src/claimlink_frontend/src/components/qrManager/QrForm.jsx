@@ -15,7 +15,7 @@ const StepContent = ({ currentStep, handleNext, handleBack }) => {
   const { backend } = useAuth();
 
   const [name, setName] = useState();
-  const [quantity, setQuantity] = useState();
+  const [quantity, setQuantity] = useState(1);
   const [campaignId, setCampaignId] = useState();
   console.log(name, quantity);
 
