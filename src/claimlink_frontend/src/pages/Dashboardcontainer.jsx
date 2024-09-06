@@ -115,7 +115,7 @@ const NewCampaignCard = () => {
       duration={2}
       className="hidden sm:block h-full"
     >
-      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797]  text-center">
+      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-[370px] bg-[#dad6f797]  text-center">
         <div className=" w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
           <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
         </div>

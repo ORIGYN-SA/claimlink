@@ -357,7 +357,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           ></MainButton>
         </div>
       </div>
-      <div className="p-6 flex items-center w-[30%] sm:block hidden">
+      <div className="px-6 flex items-center w-[30%] sm:block hidden">
         <Summary formData={formData} />
       </div>
     </motion.div>

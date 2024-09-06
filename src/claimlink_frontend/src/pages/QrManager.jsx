@@ -119,7 +119,7 @@ const NewCampaignCard = () => {
       whileTap={{ scale: 0.9 }}
       className=" hidden sm:block w-full h-full"
     >
-      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-full bg-[#dad6f797]  text-center">
+      <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-[244px] bg-[#dad6f797]  text-center">
         <div className="bg-white p-2 m-2 rounded-md">
           <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
         </div>

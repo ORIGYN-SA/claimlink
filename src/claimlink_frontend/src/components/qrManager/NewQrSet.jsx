@@ -23,6 +23,7 @@ const QRSetForm = ({ name, quantity }) => {
       console.log(error);
     }
   };
+  console.log(name, quantity);
 
   useEffect(() => {
     getCampaignId();

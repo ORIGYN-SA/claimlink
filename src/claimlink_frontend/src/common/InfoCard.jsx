@@ -68,7 +68,7 @@ const InfoCard = ({ data }) => {
           </p>
         </div>
         <div className="border border-gra-200"></div>
-        <div className="space-y-2 text-sm">
+        <div className="space-y-2 text-xs">
           <div className="flex justify-between">
             <span className="text-gray-500">Status</span>
             <span className="text-red-500 font-semibold">Not uploaded</span>
@@ -81,7 +81,7 @@ const InfoCard = ({ data }) => {
           </div>
           <div className="flex justify-between gap">
             <span className="text-gray-500 ">Start date</span>
-            <span className="text-gray-800   font-semibold">
+            <span className="text-gray-800  text-xs font-semibold">
               {formattedDate}
             </span>
           </div>

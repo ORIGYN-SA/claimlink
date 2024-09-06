@@ -299,7 +299,7 @@ const AddTokenHome = () => {
                 initial={{ scale: 1, opacity: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.9 }}
-                className="bg-[#E9E8FC] px-4 py-8 mt-8 rounded-xl flex flex-col items-center justify-center cursor-pointer"
+                className="bg-[#E9E8FC] px-4 py-8 mt-8 rounded-xl flex flex-col h-[364px] items-center justify-center cursor-pointer"
                 onClick={addToken}
               >
                 <div className="bg-white p-2 m-2 rounded-md">

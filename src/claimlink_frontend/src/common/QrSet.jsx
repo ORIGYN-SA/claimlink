@@ -42,6 +42,7 @@ const QRSet = ({ campaignId, loading }) => {
       }
     }
   };
+  console.log(index);
 
   return (
     <div className="w-80 bg-white border-l border-gray-300 hidden sm:block p-4">
