@@ -1,75 +1,71 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import StyledDropzone from "../../common/StyledDropzone";
-import Toggle from "react-toggle";
-import { BsCopy, BsQrCode } from "react-icons/bs";
-import { GoDownload } from "react-icons/go";
-import { useAuth } from "../../connect/useClient";
 import Select from "react-select";
-import MainButton, { BackButton } from "../../common/Buttons";
 import { Principal } from "@dfinity/principal";
 import toast from "react-hot-toast";
+import Papa from "papaparse";
+import MainButton, { BackButton } from "../../common/Buttons";
+import { useAuth } from "../../connect/useClient";
 
 const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
-  const { identity, backend, principal } = useAuth();
+  const { backend } = useAuth();
   const [selectedOption, setSelectedOption] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, SetLoading] = useState(false);
-  const [loading2, setLoading2] = useState(false);
-
+  const [loading, setLoading] = useState(false);
+  const [principalIds, setPrincipalIds] = useState([]);
+  const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
-  const [time, setTime] = useState(0);
-  const [csvData, setCsvData] = useState([]);
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const csv = event.target.result;
-      const rows = csv.split("\n");
-
-      const principalIds = rows.map((row) => row.trim());
-      setCsvData(principalIds);
-    };
-
-    reader.readAsText(file);
+  const [loading2, SetLoading2] = useState(false);
+  const toggleCsvUpload = () => {
+    setCsvVisible(!csvVisible);
   };
 
-  const handleUploadToBackend = async () => {
-    setLoading2(true);
-    try {
-      const principalIds = csvData.map((id) => Principal.fromText(id));
-      // Assume backend.uploadPrincipalIds(principalIds) uploads the principal ids
-      const result = await backend.uploadPrincipalIds(principalIds);
-      if (result) {
-        toast.success("Principal IDs uploaded successfully!");
-      } else {
-        toast.error("Failed to upload Principal IDs.");
-      }
-    } catch (error) {
-      console.error("Error uploading CSV data:", error);
-      toast.error("Error uploading CSV data.");
-    } finally {
-      setLoading2(false);
-    }
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    Papa.parse(file, {
+      complete: (result) => {
+        try {
+          const ids = result.data
+            .map((row) => row[0]?.trim())
+            .filter((id) => {
+              try {
+                Principal.fromText(id);
+                return true;
+              } catch (error) {
+                console.error("Invalid Principal ID:", id);
+                toast.error(`Invalid Principal ID: ${id}`);
+                return false;
+              }
+            });
+
+          setPrincipalIds(ids);
+          console.log("Valid Principal IDs:", ids);
+        } catch (error) {
+          console.error("Error uploading CSV data:", error);
+          toast.error("Error uploading CSV data.");
+        }
+      },
+      error: (error) => {
+        console.error("CSV Parsing Error:", error);
+        toast.error("Error parsing CSV file.");
+      },
+    });
   };
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await backend?.getUserCampaigns();
-        console.log("camp from capm", data[0]);
+        const data = await backend.getUserCampaigns();
         if (data.length > 0) {
-          const formattedcamp = data[0].map((camp, index) => ({
+          const formattedCampaign = data[0].map((camp, index) => ({
             value: camp.id,
-            label: `campaign ${index + 1}: ${camp.id}`,
+            label: `Campaign ${index + 1}: ${camp.id}`,
           }));
-          setCampaign(formattedcamp);
+          setCampaign(formattedCampaign);
         }
       } catch (error) {
-        setError(error);
+        console.error("Error fetching campaigns:", error);
+        toast.error("Failed to fetch campaigns.");
       }
     };
 
@@ -78,16 +74,11 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     }
   }, [backend]);
 
-  const handleSelectChange = (selectedOption) => {
-    setSelectedOption(selectedOption);
-    setFormData({ ...formData, campaign: selectedOption?.value });
-  };
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.campaign && !formData.csvFile) {
-      newErrors.campaign =
-        "Campaign is required unless a CSV file is uploaded.";
+    if (!selectedOption && principalIds.length === 0) {
+      newErrors.campaign = "You must select a campaign or upload a CSV.";
     }
 
     if (!formData.tokenAmount) {
@@ -95,67 +86,44 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
   };
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    console.log("Starting dis creation");
-
-    if (!backend) {
-      toast.error("Backend actor not initialized");
-      return;
-    }
-
-    if (!validateForm()) {
-      return;
-    }
-    SetLoading(true);
+    console.log("formdata ", formData);
+    setLoading(true);
 
     try {
-      console.log("Form data:", formData);
-      console.log("Principal:", principal.toText());
-
-      const dateString = new Date(`${formData.expirationDate}:00Z`);
-
-      const date = new Date(dateString);
-
-      if (isNaN(date.getTime())) {
-        console.error("Invalid Date generated:", dateString);
-      } else {
-        const timestampMillis = date.getTime();
-        setTime(timestampMillis);
-        console.log("Valid time:", date, "Timestamp:", timestampMillis);
+      const timestampMillis = new Date(formData.expirationDate).getTime();
+      const principalIds = [
+        "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe",
+        ,
+      ];
+      let whitelist = null;
+      if (principalIds.length > 0) {
+        whitelist = principalIds.map((id) => Principal.fromText(id));
       }
-      const res = await backend?.createDispenser(
+
+      const result = await backend.createDispenser(
         formData.title,
-        time,
-        formData.duration,
-        formData.campaign,
-        formData.whitelist
+        Number("100"),
+        Number("100"),
+        selectedOption?.value || "",
+        ["5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe"]
       );
 
-      if (res) {
-        toast.success("dis created successfully!");
+      if (result) {
+        toast.success("Dispenser created successfully!");
         handleNext();
       } else {
-        console.log("Failed to create , no response received");
-        toast.error("Failed to create ");
+        toast.error("Failed to create dispenser.");
       }
     } catch (error) {
-      console.error("Error creating :", error);
-      toast.error(`Error creating : ${error.message}`);
+      console.error("Error creating dispenser:", error);
+      toast.error(`Error creating dispenser: ${error.message}`);
     } finally {
-      SetLoading(false);
+      setLoading(false);
     }
   };
 
@@ -176,99 +144,62 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         <h2 className="text-xl font-semibold">Create Dispenser</h2>
       </div>
       <form onSubmit={handleCreate}>
+        {/* Select Campaign */}
         <div className="mt-6 flex flex-col">
           <label htmlFor="campaign" className="text-lg font-semibold py-3">
             Select Campaign
           </label>
           <Select
             value={selectedOption}
-            disabled={loading}
-            onChange={handleSelectChange}
+            onChange={(option) => setSelectedOption(option)}
             options={campaign}
-            placeholder="Select Collection"
-            className={`${errors.campaign ? "border-red-500" : ""}`}
+            placeholder="Select Campaign"
+            className={errors.campaign ? "border-red-500" : ""}
           />
-          {errors.collection && (
+          {errors.campaign && (
             <p className="text-red-500 text-sm">{errors.campaign}</p>
           )}
-          {/* <select
-            name="campaign"
-            id="campaign"
-            className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-            value={formData.campaign}
-            onChange={handleChange}
-          >
-            <option value="">Select a campaign</option>
-            <option value="Campaign 1">Campaign 1</option>
-            <option value="Campaign 2">Campaign 2</option>
-          </select>
-          {errors.campaign && (
-            <p className="text-red-500 text-sm mt-1">{errors.campaign}</p>
-          )} */}
         </div>
-        <div className="mt-4">
+
+        {/* Toggle CSV Upload */}
+        <div className="mt-6 flex flex-col">
           <label className="text-lg font-semibold py-3">
             Or Upload CSV File
           </label>
-          <input
-            type="file"
-            accept=".csv"
-            onChange={handleFileUpload}
-            className="border rounded p-2 mt-2 w-full"
-            value={formData.whitelist}
-          />
-          {csvData.length > 0 && (
-            <div className="mt-4">
-              <button
-                onClick={handleUploadToBackend}
-                disabled={loading}
-                className={`button px-4 py-2 rounded-md text-white ${
-                  loading ? "bg-gray-500" : "bg-blue-500"
-                }`}
-              >
-                {loading ? "Uploading..." : "Upload Principal IDs"}
-              </button>
-            </div>
-          )}
-        </div>
-        {/* <div className="mt-6 flex flex-col">
-          <label htmlFor="tokenAmount" className="text-lg font-semibold py-3">
-            Token Amount
-          </label>
-          <input
-            type="number"
-            name="tokenAmount"
-            disabled={loading}
-            id="tokenAmount"
-            className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-            placeholder="Enter token amount"
-            value={formData.tokenAmount}
-            onChange={handleChange}
-          />
-          {errors.tokenAmount && (
-            <p className="text-red-500 text-sm mt-1">{errors.tokenAmount}</p>
-          )}
-        </div> */}
-        <div className="mt-6 flex justify-between items-center">
-          <BackButton text={"Back"} loading={loading} onClick={handleBack} />
-          <MainButton
-            text={"Create"}
-            loading={loading}
-            onClick={handleCreate}
-          />
-          {/* <button
-            type="button"
-            className="bg-gray-300 px-4 py-2 rounded-md"
-            onClick={handleBack}
-          >
-            Back
-          </button>
           <button
-            type="submit"
+            type="button"
             className="bg-blue-500 text-white px-4 py-2 rounded-md"
+            onClick={toggleCsvUpload}
           >
-            Create
-          </button> */}
+            Upload CSV
+          </button>
+        </div>
+
+        {/* CSV Upload Input Field (Visible when clicked) */}
+        {csvVisible && (
+          <div className="mt-4">
+            <input
+              type="file"
+              accept=".csv"
+              onChange={handleFileUpload}
+              className="block w-full text-sm text-gray-500"
+            />
+            {principalIds.length > 0 && (
+              <div>
+                <h3 className="font-semibold mt-2">Uploaded Principal IDs:</h3>
+                <ul className="list-disc list-inside">
+                  {principalIds.map((id, index) => (
+                    <li key={index}>{id}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-between items-center">
+          <BackButton text="Back" onClick={handleBack} />
+          <MainButton text="Create" loading={loading} onClick={handleCreate} />
         </div>
       </form>
     </motion.div>
