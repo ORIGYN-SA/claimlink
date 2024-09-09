@@ -19,8 +19,10 @@ import Nat64 "mo:base/Nat64";
 import Bool "mo:base/Bool";
 import HashMap "mo:base/HashMap";
 import Float "mo:base/Float";
+import Buffer "mo:base/Buffer";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
+import ExtCommon "../extv2/motoko/ext/Common";
 
 actor Main {
 
@@ -28,6 +30,8 @@ actor Main {
     type TokenIndex  = ExtCore.TokenIndex;
     type TokenIdentifier  = ExtCore.TokenIdentifier;
     type CommonError = ExtCore.CommonError;
+    type MetadataLegacy = ExtCommon.Metadata;
+
     type MetadataValue = (Text , {
         #text : Text;
         #blob : Blob;
@@ -128,10 +132,14 @@ actor Main {
     private stable var stableDispensers : [(Text,Dispenser)] = [];
     private var userDispensersMap = TrieMap.TrieMap<Principal, [Dispenser]>(Principal.equal, Principal.hash);
     private stable var stableUserDispensersMap : [(Principal, [Dispenser])] = [];
+    private var userClaimedDispensers = TrieMap.TrieMap<Principal,[Text]>(Principal.equal, Principal.hash);
+    private stable var stableuserClaimedDispensers : [(Principal,[Text])] = [];
     // Maps related to QR set
     private var qrSetMap = TrieMap.TrieMap<Text, QRSet>(Text.equal, Text.hash);
     private stable var stableQrSetMap : [(Text,QRSet)] = [];
     private var userQRSetMap = TrieMap.TrieMap<Principal, [QRSet]>(Principal.equal, Principal.hash);
+    // Map that stores QRsets and dispenser created on a Campaign
+    private var qdcMap : [(Text,(Text,Text))] = [];
     private stable var stableUserQrSetMap : [(Principal, [QRSet])] = [];
     // Token data Store
     func nat32Hash(value: Nat32) : Hash.Hash {
@@ -150,6 +158,7 @@ actor Main {
     // Dispenser Timer
     private var dispenserTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
     private stable var stableDispenserTimers : [(Text, Timer.TimerId)] = [];
+
 
     // Stores details about the tokens coming into this vault
     private var depositItemsMap = TrieMap.TrieMap<Nat, Deposit>(Nat.equal,natHash);
@@ -518,6 +527,52 @@ actor Main {
         return userTokens;
     };
 
+    public shared ({ caller = user }) func getUserTokens(
+        _collectionCanisterId: Principal
+    ) : async [Metadata] {
+        // Create the actor for interacting with the collection canister.
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+        };
+
+        // Convert user Principal to AccountIdentifier.
+        let userAID = AID.fromPrincipal(user, null);
+
+        // Fetch the list of TokenIndices for the user.
+        let tokensResult = await collectionCanisterActor.tokens(userAID);
+
+        // Use a Buffer for efficient appending of Metadata.
+        let buffer = Buffer.Buffer<Metadata>(0);
+
+        // Handle the Result for tokens.
+        switch (tokensResult) {
+            case (#ok(tokenIds)) {
+                // Iterate over each TokenIndex and fetch metadata.
+                for (tokenIndex in tokenIds.vals()) {
+                    let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+                    let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
+
+                    // Handle the Result for metadata.
+                    switch (metadataResult) {
+                        case (#ok(metadata)) {
+                            buffer.add(metadata); // Efficiently add to buffer.
+                        };
+                        case (#err(_)) {
+                            // Optionally handle metadata retrieval failure.
+                        };
+                    };
+                };
+            };
+            case (#err(_)) {
+                // Optionally handle token retrieval failure.
+            };
+        };
+
+        return Buffer.toArray(buffer); // Convert the buffer back to array and return.
+    };
+
+
 
     
     
@@ -656,7 +711,7 @@ actor Main {
                         let newLink: Link = {
                             tokenId = _tokenId;
                             collection = _collectionCanisterId;
-                            claimPattern = "transfer";
+                            claimPattern = "mint";
                             createdBy = userAID;
                             linkKey = key;
                         };
@@ -695,32 +750,32 @@ actor Main {
         };
     };
 
-    public shared ({caller = user}) func claimToken(
+    public shared ({ caller = user }) func claimToken(
         _collectionCanisterId: Principal,
         _depositKey: Nat
-    ) : async Int {
-        
-        let depositItem = switch(depositItemsMap.get(_depositKey)){
-            case(?deposit){
-                deposit
-            };
-            case null throw Error.reject("Deposit Key not found, might be claimed already..!");
-        };
+    ) : async Result.Result<Int, Text> {
+        let depositItemOpt = depositItemsMap.get(_depositKey);
 
-
-        // Determine the claim pattern and call the appropriate function
-        switch (depositItem.claimPattern) {
-            case ("transfer") {
-                // Call claimLink for already minted tokens
-                return await claimLink(user, _collectionCanisterId, depositItem,_depositKey);
+        switch (depositItemOpt) {
+            case null {
+                throw Error.reject("Deposit Key not found, might be claimed already..!");
+                return #err("Deposit Key not found, might be claimed already..!");
             };
-            case ("mint") {
-                // Call mintAtClaim for tokens that need to be minted
-                return await mintAtClaim(user, _collectionCanisterId, depositItem, _depositKey);
-            };
-            case _ {
-                Debug.print("Invalid claim pattern: " # depositItem.claimPattern);
-                return -1;
+            case (?depositItem) {
+                switch (depositItem.claimPattern) {
+                    case ("transfer") {
+                        // Call claimLink for already minted tokens
+                        return await claimLink(user, _collectionCanisterId, depositItem, _depositKey);
+                    };
+                    case ("mint") {
+                        // Call mintAtClaim for tokens that need to be minted
+                        return await mintAtClaim(user, _collectionCanisterId, depositItem, _depositKey);
+                    };
+                    case _ {
+                        throw Error.reject("Invalid claim pattern: " # depositItem.claimPattern);
+                        return #err("Invalid claim pattern");
+                    };
+                };
             };
         };
     };
@@ -734,8 +789,7 @@ actor Main {
         _collectionCanisterId: Principal,
         _depositItem: Deposit,
         _depositKey: Nat
-    ) : async Int {
-
+    ) : async Result.Result<Int, Text> {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_transfer: (
                 request: TransferRequest
@@ -744,19 +798,15 @@ actor Main {
 
         let depositObj: Deposit = _depositItem;
 
-        // Check if the collection canister ID matches the deposit
         if (_collectionCanisterId != depositObj.collectionCanister) {
-            throw Error.reject("Collection canister ID mismatch");
-            return -1;
+            return #err("Collection canister ID mismatch");
         };
 
-        // Set the correct 'from' user (original owner) and 'to' user (claimer)
         let userFrom: User = principalToUser(depositObj.sender);  // Sender is the original owner
         let userTo: User = principalToUser(user);                 // Claimer is the caller
 
         let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, depositObj.tokenId);
         
-        // Prepare the transfer request to directly transfer the token from the original owner to the claimer
         let transferRequest: TransferRequest = {
             from = userFrom;
             to = userTo;
@@ -767,107 +817,98 @@ actor Main {
             subaccount = null;
         };
 
-        // Execute the transfer
         let response = await collectionCanisterActor.ext_transfer(transferRequest);
 
-        // Handle the response
         switch (response) {
             case (#ok(balance)) {
-                // Successful transfer, remove the deposit and link information
                 depositItemsMap.delete(_depositKey);
 
-                let existingLinks = userLinks.get(depositObj.sender);
-                switch (existingLinks) {
+                let existingLinksOpt = userLinks.get(depositObj.sender);
+                switch (existingLinksOpt) {
                     case (?links) {
-                        // Remove the claimed link from userLinks
                         let updatedLinks = Array.filter(links, func(link: Link): Bool {
                             link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
                         });
                         userLinks.put(depositObj.sender, updatedLinks);
                     };
                     case null {
-                        throw Error.reject("No links found for user");
+                        return #err("No links found for user");
                     };
                 };
 
-                // Update the campaign links (remove claimed link)
                 for (campaignId in campaignLinks.keys()) {
-                    switch (campaignLinks.get(campaignId)) {
+                    let linkIndicesOpt = campaignLinks.get(campaignId);
+                    switch (linkIndicesOpt) {
                         case (?linkIndices) {
-                            var newLinks: [Nat] = [];
-                            // Adjust indices and filter out the claimed one
-                            newLinks := Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
+                            let newLinks = Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
                                 return key != _depositKey;
                             });
-
-                            // Store the updated indices back in campaignLinks
                             campaignLinks.put(campaignId, newLinks);
+                            if(newLinks.size() == 0){
+                                await deleteCampaign(campaignId);
+                            }
                         };
                         case null {
-                            throw Error.reject("No link created during campaign creation");
-                        }; // CampaignId not found in campaignLinks
+                            return #err("No link created during campaign creation");
+                        };
                     };
                 };
 
                 claimCount := claimCount + 1;
-                return 0;
+                return #ok(0); // Successful claim
             };
 
             case (#err(err)) {
-                // Handle transfer errors
                 switch (err) {
                     case (#CannotNotify(accountId)) {
-                        throw Error.reject("Error: Cannot notify account " # accountId);
+                        return #err("Cannot notify account " # accountId);
                     };
                     case (#InsufficientBalance) {
-                        throw Error.reject("Error: Insufficient balance");
+                        return #err("Insufficient balance");
                     };
                     case (#InvalidToken(tokenId)) {
-                        throw Error.reject("Error: Invalid token " # tokenId);
+                        return #err("Invalid token " # tokenId);
                     };
                     case (#Other(text)) {
-                        throw Error.reject("Error: " # text);
+                        return #err("Error: " # text);
                     };
                     case (#Rejected) {
-                        throw Error.reject("Error: Transfer rejected");
+                        return #err("Transfer rejected");
                     };
                     case (#Unauthorized(accountId)) {
-                        throw Error.reject("Error: Unauthorized account " # accountId);
+                        return #err("Unauthorized account " # accountId);
                     };
                 };
-                return -1;
             };
         };
     };
+
 
     func mintAtClaim(
         user : Principal,
         _collectionCanisterId : Principal,
         _depositItem : Deposit,
         _depositKey : Nat
-
-    ) : async Int {
-        
+    ) : async Result.Result<Int, Text> {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
             ) -> async [TokenIndex]
         };
-   
-        let depositItem : Deposit = _depositItem;
 
-        if (_collectionCanisterId != depositItem.collectionCanister) {
+        if (_collectionCanisterId != _depositItem.collectionCanister) {
             throw Error.reject("Collection canister ID mismatch");
-            return -1;
+            return #err("Collection canister ID mismatch");
         };
 
-        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
+        let tokensListOpt = tokensDataToBeMinted.get(_collectionCanisterId);
+        switch (tokensListOpt) {
             case (?tokensList) {
                 var foundToken: ?(Nat32, Metadata) = null;
                 var remainingTokens: [(Nat32, Metadata)] = [];
 
                 for (token in tokensList.vals()) {
-                    if (token.0 == depositItem.tokenId) {
+                    if (token.0 == _depositItem.tokenId) {
                         foundToken := ?token;
                     } else {
                         remainingTokens := Array.append(remainingTokens, [token]);
@@ -881,44 +922,62 @@ actor Main {
 
                         let response = await collectionCanisterActor.ext_mint(request);
 
-                        // Assuming minting was successful
                         depositItemsMap.delete(_depositKey);
                         if (Array.size(remainingTokens) > 0) {
-                            tokensDataToBeMinted.put(depositItem.collectionCanister, remainingTokens);
+                            tokensDataToBeMinted.put(_collectionCanisterId, remainingTokens);
                         } else {
                             tokensDataToBeMinted.delete(_collectionCanisterId);
                         };
 
-                        // Remove the link from userLinks
-                        let existingLinks = userLinks.get(depositItem.sender);
-                        switch (existingLinks) {
+                        let existingLinksOpt = userLinks.get(_depositItem.sender);
+                        switch (existingLinksOpt) {
                             case (?links) {
-                                let updatedLinks = Array.filter(links, func(link: Link) : Bool {
-                                    link.tokenId != depositItem.tokenId or link.claimPattern != depositItem.claimPattern;
+                                let updatedLinks = Array.filter(links, func(link: Link): Bool {
+                                    link.tokenId != _depositItem.tokenId or link.claimPattern != _depositItem.claimPattern;
                                 });
-                                userLinks.put(depositItem.sender, updatedLinks);
+                                userLinks.put(_depositItem.sender, updatedLinks);
                             };
                             case null {
                                 throw Error.reject("No links found for user");
+                                return #err("No links found for user");
                             };
                         };
 
+                        for (campaignId in campaignLinks.keys()) {
+                        let linkIndicesOpt = campaignLinks.get(campaignId);
+                        switch (linkIndicesOpt) {
+                            case (?linkIndices) {
+                                let newLinks = Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
+                                    return key != _depositKey;
+                                });
+                                campaignLinks.put(campaignId, newLinks);
+                                if(newLinks.size()==0){
+                                    await deleteCampaign(campaignId);
+                                }
+                            };
+                            case null {
+                                return #err("No link created during campaign creation");
+                            };
+                        };
+                    };
+
+
                         claimCount := claimCount + 1;
-                        return 0;
+                        return #ok(0); // Successful mint
                     };
                     case null {
                         throw Error.reject("Token ID does not match any in the deposit object");
-                        return -1;
+                        return #err("Token ID does not match any in the deposit object");
                     };
                 };
             };
             case null {
                 throw Error.reject("No metadata found for the given token");
-                return -1;
+                return #err("No metadata found for the given token");
             };
         };
-      
     };
+
 
     // Campaign creation
     public shared ({caller = user}) func createCampaign (
@@ -993,20 +1052,39 @@ actor Main {
         let natDuration = Nat64.toNat(Nat64.fromIntWrap(duration));
         if (duration > 0) {
             let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                deleteCampaign(campaignId);
+                await deleteCampaign(campaignId);
             });
             campaignTimers.put(campaignId, id);
         };
     };
 
     // internal function to take care of link expiration
-    func deleteCampaign(campaignId: Text) {
-        // Delete QR sets related to the campaign
-        qrSetMap.delete(campaignId);
+    func deleteCampaign(campaignId: Text) : async () {
+        // Retrieve QRSetId and DispenserId from qdcMap
+        var qrSetId : Text = "";
+        var dispenserId : Text = "";
+        
+        var qdcList = List.fromArray(qdcMap);
+        var updatedQdcList = List.filter<(Text, (Text, Text))>(qdcList, func(entry) : Bool {
+            if (entry.0 == campaignId) {
+                qrSetId := entry.1.0;
+                dispenserId := entry.1.1;
+                false
+            } else {
+                true
+            }
+        });
+        qdcMap := List.toArray(updatedQdcList);
 
-        // Delete dispensers related to the campaign
-        dispensers.delete(campaignId);
+        // Remove QRSet if it exists
+        if (qrSetId != "") {
+            qrSetMap.delete(qrSetId);
+        };
 
+        // Remove Dispenser if it exists
+        if (dispenserId != "") {
+            dispensers.delete(dispenserId);
+        };
         // Delete links related to the campaign
         campaignLinks.delete(campaignId);
 
@@ -1102,6 +1180,38 @@ actor Main {
             creator = user;
         };
 
+        // Update qdcMap with the QRSet and DispenserId
+        var qdcList = List.fromArray(qdcMap);
+
+        // Find the entry for the given campaignId
+        var qdcEntry = List.find(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+            return entry.0 == campaignId;
+        });
+
+        switch (qdcEntry) {
+            case null {
+                // If no entry exists for the campaignId, create a new entry with QRSetId
+                qdcList := List.push((campaignId, (qrSetId, "")), qdcList );
+            };
+            case (?existingEntry) {
+                // If a QRSetId already exists for the campaign, throw an error
+                if (existingEntry.1.0 != "") {
+                    // Throw an error or handle it appropriately
+                    throw Error.reject("QRSet already exists for this campaignId.");
+                } else {
+                    // Otherwise, update the existing entry by adding the new QRSetId
+                    qdcList := List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+                        return entry.0 != campaignId;
+                });
+                    qdcList := List.push((campaignId, (qrSetId, existingEntry.1.1)), qdcList);
+                }
+            };
+        };
+
+        // Convert the list back to an array
+        qdcMap := List.toArray(qdcList);
+
+
         qrSetMap.put(qrSetId, newQRSet);
 
         let userQRSets = userQRSetMap.get(user);
@@ -1182,6 +1292,39 @@ actor Main {
             whitelist = _whitelist;
         };
 
+        // Update qdcMap with the QRSet and DispenserId
+        var qdcList = List.fromArray(qdcMap);
+
+        // Find the entry for the given campaignId
+        var qdcEntry = List.find(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+            return entry.0 == _campaignId;
+        });
+
+        switch (qdcEntry) {
+            case null {
+                // If no entry exists for the campaignId, create a new entry with QRSetId
+                qdcList := List.push((_campaignId, ("", dispenserId)), qdcList );
+            };
+            case (?existingEntry) {
+                // If a QRSetId already exists for the campaign, throw an error
+                if (existingEntry.1.1 != "") {
+                    // Throw an error or handle it appropriately
+                    throw Error.reject("Dispenser already exists for this campaignId.");
+                } else {
+                    // Otherwise, update the existing entry by adding the new QRSetId
+                    qdcList := List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+                        return entry.0 != _campaignId;
+                });
+                    qdcList := List.push((_campaignId, (existingEntry.1.0, dispenserId)), qdcList);
+                }
+            };
+        };
+
+        // Convert the list back to an array
+        qdcMap := List.toArray(qdcList);
+
+
+
         dispensers.put(dispenserId, dispenser);
 
         await scheduleDispenserDeletion(dispenserId, _startDate, _duration);
@@ -1198,6 +1341,93 @@ actor Main {
         };
         return dispenserId;
     };
+
+   public shared ({ caller = user }) func dispenserClaim(
+        _dispenserId: Text
+    ): async Result.Result<Int, Text> {
+        let dispenserOpt = dispensers.get(_dispenserId);
+
+        switch (dispenserOpt) {
+            case null {
+                return #err("Dispenser not found");
+            };
+            case (?dispenser) {
+                // Check if user is in the whitelist
+                if(dispenser.whitelist.size() > 0){
+                    let userInWhitelist = Array.find(dispenser.whitelist, func(p: Principal): Bool { p == user });
+                    switch (?userInWhitelist) {
+                        case null {
+                            return #err("User not whitelisted");
+                        };
+                        case (?_) {
+
+                        };
+                    };
+                };
+                        // User is whitelisted, proceed with the rest of the claim logic
+                        let campaignOpt = campaigns.get(dispenser.campaignId);
+
+                        switch (campaignOpt) {
+                            case null {
+                                return #err("Campaign not found");
+                            };
+                            case (?campaign) {
+                                let remainingClaimsOpt = campaignLinks.get(dispenser.campaignId);
+
+                                switch (remainingClaimsOpt) {
+                                    case null {
+                                        return #err("No claims found for this campaign");
+                                    };
+                                    case (?remainingClaims) {
+                                        if (remainingClaims.size() == 0) {
+                                            return #err("No more tokens to claim");
+                                        };
+
+                                        // Check if user has already claimed a token from this dispenser
+                                        let userClaims = userClaimedDispensers.get(user);
+                                        switch (userClaims) {
+                                            case null {
+                                                // No previous claims, proceed with claim
+                                            };
+                                            case (?claims) {
+                                                let alreadyClaimed = Array.find(claims, func(claimedId: Text): Bool {
+                                                    claimedId == dispenser.id
+                                                });
+                                                if (alreadyClaimed != null) {
+                                                    return #err("User has already claimed a token from this dispenser");
+                                                };
+                                            };
+                                        };
+
+                                        // Claim the token (assuming claimToken returns a Result)
+                                        let claimResult = await claimToken(campaign.collection, remainingClaims[0]);
+                                        switch (claimResult) {
+                                            case (#ok(result)) {
+                                                // Update user claims
+                                                let updatedClaims = switch (userClaims) {
+                                                    case null { List.push<Text>(dispenser.id, List.nil<Text>()) }; // Start new List
+                                                    case (?existingClaimsArray) {
+                                                        let existingClaims = List.fromArray(existingClaimsArray); // Convert to List
+                                                        List.push<Text>(dispenser.id, existingClaims); // Add to existing List
+                                                    };
+                                                };
+                                                let updatedClaimsArray = List.toArray(updatedClaims);
+                                                userClaimedDispensers.put(user, updatedClaimsArray);
+                                                return #ok(result);  // Return the claimed token ID
+                                            };
+                                            case (#err(err)) {
+                                                return #err(err);  // Return any error from claimToken
+                                            };
+                                        };
+                                    };
+                                };
+                            };
+                        };
+            };
+        };
+    };
+
+
 
     // Function to schedule dispenser deletion based on start time and duration
     func scheduleDispenserDeletion(dispenserId : Text, startTime : Time.Time, duration : Int) : async () {
@@ -1245,6 +1475,12 @@ actor Main {
             };
         };
     };
+
+
+
+
+
+
 
 
 
