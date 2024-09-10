@@ -110,7 +110,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         Number("100"),
         Number("100"),
         selectedOption?.value || "",
-        ["5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe"]
+        [whitelist]
       );
 
       if (result) {
