@@ -72,9 +72,9 @@ const LinkClaiming = () => {
       const canister = Principal.fromText(canisterId);
       const res = await backend.claimToken(canister, Number(nftIndex));
       console.log("Response of claim:", res);
-      if (res == 0) {
+      if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
-        navigate("/");
+        // navigate("/");
       } else {
         toast.error("Failed to claim the NFT.");
       }

@@ -20,6 +20,7 @@ const DistributionPage = ({
   const [tokenOptions, setTokenOptions] = useState([]);
   const [clid, setClid] = useState();
   const [type, setType] = useState();
+
   useEffect(() => {
     if (formData.collection) {
       setClid(formData.collection);
@@ -42,7 +43,7 @@ const DistributionPage = ({
         if (formData.pattern === "transfer") {
           const nftData = await backend.getNonFungibleTokens(id);
           setNftOptions(
-            nftData.map((nft, index) => ({
+            nftData.map((nft) => ({
               value: nft[0].toString(),
               label: nft[2].nonfungible.name,
             }))
@@ -50,7 +51,7 @@ const DistributionPage = ({
         } else if (formData.pattern === "mint") {
           const tokenData = await backend.getStoredTokens(id);
           setTokenOptions(
-            tokenData[0].map((token, index) => ({
+            tokenData[0].map((token) => ({
               value: token[0].toString(),
               label: token[1].nonfungible.name,
             }))
@@ -66,38 +67,6 @@ const DistributionPage = ({
     }
   }, [backend, formData.contract, clid]);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        if (formData.pattern === "transfer") {
-          const nftData = await backend.getNonFungibleTokens(id);
-          setNftOptions(
-            nftData.map((nft, index) => ({
-              value: nft[0].toString(),
-              label: nft[2].nonfungible.name,
-            }))
-          );
-        } else if (formData.pattern === "mint") {
-          const id = Principal.fromText("br5f7-7uaaa-aaaaa-qaaca-cai");
-          const tokenData = await backend.getStoredTokens(id);
-          console.log(tokenData[0], "tokendat");
-          setTokenOptions(
-            tokenData[0].map((token, index) => ({
-              value: token[0].toString(),
-              label: token[1].nonfungible.name,
-            }))
-          );
-        }
-      } catch (error) {
-        console.error("Error loading tokens:", error);
-      }
-    };
-
-    if (backend) {
-      loadData();
-    }
-  }, [backend, formData.contract, formData.tokenId]);
-
   const handleClaimTypeChange = (type) => {
     setClaimType(type);
   };
@@ -106,13 +75,22 @@ const DistributionPage = ({
     setSponsorGas(sponsor);
   };
 
-  const handleSelectChange = (selectedOption) => {
-    setFormData({ ...formData, tokenIds: selectedOption });
+  const handleSelectChange = (selectedOptions) => {
+    // Store selected token IDs in an array
+    setFormData({
+      ...formData,
+      tokenIds: selectedOptions
+        ? selectedOptions.map((option) => option.value)
+        : [],
+    });
   };
 
   const validate = () => {
     let tempErrors = {};
-    tempErrors.tokenIds = formData.tokenIds ? "" : "Token IDs are required.";
+    tempErrors.tokenIds =
+      formData.tokenIds && formData.tokenIds.length > 0
+        ? ""
+        : "Token IDs are required.";
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
   };
@@ -179,11 +157,14 @@ const DistributionPage = ({
         <div className="sm:w-[75%] w-full space-y-3">
           <p className="text-gray-900 font-semibold">Collection</p>
           <Select
-            value={formData.tokenIds}
+            value={formData.tokenIds?.map((id) =>
+              nftOptions.find((option) => option.value === id)
+            )}
             onChange={handleSelectChange}
             options={
               formData.pattern === "transfer" ? nftOptions : tokenOptions
             }
+            isMulti
             placeholder="Select Collection"
             className={`${errors.tokenIds ? "border-red-500" : ""}`}
           />

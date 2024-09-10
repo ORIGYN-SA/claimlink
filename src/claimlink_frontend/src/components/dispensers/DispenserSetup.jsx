@@ -48,6 +48,14 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       handleNext();
     }
   };
+  const getCurrentDateTime = () => {
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    return { dateStr, hour, minute };
+  };
+  const { dateStr, hour, minute } = getCurrentDateTime();
 
   return (
     <motion.div
@@ -96,6 +104,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md w-full"
                 value={formData.startDate}
                 onChange={handleChange}
+                min={dateStr}
               />
               {/* <div className="flex md:justify-normal justify-between gap-4">
                 <select

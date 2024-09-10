@@ -13,6 +13,12 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [loading, setLoading] = useState(false);
   const [principalIds, setPrincipalIds] = useState([]);
+  // const principalIds = [
+  //   "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe",
+  //   "af5my-z3ydu-n7qzv-3rrov-kfsoz-go3j6-d3eyl-3cgof-7adkz-qh5ut-fae",
+  //   "2vxsx-fae",
+  // ];
+
   const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
   const [loading2, SetLoading2] = useState(false);
@@ -33,7 +39,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
                 return true;
               } catch (error) {
                 console.error("Invalid Principal ID:", id);
-                toast.error(`Invalid Principal ID: ${id}`);
+                // toast.error(`Invalid Principal ID: ${id}`);
                 return false;
               }
             });
@@ -93,24 +99,24 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     e.preventDefault();
     console.log("formdata ", formData);
     setLoading(true);
-
+    if (!validateForm) {
+      return;
+    }
     try {
-      const timestampMillis = new Date(formData.expirationDate).getTime();
-      const principalIds = [
-        "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe",
-        ,
-      ];
-      let whitelist = null;
-      if (principalIds.length > 0) {
-        whitelist = principalIds.map((id) => Principal.fromText(id));
-      }
+      const dateString = `${formData.expirationDate}T:00Z`;
+      const date = new Date(dateString);
+
+      const timestampMillis = date.getTime();
+      let whitelist = principalIds
+        .filter((id) => id.trim().length > 0)
+        .map((id) => Principal.fromText(id.trim()));
 
       const result = await backend.createDispenser(
         formData.title,
-        Number("100"),
-        Number("100"),
+        Number(timestampMillis),
+        Number(formData.duration),
         selectedOption?.value || "",
-        [whitelist]
+        whitelist
       );
 
       if (result) {
@@ -121,7 +127,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       }
     } catch (error) {
       console.error("Error creating dispenser:", error);
-      toast.error(`Error creating dispenser: ${error.message}`);
+      toast.error(`Error creating dispenser: ${error}`);
     } finally {
       setLoading(false);
     }

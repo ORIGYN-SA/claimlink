@@ -40,6 +40,23 @@ const Dispensers = () => {
     }
   }, [backend]);
 
+  function convertNanosecondsToDate(nanosecondTimestamp) {
+    // Convert nanoseconds to milliseconds
+    const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+
+    // Create a Date object
+    const date = new Date(millisecondTimestamp);
+
+    // Define options for formatting the date
+    const options = {
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    return date.toLocaleString("en-US", options);
+  }
   return (
     <div className=" p-6 ">
       {window.innerWidth < 640 ? (
@@ -75,7 +92,7 @@ const Dispensers = () => {
                     />
                     <div className="">
                       <h2 className=" text-sm font-bold text-[#2E2C34]  ">
-                        {data?.title}
+                        {data[0]?.title}
                       </h2>
                       <p className="text-[#84818A] md:text-sm text-xs ">
                         April 5, 13:34
@@ -174,7 +191,7 @@ const Dispensers = () => {
               </p>
             </motion.div>
 
-            {dispnser.map((index) => (
+            {dispnser.map((data, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
@@ -215,9 +232,12 @@ const Dispensers = () => {
                   />
                 </div>
                 <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                  Title
+                  {data[0]?.title}
                 </h2>
-                <p className="text-xs text-[#84818A] mt-1 ">April 5, 13:34</p>
+                <p className="text-xs text-[#84818A] mt-1 ">
+                  {" "}
+                  {convertNanosecondsToDate(data[0]?.createdAt)}
+                </p>
                 <div className="border border-gray-300 my-4 w-full"></div>
                 <div className=" w-full">
                   <div className="flex justify-between">
@@ -229,14 +249,15 @@ const Dispensers = () => {
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Start Date</p>
                     <p className="text-[#2E2C34] text-xs font-semibold">
-                      April 11, 2024{" "}
+                      {convertNanosecondsToDate(data[0]?.startDate)}
+
                       <span className="text-gray-500 font-normal">13:54</span>
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Duration</p>
                     <p className="text-[#2E2C34] text-xs font-semibold">
-                      1440 min
+                      {data[0]?.duration}
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">

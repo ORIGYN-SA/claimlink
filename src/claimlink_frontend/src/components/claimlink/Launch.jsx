@@ -75,7 +75,14 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       console.log("Principal:", principal.toText());
 
       const collectionPrincipal = Principal.fromText(formData.collection);
-      const tokenIds = Number(formData.tokenIds.value);
+
+      const tokenIds = formData.tokenIds.map((token) => {
+        const id = Number(token);
+        if (isNaN(id) || id < 0 || id > 4294967295) {
+          throw new Error(`Invalid token ID: ${token}`);
+        }
+        return id;
+      });
 
       const selectedWalletOptions = Object.keys(formData.walletOptions)
         .filter((option) => formData.walletOptions[option])
@@ -87,7 +94,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               return "plug";
             case "other":
               return "other";
-
             default:
               return option;
           }
@@ -112,14 +118,14 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         formData.tokenType,
         collectionPrincipal,
         formData.pattern,
-        [tokenIds],
+        tokenIds,
         formData.walletOption,
         selectedWalletOptions,
         time
       );
 
       if (res) {
-        if (res[1]?.[0] != -1 && res[1]?.[0] !== undefined) {
+        if (res[1]?.[0] !== -1 && res[1]?.[0] !== undefined) {
           const claimLink = `${url}/linkclaiming/${formData.collection}/${res[1]?.[0]}`;
           console.log("Link created successfully:", claimLink);
         }
@@ -363,7 +369,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           ></MainButton>
         </div>
       </div>
-      <div className="px-6 flex items-center w-[30%] sm:block hidden">
+      <div className="p-6 flex items-center w-[30%] sm:block hidden">
         <Summary formData={formData} />
       </div>
     </motion.div>
