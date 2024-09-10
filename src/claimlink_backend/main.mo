@@ -113,6 +113,7 @@ actor Main {
 
 
     // Maps user and the collection canisterIds they create
+    private var allCollections : [Principal] = [];
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
     private stable var stableuserCollectionMap : [(Principal,[(Time.Time,Principal)])] = [];
     // Map to store created Links
@@ -315,6 +316,9 @@ actor Main {
         await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
         // Updating the userCollectionMap 
         let collections = usersCollectionMap.get(user);
+        let buffer = Buffer.fromArray<Principal>(allCollections);
+        buffer.add(extCollectionCanisterId);
+        allCollections := Buffer.toArray(buffer);
         switch(collections){
             case null {
                 let updatedCollections = [(Time.now(), extCollectionCanisterId)];
@@ -327,7 +331,8 @@ actor Main {
                 return (user, extCollectionCanisterId);
             };
         };
-            
+
+
     };
 
     // Getting Collection Metadata 
@@ -527,50 +532,52 @@ actor Main {
         return userTokens;
     };
 
-    public shared ({ caller = user }) func getUserTokens(
-        _collectionCanisterId: Principal
-    ) : async [Metadata] {
-        // Create the actor for interacting with the collection canister.
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
-            ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
-        };
+    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [Metadata] {
+        // Use a Buffer for efficient appending of Metadata.
+        let buffer = Buffer.Buffer<Metadata>(0);
 
         // Convert user Principal to AccountIdentifier.
         let userAID = AID.fromPrincipal(user, null);
 
-        // Fetch the list of TokenIndices for the user.
-        let tokensResult = await collectionCanisterActor.tokens(userAID);
+        // Iterate over each collection canister stored in allCollections.
+        for (collectionCanisterId in allCollections.vals()) {
+            // Create the actor for interacting with the current collection canister.
+            let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+                tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+                ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+            };
 
-        // Use a Buffer for efficient appending of Metadata.
-        let buffer = Buffer.Buffer<Metadata>(0);
+            // Fetch the list of TokenIndices for the user.
+            let tokensResult = await collectionCanisterActor.tokens(userAID);
 
-        // Handle the Result for tokens.
-        switch (tokensResult) {
-            case (#ok(tokenIds)) {
-                // Iterate over each TokenIndex and fetch metadata.
-                for (tokenIndex in tokenIds.vals()) {
-                    let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
-                    let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
+            // Handle the Result for tokens.
+            switch (tokensResult) {
+                case (#ok(tokenIds)) {
+                    // Iterate over each TokenIndex and fetch metadata.
+                    for (tokenIndex in tokenIds.vals()) {
+                        let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
+                        let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
 
-                    // Handle the Result for metadata.
-                    switch (metadataResult) {
-                        case (#ok(metadata)) {
-                            buffer.add(metadata); // Efficiently add to buffer.
-                        };
-                        case (#err(_)) {
-                            // Optionally handle metadata retrieval failure.
+                        // Handle the Result for metadata.
+                        switch (metadataResult) {
+                            case (#ok(metadata)) {
+                                buffer.add(metadata); // Efficiently add to buffer.
+                            };
+                            case (#err(_)) {
+                                // Optionally handle metadata retrieval failure.
+                            };
                         };
                     };
                 };
-            };
-            case (#err(_)) {
-                // Optionally handle token retrieval failure.
+                case (#err(_)) {
+                    // Optionally handle token retrieval failure.
+                };
             };
         };
 
         return Buffer.toArray(buffer); // Convert the buffer back to array and return.
     };
+
 
 
 
