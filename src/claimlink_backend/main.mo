@@ -113,7 +113,7 @@ actor Main {
 
 
     // Maps user and the collection canisterIds they create
-    private var allCollections : [Principal] = [];
+    private stable var allCollections : [Principal] = [];
     private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
     private stable var stableuserCollectionMap : [(Principal,[(Time.Time,Principal)])] = [];
     // Map to store created Links
@@ -532,9 +532,9 @@ actor Main {
         return userTokens;
     };
 
-    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [Metadata] {
+    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, TokenIndex , Metadata)] {
         // Use a Buffer for efficient appending of Metadata.
-        let buffer = Buffer.Buffer<Metadata>(0);
+        let buffer = Buffer.Buffer<(Principal, TokenIndex, Metadata)>(0);
 
         // Convert user Principal to AccountIdentifier.
         let userAID = AID.fromPrincipal(user, null);
@@ -561,7 +561,7 @@ actor Main {
                         // Handle the Result for metadata.
                         switch (metadataResult) {
                             case (#ok(metadata)) {
-                                buffer.add(metadata); // Efficiently add to buffer.
+                                buffer.add((collectionCanisterId, tokenIndex, metadata)); // Efficiently add to buffer.
                             };
                             case (#err(_)) {
                                 // Optionally handle metadata retrieval failure.
