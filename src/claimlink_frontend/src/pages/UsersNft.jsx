@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchMinterData } from "../redux/features/minterSlice";
 import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
+import { GoLink } from "react-icons/go";
 import { useParams } from "react-router-dom";
 const UsersNft = () => {
   const [collections, setCollections] = useState([]);
@@ -20,11 +21,13 @@ const UsersNft = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-
-        
+        const res = await backend.getUserTokensFromAllCollections();
+        setCollections(res);
+        console.log(res);
       } catch (error) {
         console.error("Data loading error:", error);
       } finally {
+        setLoading(false);
       }
     };
 
@@ -261,66 +264,30 @@ const UsersNft = () => {
                     >
                       <div className="flex justify-start  space-x-4">
                         <img
-                          src={data[4]}
+                          src={data?.nonfungible?.asset}
                           alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
+                          className="w-full h-64 object-cover rounded-md"
                           style={{
                             border: "2px solid white",
                             zIndex: 3,
                           }}
                         />
-                        <img
-                          src="https://via.placeholder.com/100"
-                          alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 2,
-                            marginLeft: -24,
-                          }}
-                        />
-                        <img
-                          src="https://via.placeholder.com/100"
-                          alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 1,
-                            marginLeft: -24,
-                          }}
-                        />
                       </div>
-                      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                        {data[2]}
+                      <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
+                        {data?.nonfungible?.name}
                       </h2>
+                      <button
+                        onClick={() => {
+                          navigate("/campaign-setup");
+                        }}
+                        className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+                      >
+                        <GoLink />
+                        View on Explorer
+                      </button>
                       {/* <p className="text-xs text-[#84818A] mt-1 ">
                         {formatTimestamp(data[0])}
                       </p> */}
-                      <div className="border border-gray-300 my-4 w-full"></div>
-                      <div className="mt-2 w-full">
-                        <div className="flex justify-between">
-                          <p className="text-xs text-[#84818A] ">Address</p>
-                          <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
-                            {data[1]?.toText()}
-                          </p>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs text-[#84818A] ">
-                            All token copies
-                          </p>
-                          <p className="text-[#2E2C34] text-xs font-semibold">
-                            10
-                          </p>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs text-[#84818A] ">
-                            Token standard
-                          </p>
-                          <p className="text-[#2E2C34] text-xs  font-semibold">
-                            EXT
-                          </p>
-                        </div>
-                      </div>
                     </motion.div>
                   ))}
             </div>
