@@ -29,6 +29,7 @@ import TestCollection from "../components/claimlink/TestCampaign";
 import { DisclosurePanel } from "@headlessui/react";
 import DispenserForm from "../components/dispensers/DispenserForm";
 import UsersNft from "../pages/UsersNft";
+import DispenserClaimNFT from "../DispenserClaimNFT";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -198,6 +199,10 @@ const approutes = createBrowserRouter([
   {
     path: "/linkclaiming/:id/:id",
     element: <LinkClaiming />,
+  },
+  {
+    path: "dispenser/linkclaiming/:id/:id",
+    element: <DispenserClaimNFT />,
   },
 ]);
 

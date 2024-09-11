@@ -12,7 +12,7 @@ import bgmain2 from "./assets/img/mainbg2.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
 
-const LinkClaiming = () => {
+const DispenserClaimNFT = () => {
   const navigate = useNavigate();
   const {
     identity,
@@ -31,7 +31,7 @@ const LinkClaiming = () => {
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
-
+  const [dispenser, setDispenser] = useState([]);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -59,6 +59,25 @@ const LinkClaiming = () => {
       }
     };
     getDeposits();
+  }, [backend]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const data = await backend?.getUserDispensers();
+        setDispenser(data);
+        console.log("dispenser is", data);
+      } catch (error) {
+        console.error("Data loading error:", error);
+        setError(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (backend) {
+      loadData();
+    }
   }, [backend]);
 
   const handleClaim = async () => {
@@ -228,4 +247,4 @@ const LinkClaiming = () => {
   );
 };
 
-export default LinkClaiming;
+export default DispenserClaimNFT;
