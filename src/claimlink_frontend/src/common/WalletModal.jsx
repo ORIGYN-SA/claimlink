@@ -20,23 +20,23 @@ const WalletModal = ({ isOpen, onClose }) => {
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Select Wallet</h2>
           <button
-            className="bg-[#5542F6] p-2 rounded-md text-white text-sm font-medium"
+            className="bg-[#e6e6e7] p-2 rounded-md text-white text-sm font-medium"
             onClick={onClose}
           >
-            <RxCross1 />
+            <RxCross1 className="text-black/90" />
           </button>
         </div>
         <div className="flex flex-col py-4 gap-4">
           <button
             onClick={() => handleLogin("Plug")}
-            className="mt-2 hover:bg-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
+            className="mt-2 rounded-md hover:bg-[#5542F6] text-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
           >
             Plug Wallet
           </button>
 
           <button
             onClick={() => handleLogin("NFID")}
-            className="mt-2 hover:bg-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
+            className="mt-2 rounded-md hover:bg-[#5542F6] text-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
           >
             NFID
           </button>

@@ -18,7 +18,8 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   //   "af5my-z3ydu-n7qzv-3rrov-kfsoz-go3j6-d3eyl-3cgof-7adkz-qh5ut-fae",
   //   "2vxsx-fae",
   // ];
-
+  const [collection, setCollection] = useState([]);
+  const [tokenid, setToken] = useState([]);
   const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
   const [loading2, SetLoading2] = useState(false);
