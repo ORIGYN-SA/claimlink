@@ -23,7 +23,7 @@ const UsersNft = () => {
       try {
         const res = await backend.getUserTokensFromAllCollections();
         setCollections(res);
-        console.log(res);
+        console.log(res, "user nfts");
       } catch (error) {
         console.error("Data loading error:", error);
       } finally {
@@ -244,7 +244,7 @@ const UsersNft = () => {
                     >
                       <div className="flex justify-start  space-x-4">
                         <img
-                          src={data?.nonfungible?.asset}
+                          src={data[2]?.nonfungible?.asset}
                           alt="Campaign"
                           className="w-full h-64 object-cover rounded-md"
                           style={{
@@ -254,14 +254,12 @@ const UsersNft = () => {
                         />
                       </div>
                       <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                        {data?.nonfungible?.name}
+                        {data[2]?.nonfungible?.name}
                       </h2>
-                      <button
-                        onClick={() => {
-                          navigate("/campaign-setup");
-                        }}
-                        className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
-                      >
+                      <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
+                        {data[0].toText()}
+                      </h2>
+                      <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
                         <GoLink />
                         View on Explorer
                       </button>
