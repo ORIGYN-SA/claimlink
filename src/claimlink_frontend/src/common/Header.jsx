@@ -22,6 +22,11 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
     navigate("/");
   };
 
+  const date = new Date().toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
   useEffect(() => {
     if (isConnected && principal) {
       setPrincipalText(principal.toText());
@@ -44,14 +49,12 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
           </div>
           <div>
             <p className="font-medium text-lg">{htext}</p>
-            <p className="text-gray-500">16.04.2024 20:55</p>
+            <p className="text-gray-500">{date}</p>
           </div>
         </div>
       )}
 
       <div className="flex items-center space-x-4 font-semibold justify-end">
-        <span className="text-[#2E2C34] font-bold">0 ICP</span>
-
         <span
           className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}

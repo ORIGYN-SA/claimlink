@@ -10,7 +10,7 @@ const TestCampaign = () => {
   const campaignId = useParams();
   const { backend } = useAuth();
   const [details, setDetails] = useState();
-
+  const [loading, setLoading] = useState(true);
   const campaignDetails = async () => {
     try {
       const res = await backend.getCampaignDetails(campaignId.campaignId);
@@ -19,12 +19,14 @@ const TestCampaign = () => {
       console.log(res);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => {
     campaignDetails();
   }, [backend]);
-  console.log(details, "Details");
+  console.log(details?.depositIndices, "Details");
 
   const pageVariants = {
     initial: {
@@ -56,7 +58,21 @@ const TestCampaign = () => {
           <p className="pl-16">Links</p>
           <p></p>
         </div>
-        <DataCard campaignDetails={details} />
+        {loading ? (
+          <div>loading...</div>
+        ) : (
+          <>
+            {" "}
+            {!loading &&
+              details?.depositIndices?.map((depositIndex, index) => (
+                <DataCard
+                  keys={index}
+                  campaignDetails={details}
+                  depositIndex={depositIndex.toString()}
+                />
+              ))}
+          </>
+        )}
       </div>
       <motion.div
         initial="initial"

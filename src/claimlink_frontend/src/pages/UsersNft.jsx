@@ -10,6 +10,7 @@ import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import { GoLink } from "react-icons/go";
 import { useParams } from "react-router-dom";
+import { IoIosArrowDown } from "react-icons/io";
 const UsersNft = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +18,7 @@ const UsersNft = () => {
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
   const { id } = useParams();
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -35,6 +37,9 @@ const UsersNft = () => {
       loadData();
     }
   }, [backend]);
+  const handleOpen = () => {
+    setOpen(!open);
+  };
 
   return (
     <>
@@ -238,31 +243,55 @@ const UsersNft = () => {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                      onClick={() => {
-                        navigate(`/minter/${data[1]?.toText()}/token-home`);
-                      }}
                     >
-                      <div className="flex justify-start  space-x-4">
-                        <img
-                          src={data[2]?.nonfungible?.asset}
-                          alt="Campaign"
-                          className="w-full h-64 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 3,
-                          }}
-                        />
-                      </div>
-                      <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                        {data[2]?.nonfungible?.name}
-                      </h2>
-                      <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
-                        {data[0].toText()}
-                      </h2>
-                      <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
-                        <GoLink />
-                        View on Explorer
-                      </button>
+                      {!open && (
+                        <div
+                          className="flex justify-between items-center"
+                          onClick={handleOpen}
+                        >
+                          <button className="text-sm  font-semibold text-[#837f8e] w-32 truncate  ">
+                            {data[0].toText()}
+                          </button>
+                          <div className="flex items-center gap-2">
+                            <h1 className="border border-[#837f8e] border-2 text-[#837f8e] rounded-full size-4 text-xs items-center flex justify-center">
+                              1
+                            </h1>
+                            <IoIosArrowDown className="text-[#837f8e]" />
+                          </div>
+                        </div>
+                      )}
+
+                      {open && (
+                        <>
+                          <div className="flex justify-start  space-x-4">
+                            <img
+                              src={data[2]?.nonfungible?.asset}
+                              alt="Campaign"
+                              className="w-full h-64 object-cover rounded-md"
+                              style={{
+                                border: "2px solid white",
+                                zIndex: 3,
+                              }}
+                            />
+                          </div>
+                          <div className="flex justify-between">
+                            <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
+                              {data[2]?.nonfungible?.name}
+                            </h2>
+
+                            <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
+                              #{data[1]}
+                            </h2>
+                          </div>
+                          <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
+                            {data[0].toText()}
+                          </h2>
+                          <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
+                            <GoLink />
+                            View on Explorer
+                          </button>
+                        </>
+                      )}
                       {/* <p className="text-xs text-[#84818A] mt-1 ">
                         {formatTimestamp(data[0])}
                       </p> */}

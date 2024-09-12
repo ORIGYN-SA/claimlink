@@ -3,8 +3,9 @@ import toast from "react-hot-toast";
 import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
 
-const DataCard = ({ campaignDetails }) => {
+const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   console.log(campaignDetails);
+  console.log(depositIndex);
 
   // Define the base URL depending on the environment
   const url = process.env.PROD
@@ -13,7 +14,7 @@ const DataCard = ({ campaignDetails }) => {
 
   // Construct the full URL based on campaign details
   const url2 = `${url}/linkclaiming/${campaignDetails?.collection?.toText()}/${parseInt(
-    campaignDetails?.depositIndices
+    depositIndex
   )}`;
   console.log(url2);
 
@@ -47,7 +48,7 @@ const DataCard = ({ campaignDetails }) => {
           </div>
           <div className="border-l border-gray-300 p-2">
             <div className="text-gray-500">Links</div>
-            <div className="font-bold text-sm">10</div>
+            <div className="font-bold text-sm">1</div>
           </div>
         </div>
         <div className="flex justify-center mt-2">
@@ -60,7 +61,7 @@ const DataCard = ({ campaignDetails }) => {
       <div className="hidden md:block">
         <div className="flex text-sm items-center justify-between p-4 w-full bg-white rounded space-x-4">
           <div className="flex items-center space-x-2">
-            <span className="font-bold">1</span>
+            <span className="font-bold">{keys + 1}</span>
             <img
               src="https://via.placeholder.com/50"
               alt="Item"
