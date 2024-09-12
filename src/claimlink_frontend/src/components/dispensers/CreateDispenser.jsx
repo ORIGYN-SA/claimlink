@@ -13,7 +13,12 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [loading, setLoading] = useState(false);
   const [principalIds, setPrincipalIds] = useState([]);
-  const [collection, setCollection] = useState(null);
+  // const principalIds = [
+  //   "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe",
+  //   "af5my-z3ydu-n7qzv-3rrov-kfsoz-go3j6-d3eyl-3cgof-7adkz-qh5ut-fae",
+  //   "2vxsx-fae",
+  // ];
+  const [collection, setCollection] = useState([]);
   const [depositIndices, setDepositIndices] = useState([]);
   const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
@@ -41,6 +46,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
                 return true;
               } catch (error) {
                 console.error("Invalid Principal ID:", id);
+                // toast.error(Invalid Principal ID: ${id});
                 return false;
               }
             });
@@ -65,13 +71,18 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         const data = await backend.getUserCampaigns();
         if (data.length > 0) {
           const formattedCampaign = data[0].map((camp, index) => ({
-            value: index, // Changed to index for easier selection
+            value: camp.id,
             label: `Campaign ${index + 1}: ${camp.id}`,
-            collection: camp.collection.toText(), // Store collection
-            depositIndices: camp.depositIndices, // Store depositIndices
+            collection: camp.collection.toText(),
+            depositIndices: camp.depositIndices,
           }));
+
           setCampaign(formattedCampaign);
           setAllCampaign(data);
+          console.log("coll", collection);
+          // console.log("dispostit", depositIndices);
+          // console.log("campgain", data, data[0][0]?.tokenIds);
+          // setCollection((data[0][0]?.collection).toText());
         }
       } catch (error) {
         console.error("Error fetching campaigns:", error);
@@ -83,12 +94,6 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       loadData();
     }
   }, [backend]);
-
-  const handleCampaignSelect = (option) => {
-    setSelectedOption(option);
-    setCollection(option.collection);
-    setDepositIndices(option.depositIndices);
-  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -107,9 +112,10 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    console.log("cl dd", collection, depositIndices);
     console.log("formdata ", formData);
     setLoading(true);
-    if (!validateForm()) {
+    if (!validateForm) {
       return;
     }
     try {
@@ -130,12 +136,10 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       );
 
       if (result) {
-        console.log("dispenser created", result);
         toast.success("Dispenser created successfully!");
+        console.log("dispenser result", result);
         handleNext();
-        // /:id/linkclaiming/:id/:id
-        //localhost:3000/Dispenser-af5my-z3ydu-n7qzv-3rrov-kfsoz-go3j6-d3eyl-3cgof-7adkz-qh5ut-fae_1726111812702194023/linkclaiming/br5f7-7uaaa-aaaaa-qaaca-cai/526468553
-        http: depositIndices.forEach((depositIndex) => {
+        depositIndices.forEach((depositIndex) => {
           const dispenserLink = `${url}/${result}/linkclaiming/${collection}/${depositIndex}`;
           console.log("Link created successfully:", dispenserLink);
         });
@@ -174,7 +178,11 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           </label>
           <Select
             value={selectedOption}
-            onChange={handleCampaignSelect} // Updated to handleCampaignSelect
+            onChange={(option) => {
+              setSelectedOption(option);
+              setCollection(option?.collection);
+              setDepositIndices(option.depositIndices);
+            }}
             options={campaign}
             placeholder="Select Campaign"
             className={errors.campaign ? "border-red-500" : ""}
