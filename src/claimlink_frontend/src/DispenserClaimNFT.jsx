@@ -29,12 +29,14 @@ const DispenserClaimNFT = () => {
   const [principalText, setPrincipalText] = useState("connect wallet");
   const location = useLocation();
   const pathParts = location.pathname.split("/");
-  const canisterId = pathParts[2];
-  const nftIndex = pathParts[3];
+  const canisterId = pathParts[3];
+  const nftIndex = pathParts[4];
+  const dispenserid = pathParts[1];
   const [dispenser, setDispenser] = useState([]);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
+    console.log("NFT dispenser:", dispenserid);
   }, [canisterId, nftIndex]);
 
   useEffect(() => {
@@ -83,6 +85,25 @@ const DispenserClaimNFT = () => {
   const handleClaim = async () => {
     if (!isConnected) {
       setShowModal(true);
+      return;
+    }
+
+    const userPrincipal = principal?.toText();
+
+    const matchedDispenser = dispenser[0].find((d) => d.id === dispenserid);
+
+    if (matchedDispenser && matchedDispenser.whitelist) {
+      const isWhitelisted = matchedDispenser.whitelist.some(
+        (whitelistedPrincipal) =>
+          whitelistedPrincipal.toText() === userPrincipal
+      );
+
+      if (!isWhitelisted) {
+        toast.error("You are not in the whitelist and cannot claim this NFT.");
+        return;
+      }
+    } else {
+      toast.error("Dispenser not found or no whitelist available.");
       return;
     }
 

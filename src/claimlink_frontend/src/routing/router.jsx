@@ -201,7 +201,7 @@ const approutes = createBrowserRouter([
     element: <LinkClaiming />,
   },
   {
-    path: "dispenser/linkclaiming/:id/:id",
+    path: "/:id/linkclaiming/:id/:id",
     element: <DispenserClaimNFT />,
   },
 ]);
