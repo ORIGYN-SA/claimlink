@@ -81,7 +81,7 @@ actor Main {
         expirationDate : Time.Time;
         createdBy : Principal;
         createdAt : Time.Time;
-        depositIndices : [Nat];
+        depositIndices : [Nat32];
     };
     type QRSet = {
         id: Text;
@@ -104,7 +104,7 @@ actor Main {
     type Link = {
         tokenId : TokenIndex;
         collection : Principal;
-        linkKey : Nat;
+        linkKey : Nat32;
         claimPattern : Text;
         createdBy : AccountIdentifier
     };
@@ -124,8 +124,8 @@ actor Main {
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
-    private var campaignLinks = TrieMap.TrieMap<Text, [Nat]>(Text.equal, Text.hash);
-    private stable var stableCampaignLinks : [(Text, [Nat])] = [];
+    private var campaignLinks = TrieMap.TrieMap<Text, [Nat32]>(Text.equal, Text.hash);
+    private stable var stableCampaignLinks : [(Text, [Nat32])] = [];
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
     private stable var stableUserCampaignsMap : [(Principal, [Campaign])] = [];
     // Maps related to dispensers
@@ -162,11 +162,11 @@ actor Main {
 
 
     // Stores details about the tokens coming into this vault
-    private var depositItemsMap = TrieMap.TrieMap<Nat, Deposit>(Nat.equal,natHash);
-    private stable var stableDepositMap : [(Nat, Deposit)] = [];
+    private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
+    private stable var stableDepositMap : [(Nat32, Deposit)] = [];
 
-    public shared query func getAlldepositItemsMap() : async [(Nat, Deposit)] {
-        var result : [(Nat, Deposit)] = [];
+    public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
+        var result : [(Nat32, Deposit)] = [];
         for ((key, value) in depositItemsMap.entries()) {
             result := Array.append([(key, value)], result);
         };
@@ -205,15 +205,21 @@ actor Main {
         tokensDataToBeMinted := TrieMap.fromEntries(stableTokensDataToBeMinted.vals(), Principal.equal, Principal.hash);
         campaignTimers := TrieMap.fromEntries(stableCampaignTimers.vals(), Text.equal, Text.hash);
         dispenserTimers := TrieMap.fromEntries(stableDispenserTimers.vals(), Text.equal, Text.hash);
-        depositItemsMap := TrieMap.fromEntries(stableDepositMap.vals(), Nat.equal, natHash);
+        depositItemsMap := TrieMap.fromEntries(stableDepositMap.vals(), Nat32.equal, nat32Hash);
     };
 
 
-    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, tokenId: TokenIndex): Nat {
-        let callerNat = AID.hash(caller);
-        let timestampNat = Int.hash(timestamp);
-        let combinedNat : Nat = Nat32.toNat((callerNat) + (timestampNat) + (tokenId));
-        return Nat32.toNat(Hash.hash(combinedNat));
+    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, _tokenId: TokenIndex): Hash.Hash {
+        let callerNat32 = AID.hash(caller);
+        let timestampNat32 = Int.hash(timestamp);
+        let tokenIdNat32 = _tokenId;
+        let callerNat = Nat32.toNat(callerNat32);
+        let timestampNat = Nat32.toNat(timestampNat32);
+        let tokenIdNat = Nat32.toNat(tokenIdNat32);
+        let largeModulus = 2 ** 128;
+        let combinedNat = ((callerNat + timestampNat + tokenIdNat) % largeModulus);
+        return Hash.hash(combinedNat);  // Hash expects Nat32, so convert back
+
     };
 
     type DashboardStats = {
@@ -594,7 +600,7 @@ actor Main {
         _collectionCanisterId: Principal,
         _from: Principal,
         _tokenId: TokenIndex
-    ) : async Nat {
+    ) : async Nat32 {
         // Check if the link (tokenId) already exists in userLinks for this user
         let existingLinks = userLinks.get(_from);
 
@@ -668,7 +674,7 @@ actor Main {
         _collectionCanisterId : Principal,
         _from : Principal,
         _tokenId : Nat32
-    ) : async Nat {
+    ) : async Nat32 {
 
         let existingLinks = userLinks.get(_from);
 
@@ -759,7 +765,7 @@ actor Main {
 
     public shared ({ caller = user }) func claimToken(
         _collectionCanisterId: Principal,
-        _depositKey: Nat
+        _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
         let depositItemOpt = depositItemsMap.get(_depositKey);
 
@@ -795,7 +801,7 @@ actor Main {
         user: Principal,
         _collectionCanisterId: Principal,
         _depositItem: Deposit,
-        _depositKey: Nat
+        _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_transfer: (
@@ -847,13 +853,41 @@ actor Main {
                     let linkIndicesOpt = campaignLinks.get(campaignId);
                     switch (linkIndicesOpt) {
                         case (?linkIndices) {
-                            let newLinks = Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
+                            let newLinks = Array.filter<Nat32>(linkIndices, func(key: Nat32): Bool {
                                 return key != _depositKey;
                             });
                             campaignLinks.put(campaignId, newLinks);
-                            if(newLinks.size() == 0){
-                                await deleteCampaign(campaignId);
-                            }
+                            let campaignOpt = campaigns.get(campaignId);
+                            switch (campaignOpt) {
+                                case (?campaign) {
+                                    // Update depositIndices in the campaign object
+                                    let updatedDepositIndices = Array.filter<Nat32>(campaign.depositIndices, func(index: Nat32): Bool {
+                                        return index != _depositKey;
+                                    });
+                                    let updatedCampaign : Campaign = {
+                                            id = campaign.id;
+                                            title = campaign.title;
+                                            tokenType = campaign.tokenType;
+                                            collection = campaign.collection;
+                                            claimPattern = campaign.claimPattern;
+                                            tokenIds = campaign.tokenIds;
+                                            walletOption = campaign.walletOption;
+                                            displayWallets = campaign.displayWallets;
+                                            expirationDate = campaign.expirationDate;
+                                            createdBy = campaign.createdBy;
+                                            createdAt = campaign.createdAt;
+                                            depositIndices = updatedDepositIndices;
+                                        };
+
+                                    campaigns.put(campaignId, updatedCampaign);
+
+                                    // If no remaining links, delete the campaign
+                                    if (newLinks.size() == 0) {
+                                        await deleteCampaign(campaignId);
+                                    };
+                                };
+                                case null { /* Handle if campaign not found */ };
+                            };
                         };
                         case null {
                             return #err("No link created during campaign creation");
@@ -895,7 +929,7 @@ actor Main {
         user : Principal,
         _collectionCanisterId : Principal,
         _depositItem : Deposit,
-        _depositKey : Nat
+        _depositKey : Nat32
     ) : async Result.Result<Int, Text> {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
@@ -954,7 +988,7 @@ actor Main {
                         let linkIndicesOpt = campaignLinks.get(campaignId);
                         switch (linkIndicesOpt) {
                             case (?linkIndices) {
-                                let newLinks = Array.filter<Nat>(linkIndices, func(key: Nat): Bool {
+                                let newLinks = Array.filter<Nat32>(linkIndices, func(key: Nat32): Bool {
                                     return key != _depositKey;
                                 });
                                 campaignLinks.put(campaignId, newLinks);
@@ -996,12 +1030,12 @@ actor Main {
         walletOption: Text,
         displayWallets : [Text],
         expirationDate: Time.Time,
-    ) : async (Text,[Nat]) {
+    ) : async (Text,[Nat32]) {
         let campaignId = generateCampaignId(user);
-        var linkResponses: [Nat] = [];
+        var linkResponses: [Nat32] = [];
 
         for (tokenId in tokenIds.vals()) {
-            var linkKeys : Nat = 0;
+            var linkKeys : Nat32 = 0;
             if(claimPattern == "transfer"){
                 linkKeys := await createLink(collection, user, tokenId);
             } else if (claimPattern == "mint") {
@@ -1153,7 +1187,7 @@ actor Main {
         campaigns.get(campaignId);
     };
     // Get Links created inside a Campaign
-    public shared query func getCampaignLinks(campaignId : Text) : async ?[Nat] {
+    public shared query func getCampaignLinks(campaignId : Text) : async ?[Nat32] {
         campaignLinks.get(campaignId);
     };
     // Get all campaigns created by a user
