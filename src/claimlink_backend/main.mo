@@ -538,9 +538,11 @@ actor Main {
         return userTokens;
     };
 
-    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, TokenIndex , Metadata)] {
-        // Use a Buffer for efficient appending of Metadata.
-        let buffer = Buffer.Buffer<(Principal, TokenIndex, Metadata)>(0);
+    // public shared ({caller = user}) func getUserCollection
+
+    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, [(TokenIndex, Metadata)])] {
+        // Initialize an empty array to store the result.
+        var resultArray = Buffer.Buffer<(Principal, Text, [(TokenIndex, Metadata)])>(0);
 
         // Convert user Principal to AccountIdentifier.
         let userAID = AID.fromPrincipal(user, null);
@@ -551,10 +553,18 @@ actor Main {
             let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
                 tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
                 ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+                getCollectionDetails : () -> async (Text, Text, Text);  // Assume title is the first field.
             };
+
+            // Fetch the collection details to get the title.
+            let collectionDetails = await collectionCanisterActor.getCollectionDetails();
+            let collectionTitle = collectionDetails.0;  // Extract the collection title.
 
             // Fetch the list of TokenIndices for the user.
             let tokensResult = await collectionCanisterActor.tokens(userAID);
+
+            // Initialize an empty array to store tokens for this collection.
+            var tokenMetadataArray = Buffer.Buffer<(TokenIndex, Metadata)>(0);
 
             // Handle the Result for tokens.
             switch (tokensResult) {
@@ -567,12 +577,18 @@ actor Main {
                         // Handle the Result for metadata.
                         switch (metadataResult) {
                             case (#ok(metadata)) {
-                                buffer.add((collectionCanisterId, tokenIndex, metadata)); // Efficiently add to buffer.
+                                // Add the token index and metadata to the array for this collection.
+                                tokenMetadataArray.add((tokenIndex, metadata));
                             };
                             case (#err(_)) {
                                 // Optionally handle metadata retrieval failure.
                             };
                         };
+                    };
+
+                    // If we have any tokens for this collection, add to the result array.
+                    if (tokenMetadataArray.size() > 0) {
+                        resultArray.add((collectionCanisterId, collectionTitle, Buffer.toArray(tokenMetadataArray)));
                     };
                 };
                 case (#err(_)) {
@@ -581,8 +597,10 @@ actor Main {
             };
         };
 
-        return Buffer.toArray(buffer); // Convert the buffer back to array and return.
+        // Return the result as an array.
+        return Buffer.toArray(resultArray);
     };
+
 
 
 
