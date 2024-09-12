@@ -9,6 +9,7 @@ import { fetchMinterData } from "../redux/features/minterSlice";
 import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
+import CollectionCard from "../common/CollectionCard";
 const Minter = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ const Minter = () => {
   const navigate = useNavigate();
   const { identity, backend, principal } = useAuth();
   const { id } = useParams();
+  const [copy, setCopy] = useState();
 
   const createContract = () => {
     navigate("/minter/new-contract");
@@ -48,6 +50,17 @@ const Minter = () => {
       loadData();
     }
   }, [backend]);
+  const getNonfungibleTokensNft = async () => {
+    try {
+      let idd = Principal.fromText(id);
+      console.log("HELLO FROM THE NON  FUNGIBLE ");
+      const res = await backend.getNonFungibleTokens(idd);
+      setCopy(res.length());
+    } catch (error) {
+      console.log("Error getting nfts ", error);
+    } finally {
+    }
+  };
 
   function formatTimestamp(timestamp) {
     // Convert nanoseconds to milliseconds by dividing by 1,000,000
@@ -313,79 +326,7 @@ const Minter = () => {
                     </div>
                   ))
                 : collections?.map((data, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 1 }}
-                      className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
-                      onClick={() => {
-                        navigate(`/minter/${data[1]?.toText()}/token-home`);
-                      }}
-                    >
-                      <div className="flex justify-start  space-x-4">
-                        <img
-                          src={data[4]}
-                          alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 3,
-                          }}
-                        />
-                        <img
-                          src="https://via.placeholder.com/100"
-                          alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 2,
-                            marginLeft: -24,
-                          }}
-                        />
-                        <img
-                          src="https://via.placeholder.com/100"
-                          alt="Campaign"
-                          className="w-12 h-12 object-cover rounded-md"
-                          style={{
-                            border: "2px solid white",
-                            zIndex: 1,
-                            marginLeft: -24,
-                          }}
-                        />
-                      </div>
-                      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                        {data[2]}
-                      </h2>
-                      {/* <p className="text-xs text-[#84818A] mt-1 ">
-                        {formatTimestamp(data[0])}
-                      </p> */}
-                      <div className="border border-gray-300 my-4 w-full"></div>
-                      <div className="mt-2 w-full">
-                        <div className="flex justify-between">
-                          <p className="text-xs text-[#84818A] ">Address</p>
-                          <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
-                            {data[1]?.toText()}
-                          </p>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs text-[#84818A] ">
-                            All token copies
-                          </p>
-                          <p className="text-[#2E2C34] text-xs font-semibold">
-                            10
-                          </p>
-                        </div>
-                        <div className="flex justify-between mt-2">
-                          <p className="text-xs text-[#84818A] ">
-                            Token standard
-                          </p>
-                          <p className="text-[#2E2C34] text-xs  font-semibold">
-                            EXT
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
+                    <CollectionCard data={data} />
                   ))}
             </div>
           </div>

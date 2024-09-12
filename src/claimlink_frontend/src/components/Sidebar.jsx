@@ -5,6 +5,7 @@ import { IoMdStar } from "react-icons/io";
 import { AiOutlineLink } from "react-icons/ai";
 import { IoIosCloseCircle } from "react-icons/io";
 import { useAuth } from "../connect/useClient";
+import { RiNftFill } from "react-icons/ri";
 import {
   MdArrowOutward,
   MdDashboard,
@@ -26,7 +27,7 @@ const Sidebar = ({ setSidebarOpen }) => {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
-    { path: "/users-nft", label: "Users Nft", icon: MdMoney },
+    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
   ];
 
   return (
