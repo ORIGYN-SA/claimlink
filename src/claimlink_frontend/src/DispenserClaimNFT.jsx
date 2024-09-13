@@ -30,7 +30,8 @@ const DispenserClaimNFT = () => {
   const location = useLocation();
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[3];
-  const nftIndex = pathParts[4];
+  // const nftIndex = pathParts[4];
+  const [nftIndex, setNnftIndex] = useState(null);
   const dispenserid = pathParts[1];
   const [dispenser, setDispenser] = useState([]);
   useEffect(() => {
@@ -53,6 +54,13 @@ const DispenserClaimNFT = () => {
         setLoadingData(true);
         const detail = await backend.getAlldepositItemsMap();
         console.log("Deposits:", detail);
+        const checkforsamecanister = detail.map((data, index) => {
+          const check = data[1]?.collectionCanister.toText() === canisterId;
+          if (check) {
+            setNnftIndex(data[0]);
+          }
+        });
+
         setDeposits(detail);
       } catch (error) {
         console.log("Error fetching deposits:", error);
@@ -114,7 +122,19 @@ const DispenserClaimNFT = () => {
       console.log("Response of claim:", res);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
-        navigate("/");
+
+        // Find next NFT index in the same canister
+        const checkforsamecanister = deposits.find((data) => {
+          return data[1]?.collectionCanister.toText() === canisterId;
+        });
+
+        if (checkforsamecanister) {
+          setNnftIndex(checkforsamecanister[0]);
+        } else {
+          toast.error("No more NFTs available for this canister.");
+        }
+
+        window.location.reload();
       } else {
         toast.error("Failed to claim the NFT.");
       }
@@ -147,8 +167,8 @@ const DispenserClaimNFT = () => {
     console.log("matched", matchedDeposit);
     if (!matchedDeposit) {
       return (
-        <div className="my-auto mt-16 text-xl text-red-500">
-          No matching NFT found.
+        <div className="my-auto mt-16 text-xl text-center text-red-500">
+          No NFT found.
         </div>
       );
     }
