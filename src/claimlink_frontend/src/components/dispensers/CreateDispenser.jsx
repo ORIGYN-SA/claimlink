@@ -114,19 +114,30 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     e.preventDefault();
     console.log("cl dd", collection, depositIndices);
     console.log("formdata ", formData);
+    const { startDate, startHour, startMinute } = formData;
+
     setLoading(true);
     if (!validateForm) {
       return;
     }
     try {
-      const dateString = `${formData.startDate}T00:00:00Z`; // Include full time part
-      console.log("dt", dateString);
+      const formatDateTime = (date, hour, minute) => {
+        const formattedHour = String(hour).padStart(2, "0");
+        const formattedMinute = String(minute).padStart(2, "0");
+        return `${date}T${formattedHour}:${formattedMinute}:00Z`;
+      };
+      const formattedDateTime = formatDateTime(
+        startDate,
+        startHour,
+        startMinute
+      );
 
+      console.log(`Formatted DateTime: ${formattedDateTime}`);
       // Convert to Date object
-      const date = new Date(dateString);
-      console.log("dsdsat", dateString);
+      const date = new Date(formattedDateTime);
+      console.log("dsdsat", date);
 
-      // Get the timestamp in milliseconds
+      // // Get the timestamp in milliseconds
       const timestampMillis = date.getTime();
       console.log("mili", timestampMillis);
       let whitelist = principalIds
