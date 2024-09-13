@@ -57,6 +57,18 @@ const Dispensers = () => {
 
     return date.toLocaleString("en-US", options);
   }
+  const datein = (timestamp) => {
+    // Directly convert the timestamp to a Date object (assuming it's in milliseconds)
+    const date = new Date(Number(timestamp));
+
+    // Format the date as 'YYYY-MM-DD'
+    const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
+      .toString()
+      .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
+    return formattedDate;
+  };
+
   return (
     <div className=" p-6 ">
       {window.innerWidth < 640 ? (
@@ -94,7 +106,7 @@ const Dispensers = () => {
                       <h2 className=" text-sm font-bold text-[#2E2C34]  ">
                         {data[0]?.title}
                       </h2>
-                      <p className="text-[#84818A] md:text-sm text-xs ">
+                      <p className="text-[#84818A] md:text-sm text-xs line-clamp-1 ">
                         April 5, 13:34
                       </p>
                     </div>
@@ -191,7 +203,7 @@ const Dispensers = () => {
               </p>
             </motion.div>
 
-            {dispnser.map((data, index) => (
+            {dispnser[0]?.map((data, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
@@ -232,11 +244,11 @@ const Dispensers = () => {
                   />
                 </div>
                 <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                  {data[0]?.title}
+                  {data?.title}
                 </h2>
                 <p className="text-xs text-[#84818A] mt-1 ">
                   {" "}
-                  {convertNanosecondsToDate(data[0]?.createdAt)}
+                  {convertNanosecondsToDate(data?.createdAt)}
                 </p>
                 <div className="border border-gray-300 my-4 w-full"></div>
                 <div className=" w-full">
@@ -248,16 +260,16 @@ const Dispensers = () => {
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Start Date</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold">
-                      {convertNanosecondsToDate(data[0]?.startDate)}
+                    <p className="text-[#2E2C34] text-xs font-semibold line-clamp-1">
+                      {datein(data?.startDate)}
 
-                      <span className="text-gray-500 font-normal">13:54</span>
+                      {/* <span className="text-gray-500 font-normal">13:54</span> */}
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Duration</p>
                     <p className="text-[#2E2C34] text-xs font-semibold">
-                      {data[0]?.duration}
+                      {String(data?.duration)}
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">

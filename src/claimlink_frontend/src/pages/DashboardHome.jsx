@@ -83,7 +83,7 @@ const DashBoardHome = () => {
       try {
         const data = await backend?.getUserDispensers();
         setDispenser(data[0]);
-        console.log("collection is", data[0]);
+        console.log("dispenser is", data[0]);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -102,7 +102,7 @@ const DashBoardHome = () => {
       try {
         const data = await backend?.getUserCampaigns();
         setcampgain(data[0]);
-        console.log("collection is", data[0]);
+        console.log("claimlink is", data[0]);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -121,7 +121,7 @@ const DashBoardHome = () => {
       try {
         const data = await backend?.getUserQRSets();
         setQrcodes(data[0]);
-        console.log("collection is", data[0]);
+        console.log("qr is", data[0]);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -134,6 +134,25 @@ const DashBoardHome = () => {
       loadData();
     }
   }, [backend]);
+
+  function convertNanosecondsToDate(nanosecondTimestamp) {
+    // Convert nanoseconds to milliseconds
+    const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+
+    // Create a Date object
+    const date = new Date(millisecondTimestamp);
+
+    // Define options for formatting the date
+    const options = {
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    // Format the date to a human-readable string
+    return date.toLocaleString("en-US", options);
+  }
   const contracts = [1, 2, 3, 4, 5, 6];
   const len = [];
 
@@ -664,8 +683,8 @@ const DashBoardHome = () => {
                   className="flex justify-center "
                 />
               </div>
-            ) : minter?.length > 0 ? (
-              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+            ) : campaign?.length > 0 ? (
+              <div className="bg-white py-4 w-1/2 rounded-md px-2 h-96">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
                     <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
@@ -675,51 +694,57 @@ const DashBoardHome = () => {
                       {" "}
                       Claim links
                     </h2>
-                    <p className="text-[#84818A] text-base">{minter?.length}</p>
+                    <p className="text-[#84818A] text-base">
+                      {campaign?.length}
+                    </p>
                   </div>
                   <button className="flex items-center text-sm  hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
                     <GoPlus className="md:text-2xl text-sm" /> New camapign
                   </button>
                 </div>
                 <div className="mt-4">
-                  <div className="flex justify-around text-xs text-[#504F54]">
+                  <div className="flex justify-between text-xs text-[#504F54]">
                     <p className="text-xs text-[#504F54]">Title</p>
                     <p>Date</p>
                     <p>Token</p>
                     <p>Claimed</p>
                   </div>
-                  {minter?.map((data, index) => (
+                  {campaign?.map((data, index) => (
                     <div
                       key={index}
                       className="flex justify-between items-center rounded-md bg-white px-1 py-3"
                     >
                       <div className="flex items-center gap-3">
-                        <img
+                        {/* <img
                           width="40px"
                           height="60px"
                           src={data[4]}
                           alt="Dispenser"
                           className="rounded-sm"
-                        />
+                        /> */}
                         <div>
-                          <h2 className="text-xs text-[#2E2C34] font-semibold">
-                            {data[2]}
+                          <h2 className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                            {data.title}
                           </h2>
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          December 5, 13:54
+                        <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          {convertNanosecondsToDate(data?.createdAt)}
                         </p>
                       </div>
                       <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          ERC1155
+                        <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          {data?.tokenIds.map((data, index) => {
+                            <div key={index}>
+                              <>{data?.value},</>;
+                            </div>;
+                          })}
                         </p>
                       </div>
                       <div className="flex gap-2 items-center">
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          100/100
+                          {data?.tokenIds.length}/{data?.tokenIds.length}
                         </p>
                         <button className="text-[#3B00B9] w-12 px-2 py-1 text-sm bg-[#564BF1] rounded-md"></button>
                       </div>
@@ -788,7 +813,9 @@ const DashBoardHome = () => {
                       {" "}
                       Dispensers
                     </h2>
-                    <p className="text-[#84818A] text-base">15</p>
+                    <p className="text-[#84818A] text-base">
+                      {dispenser.length}
+                    </p>
                   </div>
                   <button
                     onClick={dispenserSetup}
@@ -799,52 +826,49 @@ const DashBoardHome = () => {
                   </button>
                 </div>
                 <div className="mt-4">
-                  <div className="flex justify-around text-xs text-[#504F54]">
+                  <div className="grid grid-cols-5 gap-4 text-xs text-[#504F54]">
                     <p className="text-xs text-[#504F54]">Title</p>
                     <p>Date</p>
                     <p>Status</p>
                     <p>Duration</p>
-                    <p>Links</p>
+                    <p>Users</p>
                   </div>
-                  {[1, 2, 3, 4, 5].map((index) => (
+                  {dispenser.map((data, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                      className="grid grid-cols-5 gap-4 items-center bg-white px-1 py-3"
                     >
-                      <div className="flex items-center gap-3">
-                        <img
-                          width="40px"
-                          height="60px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                          alt="Dispenser"
-                          className="rounded-sm"
-                        />
-                        <div>
-                          <h2 className="text-xs text-[#2E2C34] font-semibold">
-                            Test collection
-                          </h2>
-                        </div>
-                      </div>
                       <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          December 5, 13:54
+                        <h2 className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          {data?.title}
+                        </h2>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1 w-16">
+                          {convertNanosecondsToDate(data?.startDate)}
                         </p>
                       </div>
+
                       <div>
                         <button
-                          className={`text-[#3B00B9]  p-1   text-sm ${
-                            index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
-                          } bg-[#564BF1] rounded-md`}
-                        ></button>
+                          className={`text-white text-xs p-1 rounded-md ${
+                            index % 2 == 0 ? "bg-[#564BF1]" : "bg-[#F95657]"
+                          }`}
+                        >
+                          {index % 2 == 0 ? "Active" : "Inactive"}
+                        </button>
                       </div>
+
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          1440m
+                          {String(data?.duration)}
                         </p>
                       </div>
+
                       <div className="flex gap-2 items-center">
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          100
+                          {data?.whitelist.length}
                         </p>
                       </div>
                     </div>
@@ -865,7 +889,7 @@ const DashBoardHome = () => {
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
                   <button
-                    onClick={qrSetup}
+                    onClick={dispenser}
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
                     <GoPlus className="md:text-2xl text-sm" /> New dispenser
@@ -876,7 +900,7 @@ const DashBoardHome = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.9 }}
                   className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
-                  onClick={campaignsetup}
+                  onClick={dispenserSetup}
                 >
                   <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
                     <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
@@ -903,7 +927,7 @@ const DashBoardHome = () => {
                 />
               </div>
             ) : qrcodes?.length > 0 ? (
-              <div className="bg-white py-4 w-1/2 rounded-md px-2">
+              <div className="bg-white py-4 w-1/2 h-96 rounded-md px-2">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
                     <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
@@ -923,26 +947,26 @@ const DashBoardHome = () => {
                   </button>
                 </div>
                 <div className="mt-4">
-                  <div className="flex justify-between text-xs text-[#504F54]">
+                  <div className="grid grid-cols-5 gap-4 text-xs text-[#504F54]">
                     <p>Title</p>
                     <p>Date</p>
                     <p>Status</p>
                     <p>Quantity</p>
                     <p>Linked campaign</p>
                   </div>
-                  {[1, 2, 3, 4, 5].map((index) => (
+                  {qrcodes.map((data, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                      className="grid grid-cols-5 gap-4 items-center rounded-md bg-white px-1 py-3"
                     >
                       <div className="">
                         <h2 className="text-xs text-[#2E2C34] font-semibold">
-                          Test collection
+                          {data.title}
                         </h2>
                       </div>
                       <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          December 5, 13:54
+                        <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          {convertNanosecondsToDate(data?.createdAt)}
                         </p>
                       </div>
                       <div>
@@ -954,12 +978,12 @@ const DashBoardHome = () => {
                       </div>
                       <div className="">
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          10
+                          {String(data.quantity)}
                         </p>
                       </div>
                       <div className="">
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          e-cards e-cards
+                        <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          {data.campaignId}
                         </p>
                       </div>
                     </div>
@@ -991,7 +1015,7 @@ const DashBoardHome = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.9 }}
                   className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
-                  onClick={campaignsetup}
+                  onClick={qrSetup}
                 >
                   <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
                     <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />
@@ -1015,7 +1039,7 @@ const DashBoardHome = () => {
                   className="flex justify-center "
                 />
               </div>
-            ) : qrcodes?.length > 0 ? (
+            ) : minter?.length > 0 ? (
               <div className="bg-white py-4 w-1/2 rounded-md px-2">
                 <div className="flex justify-between items-center">
                   <div className="flex gap-2 items-center">
@@ -1026,7 +1050,7 @@ const DashBoardHome = () => {
                       {" "}
                       Minter
                     </h2>
-                    <p className="text-[#84818A] text-base">15</p>
+                    <p className="text-[#84818A] text-base">{minter.length}</p>
                   </div>
                   <button
                     onClick={createContract}
@@ -1037,29 +1061,29 @@ const DashBoardHome = () => {
                   </button>
                 </div>
                 <div className="mt-4">
-                  <div className="flex justify-around text-xs text-[#504F54]">
+                  <div className="grid grid-cols-5 gap-4 text-xs text-[#504F54]">
                     <p className="text-xs text-[#504F54]">Title</p>
                     <p>Date</p>
                     <p>Token</p>
                     <p>Copies</p>
                     <p>Address</p>
                   </div>
-                  {[1, 2, 3, 4, 5].map((index) => (
+                  {minter.map((data, index) => (
                     <div
                       key={index}
-                      className="flex justify-between items-center rounded-md bg-white px-1 py-3"
+                      className="grid grid-cols-5 gap-4 items-center rounded-md bg-white px-1 py-3"
                     >
                       <div className="flex items-center gap-3">
                         <img
                           width="40px"
                           height="60px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                          src={data[4]}
                           alt="Dispenser"
                           className="rounded-sm"
                         />
                         <div>
                           <h2 className="text-xs text-[#2E2C34] font-semibold">
-                            Test collection
+                            {data[2]}
                           </h2>
                         </div>
                       </div>
@@ -1101,7 +1125,7 @@ const DashBoardHome = () => {
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
                   <button
-                    onClick={qrSetup}
+                    onClick={createContract}
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
                     <GoPlus className="md:text-2xl text-sm" /> new collection
@@ -1112,7 +1136,7 @@ const DashBoardHome = () => {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.9 }}
                   className="px-6 rounded-xl flex flex-col items-center mt-20 justify-center cursor-pointer"
-                  onClick={campaignsetup}
+                  onClick={createContract}
                 >
                   <div className="bg-[#E9E8FC] p-4 m-2 rounded-md">
                     <TfiPlus className="text-[#564BF1] w-4 h-4 font-semibold" />

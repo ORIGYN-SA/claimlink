@@ -28,7 +28,6 @@ const DistributionPage = ({
     }
   }, [formData.contract, setFormData]);
 
-  console.log(backend);
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -69,10 +68,19 @@ const DistributionPage = ({
 
   const handleClaimTypeChange = (type) => {
     setClaimType(type);
-  };
 
-  const handleSponsorGasChange = (sponsor) => {
-    setSponsorGas(sponsor);
+    // "Select All" functionality
+    if (type === "selectAll") {
+      const allNfts =
+        formData.pattern === "transfer"
+          ? nftOptions.map((nft) => nft.value)
+          : tokenOptions.map((token) => token.value);
+
+      setFormData({
+        ...formData,
+        tokenIds: allNfts, // Store all token IDs in the form data
+      });
+    }
   };
 
   const handleSelectChange = (selectedOptions) => {
@@ -139,13 +147,6 @@ const DistributionPage = ({
           <div className="flex sm:justify-between gap-4">
             <button
               type="button"
-              className="px-4 sm:px-3 py-1 border sm:text-sm text-xs bg-[#dad6f797] text-[#5542F6] rounded-lg"
-              onClick={() => handleClaimTypeChange("manual")}
-            >
-              Set manually
-            </button>
-            <button
-              type="button"
               className="px-4 sm:px-3 py-1 sm:text-sm text-xs border bg-[#5542F6] text-white rounded-lg"
               onClick={() => handleClaimTypeChange("selectAll")}
             >
@@ -158,7 +159,10 @@ const DistributionPage = ({
           <p className="text-gray-900 font-semibold">Collection</p>
           <Select
             value={formData.tokenIds?.map((id) =>
-              nftOptions.find((option) => option.value === id)
+              (formData.pattern === "transfer"
+                ? nftOptions
+                : tokenOptions
+              ).find((option) => option.value === id)
             )}
             onChange={handleSelectChange}
             options={

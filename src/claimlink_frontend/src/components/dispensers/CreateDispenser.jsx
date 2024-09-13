@@ -119,10 +119,16 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       return;
     }
     try {
-      const dateString = `${formData.expirationDate}T:00Z`;
-      const date = new Date(dateString);
+      const dateString = `${formData.startDate}T00:00:00Z`; // Include full time part
+      console.log("dt", dateString);
 
+      // Convert to Date object
+      const date = new Date(dateString);
+      console.log("dsdsat", dateString);
+
+      // Get the timestamp in milliseconds
       const timestampMillis = date.getTime();
+      console.log("mili", timestampMillis);
       let whitelist = principalIds
         .filter((id) => id.trim().length > 0)
         .map((id) => Principal.fromText(id.trim()));
