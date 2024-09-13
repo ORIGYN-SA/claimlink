@@ -30,6 +30,7 @@ import { DisclosurePanel } from "@headlessui/react";
 import DispenserForm from "../components/dispensers/DispenserForm";
 import UsersNft from "../pages/UsersNft";
 import DispenserClaimNFT from "../DispenserClaimNFT";
+import ContactUs from "../pages/ContactUs";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -75,6 +76,15 @@ const approutes = createBrowserRouter([
       </Dashboard>
     ),
   },
+  {
+    path: "/contact-us",
+    element: (
+      <Dashboard headerText={"Contact"} menubar={false}>
+        <ContactUs />
+      </Dashboard>
+    ),
+  },
+
   // {
   //   path: "/dispensers/create-dispenser",
   //   element: (
