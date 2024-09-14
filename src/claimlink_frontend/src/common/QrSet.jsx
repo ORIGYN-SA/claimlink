@@ -24,7 +24,10 @@ const QRSet = ({ campaignId, loading }) => {
       console.log(error);
     }
   };
-  const url = process.env.PROD
+
+  const PROD = false;
+
+  const url = PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
     : "http://localhost:3000";
 

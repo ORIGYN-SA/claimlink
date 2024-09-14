@@ -32,6 +32,7 @@ import UsersNft from "../pages/UsersNft";
 import DispenserClaimNFT from "../DispenserClaimNFT";
 import ContactUs from "../pages/ContactUs";
 import UserNft2 from "../pages/UserNft2";
+import TechnicalHelp from "../common/TechnicalHelp";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -212,6 +213,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard stepper={true} headerText={"Test campaign"} menubar={false}>
         <DistributionPages />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "technical-help",
+    element: (
+      <Dashboard>
+        <TechnicalHelp />
       </Dashboard>
     ),
   },

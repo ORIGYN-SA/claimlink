@@ -32,6 +32,7 @@
     "identityvault": "^0.1.11",
     "mops": "^3.0.2",
     "papaparse": "^5.4.1",
+    "react-countdown": "^2.3.6",
     "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.53.0",

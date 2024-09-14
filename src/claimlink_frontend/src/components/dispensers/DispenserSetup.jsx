@@ -17,13 +17,13 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       newErrors.startDate = "Start date is required.";
     }
 
-    // if (!formData.startHour) {
-    //   newErrors.startHour = "Start hour is required.";
-    // }
+    if (formData.startHour === "") {
+      newErrors.startHour = "Start hour is required.";
+    }
 
-    // if (!formData.startMinute) {
-    //   newErrors.startMinute = "Start minute is required.";
-    // }
+    if (formData.startMinute === "") {
+      newErrors.startMinute = "Start minute is required.";
+    }
 
     if (!formData.duration) {
       newErrors.duration = "Duration is required.";
@@ -48,13 +48,15 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       handleNext();
     }
   };
+
   const getCurrentDateTime = () => {
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10);
+    const dateStr = now.toISOString().slice(0, 10); // Get the current date
     const hour = now.getUTCHours();
     const minute = now.getUTCMinutes();
     return { dateStr, hour, minute };
   };
+
   const { dateStr, hour, minute } = getCurrentDateTime();
 
   return (
@@ -71,7 +73,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       className="md:p-6 p-4 md:w-2/3 w-full"
     >
       <div>
-        <h2 className="text-xl font-semibold">Dispenser setup</h2>
+        <h2 className="text-xl font-semibold">Dispenser Setup</h2>
       </div>
       <div>
         <form onSubmit={handleSubmit}>
@@ -84,7 +86,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
               name="title"
               id="title"
               className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-              placeholder="Text"
+              placeholder="Enter title"
               value={formData.title}
               onChange={handleChange}
             />
@@ -92,9 +94,10 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
               <p className="text-red-500 text-sm mt-1">{errors.title}</p>
             )}
           </div>
+
           <div className="mt-2 flex flex-col">
             <label htmlFor="startDate" className="text-lg font-semibold py-3">
-              Start date
+              Start Date
             </label>
             <div className="flex md:flex-row flex-col w-full justify-between gap-4">
               <input
@@ -106,7 +109,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                 onChange={handleChange}
                 min={dateStr}
               />
-              {/* <div className="flex md:justify-normal justify-between gap-4">
+              <div className="flex md:justify-normal justify-between gap-4">
                 <select
                   name="startHour"
                   id="startHour"
@@ -115,10 +118,17 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                   onChange={handleChange}
                 >
                   <option value="">Hour</option>
-                  <option value="12">12</option>
-                  <option value="13">13</option>
-                  <option value="14">14</option>
+                  {Array.from({ length: 24 }, (_, i) => (
+                    <option
+                      key={i}
+                      value={i}
+                      disabled={formData.startDate === dateStr && i < hour}
+                    >
+                      {i < 10 ? `0${i}` : i}
+                    </option>
+                  ))}
                 </select>
+
                 <select
                   name="startMinute"
                   id="startMinute"
@@ -127,29 +137,40 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                   onChange={handleChange}
                 >
                   <option value="">Minute</option>
-                  <option value="00">00</option>
-                  <option value="15">15</option>
-                  <option value="30">30</option>
-                  <option value="45">45</option>
+                  {Array.from({ length: 60 }, (_, i) => (
+                    <option
+                      key={i}
+                      value={i}
+                      disabled={
+                        formData.startDate === dateStr &&
+                        formData.startHour === hour &&
+                        i < minute
+                      }
+                    >
+                      {i < 10 ? `0${i}` : i}
+                    </option>
+                  ))}
                 </select>
-              </div> */}
+              </div>
             </div>
+
             <div className="flex items-center gap-4 mt-2">
               <TbInfoHexagon className="text-[#564BF1]" />
               <p className="text-sm text-gray-500">
-                Enter start date in the DD-MM-YYYY format, e.g. 11-04-2022
+                Enter the start time in HH:MM format.
               </p>
             </div>
             {errors.startDate && (
               <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
             )}
-            {/* {errors.startHour && (
+            {errors.startHour && (
               <p className="text-red-500 text-sm mt-1">{errors.startHour}</p>
-            )} */}
-            {/* {errors.startMinute && (
+            )}
+            {errors.startMinute && (
               <p className="text-red-500 text-sm mt-1">{errors.startMinute}</p>
-            )} */}
+            )}
           </div>
+
           <div className="mt-2 flex flex-col">
             <label htmlFor="duration" className="text-lg font-semibold py-3">
               Duration
@@ -159,19 +180,22 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
               name="duration"
               id="duration"
               className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-              placeholder="Duration "
+              placeholder="Duration in minutes"
               value={formData.duration}
               onChange={handleChange}
             />
             <div className="flex items-center gap-4 mt-2">
               <TbInfoHexagon className="text-[#564BF1]" />
-              <p className="text-sm text-gray-500">Enter duration in minutes</p>
+              <p className="text-sm text-gray-500">
+                Enter the duration of the event in minutes.
+              </p>
             </div>
             {errors.duration && (
               <p className="text-red-500 text-sm mt-1">{errors.duration}</p>
             )}
           </div>
-          <MainButton handleSubmit={handleNext} text={"Next"} />
+
+          <MainButton handleSubmit={handleSubmit} text={"Next"} />
         </form>
       </div>
     </motion.div>

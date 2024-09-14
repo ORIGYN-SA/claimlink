@@ -303,9 +303,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           )}
         </div>
 
-        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
-
-        <div>
+        {/* <div>
           <div className="flex items-center justify-between sm:w-[75%]">
             <p className="font-semibold text-lg">Include ICP</p>
             <Switch
@@ -342,7 +340,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               )}
             </div>
           )}
-        </div>
+        </div> */}
 
         <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
 

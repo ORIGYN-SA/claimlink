@@ -44,6 +44,8 @@ const DispenserForm = () => {
     campaign: "",
     title: "",
     startDate: 0,
+    startHour: 0,
+    startMinute: 0,
     duration: "",
     whitelist: [],
   });
