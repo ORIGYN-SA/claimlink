@@ -11,7 +11,7 @@ import { Principal } from "@dfinity/principal";
 import { GoLink } from "react-icons/go";
 import { useParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
-const UsersNft = () => {
+const UserNft2 = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -21,13 +21,28 @@ const UsersNft = () => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    console.log(id);
     const loadData = async () => {
       try {
         const res = await backend.getUserTokensFromAllCollections();
-        setCollections(res);
-        console.log(res, "user nfts");
+        const idd = Principal.fromText(id); // Convert id to Principal
+
+        // Filter the collections that match the idd
+        const matchedCollection = res.find(
+          (collection) => collection[0].toText() === idd.toText()
+        );
+
+        if (matchedCollection) {
+          // Set the value at index 2 of the matched collection to state
+          setCollections(matchedCollection[2]);
+
+          console.log(matchedCollection[2], "Matched user NFT collection");
+        } else {
+          console.log("No matching collection found for id:", idd.toText());
+        }
       } catch (error) {
         console.error("Data loading error:", error);
+        setError(error);
       } finally {
         setLoading(false);
       }
@@ -36,10 +51,7 @@ const UsersNft = () => {
     if (backend) {
       loadData();
     }
-  }, [backend]);
-  const handleOpen = () => {
-    setOpen(!open);
-  };
+  }, [backend, id]);
 
   return (
     <>
@@ -206,10 +218,32 @@ const UsersNft = () => {
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                       key={index}
                     >
+                      <div className="flex justify-start  space-x-4 animate-pulse">
+                        <img
+                          src="https://via.placeholder.com/100"
+                          alt="Campaign"
+                          className="w-12 h-12 object-cover rounded-md"
+                          style={{
+                            border: "2px solid white",
+                            zIndex: 3,
+                          }}
+                        />
+                      </div>
+                      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 animate-pulse w-20 h-8 bg-gray-200"></h2>
+                      <p className=" animate-pulse  w-20 h-4  rounded-sm bg-gray-200 mt-2"></p>
+                      <div className="border border-gray-300 my-4 w-full"></div>
                       <div className="mt-2 w-full">
+                        <div className="flex justify-between">
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        </div>
                         <div className="flex justify-between mt-2">
-                          <p className=" animate-pulse  w-32 h-6  rounded-sm bg-gray-200"></p>
-                          <p className=" animate-pulse  w-10 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                        </div>
+                        <div className="flex justify-between mt-2">
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
+                          <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
                         </div>
                       </div>
                     </div>
@@ -222,55 +256,36 @@ const UsersNft = () => {
                       transition={{ duration: 1 }}
                       className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                     >
-                      {!open && (
-                        <div
-                          className="flex justify-between items-center"
-                          onClick={() => {
-                            navigate(`/user-nft/${data[0].toText()}`);
-                          }}
-                        >
-                          <button className="text-sm  font-semibold text-[#837f8e]  ">
-                            {data[1]}
-                          </button>
-                          <div className="flex items-center gap-2">
-                            <h1 className="border border-[#837f8e] border-2 text-[#837f8e] rounded-full size-5 text-xs items-center flex justify-center">
-                              {data[2].length}
-                            </h1>
-                          </div>
+                      <>
+                        <div className="flex justify-start  space-x-4">
+                          <img
+                            src={data[1]?.nonfungible?.asset}
+                            alt="Campaign"
+                            className="w-full h-64 object-cover rounded-md"
+                            style={{
+                              border: "2px solid white",
+                              zIndex: 3,
+                            }}
+                          />
                         </div>
-                      )}
-
-                      {open && (
-                        <>
-                          <div className="flex justify-start  space-x-4">
-                            <img
-                              src={data[2]?.nonfungible?.asset}
-                              alt="Campaign"
-                              className="w-full h-64 object-cover rounded-md"
-                              style={{
-                                border: "2px solid white",
-                                zIndex: 3,
-                              }}
-                            />
-                          </div>
-                          <div className="flex justify-between">
-                            <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                              {data[2]?.nonfungible?.name}
-                            </h2>
-
-                            <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                              #{data[1]}
-                            </h2>
-                          </div>
-                          <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
-                            {data[0].toText()}
+                        <div className="flex justify-between">
+                          <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
+                            {data[1]?.nonfungible?.name}
                           </h2>
-                          <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
-                            <GoLink />
-                            View on Explorer
-                          </button>
-                        </>
-                      )}
+
+                          <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
+                            #{data[0]}
+                          </h2>
+                        </div>
+                        <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
+                          {id}
+                        </h2>
+                        <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
+                          <GoLink />
+                          View on Explorer
+                        </button>
+                      </>
+
                       {/* <p className="text-xs text-[#84818A] mt-1 ">
                         {formatTimestamp(data[0])}
                       </p> */}
@@ -284,4 +299,4 @@ const UsersNft = () => {
   );
 };
 
-export default UsersNft;
+export default UserNft2;

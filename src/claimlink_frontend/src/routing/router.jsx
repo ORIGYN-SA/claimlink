@@ -31,6 +31,7 @@ import DispenserForm from "../components/dispensers/DispenserForm";
 import UsersNft from "../pages/UsersNft";
 import DispenserClaimNFT from "../DispenserClaimNFT";
 import ContactUs from "../pages/ContactUs";
+import UserNft2 from "../pages/UserNft2";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -73,6 +74,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard headerText={"Users Nft"} menubar={false}>
         <UsersNft />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/user-nft/:id",
+    element: (
+      <Dashboard headerText={"Users Nft"} menubar={false}>
+        <UserNft2 />
       </Dashboard>
     ),
   },

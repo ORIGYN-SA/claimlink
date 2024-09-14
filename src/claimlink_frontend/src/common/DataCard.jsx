@@ -4,6 +4,7 @@ import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
 
 const DataCard = ({ campaignDetails, depositIndex, keys }) => {
+  console.log("hello");
   console.log(campaignDetails);
   console.log(depositIndex);
 
@@ -67,16 +68,18 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
               alt="Item"
               className="w-10 h-10 rounded-md"
             />
-            <span className="text-gray-800 flex items-center w-24 pl-12 truncate font-semibold gap-2">
+            <span className="text-gray-800 flex items-center w-[88px] pl-12 truncate font-semibold gap-2">
               {campaignDetails?.createdBy?.toText()}
             </span>
             <BsCopy className="text-[#564BF1]" />
           </div>
           <div className="flex items-center space-x-2">
-            <span className="text-gray-800 font-semibold">April 11, 2024</span>
-            <span className="text-gray-500">20:19</span>
+            <span className="text-gray-800 font-semibold">
+              september 13, 2024
+            </span>
+            {/* <span className="text-gray-500">20:19</span> */}
           </div>
-          <div className="text-gray-800 font-semibold">1</div>
+          <div className="text-gray-800 font-semibold ml-2">1</div>
           {/* Copy Link Button */}
           <p
             className="text-[#564BF1] hover:underline gap-2 flex items-center cursor-pointer"

@@ -15,7 +15,9 @@ const TestCampaign = () => {
     try {
       const res = await backend.getCampaignDetails(campaignId.campaignId);
       setDetails(res[0]);
-      console.log(res, "res");
+      if (res[0].depositIndices.length > 0) {
+        setLoading(false);
+      }
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -63,8 +65,8 @@ const TestCampaign = () => {
         ) : (
           <>
             {" "}
-            {!loading &&
-              details?.depositIndices?.map((depositIndex, index) => (
+            {details?.depositIndices &&
+              Array.from(details.depositIndices).map((depositIndex, index) => (
                 <DataCard
                   keys={index}
                   campaignDetails={details}
