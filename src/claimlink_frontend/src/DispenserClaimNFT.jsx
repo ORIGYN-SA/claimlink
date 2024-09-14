@@ -115,19 +115,23 @@ const DispenserClaimNFT = () => {
     const userPrincipal = principal?.toText();
     const matchedDispenser = dispenser[0]?.find((d) => d.id === dispenserId);
 
-    if (matchedDispenser && matchedDispenser.whitelist) {
-      const isWhitelisted = matchedDispenser.whitelist.some(
-        (whitelistedPrincipal) =>
-          whitelistedPrincipal.toText() === userPrincipal
-      );
+    if (matchedDispenser.whitelist?.length > 0) {
+      if (matchedDispenser && matchedDispenser.whitelist) {
+        const isWhitelisted = matchedDispenser.whitelist.some(
+          (whitelistedPrincipal) =>
+            whitelistedPrincipal.toText() === userPrincipal
+        );
 
-      if (!isWhitelisted) {
-        toast.error("You are not in the whitelist and cannot claim this NFT.");
+        if (!isWhitelisted) {
+          toast.error(
+            "You are not in the whitelist and cannot claim this NFT."
+          );
+          return;
+        }
+      } else {
+        toast.error("Dispenser not found or no whitelist available.");
         return;
       }
-    } else {
-      toast.error("Dispenser not found or no whitelist available.");
-      return;
     }
 
     setLoading(true);
