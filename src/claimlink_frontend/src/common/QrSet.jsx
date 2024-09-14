@@ -25,10 +25,10 @@ const QRSet = ({ campaignId, loading }) => {
     }
   };
 
-  const PROD = false;
+  const PROD = true;
 
   const url = PROD
-    ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
+    ? `https://${process.env.CANISTER_ID_CLAIMLINK_FRONTEND}.icp0.io`
     : "http://localhost:3000";
 
   // Construct the full URL based on campaign details
