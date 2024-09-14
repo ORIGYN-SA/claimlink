@@ -166,7 +166,7 @@ const DispenserClaimNFT = () => {
     if (status === "upcoming") {
       return (
         <div className="text-center text-lg font-bold">
-          Event Starts In:
+          Claiming Starts In:
           <Countdown date={eventStartTime} />
         </div>
       );
