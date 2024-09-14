@@ -52,8 +52,8 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
   const getCurrentDateTime = () => {
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10); // Get the current date
-    const hour = now.getUTCHours();
-    const minute = now.getUTCMinutes();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
     return { dateStr, hour, minute };
   };
 

@@ -7,7 +7,7 @@ import { RxCross2 } from "react-icons/rx";
 import { useLocation } from "react-router-dom";
 import { Principal } from "@dfinity/principal";
 import WalletModal2 from "./common/WalletModel2";
-import bgmain1 from "./assets/img/mainbg1.png";
+import bgmain1 from "./assets/img/bg123456.png";
 import bgmain2 from "./assets/img/bg123456.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
@@ -42,6 +42,7 @@ const DispenserClaimNFT = () => {
       setPrincipalText(principal.toText());
     } else {
       setPrincipalText("connect wallet");
+      setShowModal(true);
     }
   }, [isConnected, principal]);
 
@@ -165,7 +166,7 @@ const DispenserClaimNFT = () => {
 
     if (status === "upcoming") {
       return (
-        <div className="text-center text-lg font-bold">
+        <div className="text-center text-lg font-bold text-black">
           Claiming Starts In:
           <Countdown date={eventStartTime} />
         </div>
@@ -242,47 +243,66 @@ const DispenserClaimNFT = () => {
             </p>
           </div>
           <div className="flex justify-between mt-2">
-            <p className="text-xs gray">Status</p>
-            <p className="text-xs font-semibold">{matchedDeposit[1]?.status}</p>
+            <p className="text-xs gray">Collection</p>
+            <p className="text-xs font-semibold">
+              {matchedDeposit[1]?.collectionName}
+            </p>
           </div>
         </div>
-        <div className="border border-gray-200 my-4"></div>
       </motion.div>
     );
   };
 
   return (
-    <div className="flex mt-10 w-full justify-center bg-transparent">
+    <>
       <div
-        className="absolute inset-0 bg-black opacity-70 z-10"
-        style={{ backgroundColor: "rgba(0, 0, 0, 0.6)" }}
-      ></div>
-      <img
-        src={bgmain2}
-        alt="main_background"
-        className="absolute h-full w-full top-0 object-cover"
-      />
-      <div className="relative h-[90%] z-20 flex flex-col w-[70%]">
-        {renderNftDetails()}
+        className="flex flex-col bg-cover bg-no-repeat min-h-screen text-white justify-center w-full px-4 py-8 bg-center relative"
+        style={{
+          backgroundImage: `url(${bgmain1}), url(${bgmain2})`,
+        }}
+      >
+        <div className="absolute top-0 right-0 p-4">
+          <button
+            onClick={disconnect}
+            className="text-lg font-bold text-gray-200"
+          >
+            <RxCross2 size={24} />
+          </button>
+        </div>
 
-        {deposits.length > 0 &&
-        !loadingData &&
-        checkEventStatus(eventDate, duration) === "ongoing" ? (
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleClaim}
-              disabled={loading}
-              className={`button px-4 z-20 py-2 rounded-md text-white ${
-                loading ? "bg-gray-500" : "bg-[#564BF1]"
-              }`}
-            >
-              {loading ? "Claiming..." : "Claim NFT"}
-            </button>
-          </div>
-        ) : null}
+        {renderNftDetails()}
+        {isConnected ? (
+          checkEventStatus(eventDate, duration) === "ongoing" && (
+            <div className="mt-8 flex justify-center">
+              <button
+                onClick={handleClaim}
+                disabled={loading}
+                className={`${
+                  loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-700"
+                } text-white font-bold py-2 px-4 rounded-lg`}
+              >
+                {loading ? "Processing..." : "Claim NFT"}
+              </button>
+            </div>
+          )
+        ) : (
+          <>
+            <WalletModal2
+              isOpen={showModal}
+              connected={isConnected}
+              onClose={() => setShowModal(false)}
+              onConnect={() => {
+                connectWallet();
+                window.location.reload();
+              }}
+            />
+          </>
+        )}
       </div>
-    </div>
+    </>
   );
 };
 
 export default DispenserClaimNFT;
+
+// dispenser dynamiicclaimlink dynamic ,dispenser claim on  different browserr  any one can claim

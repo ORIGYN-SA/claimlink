@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
 import { TfiPlus } from "react-icons/tfi";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../connect/useClient";
 
 const Dispensers = () => {
@@ -83,7 +83,7 @@ const Dispensers = () => {
               <GoPlus className="text-2xl" /> New dispenser
             </button>
           </div>
-          {dispnser.map((data, index) => (
+          {dispnser[0]?.map((data, index) => (
             <motion.div
               key={index}
               onClick={createDispenser}
@@ -104,10 +104,10 @@ const Dispensers = () => {
                     />
                     <div className="">
                       <h2 className=" text-sm font-bold text-[#2E2C34]  ">
-                        {data[0]?.title}
+                        {data?.title}
                       </h2>
                       <p className="text-[#84818A] md:text-sm text-xs line-clamp-1 ">
-                        April 5, 13:34
+                        {convertNanosecondsToDate(data?.createdAt)}
                       </p>
                     </div>
                   </div>
@@ -135,7 +135,7 @@ const Dispensers = () => {
                           Start Date
                         </p>
                         <p className="text-[#2E2C34] font-semibold text-sm">
-                          April 11, 2024
+                          {datein(data?.startDate)}
                         </p>
                       </div>
                     </div>
@@ -148,7 +148,7 @@ const Dispensers = () => {
                           Duration
                         </p>
                         <p className="text-[#2E2C34] font-semibold text-sm">
-                          1440 min
+                          {String(data?.duration)} Min
                         </p>
                       </div>
                     </div>
@@ -269,7 +269,7 @@ const Dispensers = () => {
                   <div className="flex justify-between mt-2">
                     <p className="text-xs text-[#84818A] ">Duration</p>
                     <p className="text-[#2E2C34] text-xs font-semibold">
-                      {String(data?.duration)}
+                      {String(data?.duration)} Min
                     </p>
                   </div>
                   <div className="flex justify-between mt-2">

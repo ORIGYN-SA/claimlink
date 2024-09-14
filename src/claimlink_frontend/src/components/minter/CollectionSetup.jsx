@@ -112,7 +112,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   const handleCreate = async (e) => {
     e.preventDefault();
     console.log("Starting collection creation");
-    setLoading(true);
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -121,6 +120,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     if (!validateForm()) {
       return;
     }
+    setLoading(true);
 
     try {
       console.log("Form data:", formData);

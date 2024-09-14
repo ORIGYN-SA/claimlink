@@ -7,6 +7,7 @@ import MainButton, { BackButton } from "../../common/Buttons";
 import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -15,7 +16,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const liveUrl =
     process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
   console.log("Live URL:", liveUrl);
-
+  const navigate = useNavigate();
   const url = process.env.PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
     : "http://localhost:3000";
@@ -131,6 +132,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         }
         console.log("Campaign created successfully:", res);
         toast.success("Campaign created successfully!");
+        navigate("/claim-link");
         handleNext();
       } else {
         console.log("Failed to create campaign, no response received");
