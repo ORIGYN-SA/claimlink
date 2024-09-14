@@ -31,7 +31,7 @@ const DispenserClaimNFT = () => {
   const location = useLocation();
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[3];
-  const dispenserId = pathParts[1];
+  const dispenserId = pathParts[2];
   const [nftIndex, setNftIndex] = useState(null);
   const [dispenser, setDispenser] = useState([]);
   const [eventDate, setEventDate] = useState(BigInt(0));
@@ -93,9 +93,9 @@ const DispenserClaimNFT = () => {
   }, [backend, dispenserId]);
 
   const checkEventStatus = (startDate, duration) => {
-    const currentTime = BigInt(new Date().getTime()); // Keep this as BigInt
-    const eventStartTime = BigInt(startDate); // Assume startDate is already BigInt
-    const eventEndTime = eventStartTime + BigInt(Number(duration) * 60 * 1000); // Convert duration to Number before multiplying
+    const currentTime = BigInt(new Date().getTime());
+    const eventStartTime = BigInt(startDate);
+    const eventEndTime = eventStartTime + BigInt(Number(duration) * 60 * 1000);
 
     if (currentTime < eventStartTime) {
       return "upcoming";
@@ -115,7 +115,7 @@ const DispenserClaimNFT = () => {
     const userPrincipal = principal?.toText();
     const matchedDispenser = dispenser[0]?.find((d) => d.id === dispenserId);
 
-    if (matchedDispenser.whitelist?.length > 0) {
+    if (matchedDispenser?.whitelist?.length > 0) {
       if (matchedDispenser && matchedDispenser.whitelist) {
         const isWhitelisted = matchedDispenser.whitelist.some(
           (whitelistedPrincipal) =>
@@ -162,8 +162,8 @@ const DispenserClaimNFT = () => {
     }
   };
   const renderCountdown = (startDate, duration) => {
-    const currentTime = new Date().getTime(); // This is a Number
-    const eventStartTime = Number(startDate); // Convert BigInt to Number
+    const currentTime = new Date().getTime();
+    const eventStartTime = Number(startDate);
     const eventEndTime = eventStartTime + Number(duration) * 60 * 1000;
 
     const status = checkEventStatus(startDate, duration);
@@ -177,14 +177,14 @@ const DispenserClaimNFT = () => {
       );
     } else if (status === "ongoing") {
       return (
-        <div className="text-center text-lg font-bold">
+        <div className="text-center text-lg font-bold text-black">
           Time Left to Claim:
           <Countdown date={eventEndTime} />
         </div>
       );
     } else {
       return (
-        <div className="text-center text-lg font-bold text-red-500">
+        <div className="text-center text-lg font-bold text-red-500 ">
           Event Expired
         </div>
       );
@@ -224,7 +224,7 @@ const DispenserClaimNFT = () => {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1 }}
-        className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
+        className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer text-black"
       >
         {renderCountdown(eventDate, duration)}
         <p className="text-xs gray mt-1">
@@ -248,9 +248,7 @@ const DispenserClaimNFT = () => {
           </div>
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Collection</p>
-            <p className="text-xs font-semibold">
-              {matchedDeposit[1]?.collectionName}
-            </p>
+            <p className="text-xs font-semibold">{canisterId}</p>
           </div>
         </div>
       </motion.div>
@@ -275,32 +273,19 @@ const DispenserClaimNFT = () => {
         </div>
 
         {renderNftDetails()}
-        {isConnected ? (
-          checkEventStatus(eventDate, duration) === "ongoing" && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={handleClaim}
-                disabled={loading}
-                className={`${
-                  loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-700"
-                } text-white font-bold py-2 px-4 rounded-lg`}
-              >
-                {loading ? "Processing..." : "Claim NFT"}
-              </button>
-            </div>
-          )
-        ) : (
-          <>
-            <WalletModal2
-              isOpen={showModal}
-              connected={isConnected}
-              onClose={() => setShowModal(false)}
-              onConnect={() => {
-                connectWallet();
-                window.location.reload();
-              }}
-            />
-          </>
+
+        {checkEventStatus(eventDate, duration) === "ongoing" && (
+          <div className="mt-8 flex justify-center">
+            <button
+              onClick={handleClaim}
+              disabled={loading}
+              className={`${
+                loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-700"
+              } text-white font-bold py-2 px-4 rounded-lg`}
+            >
+              {loading ? "Processing..." : "Claim NFT"}
+            </button>
+          </div>
         )}
       </div>
     </>

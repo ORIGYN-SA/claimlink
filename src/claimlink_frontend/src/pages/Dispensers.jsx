@@ -8,17 +8,36 @@ import { useAuth } from "../connect/useClient";
 
 const Dispensers = () => {
   const navigate = useNavigate();
-
-  const [dispnser, setDispenser] = useState([]);
+  const [dispenser, setDispenser] = useState([]);
+  const [campaignDetails, setCampaignDetails] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { identity, backend, principal, isConnected } = useAuth();
+  const [camp, setCamp] = useState({});
+  const url = process.env.PROD
+    ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
+    : "http://localhost:3000";
 
-  const createDispenser = () => {
-    navigate("/dispensers/create-dispenser");
-  };
+  // const dispenserLink = `${url}/${result}/linkclaiming/${collection}/${depositIndex}`;
+
+  // const dispenserDetail = (e, id, canister, depositIndex = 12345) => {
+  //   e.preventDefault();
+  //   navigate(`${id}/linkclaiming/${canister}/${depositIndex}`);
+  // };
+
   const DispenserSetup = () => {
     navigate("/dispensers/dispenser-setup");
+  };
+
+  // Fetch campaign details
+  const fetchCampaignDetails = async (campaignId) => {
+    try {
+      const campaignData = await backend.getCampaignDetails(campaignId);
+      return campaignData;
+    } catch (error) {
+      console.error("Error fetching campaign details:", error);
+      return null;
+    }
   };
 
   useEffect(() => {
@@ -27,6 +46,15 @@ const Dispensers = () => {
         const data = await backend?.getUserDispensers();
         setDispenser(data);
         console.log("dispenser is", data);
+
+        // Fetch campaign details for each dispenser
+        const campaignDetailsMap = {};
+        for (const disp of data[0]) {
+          const campaignData = await fetchCampaignDetails(disp.campaignId);
+          campaignDetailsMap[disp.campaignId] = campaignData;
+        }
+        setCampaignDetails(campaignDetailsMap);
+        console.log("fdgfd", campaignDetailsMap);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -41,31 +69,22 @@ const Dispensers = () => {
   }, [backend]);
 
   function convertNanosecondsToDate(nanosecondTimestamp) {
-    // Convert nanoseconds to milliseconds
     const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
-
-    // Create a Date object
     const date = new Date(millisecondTimestamp);
-
-    // Define options for formatting the date
     const options = {
       month: "long",
       day: "numeric",
       hour: "2-digit",
       minute: "2-digit",
     };
-
     return date.toLocaleString("en-US", options);
   }
-  const datein = (timestamp) => {
-    // Directly convert the timestamp to a Date object (assuming it's in milliseconds)
-    const date = new Date(Number(timestamp));
 
-    // Format the date as 'YYYY-MM-DD'
+  const datein = (timestamp) => {
+    const date = new Date(Number(timestamp));
     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
-
     return formattedDate;
   };
 
@@ -73,7 +92,6 @@ const Dispensers = () => {
     <div className=" p-6 ">
       {window.innerWidth < 640 ? (
         <div>
-          {" "}
           <div className="flex justify-between items-center">
             <h2 className=" text-lg text-[#2E2C34]  font-bold">Dispensers</h2>
             <button
@@ -83,10 +101,10 @@ const Dispensers = () => {
               <GoPlus className="text-2xl" /> New dispenser
             </button>
           </div>
-          {dispnser[0]?.map((data, index) => (
+          {dispenser[0]?.map((data, index) => (
             <motion.div
               key={index}
-              onClick={createDispenser}
+              // onClick={dispenserDetail}
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1 }}
@@ -159,7 +177,8 @@ const Dispensers = () => {
                           Links
                         </p>
                         <p className="text-[#2E2C34] font-semibold text-sm">
-                          10
+                          {campaignDetails[data?.campaignId]?.[0].depositIndices
+                            .length ?? "Loading..."}
                         </p>
                       </div>
                     </div>
@@ -203,80 +222,93 @@ const Dispensers = () => {
               </p>
             </motion.div>
 
-            {dispnser[0]?.map((data, index) => (
+            {dispenser[0]?.map((data, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 1 }}
                 className="bg-white px-5 py-4 rounded-xl flex flex-col cursor-pointer"
-                onClick={createDispenser}
+                // onClick={dispenserDetail(
+                //   data?.id,
+                //   campaignDetails[data?.campaignId]?.[0].collection?.toText()
+                // )}
               >
-                <div className="flex justify-start  space-x-4">
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 3,
-                    }}
-                  />
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 2,
-                      marginLeft: -24,
-                    }}
-                  />
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 1,
-                      marginLeft: -24,
-                    }}
-                  />
-                </div>
-                <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
-                  {data?.title}
-                </h2>
-                <p className="text-xs text-[#84818A] mt-1 ">
-                  {" "}
-                  {convertNanosecondsToDate(data?.createdAt)}
-                </p>
-                <div className="border border-gray-300 my-4 w-full"></div>
-                <div className=" w-full">
-                  <div className="flex justify-between">
-                    <p className="text-xs text-[#84818A] ">Status</p>
-                    <p className="text-[#F95657] text-xs font-semibold">
-                      Not Uploaded
-                    </p>
+                <Link
+                  to={`${data?.id}/${campaignDetails[
+                    data?.campaignId
+                  ]?.[0].collection?.toText()}`}
+                >
+                  <div className="flex justify-start  space-x-4">
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 3,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 2,
+                        marginLeft: -24,
+                      }}
+                    />
+                    <img
+                      src="https://via.placeholder.com/100"
+                      alt="Campaign"
+                      className="w-12 h-12 object-cover rounded-md"
+                      style={{
+                        border: "2px solid white",
+                        zIndex: 1,
+                        marginLeft: -24,
+                      }}
+                    />
                   </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-[#84818A] ">Start Date</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold line-clamp-1">
-                      {datein(data?.startDate)}
+                  <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">
+                    {data?.title}
+                  </h2>
+                  <p className="text-xs text-[#84818A] mt-1 ">
+                    {" "}
+                    {convertNanosecondsToDate(data?.createdAt)}
+                  </p>
+                  <div className="border border-gray-300 my-4 w-full"></div>
+                  <div className=" w-full">
+                    <div className="flex justify-between">
+                      <p className="text-xs text-[#84818A] ">Status</p>
+                      <p className="text-[#F95657] text-xs font-semibold">
+                        Not Uploaded
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A] ">Start Date</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold line-clamp-1">
+                        {datein(data?.startDate)}
 
-                      {/* <span className="text-gray-500 font-normal">13:54</span> */}
-                    </p>
+                        {/* <span className="text-gray-500 font-normal">13:54</span> */}
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A] ">Duration</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">
+                        {String(data?.duration)} Min
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A] ">Links</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">
+                        {" "}
+                        {campaignDetails[data?.campaignId]?.[0].depositIndices
+                          .length ?? "Loading..."}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-[#84818A] ">Duration</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold">
-                      {String(data?.duration)} Min
-                    </p>
-                  </div>
-                  <div className="flex justify-between mt-2">
-                    <p className="text-xs text-[#84818A] ">Links</p>
-                    <p className="text-[#2E2C34] text-xs font-semibold">10</p>
-                  </div>
-                </div>
+                </Link>
               </motion.div>
             ))}
           </div>

@@ -157,7 +157,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         console.log("dispenser result", result);
         handleNext();
         depositIndices.forEach((depositIndex) => {
-          const dispenserLink = `${url}/${result}/linkclaiming/${collection}/${depositIndex}`;
+          const dispenserLink = `${url}/dispensers/${result}/${collection}`;
           console.log("Link created successfully:", dispenserLink);
         });
       } else {
