@@ -7,8 +7,10 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   console.log(campaignDetails);
   console.log(depositIndex);
 
+  const PROD = false;
+
   // Define the base URL depending on the environment
-  const url = process.env.PROD
+  const url = PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
     : "http://localhost:3000";
 
