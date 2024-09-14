@@ -21,16 +21,40 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   )}`;
   console.log(url2);
 
+  // Fallback function to handle copying if Clipboard API is blocked
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!"); // Alert to confirm the action
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      toast.error("Failed to copy link.");
+    }
+    document.body.removeChild(textarea);
+  };
+
   // Function to handle copying to the clipboard
   const handleCopy = () => {
-    navigator.clipboard
-      .writeText(url2)
-      .then(() => {
-        toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
-      })
-      .catch((err) => {
-        console.error("Failed to copy: ", err);
-      });
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url2)
+        .then(() => {
+          toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to copy using Clipboard API, using fallback",
+            err
+          );
+          fallbackCopy(url2); // Use fallback if Clipboard API fails
+        });
+    } else {
+      fallbackCopy(url2); // Use fallback if Clipboard API is not available
+    }
   };
 
   return (
@@ -45,7 +69,7 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
           <div className="">
             <span className="text-gray-800 flex items-center font-bold text-lg gap-2">
               {campaignDetails?.createdBy?.toText()}
-              <BsCopy className="text-[#564BF1]" />
+              <BsCopy className="text-[#564BF1]" onClick={handleCopy} />
             </span>
             <div className="text-gray-500 text-xs">April 11, 2024, 20:19</div>
           </div>
@@ -73,11 +97,11 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
             <span className="text-gray-800 flex items-center w-[88px] pl-12 truncate font-semibold gap-2">
               {campaignDetails?.createdBy?.toText()}
             </span>
-            <BsCopy className="text-[#564BF1]" />
+            <BsCopy className="text-[#564BF1]" onClick={handleCopy} />
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-gray-800 font-semibold">
-              september 13, 2024
+              September 13, 2024
             </span>
             {/* <span className="text-gray-500">20:19</span> */}
           </div>
