@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
 import { Principal } from "@dfinity/principal";
 import WalletModal2 from "./common/WalletModel2";
 import bgmain1 from "./assets/img/mainbg1.png";
-import bgmain2 from "./assets/img/bg3.gif";
+import bgmain2 from "./assets/img/bg123456.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
 import Countdown from "react-countdown";
