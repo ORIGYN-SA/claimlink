@@ -781,7 +781,15 @@ actor Main {
         };
     };
 
-    public shared ({ caller = user }) func claimToken(
+    public shared ({caller = user}) func claim(
+        _collectionCanisterId: Principal,
+        _depositKey: Nat32
+    ) : async Result.Result<Int, Text> {
+        await claimToken(user, _collectionCanisterId, _depositKey)
+    };
+
+    func claimToken(
+        user : Principal,
         _collectionCanisterId: Principal,
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
@@ -1459,7 +1467,7 @@ actor Main {
                                         };
 
                                         // Claim the token (assuming claimToken returns a Result)
-                                        let claimResult = await claimToken(campaign.collection, remainingClaims[0]);
+                                        let claimResult = await claimToken(user, campaign.collection, remainingClaims[0]);
                                         switch (claimResult) {
                                             case (#ok(result)) {
                                                 // Update user claims
