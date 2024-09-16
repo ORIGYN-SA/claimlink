@@ -137,7 +137,7 @@ const DispenserClaimNFT = () => {
     setLoading(true);
     try {
       const canister = Principal.fromText(canisterId);
-      const res = await backend.claimToken(canister, Number(nftIndex));
+      const res = await backend.dispenserClaim(dispenserId);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
 
@@ -226,12 +226,19 @@ const DispenserClaimNFT = () => {
         transition={{ duration: 1 }}
         className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer text-black"
       >
-        {renderCountdown(eventDate, duration)}
-        <p className="text-xs gray mt-1">
-          {new Date(
-            Number(matchedDeposit[1]?.timestamp) / 1e6
-          ).toLocaleString()}
-        </p>
+        {isConnected ? (
+          <>
+            {" "}
+            {renderCountdown(eventDate, duration)}
+            <p className="text-xs gray mt-1">
+              {new Date(
+                Number(matchedDeposit[1]?.timestamp) / 1e6
+              ).toLocaleString()}
+            </p>{" "}
+          </>
+        ) : (
+          <>erter</>
+        )}
         <div className="border border-gray-200 my-4 w-full"></div>
         <div className="w-full">
           <div className="flex justify-between mt-2">
@@ -280,7 +287,7 @@ const DispenserClaimNFT = () => {
               onClick={handleClaim}
               disabled={loading}
               className={`${
-                loading ? "bg-gray-500" : "bg-blue-500 hover:bg-blue-700"
+                loading ? "bg-gray-500" : "bg-blue-600 hover:bg-blue-800"
               } text-white font-bold py-2 px-4 rounded-lg`}
             >
               {loading ? "Processing..." : "Claim NFT"}
@@ -288,6 +295,11 @@ const DispenserClaimNFT = () => {
           </div>
         )}
       </div>
+      <WalletModal2
+        connected={isConnected}
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+      />
     </>
   );
 };

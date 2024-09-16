@@ -30,7 +30,6 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -51,7 +50,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
 
   const getCurrentDateTime = () => {
     const now = new Date();
-    const dateStr = now.toISOString().slice(0, 10); // Get the current date
+    const dateStr = now.toISOString().slice(0, 10); // Get the current date in yyyy-mm-dd format
     const hour = now.getHours();
     const minute = now.getMinutes();
     return { dateStr, hour, minute };
@@ -77,6 +76,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       </div>
       <div>
         <form onSubmit={handleSubmit}>
+          {/* Title Input */}
           <div className="mt-6 flex flex-col">
             <label htmlFor="title" className="text-lg font-semibold py-3">
               Title
@@ -95,11 +95,13 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             )}
           </div>
 
+          {/* Start Date and Time Inputs */}
           <div className="mt-2 flex flex-col">
             <label htmlFor="startDate" className="text-lg font-semibold py-3">
               Start Date
             </label>
             <div className="flex md:flex-row flex-col w-full justify-between gap-4">
+              {/* Date Input */}
               <input
                 type="date"
                 name="startDate"
@@ -109,7 +111,9 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                 onChange={handleChange}
                 min={dateStr}
               />
+              {/* Time Select Inputs */}
               <div className="flex md:justify-normal justify-between gap-4">
+                {/* Hour Select */}
                 <select
                   name="startHour"
                   id="startHour"
@@ -129,6 +133,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                   ))}
                 </select>
 
+                {/* Minute Select */}
                 <select
                   name="startMinute"
                   id="startMinute"
@@ -143,7 +148,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
                       value={i}
                       disabled={
                         formData.startDate === dateStr &&
-                        formData.startHour === hour &&
+                        formData.startHour === String(hour) &&
                         i < minute
                       }
                     >
@@ -154,6 +159,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
               </div>
             </div>
 
+            {/* Info and Error Messages */}
             <div className="flex items-center gap-4 mt-2">
               <TbInfoHexagon className="text-[#564BF1]" />
               <p className="text-sm text-gray-500">
@@ -171,6 +177,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             )}
           </div>
 
+          {/* Duration Input */}
           <div className="mt-2 flex flex-col">
             <label htmlFor="duration" className="text-lg font-semibold py-3">
               Duration
@@ -195,6 +202,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             )}
           </div>
 
+          {/* Submit Button */}
           <MainButton handleSubmit={handleSubmit} text={"Next"} />
         </form>
       </div>

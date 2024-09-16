@@ -117,15 +117,20 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     const { startDate, startHour, startMinute } = formData;
 
     setLoading(true);
-    if (!validateForm) {
-      return;
-    }
+    // if (!validateForm()) {
+    //   // Fix: call the validation function
+    //   setLoading(false); // Stop loading if validation fails
+    //   return;
+    // }
+
     try {
+      // Format the date and time correctly WITHOUT forcing UTC (no 'Z' at the end)
       const formatDateTime = (date, hour, minute) => {
         const formattedHour = String(hour).padStart(2, "0");
         const formattedMinute = String(minute).padStart(2, "0");
-        return `${date}T${formattedHour}:${formattedMinute}:00Z`;
+        return `${date}T${formattedHour}:${formattedMinute}:00`;
       };
+
       const formattedDateTime = formatDateTime(
         startDate,
         startHour,
@@ -133,41 +138,49 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       );
 
       console.log(`Formatted DateTime: ${formattedDateTime}`);
-      // Convert to Date object
+
+      // Convert to a Date object in LOCAL TIME (without the 'Z')
       const date = new Date(formattedDateTime);
-      console.log("dsdsat", date);
+      console.log("Date object:", date);
 
-      // // Get the timestamp in milliseconds
+      // Get the timestamp in milliseconds (this will now be in the local time zone)
       const timestampMillis = date.getTime();
-      console.log("mili", timestampMillis);
-      let whitelist = principalIds
-        .filter((id) => id.trim().length > 0)
-        .map((id) => Principal.fromText(id.trim()));
+      console.log("Milliseconds since epoch:", timestampMillis);
 
+      // Prepare the whitelist (assuming you are dealing with Principal IDs)
+      let whitelist = principalIds
+        .filter((id) => id.trim().length > 0) // Remove empty entries
+        .map((id) => Principal.fromText(id.trim())); // Convert to Principal objects
+
+      // Call the backend function to create the dispenser
       const result = await backend.createDispenser(
         formData.title,
-        Number(timestampMillis),
-        Number(formData.duration),
-        selectedOption?.value || "",
-        whitelist
+        Number(timestampMillis), // Pass the timestamp in milliseconds
+        Number(formData.duration), // Convert duration to a number
+        selectedOption?.value || "", // Optional campaign ID or other selection
+        whitelist // Pass the prepared whitelist
       );
 
       if (result) {
         toast.success("Dispenser created successfully!");
-        console.log("dispenser result", result);
-        handleNext();
+        console.log("Dispenser creation result:", result);
+
+        // Process deposit indices and generate dispenser links
         depositIndices.forEach((depositIndex) => {
           const dispenserLink = `${url}/dispensers/${result}/${collection}`;
-          console.log("Link created successfully:", dispenserLink);
+          console.log("Dispenser Link created successfully:", dispenserLink);
         });
+
+        // Proceed to the next step
+        handleNext();
       } else {
         toast.error("Failed to create dispenser.");
       }
     } catch (error) {
       console.error("Error creating dispenser:", error);
-      toast.error(`Error creating dispenser: ${error}`);
+      toast.error(`Error creating dispenser: ${error.message}`);
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading state is reset
     }
   };
 
