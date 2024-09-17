@@ -11,6 +11,7 @@ import StepperComponent from "../common/StepperComponent";
 import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
 import { useAuth } from "../connect/useClient";
 import DashBoardHome from "./DashboardHome";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = ({
   children = <DashBoardHome />,
@@ -22,6 +23,15 @@ const Dashboard = ({
   const whitelist = [process.env.CANISTER_ID_CLAIMLINK_BACKEND];
   // const { isAuthenticated } = useAuth();
 
+  const navigate = useNavigate();
+
+  const { backend, principal, connectWallet, disconnect, isConnected } =
+    useAuth();
+  useEffect(() => {
+    if (!isConnected && !principal) {
+      navigate("/login");
+    }
+  }, [isConnected]);
   const handleLogin = async () => {
     const userObject = await PlugLogin(whitelist);
     console.log(userObject);

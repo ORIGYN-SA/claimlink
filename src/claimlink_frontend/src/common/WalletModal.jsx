@@ -5,10 +5,15 @@ import { useNavigate } from "react-router-dom";
 
 const WalletModal = ({ isOpen, onClose }) => {
   const { login } = useAuth();
+  const { backend, principal, connectWallet, disconnect, isConnected } =
+    useAuth();
   const navigate = useNavigate();
   const handleLogin = (provider) => {
     login(provider);
-    navigate("/dashboard");
+    if (isConnected) {
+      navigate("/dashboard");
+    }
+
     onClose();
   };
 

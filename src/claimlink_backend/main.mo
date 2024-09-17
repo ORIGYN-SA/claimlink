@@ -165,6 +165,10 @@ actor Main {
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
 
+    public shared query func getDepositItem(key : Nat32) : async ?Deposit {
+        return depositItemsMap.get(key); 
+    };
+
     public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
         var result : [(Nat32, Deposit)] = [];
         for ((key, value) in depositItemsMap.entries()) {
@@ -253,7 +257,9 @@ actor Main {
     // };
 
     public shared ({caller = user }) func addCollectionToUserMap (collection_id : Principal) : async Text {
-
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let userCollections = usersCollectionMap.get(user);
         let currentTime = Time.now();
         switch (userCollections) {
@@ -282,7 +288,9 @@ actor Main {
     }; 
 
     public shared ({caller = user}) func removeCollectionFromUserMap (collection_id : Principal) : async Text {
-
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let userCollections = usersCollectionMap.get(user);
         switch (userCollections) {
             case null {
@@ -306,6 +314,9 @@ actor Main {
 
     // Collection creation
     public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         Cycles.add<system>(500_500_000_000);
         let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
         let extCollectionCanisterId = await extToken.getCanisterId();
@@ -388,6 +399,10 @@ actor Main {
         amount : Nat
 
     ) : async [TokenIndex] {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
@@ -423,6 +438,11 @@ actor Main {
         amount : Nat
 
     ) : async [TokenIndex] {
+
+        if (Principal.isAnonymous(user)) {
+            // You can either return an error or throw an exception.
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
@@ -457,7 +477,9 @@ actor Main {
         metadata : ?MetadataContainer,
         amount : Nat
     ) : async [Nat32] {
-        
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let metadataNonFungible : Metadata = #nonfungible{
             name = name;
             description = desc;
@@ -602,13 +624,6 @@ actor Main {
     };
 
 
-
-
-
-    
-    
-
-
     func principalToUser(principal: Principal) : User {
         #principal(principal)
     };
@@ -619,6 +634,10 @@ actor Main {
         _from: Principal,
         _tokenId: TokenIndex
     ) : async Nat32 {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         // Check if the link (tokenId) already exists in userLinks for this user
         let existingLinks = userLinks.get(_from);
 
@@ -693,6 +712,10 @@ actor Main {
         _from : Principal,
         _tokenId : Nat32
     ) : async Nat32 {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
 
         let existingLinks = userLinks.get(_from);
 
@@ -785,6 +808,9 @@ actor Main {
         _collectionCanisterId: Principal,
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         await claimToken(user, _collectionCanisterId, _depositKey)
     };
 
@@ -793,6 +819,11 @@ actor Main {
         _collectionCanisterId: Principal,
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
+        
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
+
         let depositItemOpt = depositItemsMap.get(_depositKey);
 
         switch (depositItemOpt) {
@@ -829,6 +860,11 @@ actor Main {
         _depositItem: Deposit,
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
+
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_transfer: (
                 request: TransferRequest
@@ -957,6 +993,10 @@ actor Main {
         _depositItem : Deposit,
         _depositKey : Nat32
     ) : async Result.Result<Int, Text> {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
@@ -1057,6 +1097,10 @@ actor Main {
         displayWallets : [Text],
         expirationDate: Time.Time,
     ) : async (Text,[Nat32]) {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let campaignId = generateCampaignId(user);
         var linkResponses: [Nat32] = [];
 
@@ -1236,6 +1280,10 @@ actor Main {
         campaignId : Text
     ) : async Text {
 
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
+
         let qrSetId = generateQRSetId(user);
 
         let newQRSet : QRSet = {
@@ -1346,6 +1394,10 @@ actor Main {
         _campaignId : Text,
         _whitelist : [Principal]
     ) : async Text {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let dispenserId = generateDispenserId(user);
 
         let dispenser : Dispenser = {
@@ -1412,6 +1464,10 @@ actor Main {
    public shared ({ caller = user }) func dispenserClaim(
         _dispenserId: Text
     ): async Result.Result<Int, Text> {
+
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let dispenserOpt = dispensers.get(_dispenserId);
 
         switch (dispenserOpt) {
@@ -1507,13 +1563,13 @@ actor Main {
         
         if (timeRemaining > 0) {
             let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                deleteDispenser(dispenserId);
+                await deleteDispenser(dispenserId);
             });
             dispenserTimers.put(dispenserId, id);
         };
     };
 
-    func deleteDispenser(dispenserId: Text) {
+    func deleteDispenser(dispenserId: Text) : async  () {
 
         // Delete the dispenser itself
         dispensers.delete(dispenserId);
