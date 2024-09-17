@@ -32,12 +32,19 @@ import UsersNft from "../pages/UsersNft";
 import DispenserClaimNFT from "../DispenserClaimNFT";
 import ContactUs from "../pages/ContactUs";
 import UserNft2 from "../pages/UserNft2";
+import NotFound from "../pages/NotFound";
 import TechnicalHelp from "../common/TechnicalHelp";
 const approutes = createBrowserRouter([
   {
     path: "/",
     element: <MainHome />,
   },
+
+  {
+    path: "*",
+    element: <NotFound />,
+  },
+
   {
     path: "/dashboard",
     element: <Dashboard />,
