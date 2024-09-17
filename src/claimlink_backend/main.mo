@@ -468,7 +468,7 @@ actor Main {
     };
 
     // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
-    public shared func storeTokendetails(
+    public shared ({caller = user}) func storeTokendetails(
         _collectionCanisterId : Principal,
         name : Text,
         desc : Text,
