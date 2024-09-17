@@ -79,9 +79,12 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
           </div>
         </div>
         <div className="flex justify-center mt-2">
-          <p className="text-[#564BF1] underline gap-2 flex items-center">
-            <BsDownload />
-            Download csv
+          <p
+            className="text-[#564BF1] underline gap-2 flex items-center"
+            onClick={handleCopy}
+          >
+            <BsCopy className="text-[#564BF1]" />
+            Copy Link
           </p>
         </div>
       </div>
