@@ -210,11 +210,14 @@ const Home = () => {
                 onClick={lunch}
                 className="bg-[#564BF1] py-3 px-6 text-base text-white rounded-md"
               >
-                Claim demo NFT
+                Lunch App
               </button>
-              <button className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md">
+              <Link
+                to={"/contact-us"}
+                className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
+              >
                 Contact us
-              </button>
+              </Link>
             </div>
           </div>
         </div>
