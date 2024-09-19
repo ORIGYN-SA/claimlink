@@ -160,7 +160,6 @@ actor Main {
     private var dispenserTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
     private stable var stableDispenserTimers : [(Text, Timer.TimerId)] = [];
 
-
     // Stores details about the tokens coming into this vault
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
@@ -257,9 +256,9 @@ actor Main {
     // };
 
     public shared ({caller = user }) func addCollectionToUserMap (collection_id : Principal) : async Text {
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let userCollections = usersCollectionMap.get(user);
         let currentTime = Time.now();
         switch (userCollections) {
@@ -288,9 +287,9 @@ actor Main {
     }; 
 
     public shared ({caller = user}) func removeCollectionFromUserMap (collection_id : Principal) : async Text {
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let userCollections = usersCollectionMap.get(user);
         switch (userCollections) {
             case null {
@@ -314,9 +313,9 @@ actor Main {
 
     // Collection creation
     public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         Cycles.add<system>(500_500_000_000);
         let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
         let extCollectionCanisterId = await extToken.getCanisterId();
@@ -400,9 +399,9 @@ actor Main {
 
     ) : async [TokenIndex] {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
@@ -477,9 +476,9 @@ actor Main {
         metadata : ?MetadataContainer,
         amount : Nat
     ) : async [Nat32] {
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let metadataNonFungible : Metadata = #nonfungible{
             name = name;
             description = desc;
@@ -635,9 +634,9 @@ actor Main {
         _tokenId: TokenIndex
     ) : async Nat32 {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         // Check if the link (tokenId) already exists in userLinks for this user
         let existingLinks = userLinks.get(_from);
 
@@ -713,9 +712,9 @@ actor Main {
         _tokenId : Nat32
     ) : async Nat32 {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
 
         let existingLinks = userLinks.get(_from);
 
@@ -808,9 +807,9 @@ actor Main {
         _collectionCanisterId: Principal,
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         await claimToken(user, _collectionCanisterId, _depositKey)
     };
 
@@ -820,9 +819,9 @@ actor Main {
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
         
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
 
         let depositItemOpt = depositItemsMap.get(_depositKey);
 
@@ -861,9 +860,9 @@ actor Main {
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
 
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_transfer: (
@@ -994,9 +993,9 @@ actor Main {
         _depositKey : Nat32
     ) : async Result.Result<Int, Text> {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
@@ -1098,9 +1097,9 @@ actor Main {
         expirationDate: Time.Time,
     ) : async (Text,[Nat32]) {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let campaignId = generateCampaignId(user);
         var linkResponses: [Nat32] = [];
 
@@ -1280,9 +1279,9 @@ actor Main {
         campaignId : Text
     ) : async Text {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
 
         let qrSetId = generateQRSetId(user);
 
@@ -1395,9 +1394,9 @@ actor Main {
         _whitelist : [Principal]
     ) : async Text {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let dispenserId = generateDispenserId(user);
 
         let dispenser : Dispenser = {
@@ -1421,16 +1420,16 @@ actor Main {
 
         switch (qdcEntry) {
             case null {
-                // If no entry exists for the campaignId, create a new entry with QRSetId
+                // If no entry exists for the campaignId, create a new entry with DispenserId
                 qdcList := List.push((_campaignId, ("", dispenserId)), qdcList );
             };
             case (?existingEntry) {
-                // If a QRSetId already exists for the campaign, throw an error
+                // If a DispenserId already exists for the campaign, throw an error
                 if (existingEntry.1.1 != "") {
                     // Throw an error or handle it appropriately
                     throw Error.reject("Dispenser already exists for this campaignId.");
                 } else {
-                    // Otherwise, update the existing entry by adding the new QRSetId
+                    // Otherwise, update the existing entry by adding the new DispenserId
                     qdcList := List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
                         return entry.0 != _campaignId;
                 });
@@ -1465,9 +1464,9 @@ actor Main {
         _dispenserId: Text
     ): async Result.Result<Int, Text> {
 
-        if (Principal.isAnonymous(user)) {
-            throw Error.reject("Anonymous principals are not allowed.");
-        };
+        // if (Principal.isAnonymous(user)) {
+        //     throw Error.reject("Anonymous principals are not allowed.");
+        // };
         let dispenserOpt = dispensers.get(_dispenserId);
 
         switch (dispenserOpt) {
@@ -1624,4 +1623,42 @@ actor Main {
         let userId = Principal.toText(user);
         "Dispenser-" # userId # "_" # Int.toText(timestamp)
     };
+
+
+    // Function to get campaign IDs where QRSet is available
+    public query func getCampaignsWithQRSet() : async [Text] {
+
+        let qdcList = List.fromArray(qdcMap);
+
+        // Filter campaigns where the QRSet is present (non-empty)
+        let qrSetCampaigns = List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+            let (campaignId, (qrSet, _)) = entry;
+            return qrSet != "";  
+        });
+
+        // Extract only the campaign IDs and return them as an array
+        return List.toArray(List.map(qrSetCampaigns, func(entry : (Text, (Text, Text))) : Text {
+            let (campaignId, _) = entry;
+            return campaignId;
+        }));
+    };
+
+    // Function to get campaign IDs where Dispenser is available
+    public query func getCampaignsWithDispenser() : async [Text] {
+
+        let qdcList = List.fromArray(qdcMap);
+
+        // Filter campaigns where the Dispenser is present (non-empty)
+        let dispenserCampaigns = List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
+            let (campaignId, (_, dispenser)) = entry;
+            return dispenser != "";
+        });
+
+        // Extract only the campaign IDs and return them as an array
+        return List.toArray(List.map(dispenserCampaigns, func(entry : (Text, (Text, Text))) : Text {
+            let (campaignId, _) = entry;
+            return campaignId;
+        }));
+    };
+
 }
