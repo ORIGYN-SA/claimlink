@@ -70,24 +70,32 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     const loadData = async () => {
       try {
         const data = await backend.getUserCampaigns();
+        const data2 = await backend.getCampaignsWithDispenser();
+
+        // Extract the IDs from data2 to filter them out later
+        const dispenserCampaignIds = new Set(data2.map((camp) => camp));
+        console.log(dispenserCampaignIds, "dispenercampaignid ");
+        console.log(data, "dta");
+
         if (data.length > 0) {
-          const formattedCampaign = data[0].map((camp, index) => ({
-            value: camp.id,
-            label: `Campaign ${index + 1}: ${camp.id}`,
-            collection: camp.collection.toText(),
-            depositIndices: camp.depositIndices,
-          }));
+          const formattedCampaign = data[0]
+            .filter((camp) => !dispenserCampaignIds.has(camp.id)) // Filter out campaigns present in data2
+            .map((camp, index) => ({
+              value: camp.id,
+              label: `${camp.title}`,
+              collection: camp.collection.toText(),
+              depositIndices: camp.depositIndices,
+            }));
 
           setCampaign(formattedCampaign);
           setAllCampaign(data);
           console.log("coll", collection);
-          // console.log("dispostit", depositIndices);
-          // console.log("campgain", data, data[0][0]?.tokenIds);
+          // console.log("deposit", depositIndices);
+          // console.log("campaign", data, data[0][0]?.tokenIds);
           // setCollection((data[0][0]?.collection).toText());
         }
       } catch (error) {
-        console.error("Error fetching campaigns:", error);
-        toast.error("Failed to fetch campaigns.");
+        console.error("Error loading data:", error);
       }
     };
 
@@ -96,6 +104,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     }
   }, [backend]);
 
+  console.log(backend);
   const validateForm = () => {
     const newErrors = {};
 
@@ -168,7 +177,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           const dispenserLink = `${url}/dispensers/${result}/${collection}`;
           console.log("Dispenser Link created successfully:", dispenserLink);
         });
-        navigate("/navigate");
+        navigate("/dashboard");
         handleNext();
       } else {
         toast.error("Failed to create dispenser.");
