@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { useSelector, useDispatch } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { Checkbox } from "@headlessui/react";
 import { MdArrowOutward } from "react-icons/md";
 import WalletModal from "../common/WalletModal";
@@ -38,7 +38,12 @@ const LoginPage = () => {
           <MdArrowOutward className="bg-[#3B00B9] rounded text-white mt-1" />
         </p>
         <div className="bg-white p-8 rounded-xl shadow-lg sm:w-[28%] mt-24 h-[70%]">
-          <div className="flex justify-center mb-6">
+          <div
+            className="flex justify-center mb-6 cursor-pointer"
+            onClick={() => {
+              navigate("/");
+            }}
+          >
             <FaArrowLeft className="text-[#5542F6] text-xl" />
           </div>
           <h1 className="text-2xl font-bold text-center mb-6">

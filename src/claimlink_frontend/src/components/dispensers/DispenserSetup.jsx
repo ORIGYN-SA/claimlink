@@ -28,6 +28,11 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
     if (!formData.duration) {
       newErrors.duration = "Duration is required.";
     }
+    if (!formData.duration) {
+      newErrors.duration = "Duration is required.";
+    } else if (formData.duration <= 0) {
+      newErrors.duration = "Duration must be a positive number.";
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;

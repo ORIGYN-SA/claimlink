@@ -24,13 +24,18 @@ const QRSetForm = ({ name, quantity = 1 }) => {
       console.log(error);
     }
   };
-  console.log(name, quantity);
 
   useEffect(() => {
     getCampaignId();
   }, [backend]);
 
   const createQR = async () => {
+    // Check if campaign is selected before allowing the button to trigger createQR
+    if (!campaign) {
+      toast.error("Please select a campaign!!");
+      return;
+    }
+
     setLoading1(true);
 
     try {
@@ -90,15 +95,9 @@ const QRSetForm = ({ name, quantity = 1 }) => {
         <div className="mb-4">
           <h2 className="text-lg font-semibold">Connect to claim links</h2>
           <p className="text-gray-500 text-sm mt-4">
-            Choose existing campaign or upload a CSV file with links. Number of
-            rows in the file should be equal to the number of QR codes.
+            Choose an existing campaign or upload a CSV file with links. Number
+            of rows in the file should be equal to the number of QR codes.
           </p>
-          {/* <div className="bg-red-100 border text-sm border-red-400 text-red-500 px-4 py-3 rounded relative my-4">
-            <span className="block sm:inline">
-              You will not be able to change the quantity of QRs after uploading
-              links.
-            </span>
-          </div> */}
         </div>
         <div className="mb-4">
           <select
@@ -121,48 +120,14 @@ const QRSetForm = ({ name, quantity = 1 }) => {
             {campaignIds[0]}
           </button>
         </div>
-        {/* If you plan to uncomment this later, ensure it's working as expected */}
-        {/* <div className="mb-4">
-          <label className="block text-gray-700 font-semibold">
-            Upload CSV
-          </label>
-          <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-dashed border-[#5542F6] bg-[#e8e7f697] rounded-md">
-            <div className="space-y-1 text-center">
-              <div className="flex items-center w-full justify-center">
-                <IoIosAdd size={24} className="text-[#5542F6]" />
-              </div>
-              <div className="flex text-sm text-gray-600">
-                <label
-                  htmlFor="file-upload"
-                  className="relative cursor-pointer rounded-md font-medium text-[#5542F6] hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500"
-                >
-                  <span>Choose a file</span>
-                  <input
-                    id="file-upload"
-                    name="file-upload"
-                    type="file"
-                    className="sr-only"
-                    onChange={handleFileChange}
-                  />
-                </label>
-                <p className="pl-1">or drag and drop</p>
-              </div>
-              <p className="text-xs text-gray-500">CSV up to 10MB</p>
-            </div>
-          </div>
-        </div> */}
+
         <div className="flex w-full">
           <MainButton
             text={"Apply changes"}
             onClick={createQR}
             loading={loading1}
+            disabled={!campaign} // Disable the button if no campaign is selected
           />
-          {/* <button
-            className="bg-[#5542F6] w-full sm:w-[25%] text-white px-6 py-3 rounded-md"
-            onClick={createQR}
-          >
-            Apply changes
-          </button> */}
         </div>
       </div>
       <QRSet campaignId={campaign} loading={loading} />

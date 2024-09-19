@@ -25,6 +25,7 @@ const DashBoardHome = () => {
   const [loading4, setLoading4] = useState(true);
   const [dashboard, setDasboard] = useState([]);
   const { identity, backend } = useAuth();
+  const [total, setTotal] = useState(0);
 
   const createContract = () => {
     navigate("/minter/new-contract");
@@ -45,6 +46,23 @@ const DashBoardHome = () => {
       try {
         const data = await backend?.dashboardDetails();
         setDasboard(data);
+
+        // Log values to debug
+        console.log(
+          "claimedlinks:",
+          data.claimedLinks,
+          "totalLinks:",
+          data.totalLinks
+        );
+
+        // Ensure both values are numbers and handle division by zero
+        const claimedLinks = parseFloat(data.claimedLinks) || 0;
+        const totalLinks = parseFloat(data.totalLinks) || 0;
+
+        const total1 = totalLinks > 0 ? (claimedLinks / totalLinks) * 100 : 0;
+
+        setTotal(total1);
+
         console.log("dasboard is", data);
       } catch (error) {
         console.error("Data loading error:", error);
@@ -58,6 +76,7 @@ const DashBoardHome = () => {
       loadData();
     }
   }, [backend]);
+
   useEffect(() => {
     setLoading1(true);
     const loadData = async () => {
@@ -193,7 +212,7 @@ const DashBoardHome = () => {
           <p className="text-2xl text-[#2E2C34] font-bold">
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={80.25}
+              end={total}
               duration={5}
               decimals={2}
             />
@@ -206,7 +225,7 @@ const DashBoardHome = () => {
           <p className="text-2xl text-[#2E2C34] font-bold">
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={80.25}
+              end={total}
               duration={5}
               decimals={2}
             />

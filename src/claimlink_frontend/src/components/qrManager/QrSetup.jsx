@@ -14,24 +14,8 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
     quality: "",
     // Added campaignId in formData
   });
-  const [errors, setErrors] = useState({});
-  // State to store campaign IDs
 
-  const validateForm = () => {
-    const newErrors = {};
-
-    if (!formData.setName) {
-      newErrors.setName = "Name of the set is required.";
-    }
-
-    if (!formData.quality) {
-      newErrors.quality = "Quality is required.";
-    }
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
+  const [error, setError] = useState(""); // State for error message
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,6 +25,7 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
     };
 
     setFormData(updatedFormData);
+    setError(""); // Clear error message when user starts typing
 
     if (name === "setName") {
       setName(value);
@@ -49,11 +34,15 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (validateForm()) {
-      // Handle form submission
-      createQR();
-      console.log(formData);
+
+    // Check if the setName field is empty
+    if (!formData.setName) {
+      setError("Name of the set is required");
+      return;
     }
+
+    // Proceed to the next step
+    handleNext();
   };
 
   const pageVariants = {
@@ -99,16 +88,17 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
                 placeholder="Text"
                 value={formData.setName}
                 onChange={handleChange}
+                required
               />
-              {errors.setName && (
-                <p className="text-red-500 text-sm mt-1">{errors.setName}</p>
+              {/* Error message display */}
+              {error && (
+                <p className="text-red-500 text-sm font-semibold">{error}</p>
               )}
             </div>
 
             <button
               type="submit"
-              onClick={handleNext}
-              className="px-4 py-3 mt-8 sm:w-[12.5%] w-full bg-[#5542F6] text-xs font-quicksand rounded transition duration-200 hover:bg-blue-600 text-white"
+              className={`px-4 py-3 mt-8 sm:w-[12.5%] w-full bg-[#5542F6] text-xs font-quicksand rounded transition duration-200 text-white  `}
             >
               Next
             </button>
