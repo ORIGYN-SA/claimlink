@@ -19,6 +19,7 @@ const AddToken = () => {
   const { identity, backend, principal } = useAuth();
   const [operation, setOperation] = useState("mint");
   const [loading, setLoading] = useState(false);
+  const [loading2, setLoading2] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
@@ -59,6 +60,7 @@ const AddToken = () => {
       json: "",
     },
   });
+  // const [errors, setErrors] = useState({}); // State to hold validation errors
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -146,15 +148,77 @@ const AddToken = () => {
   };
   console.log(tokenType);
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Validate title (required, must be at least 3 characters)
+    // if (!formData.title || formData.title.length < 3) {
+    //   newErrors.title = "Title must be at least 3 characters long.";
+    // }
+
+    // Validate description (optional but at least 10 characters if present)
+    if (
+      tokenType === "nonfungible" &&
+      formData.description &&
+      formData.description.length < 10
+    ) {
+      newErrors.description =
+        "Description must be at least 10 characters long.";
+    }
+
+    // Validate name (required)
+    if (!formData.name) {
+      newErrors.name = "Name is required.";
+    }
+
+    // Validate symbol (required, at least 1 character, maximum 5 characters)
+    if (tokenType === "fungible") {
+      if (!formData.symbol) {
+        newErrors.symbol = "Symbol is required.";
+      } else if (formData.symbol.length > 5) {
+        newErrors.symbol = "Symbol cannot exceed 5 characters.";
+      }
+    }
+
+    // Validate decimals (must be between 0 and 18 for fungible tokens)
+    if (
+      tokenType === "fungible" &&
+      (formData.decimals < 0 || formData.decimals > 18)
+    ) {
+      newErrors.decimals = "Decimals must be between 0 and 18.";
+    }
+
+    // Validate asset (required)
+    if (!formData.asset) {
+      newErrors.asset = "Asset is required.";
+    }
+
+    // Validate metadata (optional, but key-value pairs must be valid if present)
+    formData.metadata.data.forEach((item, index) => {
+      if (!item.key || !item.value) {
+        newErrors[`metadata_${index}`] =
+          "Both key and value are required for metadata.";
+      }
+    });
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
     }
+    if (!validateForm()) {
+      // toast.error("Please enter valid data");
+      console.log("form", errors);
+      return;
+    }
     console.log(backend);
-
+    setLoading(true);
     try {
       console.log("Form data:", formData);
       console.log("Principal:", principal.toText());
@@ -228,7 +292,7 @@ const AddToken = () => {
       toast.error("Backend actor not initialized");
       return;
     }
-    setLoading(true);
+    setLoading2(true);
     console.log(backend);
 
     try {
@@ -293,7 +357,7 @@ const AddToken = () => {
     } catch (error) {
       console.error("Error creating:", error);
     } finally {
-      setLoading(false);
+      setLoading2(false);
     }
   };
   console.log(operation);
@@ -339,7 +403,7 @@ const AddToken = () => {
               <label className="text-md font-semibold py-3 ">Token Type</label>
               <select
                 value={tokenType}
-                disabled={loading}
+                disabled={loading || loading2}
                 onChange={(e) => setTokenType(e.target.value)}
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
               >
@@ -352,13 +416,16 @@ const AddToken = () => {
               <label className="text-md font-semibold py-3 ">Token Name</label>
               <input
                 type="text"
-                disabled={loading}
+                disabled={loading || loading2}
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
                 placeholder="Token Name"
               />
+              {errors.name && (
+                <p className="text-red-500 text-sm">{errors.name}</p>
+              )}
             </div>
 
             {tokenType === "nonfungible" && (
@@ -368,13 +435,16 @@ const AddToken = () => {
                 </label>
                 <input
                   type="text"
-                  disabled={loading}
+                  disabled={loading || loading2}
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
                   className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
                   placeholder="Description"
                 />
+                {errors.description && (
+                  <p className="text-red-500 text-sm">{errors.description}</p>
+                )}
               </div>
             )}
 
@@ -387,12 +457,15 @@ const AddToken = () => {
                   <input
                     type="number"
                     name="decimals"
-                    disabled={loading}
+                    disabled={loading || loading2}
                     value={formData.decimals}
                     onChange={handleInputChange}
                     className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
                     placeholder="Decimals"
                   />
+                  {errors.decimals && (
+                    <p className="text-red-500 text-sm">{errors.decimals}</p>
+                  )}
                 </div>
 
                 <div className="flex flex-col mt-4">
@@ -400,12 +473,15 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="symbol"
-                    disabled={loading}
+                    disabled={loading || loading2}
                     value={formData.symbol}
                     onChange={handleInputChange}
                     className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
                     placeholder="Symbol"
                   />
+                  {errors.symbol && (
+                    <p className="text-red-500 text-sm">{errors.symbol}</p>
+                  )}
                 </div>
               </>
             )}
@@ -449,7 +525,7 @@ const AddToken = () => {
                     </div>
                   </div>
                   <div
-                    disabled={loading}
+                    disabled={loading || loading2}
                     className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                       operation === "mint" ? "bg-[#5542F6]" : "bg-white"
                     } `}
@@ -496,7 +572,7 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="key"
-                    disabled={loading}
+                    disabled={loading || loading2}
                     value={item.key}
                     onChange={(e) => handleMetadataChange(index, e)}
                     className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
@@ -505,16 +581,22 @@ const AddToken = () => {
                   <input
                     type="text"
                     name="value"
-                    disabled={loading}
+                    disabled={loading || loading2}
                     value={item.value}
                     onChange={(e) => handleMetadataChange(index, e)}
                     className="bg-white px-2 py-2 outline-none border sm:w-[48%] w-full border-gray-200 rounded-md"
                     placeholder="Value"
                   />
+                  {errors[`metadata_${index}`] && (
+                    <p className="text-red-500 text-sm">
+                      {errors[`metadata_${index}`]}
+                    </p>
+                  )}
                 </div>
               ))}
               <button
                 type="button"
+                disabled={loading || loading2}
                 onClick={addMetadataField}
                 className="bg-gray-200 px-4 py-2 rounded-md mt-2"
               >
@@ -529,7 +611,7 @@ const AddToken = () => {
                   </label>
                   <input
                     type="number"
-                    disabled={loading}
+                    disabled={loading || loading2}
                     min={1}
                     name="decimals"
                     value={formData.decimals}
@@ -545,7 +627,7 @@ const AddToken = () => {
               <MainButton
                 text={"Submit"}
                 onClick={handleSubmit}
-                loading={loading}
+                loading={loading || loading2}
               />
               {/* <button
                 className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm"

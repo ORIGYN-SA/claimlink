@@ -208,6 +208,14 @@ const approutes = createBrowserRouter([
     ),
   },
   {
+    path: "/minter/:id",
+    element: (
+      <Dashboard>
+        <AddTokenHome />
+      </Dashboard>
+    ),
+  },
+  {
     path: "/minter/:id/token-home/add-token",
     element: (
       <Dashboard>

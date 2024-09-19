@@ -14,6 +14,7 @@ import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import DescriptionComponent from "../../common/DescriptionModel";
 import { RxCross2 } from "react-icons/rx";
+import toast from "react-hot-toast";
 
 const AddTokenHome = () => {
   const navigate = useNavigate();
@@ -23,6 +24,9 @@ const AddTokenHome = () => {
     contract: "",
     collection: "",
   });
+
+  const [copied, setCopied] = useState(false);
+
   const { id } = useParams();
   const [nft, getNft] = useState();
   const [nonFungibleNft, getNonFungibleNft] = useState();
@@ -44,6 +48,13 @@ const AddTokenHome = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  const handleCopy = () => {
+    navigator.clipboard.writeText(id).then(() => {
+      setCopied(true);
+      toast.success("successfully copied");
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -598,7 +609,7 @@ const AddTokenHome = () => {
                           <div className="flex justify-between">
                             <p className="text-xs gray ">Address</p>
 
-                            <p className="text-[#564BF1] text-xs font-semibold line-clamp-1 w-24">
+                            <p className="text-[#564BF1] text-xs font-semibold truncate  w-24">
                               {typeof nft[1] === "object" ? "" : nft[1]}{" "}
                             </p>
                           </div>
@@ -652,13 +663,7 @@ const AddTokenHome = () => {
                                         </button>
                                       </div>
                                       <p className="text-gray-500 px-6 text-sm mt-2">
-                                        Lorem Ipsum is simply dummy text of the
-                                        printing and typesetting industry. Lorem
-                                        Ipsum has been the industry's standard
-                                        dummy text ever since the 1500s, when an
-                                        unknown printer took a galley of type
-                                        and scrambled it to make a type specimen
-                                        book.
+                                        {nft[2]?.nonfungible?.description}
                                       </p>
                                       <div className="flex justify-end mt-4"></div>
                                     </motion.div>
@@ -726,7 +731,10 @@ const AddTokenHome = () => {
                   <p className=" blue font-semibold text-sm truncate w-32">
                     {id}
                   </p>
-                  <BsCopy className="w-3 h-3 text-[#564BF1]" />
+                  <BsCopy
+                    onClick={handleCopy}
+                    className="w-3 h-3 cursor-pointer text-[#564BF1]"
+                  />
                 </div>{" "}
               </div>
               <div className="flex justify-between mt-2">

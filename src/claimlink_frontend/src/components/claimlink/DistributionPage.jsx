@@ -188,7 +188,7 @@ const DistributionPage = ({
         </div>
       </form>
 
-      <div className="hidden sm:block w-[30%] h-full bg-white">
+      <div className="hidden sm:block  h-full bg-white">
         <Summary formData={formData} />
       </div>
     </motion.div>
