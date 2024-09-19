@@ -121,7 +121,7 @@ const SelectContractType = ({ handleNext }) => {
                 } w-full md:w-1/2 flex flex-col relative disabled rounded-xl border border-[#EBEAED]  cursor-pointer`}
               >
                 <div className="absolute text-xl bg-gray-100 text-blue-700 rounded-xl opacity-90 w-full h-full py-4 px-4 text-center flex items-center justify-center">
-                  Comming Soon...
+                  Coming Soon...
                 </div>
                 <svg
                   className="mb-4 w-9 h-9 mt-4 ml-4 "
@@ -153,7 +153,7 @@ const SelectContractType = ({ handleNext }) => {
                 } w-full md:w-1/2 flex flex-col  relative h-full   rounded-xl border border-[#EBEAED]  cursor-pointer`}
               >
                 <div className="absolute text-xl bg-gray-100 text-blue-700 rounded-xl opacity-90 w-full h-full py-4 px-4 text-center flex items-center justify-center">
-                  Comming Soon...
+                  Coming Soon...
                 </div>
                 <svg
                   className="mb-4 w-9 h-9 mt-4 ml-4"
