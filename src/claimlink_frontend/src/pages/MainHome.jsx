@@ -16,12 +16,19 @@ import { GoArrowRight } from "react-icons/go";
 import { PiTelegramLogoThin } from "react-icons/pi";
 import { CiTwitter } from "react-icons/ci";
 import { SlSocialInstagram } from "react-icons/sl";
+import { useAuth } from "../connect/useClient";
 
 const MainHome = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
+  // const { backend, principal, connectWallet, disconnect, isConnected } =
+  //   useAuth();
+  // useEffect(() => {
+  //   if (!isConnected && !principal) {
+  //     navigate("/login");
+  //   }
+  // }, [isConnected]);
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -170,7 +177,8 @@ const Navbar = ({ setSidebarOpen, isSidebarOpen }) => {
 
 const Home = () => {
   const navigate = useNavigate();
-
+  const { backend, principal, connectWallet, disconnect, isConnected } =
+    useAuth();
   const lunch = () => {
     navigate("/login");
   };
@@ -212,12 +220,21 @@ const Home = () => {
               >
                 Lunch App
               </button>
-              <Link
-                to={"/contact-us"}
-                className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
-              >
-                Contact us
-              </Link>
+              {isConnected ? (
+                <Link
+                  to={"/contact-us"}
+                  className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
+                >
+                  Contact us
+                </Link>
+              ) : (
+                <Link
+                  to={"/login"}
+                  className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
+                >
+                  Contact us
+                </Link>
+              )}
             </div>
           </div>
         </div>

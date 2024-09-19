@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 import Papa from "papaparse";
 import MainButton, { BackButton } from "../../common/Buttons";
 import { useAuth } from "../../connect/useClient";
+import { useNavigate } from "react-router-dom";
 
 const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
@@ -23,7 +24,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
   const [allcampaign, setAllCampaign] = useState([]);
-
+  const navigate = useNavigate();
   const [loading2, SetLoading2] = useState(false);
   const url = process.env.PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
@@ -139,7 +140,6 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
 
       console.log(`Formatted DateTime: ${formattedDateTime}`);
 
-      // Convert to a Date object in LOCAL TIME (without the 'Z')
       const date = new Date(formattedDateTime);
       console.log("Date object:", date);
 
@@ -147,18 +147,16 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       const timestampMillis = date.getTime();
       console.log("Milliseconds since epoch:", timestampMillis);
 
-      // Prepare the whitelist (assuming you are dealing with Principal IDs)
       let whitelist = principalIds
-        .filter((id) => id.trim().length > 0) // Remove empty entries
-        .map((id) => Principal.fromText(id.trim())); // Convert to Principal objects
+        .filter((id) => id.trim().length > 0)
+        .map((id) => Principal.fromText(id.trim()));
 
-      // Call the backend function to create the dispenser
       const result = await backend.createDispenser(
         formData.title,
-        Number(timestampMillis), // Pass the timestamp in milliseconds
-        Number(formData.duration), // Convert duration to a number
-        selectedOption?.value || "", // Optional campaign ID or other selection
-        whitelist // Pass the prepared whitelist
+        Number(timestampMillis),
+        Number(formData.duration),
+        selectedOption?.value || "",
+        whitelist
       );
 
       if (result) {
@@ -170,17 +168,16 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           const dispenserLink = `${url}/dispensers/${result}/${collection}`;
           console.log("Dispenser Link created successfully:", dispenserLink);
         });
-
-        // Proceed to the next step
+        navigate("/navigate");
         handleNext();
       } else {
         toast.error("Failed to create dispenser.");
       }
     } catch (error) {
       console.error("Error creating dispenser:", error);
-      toast.error(`Error creating dispenser: ${error.message}`);
+      toast.error(`Error while creating dispenser`);
     } finally {
-      setLoading(false); // Ensure loading state is reset
+      setLoading(false);
     }
   };
 

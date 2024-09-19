@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useAuth } from "../connect/useClient";
 
 const ContactUs = () => {
   const [result, setResult] = React.useState("");
-
+  const { backend, principal, connectWallet, disconnect, isConnected } =
+    useAuth();
+  useEffect(() => {
+    if (!isConnected && !principal) {
+      navigate("/login");
+    }
+  }, [isConnected]);
   const onSubmit = async (event) => {
     event.preventDefault();
     setResult("Sending...");

@@ -173,13 +173,13 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       transition={pageTransition}
       className="flex justify-between"
     >
-      <div className="pl-4 py-4 sm:w-[70%] space-y-6">
+      <div className="p-4 sm:w-[70%] w-80 space-y-6">
         <h1 className="text-3xl font-semibold">Wallet Option</h1>
         <div>
           <p className="font-semibold text-sm text-gray-400 my-4">
             Select the wallet that will be highlighted as "recommended"
           </p>
-          <div className="mt-2 flex flex-col space-y-4">
+          <div className="mt-2 flex flex-col ">
             <label className="inline-flex items-center">
               <input
                 type="radio"
@@ -224,7 +224,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         <div>
           <div className="flex items-center justify-between sm:w-[75%]">
             <p className="font-semibold text-lg">Link Expiration</p>
-            <Switch
+            {/* <Switch
               disabled={loading}
               checked={formData.enabled}
               onChange={(enabled) =>
@@ -239,70 +239,69 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
               className="group inline-flex h-6 w-12 items-center rounded-full bg-gray-200 transition"
             >
               <span className="size-4 translate-x-1 rounded-full bg-[#5542F6] transition group-data-[checked]:translate-x-7" />
-            </Switch>
+            </Switch> */}
           </div>
           <p className="font-semibold text-sm text-gray-400 my-4">
             You can set up the link expiration, so that users will not be able
             to claim after a certain day and time
           </p>
-          {formData.enabled && (
-            <div className="mt-6 space-y-4 sm:w-[75%]">
-              <h1 className="text-lg font-semibold">Expiration Date</h1>
-              <div className="flex md:flex-row flex-col w-full justify-between gap-4">
-                <input
-                  type="date"
+
+          <div className="mt-6 space-y-4 sm:w-[75%]">
+            <h1 className="text-lg font-semibold">Expiration Date</h1>
+            <div className="flex md:flex-row flex-col w-full justify-between gap-4">
+              <input
+                type="date"
+                disabled={loading}
+                name="expirationDate"
+                id="expirationDate"
+                className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
+                value={formData.expirationDate}
+                min={dateStr}
+                onChange={(e) =>
+                  setFormData({ ...formData, expirationDate: e.target.value })
+                }
+              />
+              <div className="flex md:justify-normal justify-between gap-4">
+                <select
+                  name="startHour"
                   disabled={loading}
-                  name="expirationDate"
-                  id="expirationDate"
-                  className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
-                  value={formData.expirationDate}
-                  min={dateStr}
+                  id="startHour"
+                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  value={formData.hour}
                   onChange={(e) =>
-                    setFormData({ ...formData, expirationDate: e.target.value })
+                    setFormData({ ...formData, hour: e.target.value })
                   }
-                />
-                <div className="flex md:justify-normal justify-between gap-4">
-                  <select
-                    name="startHour"
-                    disabled={loading}
-                    id="startHour"
-                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                    value={formData.hour}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hour: e.target.value })
-                    }
-                  >
-                    {Array.from({ length: 24 }, (_, i) => i).map((hr) => (
-                      <option key={hr} value={hr}>
-                        {hr}
-                      </option>
-                    ))}
-                  </select>
-                  <select
-                    name="startMinute"
-                    id="startMinute"
-                    disabled={loading}
-                    className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                    value={formData.minute}
-                    onChange={(e) =>
-                      setFormData({ ...formData, minute: e.target.value })
-                    }
-                  >
-                    {Array.from({ length: 60 }, (_, i) => i).map((min) => (
-                      <option key={min} value={min}>
-                        {min}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                >
+                  {Array.from({ length: 24 }, (_, i) => i).map((hr) => (
+                    <option key={hr} value={hr}>
+                      {hr}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  name="startMinute"
+                  id="startMinute"
+                  disabled={loading}
+                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  value={formData.minute}
+                  onChange={(e) =>
+                    setFormData({ ...formData, minute: e.target.value })
+                  }
+                >
+                  {Array.from({ length: 60 }, (_, i) => i).map((min) => (
+                    <option key={min} value={min}>
+                      {min}
+                    </option>
+                  ))}
+                </select>
               </div>
-              {errors.expirationDate && (
-                <p className="text-red-500 text-sm mt-1">
-                  {errors.expirationDate}
-                </p>
-              )}
             </div>
-          )}
+            {errors.expirationDate && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.expirationDate}
+              </p>
+            )}
+          </div>
         </div>
 
         {/* <div>
@@ -344,9 +343,9 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           )}
         </div> */}
 
-        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
+        <div className="bg-gray-400  my-8 border border-gray-300/2"></div>
 
-        <div className="flex items-center sm:w-[75%]">
+        <div className="flex items-center ">
           <TbInfoHexagon className="mr-4 text-2xl" />
           <p className="font-semibold text-sm text-gray-400 my-4">
             The users will receive an NFT with a valid link after successful
@@ -356,7 +355,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
 
         <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
 
-        <div className="flex justify-between items-center">
+        <div className="flex gap-5 items-center">
           <BackButton
             onClick={handleBack}
             text={"back"}
@@ -369,7 +368,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           ></MainButton>
         </div>
       </div>
-      <div className="p-6 flex items-center w-[30%] sm:block hidden">
+      <div className=" md:flex  h-full  sm:block hidden">
         <Summary formData={formData} />
       </div>
     </motion.div>

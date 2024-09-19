@@ -27,7 +27,7 @@ const Summary = ({ formData }) => {
         <p className="font-semibold">{formData.title || "Not specified"}</p>
       </div>
 
-      <div className="mb-4 flex justify-between">
+      {/* <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token address</h3>
         <p className="text-[#5542F6] font-semibold">
           {formData.tokenIds.value || "Not specified"}
@@ -39,22 +39,21 @@ const Summary = ({ formData }) => {
         <p className="font-semibold">
           {formData.tokenIds.label || "Not specified"}
         </p>
-      </div>
+      </div> */}
 
       <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">Token standard</h3>
-        <p className="font-semibold">
-          {formData.tokenStandard || "Not specified"}
-        </p>
+        <p className="font-semibold">EXT</p>
       </div>
 
       <div className="bg-gray-400 border border-gray-100"></div>
 
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">ID/Copies</h3>
-        <p className="font-semibold">{`${
-          formData.idPerLink || "N/A"
-        } per link / ${formData.totalLinks || "N/A"} links`}</p>
+        <p className="font-semibold">
+          {`${formData.tokenIds.length || "N/A"} per link`}
+        </p>
+        {/* ${formData.tokenIds.length || "N/A"}  */}
       </div>
 
       <div className="bg-gray-400 border border-gray-100"></div>
@@ -62,7 +61,7 @@ const Summary = ({ formData }) => {
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total links</h3>
         <p className="font-semibold">
-          {formData.totalLinks || "Not specified"}
+          {formData.tokenIds.length || "Not specified"}
         </p>
       </div>
 
@@ -73,7 +72,7 @@ const Summary = ({ formData }) => {
         <p className="font-semibold">{formData.pattern || "Not specified"}</p>
       </div>
 
-      <div className="mb-4 flex justify-between">
+      {/* <div className="mb-4 flex justify-between">
         <h3 className="text-gray-500">To be secured</h3>
         <p className="font-semibold">{formData.securedAmount || "0.0 ICP"}</p>
       </div>
@@ -88,7 +87,7 @@ const Summary = ({ formData }) => {
       <div className="my-4 flex justify-between">
         <h3 className="text-gray-500">Total amount</h3>
         <p className="font-semibold">{formData.totalAmount || "0.0 ICP"}</p>
-      </div>
+      </div> */}
     </motion.div>
   );
 };
