@@ -27,11 +27,10 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
 
     if (!formData.duration) {
       newErrors.duration = "Duration is required.";
-    }
-    if (!formData.duration) {
-      newErrors.duration = "Duration is required.";
     } else if (formData.duration <= 0) {
       newErrors.duration = "Duration must be a positive number.";
+    } else {
+      formData.duration = Math.abs(formData.duration); // Ensure duration is positive during validation
     }
 
     setErrors(newErrors);
@@ -42,7 +41,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: name === "duration" ? Math.abs(value) : value, // Ensure duration is always positive
     });
   };
 
