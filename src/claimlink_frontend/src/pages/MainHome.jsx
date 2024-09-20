@@ -54,7 +54,7 @@ const MainHome = () => {
                 claimlink
                 <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
               </div>
-              {isSidebarOpen ? (
+              {/* {isSidebarOpen ? (
                 <button
                   onClick={toggleSidebar}
                   className="text-xl bg-[#3B00B9] p-2 rounded-md"
@@ -68,7 +68,7 @@ const MainHome = () => {
                 >
                   <RxHamburgerMenu />
                 </button>
-              )}
+              )} */}
             </header>
             {isSidebarOpen && (
               <Navbar
@@ -197,14 +197,14 @@ const Home = () => {
             backgroundColor: "rgba(0, 0, 0, 0.1)",
           }}
         ></div>
-        <div className=" h-screen overflow-hidden z-10">
+        <div className=" h-screen   hidden md:block overflow-hidden z-10">
           <img
             src={bgmain1}
             alt=""
             className="transition-transform duration-300  h-[90vh] transform hover:scale-105 ease-in"
           />
         </div>
-        <div className="relative w-3/5 flex items-center px-6 justify-center z-10">
+        <div className="relative md:w-3/5 w-full  flex items-center px-6 justify-center z-10">
           <div className="w-full text-center">
             <h1 className="text-4xl lg:text-6xl font-semibold p-6">
               Send tokens to anyone through a claim link
@@ -238,7 +238,7 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="   h-screen overflow-hidden  z-10 ">
+        <div className="  hidden md:block h-screen overflow-hidden  z-10 ">
           <img
             src={bgmain2}
             alt=""
