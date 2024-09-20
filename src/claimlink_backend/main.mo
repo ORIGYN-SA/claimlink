@@ -119,8 +119,11 @@ actor Main {
     // Map to store created Links
     private var userLinks =  TrieMap.TrieMap<Principal, [Link]>(Principal.equal, Principal.hash);
     private stable var stableUserLinks : [(Principal,[Link])] = [];
-    private var claimCount : Nat = 0;
-    private var linksCount : Nat = 0;
+    stable var claimCount : Nat = 0;
+    stable var linksCount : Nat = 0;
+    // Daily Stats
+    stable var dailyLinksCreatedCount: Nat = 0;
+    stable var dailyLinksClaimedCount: Nat = 0;
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
@@ -139,9 +142,9 @@ actor Main {
     private var qrSetMap = TrieMap.TrieMap<Text, QRSet>(Text.equal, Text.hash);
     private stable var stableQrSetMap : [(Text,QRSet)] = [];
     private var userQRSetMap = TrieMap.TrieMap<Principal, [QRSet]>(Principal.equal, Principal.hash);
-    // Map that stores QRsets and dispenser created on a Campaign
-    private var qdcMap : [(Text,(Text,Text))] = [];
     private stable var stableUserQrSetMap : [(Principal, [QRSet])] = [];
+    // Map that stores QRsets and dispenser created on a Campaign
+    private stable var qdcMap : [(Text,(Text,Text))] = [];
     // Token data Store
     func nat32Hash(value: Nat32) : Hash.Hash {
         let natValue = Nat32.toNat(value);
@@ -184,6 +187,7 @@ actor Main {
         stableUserLinks := Iter.toArray(userLinks.entries());
         stableUserCampaignsMap := Iter.toArray(userCampaignsMap.entries());
         stableDispensers := Iter.toArray(dispensers.entries());
+        stableuserClaimedDispensers := Iter.toArray(userClaimedDispensers.entries());
         stableUserDispensersMap := Iter.toArray(userDispensersMap.entries());
         stableQrSetMap := Iter.toArray(qrSetMap.entries());
         stableUserQrSetMap := Iter.toArray(userQRSetMap.entries());
@@ -203,6 +207,7 @@ actor Main {
         userCampaignsMap := TrieMap.fromEntries(stableUserCampaignsMap.vals(), Principal.equal, Principal.hash);
         dispensers := TrieMap.fromEntries(stableDispensers.vals(), Text.equal, Text.hash);
         userDispensersMap := TrieMap.fromEntries(stableUserDispensersMap.vals(), Principal.equal, Principal.hash);
+        userClaimedDispensers := TrieMap.fromEntries(stableuserClaimedDispensers.vals(), Principal.equal, Principal.hash);
         qrSetMap := TrieMap.fromEntries(stableQrSetMap.vals(), Text.equal, Text.hash);
         userQRSetMap := TrieMap.fromEntries(stableUserQrSetMap.vals(), Principal.equal, Principal.hash);
         tokensDataToBeMinted := TrieMap.fromEntries(stableTokensDataToBeMinted.vals(), Principal.equal, Principal.hash);
@@ -228,12 +233,44 @@ actor Main {
     type DashboardStats = {
         totalLinks: Nat;
         claimedLinks: Nat;
+        linksCoundToday : Nat;
+        claimsCountToday : Nat;
         campaigns: ?[Campaign];
         qrSets: ?[QRSet];
         dispensers: ?[Dispenser];
     };
 
-    // Your updated dashboardDetails function
+
+    // Function to reset daily stats at midnight
+    func resetDailyStats(): async () {
+        dailyLinksCreatedCount := 0;
+        dailyLinksClaimedCount := 0;
+        // Schedule the next reset at midnight
+        await setMidnightTimer();
+    };
+
+    // Function to set a timer for midnight to reset stats
+    func setMidnightTimer<system>() : async () {
+        let now = Time.now();
+        let secondsUntilMidnight = getSecondsUntilMidnight(now);
+        let nanosecondsUntilMidnight = secondsUntilMidnight * 1_000_000_000;
+        // Schedule a timer to trigger resetDailyStats at the next midnight
+        let id = Timer.setTimer<system>(#nanoseconds nanosecondsUntilMidnight, func () : async () {
+            await resetDailyStats();
+        });
+    };
+
+    // Function to calculate how many seconds until midnight
+    func getSecondsUntilMidnight(currentTime: Time.Time): Nat {
+        let secondsInDay: Nat = 24 * 60 * 60;
+        let currentTimeOfDay = Nat64.toNat(Nat64.fromIntWrap(currentTime % secondsInDay));
+        return secondsInDay - currentTimeOfDay;
+    };
+
+    public shared func initStatTimer()  : async () {
+        await setMidnightTimer()
+    };
+
     public shared ({caller = user}) func dashboardDetails() : async DashboardStats {
 
         let campaigns = userCampaignsMap.get(user);
@@ -243,6 +280,8 @@ actor Main {
         return {
             totalLinks = linksCount;
             claimedLinks = claimCount;
+            linksCoundToday = dailyLinksCreatedCount;
+            claimsCountToday = dailyLinksClaimedCount;
             campaigns = campaigns;
             qrSets = qrSets;
             dispensers = dispensers;
@@ -700,7 +739,7 @@ actor Main {
         // Store the new deposit in the depositItemsMap
         depositItemsMap.put(key, newDeposit);
         linksCount := linksCount + 1;
-
+        dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
         // Return the key for tracking purposes (no token transfer here)
         return key;
     };
@@ -788,6 +827,7 @@ actor Main {
                         };
                         depositItemsMap.put(key,newDeposit);
                         linksCount := linksCount + 1;
+                        dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
                         key;
                     };
                     case null {
@@ -957,6 +997,7 @@ actor Main {
                 };
 
                 claimCount := claimCount + 1;
+                dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
                 return #ok(0); // Successful claim
             };
 
@@ -1069,6 +1110,7 @@ actor Main {
 
 
                         claimCount := claimCount + 1;
+                        dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
                         return #ok(0); // Successful mint
                     };
                     case null {
