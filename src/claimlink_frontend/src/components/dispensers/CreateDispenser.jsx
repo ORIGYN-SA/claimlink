@@ -177,7 +177,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           const dispenserLink = `${url}/dispensers/${result}/${collection}`;
           console.log("Dispenser Link created successfully:", dispenserLink);
         });
-        navigate("/dashboard");
+        navigate("/dispensers");
         handleNext();
       } else {
         toast.error("Failed to create dispenser.");

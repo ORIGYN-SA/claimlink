@@ -36,7 +36,8 @@ const LinkClaiming = () => {
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
   const currentUrl = window.location.href; // Get the current page URL
-
+  const [dispenser, setDispenser] = useState(null);
+  const [campaign, setCampaign] = useState([]);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -49,6 +50,55 @@ const LinkClaiming = () => {
       setPrincipalText("connect wallet");
     }
   }, [isConnected, principal]);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+
+        // Fetch dispenser data
+        const dispenserData = await backend?.getDispenserDetails(canisterId);
+        if (dispenserData) {
+          setDispenser(dispenserData);
+          console.log("Dispenser data:", dispenserData);
+
+          // Check if campaignId exists and is valid
+          if (dispenserData) {
+            console.log(
+              "Loading campaign data for campaignId:",
+              dispenserData?.[0]?.campaignId
+            );
+
+            // Fetch campaign data using the campaignId
+            const campdata = await backend?.getCampaignDetails(
+              dispenserData?.[0]?.campaignId
+            );
+            if (campdata) {
+              setCampaign(campdata);
+              console.log("Campaign data:", campdata);
+            } else {
+              console.error(
+                "No campaign data found for campaignId:",
+                dispenserData.campaignId
+              );
+            }
+          } else {
+            console.warn("No campaignId found in dispenser data");
+          }
+        } else {
+          console.error("Dispenser data is null or undefined");
+        }
+      } catch (error) {
+        console.error("Error loading data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (backend && canisterId) {
+      loadData();
+    }
+  }, [backend, canisterId]);
 
   const handleClaim = async () => {
     if (!isConnected) {
@@ -63,6 +113,8 @@ const LinkClaiming = () => {
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
         navigate("/");
+      } else if (res.err) {
+        toast.error(`${res.err}`);
       } else {
         toast.error("Failed to claim the NFT.");
       }
@@ -188,6 +240,9 @@ const LinkClaiming = () => {
             >
               <RxCross2 className="text-gray-800 w-5 h-5" />
             </button>
+          </div>
+          <div className="text-center text-xl mt-10">
+            Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
           </div>
           {renderNftDetails()}
           <div className="mt-4 flex justify-center">
