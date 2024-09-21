@@ -194,12 +194,6 @@ const AddToken = () => {
     }
 
     // Validate metadata (optional, but key-value pairs must be valid if present)
-    formData.metadata.data.forEach((item, index) => {
-      if (!item.key || !item.value) {
-        newErrors[`metadata_${index}`] =
-          "Both key and value are required for metadata.";
-      }
-    });
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0; // Return true if no errors

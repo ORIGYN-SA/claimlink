@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CiImageOn, CiWallet } from "react-icons/ci";
+import { CiImageOn } from "react-icons/ci";
 import Summary from "./Summary";
 import { BsArrowLeft } from "react-icons/bs";
 import { motion } from "framer-motion";
@@ -36,7 +36,10 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
     if (backend) {
       loadData();
     }
-  }, [backend]);
+
+    // Automatically set the contract to "nfts" when the component mounts
+    setFormData((prev) => ({ ...prev, contract: "nfts" }));
+  }, [backend, setFormData]);
 
   const handleContractSelect = (contractType) => {
     setSelectedContract(contractType);
@@ -56,7 +59,6 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
   const validate = () => {
     let tempErrors = {};
     tempErrors.title = formData.title ? "" : "Title is required.";
-    tempErrors.contract = formData.contract ? "" : "Contract is required.";
     tempErrors.collection = formData.collection
       ? ""
       : "Collection is required.";
@@ -158,41 +160,6 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
                     </p>
                   </div>
                 </div>
-                {/* <div
-                  className={`sm:w-[50%] rounded-md h-36 border-2 space-y-6 p-4 cursor-pointer ${
-                    selectedContract === "tokens"
-                      ? "bg-[#5542F6] border-[#5542F6]"
-                      : "bg-white border-gray-100"
-                  }`}
-                  onClick={() => handleContractSelect("tokens")}
-                >
-                  <CiWallet
-                    size={36}
-                    className={`${
-                      selectedContract === "tokens"
-                        ? "text-white"
-                        : "text-[#5542F6]"
-                    }`}
-                  />
-                  <div>
-                    <p
-                      className={`font-semibold ${
-                        selectedContract === "tokens" ? "text-white" : ""
-                      }`}
-                    >
-                      Tokens
-                    </p>
-                    <p
-                      className={`text-sm ${
-                        selectedContract === "tokens"
-                          ? "text-gray-200"
-                          : "text-gray-500"
-                      }`}
-                    >
-                      DIP-20/ICRC-1
-                    </p>
-                  </div>
-                </div> */}
               </div>
               {errors.contract && (
                 <p className="text-red-500 text-sm">{errors.contract}</p>

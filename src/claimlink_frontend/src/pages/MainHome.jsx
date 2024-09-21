@@ -218,7 +218,7 @@ const Home = () => {
                 onClick={lunch}
                 className="bg-[#564BF1] py-3 px-6 text-base text-white rounded-md"
               >
-                Lunch App
+                Launch App
               </button>
               {isConnected ? (
                 <Link

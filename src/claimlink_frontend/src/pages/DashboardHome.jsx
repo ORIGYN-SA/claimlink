@@ -908,7 +908,7 @@ const DashBoardHome = () => {
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
                   <button
-                    onClick={dispenser}
+                    onClick={dispenserSetup}
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
                     <GoPlus className="md:text-2xl text-sm" /> New dispenser
@@ -1092,7 +1092,7 @@ const DashBoardHome = () => {
                       key={index}
                       className="grid grid-cols-5 gap-4 items-center rounded-md bg-white px-1 py-3"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-1">
                         <img
                           width="40px"
                           height="60px"
@@ -1101,19 +1101,19 @@ const DashBoardHome = () => {
                           className="rounded-sm"
                         />
                         <div>
-                          <h2 className="text-xs text-[#2E2C34] font-semibold">
+                          <h2 className="text-xs text-[#2E2C34] font-semibold truncate w-12">
                             {data[2]}
                           </h2>
                         </div>
                       </div>
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          December 5, 13:54
+                          Dec 5, 13:54
                         </p>
                       </div>
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          ERC1155
+                          EXT
                         </p>
                       </div>
                       <div>
