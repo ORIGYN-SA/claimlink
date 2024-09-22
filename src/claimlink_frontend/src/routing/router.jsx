@@ -72,7 +72,7 @@ const approutes = createBrowserRouter([
   {
     path: "/dispensers",
     element: (
-      <Dashboard headerText={"good"} menubar={false}>
+      <Dashboard headerText={"Dispensers"} menubar={false}>
         <Dispensers />
       </Dashboard>
     ),
