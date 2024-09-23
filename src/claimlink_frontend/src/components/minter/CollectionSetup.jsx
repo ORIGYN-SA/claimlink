@@ -50,7 +50,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
 
     const file = acceptedFiles[0];
 
-    const maxSizeInBytes = 1024 * 1024 * 5;
+    const maxSizeInBytes = 1024 * 1024 * 1;
     if (file.size > maxSizeInBytes) {
       console.error(
         "Selected file is too large. Please select an image file less than or equal to 5 MB."
@@ -72,6 +72,12 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
         img: logoBlob,
       }));
       setImage(URL.createObjectURL(file));
+
+      // Clear the image error if it exists
+      setFormErrors((prevErrors) => ({
+        ...prevErrors,
+        img: "", // Clear image error
+      }));
       console.log("Blob for logo:", logoBlob);
     } catch (error) {
       console.error("Error converting image to blob:", error);

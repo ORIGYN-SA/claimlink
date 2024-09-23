@@ -48,12 +48,39 @@ const AddTokenHome = () => {
     setIsModalOpen(!isModalOpen);
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(id).then(() => {
-      setCopied(true);
-      toast.success("successfully copied");
-      setTimeout(() => setCopied(false), 2000);
-    });
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!"); // Alert to confirm the action
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      toast.error("Failed to copy link.");
+    }
+    document.body.removeChild(textarea);
+  };
+
+  // Function to handle copying to the clipboard
+  const handleCopy = (text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Address copied to clipboard!"); // Optional: Alert to confirm the action
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to copy using Clipboard API, using fallback",
+            err
+          );
+          fallbackCopy(text); // Use fallback if Clipboard API fails
+        });
+    } else {
+      fallbackCopy(text); // Use fallback if Clipboard API is not available
+    }
   };
   useEffect(() => {
     const loadData = async () => {
@@ -711,7 +738,7 @@ const AddTokenHome = () => {
             {collections ? (
               <h2 className="font-bold text-xl">{collections[0][2]}</h2>
             ) : (
-              <h2 className="font-bold text-xl">test collection</h2>
+              <p className=" animate-pulse  w-32 h-6  rounded-sm bg-gray-200"></p>
             )}
             <div className="mt-4 w-full">
               <div className="flex justify-between">
@@ -721,7 +748,7 @@ const AddTokenHome = () => {
                     {collections[0][3]}
                   </p>
                 ) : (
-                  <p className="black font-semibold text-sm">TST</p>
+                  <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
                 )}
               </div>
               <div className="flex justify-between mt-2">
@@ -732,7 +759,9 @@ const AddTokenHome = () => {
                     {id}
                   </p>
                   <BsCopy
-                    onClick={handleCopy}
+                    onClick={() => {
+                      handleCopy(id);
+                    }}
                     className="w-3 h-3 cursor-pointer text-[#564BF1]"
                   />
                 </div>{" "}
@@ -756,9 +785,7 @@ const AddTokenHome = () => {
                     {formatTimestamp(collections[0][0])}
                   </p>
                 ) : (
-                  <p className=" blue font-semibold text-sm">
-                    August 1, 2024 12:10
-                  </p>
+                  <p className=" animate-pulse  w-20 h-6  rounded-sm bg-gray-200"></p>
                 )}
               </div>
               <div className="flex justify-between mt-2">

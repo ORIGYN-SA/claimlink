@@ -108,12 +108,12 @@ const AddToken = () => {
 
     const file = acceptedFiles[0];
 
-    const maxSizeInBytes = 1024 * 1024 * 5;
+    const maxSizeInBytes = 1024 * 1024 * 1;
     if (file.size > maxSizeInBytes) {
       console.error(
         "Selected file is too large. Please select an image file less than or equal to 5 MB."
       );
-      toast.error("Please select an image file less than or equal to 5 MB");
+      toast.error("Please select an image file less than or equal to 1 MB");
       return;
     }
 
