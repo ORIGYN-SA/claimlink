@@ -140,7 +140,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       }
     } catch (error) {
       console.error("Error creating campaign:", error);
-      toast.error(`Error creating campaign: ${error.message}`);
+      toast.error(`Error creating campaign`);
     } finally {
       setLoading(false);
     }

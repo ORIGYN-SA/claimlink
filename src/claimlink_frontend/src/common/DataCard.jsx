@@ -4,7 +4,6 @@ import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
 
 const DataCard = ({ campaignDetails, depositIndex, keys }) => {
-  console.log("hello");
   console.log(campaignDetails);
   console.log(depositIndex);
 
@@ -38,10 +37,10 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   };
 
   // Function to handle copying to the clipboard
-  const handleCopy = () => {
+  const handleCopy = (text) => {
     if (navigator.clipboard) {
       navigator.clipboard
-        .writeText(url2)
+        .writeText(text)
         .then(() => {
           toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
         })
@@ -50,10 +49,10 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
             "Failed to copy using Clipboard API, using fallback",
             err
           );
-          fallbackCopy(url2); // Use fallback if Clipboard API fails
+          fallbackCopy(text); // Use fallback if Clipboard API fails
         });
     } else {
-      fallbackCopy(url2); // Use fallback if Clipboard API is not available
+      fallbackCopy(text); // Use fallback if Clipboard API is not available
     }
   };
 
@@ -69,7 +68,12 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
           <div className="">
             <span className="text-gray-800 flex items-center font-bold text-lg gap-2">
               {campaignDetails?.createdBy?.toText()}
-              <BsCopy className="text-[#564BF1]" onClick={handleCopy} />
+              <BsCopy
+                className="text-[#564BF1]"
+                onClick={() => {
+                  handleCopy(campaignDetails?.createdBy?.toText());
+                }}
+              />
             </span>
             <div className="text-gray-500 text-xs">April 11, 2024, 20:19</div>
           </div>
@@ -81,7 +85,9 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
         <div className="flex justify-center mt-2">
           <p
             className="text-[#564BF1] underline gap-2 flex items-center"
-            onClick={handleCopy}
+            onClick={() => {
+              handleCopy(url2);
+            }}
           >
             <BsCopy className="text-[#564BF1]" />
             Copy Link
@@ -100,7 +106,12 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
             <span className="text-gray-800 flex items-center w-[88px] pl-12 truncate font-semibold gap-2">
               {campaignDetails?.createdBy?.toText()}
             </span>
-            <BsCopy className="text-[#564BF1]" onClick={handleCopy} />
+            <BsCopy
+              className="text-[#564BF1]"
+              onClick={() => {
+                handleCopy(campaignDetails?.createdBy?.toText());
+              }}
+            />
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-gray-800 font-semibold">
@@ -112,7 +123,9 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
           {/* Copy Link Button */}
           <p
             className="text-[#564BF1] hover:underline gap-2 flex items-center cursor-pointer"
-            onClick={handleCopy} // Call handleCopy on click
+            onClick={() => {
+              handleCopy(url2);
+            }} // Call handleCopy on click
           >
             <BsCopy className="text-[#564BF1]" />
             Copy Link
