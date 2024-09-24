@@ -26,6 +26,8 @@ const DashBoardHome = () => {
   const [dashboard, setDasboard] = useState([]);
   const { identity, backend } = useAuth();
   const [total, setTotal] = useState(0);
+  const [total1, setTotal1] = useState(0);
+  const [total2, setTotal2] = useState(0);
 
   const createContract = () => {
     navigate("/minter/new-contract");
@@ -58,10 +60,17 @@ const DashBoardHome = () => {
         // Ensure both values are numbers and handle division by zero
         const claimedLinks = parseFloat(data.claimedLinks) || 0;
         const totalLinks = parseFloat(data.totalLinks) || 0;
+        const claimsCountToday = parseFloat(data.claimsCountToday) || 0;
+        const linksCoundToday = parseFloat(data.linksCoundToday) || 0;
 
         const total1 = totalLinks > 0 ? (claimedLinks / totalLinks) * 100 : 0;
-
+        const total2 =
+          totalLinks > 0 ? (claimsCountToday / totalLinks) * 100 : 0;
+        const total3 =
+          linksCoundToday > 0 ? (claimsCountToday / linksCoundToday) * 100 : 0;
         setTotal(total1);
+        setTotal1(total2);
+        setTotal2(total3);
 
         console.log("dasboard is", data);
       } catch (error) {
@@ -194,7 +203,9 @@ const DashBoardHome = () => {
               duration={5}
             />
           </p>
-          <p className="text-xs text-[#6FC773] ">+56 today</p>
+          <p className="text-xs text-[#6FC773] ">
+            +{parseInt(dashboard?.linksCoundToday) || 0}
+          </p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed total</p>
@@ -205,7 +216,9 @@ const DashBoardHome = () => {
               duration={5}
             />
           </p>
-          <p className="text-xs text-[#6FC773] ">+56 today</p>
+          <p className="text-xs text-[#6FC773] ">
+            +{parseInt(dashboard?.claimsCountToday) || 0}
+          </p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed rate total</p>
@@ -218,20 +231,20 @@ const DashBoardHome = () => {
             />
             %
           </p>
-          <p className="text-xs text-[#6FC773] ">+30%</p>
+          <p className="text-xs text-[#6FC773] ">+{total1}</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed rate today</p>
           <p className="text-2xl text-[#2E2C34] font-bold">
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={total}
+              end={total2}
               duration={5}
               decimals={2}
             />
             %
           </p>
-          <p className="text-xs text-[#6FC773] ">+30%</p>
+          <p className="text-xs text-[#6FC773] ">+{total2}</p>
         </div>
       </div>
       {window.innerWidth < 640 ? (

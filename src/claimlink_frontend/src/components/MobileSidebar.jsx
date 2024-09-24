@@ -7,28 +7,30 @@ import { RiStackFill } from "react-icons/ri";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
 import { useAuth } from "../connect/useClient";
+import { RiNftFill } from "react-icons/ri";
 
 const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isVisible, setIsVisible] = useState(false);
-  const { login, isAuthenticated, principal, logout } = useAuth();
-  const [principals, setPrincipal] = useState("webf-uwebf-sesu");
-  console.log(isAuthenticated);
+  const { login, isConnected, principal, disconnect } = useAuth();
+  const [principals, setPrincipal] = useState("connect wallet");
 
-  setTimeout(() => {
-    if (isAuthenticated) {
-      setPrincipal(principal.toText());
-    }
-  }, 5000);
   const handleLogin = () => {
-    if (isAuthenticated) {
-      logout();
-      setPrincipal("webf-uwebf-sesu");
+    if (isConnected) {
+      disconnect();
+      navigate("/");
     } else {
       login("NFID");
     }
   };
+  useEffect(() => {
+    if (isConnected && principal) {
+      setPrincipal(principal.toText());
+    } else {
+      setPrincipal("connect wallet");
+    }
+  }, [isConnected, principal]);
 
   const menuItems = [
     { path: "/", label: "Dashboard", icon: MdDashboard },
@@ -36,6 +38,7 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
+    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
   ];
 
   useEffect(() => {
@@ -69,10 +72,10 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
           </button>
         )}
       </header>
-      <div className="px-6 py-2 flex flex-col">
+      {/* <div className="px-6 py-2 flex flex-col">
         <p className="text-sm text-gray-500">Balance</p>
         <p className="text-2xl text-gray-900 font-medium">0 ICP</p>
-      </div>
+      </div> */}
       <div className="px-6 py-2 mb-6">
         <p className="text-sm text-gray-500">Wallet</p>
         <div className="flex justify-between items-center">
@@ -84,7 +87,7 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
             onClick={handleLogin}
           >
             <IoLogOutOutline />
-            {isAuthenticated ? "Logout" : "Login"}
+            {isConnected ? "Logout" : "Login"}
           </button>
         </div>
       </div>
@@ -118,6 +121,7 @@ export default MobileSidebar;
 
 export function MobileFooter() {
   const location = useLocation();
+  const [principals, setPrincipal] = useState("connect wallet");
   const currentPath = location.pathname;
   const menuItems = [
     { path: "/", label: "Dashboard", icon: MdDashboard },
@@ -125,13 +129,30 @@ export function MobileFooter() {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
+    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
   ];
+  const { login, principal, isConnected, disconnect } = useAuth();
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
   };
+  const handleLogin = () => {
+    if (isConnected) {
+      disconnect();
+      navigate("/");
+    } else {
+      login("NFID");
+    }
+  };
+  useEffect(() => {
+    if (isConnected && principal) {
+      setPrincipal(principal.toText());
+    } else {
+      setPrincipal("connect wallet");
+    }
+  }, [isConnected, principal]);
   return (
     <div className={` w-full h-full bg-[#EBEAED] flex mt-10  flex-col  `}>
       <div className="px-4 py-4 flex justify-between items-center mt-10">
@@ -148,17 +169,22 @@ export function MobileFooter() {
       </div>
       <div className="border-t my-6 border-gray-300"></div>
 
-      <div className="px-6 py-2 flex flex-col">
+      {/* <div className="px-6 py-2 flex flex-col">
         <p className="text-sm text-gray-500">Balance</p>
         <p className="text-2xl text-gray-900 font-medium">0 ICP</p>
-      </div>
+      </div> */}
       <div className="px-6 py-2 mb-6">
         <p className="text-sm text-gray-500">Wallet</p>
         <div className="flex justify-between items-center">
-          <p className="text-2xl text-gray-900 font-medium">0xf8c...992h4</p>
-          <button className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2">
+          <p className="text-2xl text-gray-900 font-medium truncate w-48">
+            {principals}
+          </p>
+          <button
+            className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2"
+            onClick={handleLogin}
+          >
             <IoLogOutOutline />
-            Log out
+            {isConnected ? "Logout" : "login"}
           </button>
         </div>
       </div>

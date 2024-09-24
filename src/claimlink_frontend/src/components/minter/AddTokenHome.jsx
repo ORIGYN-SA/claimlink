@@ -215,7 +215,7 @@ const AddTokenHome = () => {
                           {collections[0][3]}
                         </h2>
                       ) : (
-                        <h2 className="text-md font-bold  black">TST</h2>
+                        <h2 className="text-md font-bold animate-pulse w-24 h-6 "></h2>
                       )}
                     </div>
                   </div>
@@ -277,7 +277,9 @@ const AddTokenHome = () => {
                 </div>
               </div>
               <button
-                onClick={addcompaign}
+                onClick={() => {
+                  navigate("/dispensers");
+                }}
                 className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-4 bg-[#5542F6] text-white rounded-sm text-sm"
               >
                 <GoLink />
@@ -439,7 +441,7 @@ const AddTokenHome = () => {
                               onClick={handleDes}
                             ></div>
                             <div className="fixed inset-0  items-center justify-center bg z-50">
-                              <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-transparent ">
+                              <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex flex-wrap items-center justify-center bg-transparent ">
                                 <motion.div
                                   initial={{ scale: 0, opacity: 0 }}
                                   animate={{
@@ -463,13 +465,8 @@ const AddTokenHome = () => {
                                       <RxCross2 className="text-white w-5 h-5" />
                                     </button>
                                   </div>
-                                  <p className="text-gray-500 px-6 text-sm mt-2">
-                                    Lorem Ipsum is simply dummy text of the
-                                    printing and typesetting industry. Lorem
-                                    Ipsum has been the industry's standard dummy
-                                    text ever since the 1500s, when an unknown
-                                    printer took a galley of type and scrambled
-                                    it to make a type specimen book.
+                                  <p className="text-gray-500 px-6 text-sm mt-2 flex flex-wrap">
+                                    {nft[2]?.nonfungible?.description}
                                   </p>
                                   <div className="flex justify-end mt-4"></div>
                                 </motion.div>
@@ -794,6 +791,15 @@ const AddTokenHome = () => {
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
+            <button
+              onClick={() => {
+                navigate("/dispensers");
+              }}
+              className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-4 bg-[#5542F6] text-white rounded-sm text-sm"
+            >
+              <GoLink />
+              Create claim links
+            </button>
           </div>
         </motion.div>
       )}
