@@ -355,7 +355,7 @@ actor Main {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
-        Cycles.add<system>(500_500_000_000);
+        Cycles.add<system>(500_000_000_000);
         let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
         let extCollectionCanisterId = await extToken.getCanisterId();
         let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
@@ -407,6 +407,52 @@ actor Main {
                     result := Array.append(result, [(timestamp, collectionCanisterId, details.0, details.1, details.2)]);
                 };
                 return ?result;
+            };
+        };
+    };
+
+    public shared ({caller = user}) func getUserCollectionDetailsPaginate(page: Nat, pageSize: Nat) : async ?[(Time.Time, Principal, Text, Text, Text)] {
+        let collections = usersCollectionMap.get(user);
+
+        switch (collections) {
+            case (null) {
+                return null;
+            };
+            case (?collections) {
+
+                // Determine the total number of collections
+                let totalCollections = collections.size();
+
+                // Calculate the starting index based on page and pageSize
+                let startIndex = page * pageSize;
+
+                // Check if the startIndex is out of bounds
+                if (startIndex >= totalCollections) {
+                    return ?[];
+                };
+
+                // Calculate the ending index, ensuring it doesn't go beyond the total number of collections
+                let endIndex = Int.min(totalCollections, startIndex + pageSize);
+
+                // Initialize an empty list to store results
+                var resultList : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
+
+                // Traverse the list and pick the required range (startIndex to endIndex)
+                var currentIndex: Nat = 0;
+                for ((timestamp,collectionCanisterId) in collections.vals()) {
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
+                        // let (timestamp, collectionCanisterId) = collection;
+                        let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
+                            getCollectionDetails: () -> async (Text, Text, Text);
+                        };
+                        let details = await collectionCanister.getCollectionDetails();
+                        resultList := List.push((timestamp, collectionCanisterId, details.0, details.1, details.2), resultList);
+                    };
+                    currentIndex += 1;
+                };
+
+                // Convert the list back to an array and return
+                return ?List.toArray(List.reverse(resultList)); // Reverse to maintain the original order
             };
         };
     };
@@ -598,6 +644,49 @@ actor Main {
         return userTokens;
     };
 
+    // Get NFT details for specific collection
+    public shared ({ caller = user }) func getNonFungibleTokensPaginate(
+        _collectionCanisterId: Principal,
+        page: Nat,
+        pageSize: Nat
+    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+        };
+
+        // Fetch all token data from the collection canister
+        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
+
+        // Convert caller Principal to AccountIdentifier
+        let userAID = AID.fromPrincipal(user, null);
+
+        // Filter tokens that belong to the user
+        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+            allTokens,
+            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+                let (_, owner, _) = tokenData;
+                owner == userAID
+            }
+        );
+
+        // Calculate the starting index based on the page and pageSize
+        let startIndex = page * pageSize;
+
+        // If the startIndex exceeds the length of the userTokens array, return an empty array
+        if (startIndex >= Array.size(userTokens)) {
+            return [];
+        };
+
+        // Calculate the ending index, ensuring it doesn't exceed the length of the userTokens array
+        let endIndex = Nat.min(Array.size(userTokens), startIndex + pageSize);
+
+        // Slice the filtered tokens to return only the ones for the specified page
+        let sliced =  Array.slice(userTokens, startIndex, endIndex - startIndex);
+        
+        return Iter.toArray(sliced);
+    };
+
+
     // public shared ({caller = user}) func getUserCollection
 
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, [(TokenIndex, Metadata)])] {
@@ -659,6 +748,94 @@ actor Main {
 
         // Return the result as an array.
         return Buffer.toArray(resultArray);
+    };
+
+
+    public shared ({ caller = user }) func getUserTokensFromAllCollectionsPaginate(page: Nat, pageSize: Nat) : async [(Principal, Text, [(TokenIndex, Metadata)])] {
+        // Initialize an empty list to store the result.
+        var resultList: List.List<(Principal, Text, [(TokenIndex, Metadata)])> = List.nil();
+
+        // Convert user Principal to AccountIdentifier.
+        let userAID = AID.fromPrincipal(user, null);
+
+        // Convert the collections array to a list for easier manipulation
+        let collectionsList = allCollections.vals();
+
+        // Determine the total number of collections
+        let totalCollections = allCollections.size();
+
+        // Calculate the starting index based on page and pageSize
+        let startIndex = page * pageSize;
+
+        // Check if the startIndex is out of bounds
+        if (startIndex >= totalCollections) {
+            return [];  // Return an empty result if the start index is out of bounds
+        };
+
+        // Calculate the ending index, ensuring it doesn't go beyond the total number of collections
+        let endIndex = Int.min(totalCollections, startIndex + pageSize);
+
+        // Initialize a currentIndex to keep track of the list iteration
+        var currentIndex: Nat = 0;
+
+        // Iterate over the collection canisters within the range (startIndex to endIndex)
+        for (collection in collectionsList) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+                let collectionCanisterId = collection;
+
+                // Create the actor for interacting with the current collection canister.
+                let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+                    tokens: (aid: AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+                    ext_metadata: (token: TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+                    getCollectionDetails: () -> async (Text, Text, Text);  // Assume title is the first field.
+                };
+
+                // Fetch the collection details to get the title.
+                let collectionDetails = await collectionCanisterActor.getCollectionDetails();
+                let collectionTitle = collectionDetails.0;  // Extract the collection title.
+
+                // Fetch the list of TokenIndices for the user.
+                let tokensResult = await collectionCanisterActor.tokens(userAID);
+
+                // Initialize an empty list to store tokens for this collection.
+                var tokenMetadataList: List.List<(TokenIndex, Metadata)> = List.nil();
+
+                // Handle the Result for tokens.
+                switch (tokensResult) {
+                    case (#ok(tokenIds)) {
+                        // Iterate over each TokenIndex and fetch metadata.
+                        for (tokenIndex in tokenIds.vals()) {
+                            let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
+                            let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
+
+                            // Handle the Result for metadata.
+                            switch (metadataResult) {
+                                case (#ok(metadata)) {
+                                    // Add the token index and metadata to the list for this collection.
+                                    tokenMetadataList := List.push((tokenIndex, metadata), tokenMetadataList);
+                                };
+                                case (#err(_)) {
+                                    // Optionally handle metadata retrieval failure.
+                                };
+                            };
+                        };
+
+                        // If we have any tokens for this collection, add to the result list.
+                        if (not List.isNil(tokenMetadataList)) {
+                            resultList := List.push((collectionCanisterId, collectionTitle, List.toArray(List.reverse(tokenMetadataList))), resultList);
+                        };
+                    };
+                    case (#err(_)) {
+                        // Optionally handle token retrieval failure.
+                    };
+                };
+            };
+            currentIndex += 1;
+
+        };
+
+        // Convert the result list to an array and return it.
+        return List.toArray(List.reverse(resultList));  // Reverse to maintain the original order
     };
 
 
