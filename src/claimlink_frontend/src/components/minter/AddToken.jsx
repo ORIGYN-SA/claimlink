@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import StyledDropzone from "../../common/StyledDropzone";
 import { GoLink } from "react-icons/go";
 import { BsArrowRightSquare } from "react-icons/bs";
@@ -23,7 +23,6 @@ const AddToken = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
-  const [errors, setErrors] = useState({});
 
   // useEffect(() => {
   //   if (formData.contract === "tokens") {
@@ -60,7 +59,19 @@ const AddToken = () => {
       json: "",
     },
   });
-  // const [errors, setErrors] = useState({}); // State to hold validation errors
+  const [errors, setErrors] = useState({});
+
+  useEffect(() => {
+    if (formData.name.trim()) {
+      setErrors(errors.name == "");
+    }
+  }, [formData.name]);
+
+  useEffect(() => {
+    if (formData.asset.trim()) {
+      setErrors(errors.asset == "");
+    }
+  }, [formData.asset]); // State to hold validation errors
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

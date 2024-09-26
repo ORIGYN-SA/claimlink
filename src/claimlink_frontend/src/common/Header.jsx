@@ -105,7 +105,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         </span>
       </div>
       {showLogout && (
-        <div className="absolute right-6 top-16 mt-2 bg-gray-200   p-2 rounded">
+        <div className="absolute right-6 top-16 mt-2 bg-gray-200 z-50   p-2 rounded">
           {isConnected ? (
             <>
               <div className="flex flex-col gap-2 z-10">
