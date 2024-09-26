@@ -10,6 +10,7 @@ import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
 import CollectionCard from "../common/CollectionCard";
+import ScrollToTop from "../common/ScroolToTop";
 const Minter = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -81,6 +82,7 @@ const Minter = () => {
   }
   return (
     <>
+      <ScrollToTop />
       <div className=" p-6 min-h-full">
         {window.innerWidth < 640 ? (
           <div>

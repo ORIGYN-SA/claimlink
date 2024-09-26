@@ -2,22 +2,23 @@
 
 Claim Link is a decentralised platform built on the Internet Computer (ICP) that enables users to create NFT collections using the EXT token standard, mint NFTs, and distribute them through campaigns. Users can claim NFTs using a link or a QR code sent to their wallets. The platform also offers a dispenser feature for bulk NFT link distribution, facilitating easy sharing of multiple NFTs at once.
 
-#  Features
- - Create Collection and Mint NFTs
-Users can create NFT collections using the EXT standard.
-NFTs can be minted under these collections and linked to campaigns.
--  Campaign Management
-After creating a collection and minting NFTs, users can set up campaigns.
-Campaigns generate claim links for each NFT, allowing other users to claim NFTs directly into their connected wallets.
-  -  QR Code Section
-The platform includes a feature for generating QR codes linked to campaigns.
-Users can download these QR codes and distribute them for easier NFT claiming.
--  Dispenser Section
-The dispenser allows for bulk NFT link generation and distribution.
-Users can set up a campaign with multiple NFTs, and the dispenser generates links to distribute them efficiently.
-  -  Dynamic UI
-The "Claim NFT" button is dynamically displayed based on the campaign’s time frame, showing users when they can claim an NFT.
-Countdown timers visually indicate campaign expiration, creating a more interactive user experience.
+# Features
+
+- Create Collection and Mint NFTs
+  Users can create NFT collections using the EXT standard.
+  NFTs can be minted under these collections and linked to campaigns.
+- Campaign Management
+  After creating a collection and minting NFTs, users can set up campaigns.
+  Campaigns generate claim links for each NFT, allowing other users to claim NFTs directly into their connected wallets.
+- QR Code Section
+  The platform includes a feature for generating QR codes linked to campaigns.
+  Users can download these QR codes and distribute them for easier NFT claiming.
+- Dispenser Section
+  The dispenser allows for bulk NFT link generation and distribution.
+  Users can set up a campaign with multiple NFTs, and the dispenser generates links to distribute them efficiently.
+- Dynamic UI
+  The "Claim NFT" button is dynamically displayed based on the campaign’s time frame, showing users when they can claim an NFT.
+  Countdown timers visually indicate campaign expiration, creating a more interactive user experience.
 
 To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
 
@@ -41,12 +42,13 @@ dfx canister --help
 If you want to test your project locally, you can use the following commands:
 
 ````bash
+```bash
+# Starts the replica, running in the background
 dfx start --background
 dfx generate
 cp src/declarations/claimlink_backend/* .dfx/local/canisters/claimlink_backend/
 
-```bash
-# Starts the replica, running in the background
+
 
 
 # Deploys your canisters to the replica and generates your candid interface

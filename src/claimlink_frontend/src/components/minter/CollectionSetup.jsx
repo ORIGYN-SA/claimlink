@@ -50,15 +50,17 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
 
     const file = acceptedFiles[0];
 
-    const maxSizeInBytes = 1024 * 1024 * 1;
+    // Set max size to 1MB
+    const maxSizeInBytes = 1024 * 1024 * 1; // 1MB
     if (file.size > maxSizeInBytes) {
       console.error(
-        "Selected file is too large. Please select an image file less than or equal to 5 MB."
+        "Selected file is too large. Please select an image file less than or equal to 1 MB."
       );
-      toast.error("Please select an image file less than or equal to 5 MB");
+      toast.error("Please select an image file less than or equal to 1 MB");
       return;
     }
 
+    // Check if the selected file is an image
     if (!file.type.startsWith("image/")) {
       console.error("Selected file is not an image.");
       toast.error("Please select a valid image file");
@@ -66,12 +68,12 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     }
 
     try {
-      const logoBlob = await imageToFileBlob(file);
+      const logoBlob = await imageToFileBlob(file); // Convert image to Blob if necessary
       setFormData((prevFormData) => ({
         ...prevFormData,
-        img: logoBlob,
+        img: logoBlob, // Set the image Blob in form data
       }));
-      setImage(URL.createObjectURL(file));
+      setImage(URL.createObjectURL(file)); // Create a preview URL for the image
 
       // Clear the image error if it exists
       setFormErrors((prevErrors) => ({
@@ -202,7 +204,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               >
                 Collection title{" "}
                 <span className="text-gray-400 text-base mb-3 font-normal">
-                  (max 200 symbols)
+                  (max 200 characters)
                 </span>
               </label>
               <input
@@ -230,7 +232,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               >
                 Collection symbol{" "}
                 <span className="text-gray-400 text-base mb-3 font-normal">
-                  (optional, max 5 symbols, etc. SYMBL, TKN)
+                  ( Optional, max 5 characters, etc. SYMBL, TKN)
                 </span>
               </label>
               <input

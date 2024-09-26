@@ -11,7 +11,7 @@ import CountUp from "react-countup";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../connect/useClient";
 import { InfinitySpin } from "react-loader-spinner";
-
+import dummyimg from "../assets/img/dummyimg.png";
 const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -250,132 +250,23 @@ const DashBoardHome = () => {
       {window.innerWidth < 640 ? (
         <>
           {" "}
-          <div className="bg-white mt-8 px-2 py-4 rounded-xl">
-            <div className="flex justify-between items-center">
-              <h2 className="text-lg text-[#2E2C34] font-bold">
-                My NFT contracts
-              </h2>
-              <button className="flex items-center text-sm gap-2 underline px-2 py-1 text-[#564BF1] ">
-                See all
-              </button>
-            </div>
-            <div
-              className=" overflow-hidden w-full mt-6 flex overflow-x-scroll flex-nowrap "
-              onScroll={handleScroll}
-            >
-              {contracts?.map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col mx-2    my-4"
-                >
-                  <div className="px-4 w-80">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <img
-                          width="80px"
-                          height="80px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                          alt="Dispenser"
-                          className="rounded-lg"
-                        />
-                        <div>
-                          <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
-                            Test collection
-                          </h2>
-                          <p className="text-[#84818A] md:text-sm text-xs">
-                            April 5, 13:34
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
-                      </div>
-                    </div>
-                    <div className="border bg-[#EBEAED] mt-4 w-full"></div>
-                    <div className="w-full">
-                      <div className="flex w-full justify-start relative">
-                        <div className="w-1/2 p-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Address
-                            </p>
-                            <p className="text-[#564BF1] font-semibold text-sm">
-                              0xf8c...992h4
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                          <div className="flex flex-col justify-start pl-4">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              All token copies
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              10
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border bg-[#EBEAED] w-full"></div>
-                      <div className="flex flex-wrap relative">
-                        <div className="w-1/2 mt-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Token standard
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              ERC1155
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-4">
-              {contracts?.map((_, index) => (
-                <div
-                  key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${
-                    currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
-                  }`}
-                ></div>
-              ))}
-            </div>
-            <div>
-              <button
-                onClick={campaignsetup}
-                className="px-6 flex hover:scale-105 duration-300 ease-in  gap-2 items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
-              >
-                <GoPlus />
-                Create claim links
-              </button>
-            </div>
-          </div>{" "}
           <div className="bg-white mt-8 px-2 py-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg text-[#2E2C34] font-bold">
-                My NFT contracts
-              </h2>
+              <h2 className="text-lg text-[#2E2C34] font-bold">claim Links</h2>
               <button
                 onClick={campaignsetup}
                 className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
               >
-                <GoPlus className="md:text-2xl text-sm" /> New contract
+                <GoPlus className="md:text-2xl text-sm" /> New link
               </button>
             </div>
-            {len.length > 0 ? (
+            {campaign?.length > 0 ? (
               <>
                 <div
                   className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
                   onScroll={handleScroll}
                 >
-                  {contracts?.map((index) => (
+                  {campaign?.map((data, index) => (
                     <motion.div
                       key={index}
                       initial={{ opacity: 0, scale: 0 }}
@@ -389,16 +280,16 @@ const DashBoardHome = () => {
                             <img
                               width="80px"
                               height="80px"
-                              src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                              src={dummyimg}
                               alt="Dispenser"
                               className="rounded-lg"
                             />
-                            <div>
+                            <div className="flex flex-col gap-1">
                               <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
-                                Test collection
+                                {data?.title}
                               </h2>
                               <p className="text-[#84818A] md:text-sm text-xs">
-                                April 5, 13:34
+                                {convertNanosecondsToDate(data?.createdAt)}
                               </p>
                             </div>
                           </div>
@@ -412,10 +303,10 @@ const DashBoardHome = () => {
                             <div className="w-1/2 p-2 flex justify-start">
                               <div className="flex flex-col justify-start">
                                 <p className="text-[#84818A] md:text-sm text-xs">
-                                  Address
+                                  Token
                                 </p>
                                 <p className="text-[#564BF1] font-semibold text-sm">
-                                  0xf8c...992h4
+                                  EXT
                                 </p>
                               </div>
                             </div>
@@ -423,23 +314,15 @@ const DashBoardHome = () => {
                               <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                               <div className="flex flex-col justify-start pl-4">
                                 <p className="text-[#84818A] md:text-sm text-xs">
-                                  All token copies
+                                  Claimed
                                 </p>
                                 <p className="text-[#2E2C34] font-semibold text-sm">
-                                  10
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="border bg-[#EBEAED] w-full"></div>
-                          <div className="flex flex-wrap relative">
-                            <div className="w-1/2 mt-2 flex justify-start">
-                              <div className="flex flex-col justify-start">
-                                <p className="text-[#84818A] md:text-sm text-xs">
-                                  Token standard
-                                </p>
-                                <p className="text-[#2E2C34] font-semibold text-sm">
-                                  ERC1155
+                                  {data?.tokenIds.map((data, index) => {
+                                    <div key={index}>
+                                      <>{data?.value},</>;
+                                    </div>;
+                                  })}
+                                  /{parseInt(dashboard?.claimsCountToday) || 0}
                                 </p>
                               </div>
                             </div>
@@ -450,7 +333,7 @@ const DashBoardHome = () => {
                   ))}
                 </div>
                 <div className="flex justify-center mt-4">
-                  {contracts?.map((_, index) => (
+                  {campaign?.map((_, index) => (
                     <div
                       key={index}
                       className={`h-2 w-2 rounded-full mx-1 ${
@@ -460,6 +343,10 @@ const DashBoardHome = () => {
                   ))}
                 </div>{" "}
               </>
+            ) : loading3 ? (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <InfinitySpin />
+              </div>
             ) : (
               <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
                 <motion.div
@@ -489,215 +376,423 @@ const DashBoardHome = () => {
           </div>{" "}
           <div className="bg-white mt-8 px-2 py-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg text-[#2E2C34] font-bold">
-                My NFT contracts
-              </h2>
-              <button className="flex items-center hover:scale-105 duration-300 ease-in  text-sm gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md">
-                <GoPlus className="md:text-2xl text-sm" /> New contract
+              <h2 className="text-lg text-[#2E2C34] font-bold">Dispensers</h2>
+              <button
+                onClick={dispenserSetup}
+                className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              >
+                <GoPlus className="md:text-2xl text-sm" /> New Dispenser
               </button>
             </div>
-            <div
-              className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
-              onScroll={handleScroll}
-            >
-              {contracts?.map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
-                >
-                  <div className="px-4 w-80">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <img
-                          width="80px"
-                          height="80px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                          alt="Dispenser"
-                          className="rounded-lg"
-                        />
-                        <div>
-                          <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
-                            Test collection
-                          </h2>
-                          <p className="text-[#84818A] md:text-sm text-xs">
-                            April 5, 13:34
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
-                      </div>
-                    </div>
-                    <div className="border bg-[#EBEAED] mt-4 w-full"></div>
-                    <div className="w-full">
-                      <div className="flex w-full justify-start relative">
-                        <div className="w-1/2 p-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Address
-                            </p>
-                            <p className="text-[#564BF1] font-semibold text-sm">
-                              0xf8c...992h4
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                          <div className="flex flex-col justify-start pl-4">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              All token copies
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              10
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border bg-[#EBEAED] w-full"></div>
-                      <div className="flex flex-wrap relative">
-                        <div className="w-1/2 mt-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Token standard
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              ERC1155
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-4">
-              {contracts?.map((_, index) => (
+            {dispenser?.length > 0 ? (
+              <>
                 <div
-                  key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${
-                    currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
-                  }`}
-                ></div>
-              ))}
-            </div>
+                  className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
+                  onScroll={handleScroll}
+                >
+                  {dispenser.map((data, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1 }}
+                      className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
+                    >
+                      <div className="px-4 w-80">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <img
+                              width="80px"
+                              height="80px"
+                              src={dummyimg}
+                              alt="Dispenser"
+                              className="rounded-lg"
+                            />
+                            <div className="flex flex-col gap-1">
+                              <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
+                                {data?.title}
+                              </h2>
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                {convertNanosecondsToDate(data?.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED] mt-4 w-full"></div>
+                        <div className="w-full">
+                          <div className="flex w-full justify-start relative">
+                            <div className="w-1/2 p-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Start date
+                                </p>
+                                <p className="text-[#564BF1] font-semibold text-sm">
+                                  {convertNanosecondsToDate(data?.startDate)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                              <div className="flex flex-col justify-start pl-4">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Status
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  <button className="bg-green-400 p-1 rounded-full"></button>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED]  w-full"></div>
+
+                        <div className="w-full">
+                          <div className="flex w-full justify-start relative">
+                            <div className="w-1/2 p-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Duration
+                                </p>
+                                <p className="text-[#564BF1] font-semibold text-sm">
+                                  {String(data?.duration)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                              <div className="flex flex-col justify-start pl-4">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Users
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  {data?.whitelist?.length}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-center mt-4">
+                  {dispenser?.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 w-2 rounded-full mx-1 ${
+                        currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
+                      }`}
+                    ></div>
+                  ))}
+                </div>{" "}
+              </>
+            ) : loading3 ? (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <InfinitySpin />
+              </div>
+            ) : (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className=" rounded-xl flex flex-col px-8 items-center py-4 justify-center cursor-pointer"
+                >
+                  <h2 className="gray text-base  font-bold mt-3 text-center">
+                    New dispenser
+                  </h2>
+                  <p className="gray text-xs text-center mt-2">
+                    Create a dispenser to distribute your NFTs via dispenser
+                  </p>
+                </motion.div>
+              </div>
+            )}
             <div>
               <button
-                onClick={campaignsetup}
-                className="px-6 flex gap-2 items-center hover:scale-105 duration-300 ease-in justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+                onClick={dispenserSetup}
+                className="px-6 flex gap-2 hover:scale-105 duration-300 ease-in items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
               >
                 <GoPlus />
-                Create claim links
+                Create dispenser
               </button>
             </div>
           </div>{" "}
           <div className="bg-white mt-8 px-2 py-4">
             <div className="flex justify-between items-center">
-              <h2 className="text-lg text-[#2E2C34] font-bold">
-                My NFT contracts
-              </h2>
-              <button className="flex items-center text-sm gap-2 hover:scale-105 duration-300 ease-in bg-[#564BF1] px-2 py-1 text-white rounded-md">
-                <GoPlus className="md:text-2xl text-sm" /> New contract
+              <h2 className="text-lg text-[#2E2C34] font-bold">QR codes</h2>
+              <button
+                onClick={qrSetup}
+                className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              >
+                <GoPlus className="md:text-2xl text-sm" /> New Qr
               </button>
             </div>
-            <div
-              className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
-              onScroll={handleScroll}
-            >
-              {contracts?.map((index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
-                >
-                  <div className="px-4 w-80">
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <img
-                          width="80px"
-                          height="80px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                          alt="Dispenser"
-                          className="rounded-lg"
-                        />
-                        <div>
-                          <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
-                            Test collection
-                          </h2>
-                          <p className="text-[#84818A] md:text-sm text-xs">
-                            April 5, 13:34
-                          </p>
-                        </div>
-                      </div>
-                      <div>
-                        <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
-                      </div>
-                    </div>
-                    <div className="border bg-[#EBEAED] mt-4 w-full"></div>
-                    <div className="w-full">
-                      <div className="flex w-full justify-start relative">
-                        <div className="w-1/2 p-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Address
-                            </p>
-                            <p className="text-[#564BF1] font-semibold text-sm">
-                              0xf8c...992h4
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                          <div className="flex flex-col justify-start pl-4">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              All token copies
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              10
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border bg-[#EBEAED] w-full"></div>
-                      <div className="flex flex-wrap relative">
-                        <div className="w-1/2 mt-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Token standard
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              ERC1155
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-            <div className="flex justify-center mt-4">
-              {contracts?.map((_, index) => (
+            {qrcodes?.length > 0 ? (
+              <>
                 <div
-                  key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${
-                    currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
-                  }`}
-                ></div>
-              ))}
-            </div>
+                  className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
+                  onScroll={handleScroll}
+                >
+                  {qrcodes.map((data, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1 }}
+                      className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
+                    >
+                      <div className="px-4 w-80">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <img
+                              width="80px"
+                              height="80px"
+                              src={dummyimg}
+                              alt="Dispenser"
+                              className="rounded-lg"
+                            />
+                            <div className="flex flex-col gap-1">
+                              <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
+                                {data?.title}
+                              </h2>
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                {convertNanosecondsToDate(data?.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED] mt-4 w-full"></div>
+                        <div className="w-full">
+                          <div className="flex w-full justify-start relative">
+                            <div className="w-1/2 p-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Start date
+                                </p>
+                                <p className="text-[#564BF1] font-semibold text-sm">
+                                  {convertNanosecondsToDate(data?.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                              <div className="flex flex-col justify-start pl-4">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Status
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  <button className="text-green-400 p-1 rounded-full">
+                                    Uploaded
+                                  </button>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED]  w-full"></div>
+
+                        <div className="w-full">
+                          <div className="flex w-full justify-start relative">
+                            <div className="w-1/2 p-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Linked campaign
+                                </p>
+                                <p className="text-[#564BF1] truncate  w-16 font-semibold text-sm">
+                                  {data?.campaignId}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                              <div className="flex flex-col justify-start pl-4">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Quantity
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  {String(data?.quantity)}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-center mt-4">
+                  {qrcodes?.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 w-2 rounded-full mx-1 ${
+                        currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
+                      }`}
+                    ></div>
+                  ))}
+                </div>{" "}
+              </>
+            ) : loading3 ? (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <InfinitySpin />
+              </div>
+            ) : (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className=" rounded-xl flex flex-col px-8 items-center py-4 justify-center cursor-pointer"
+                >
+                  <h2 className="gray text-base  font-bold mt-3 text-center">
+                    New Qr
+                  </h2>
+                  <p className="gray text-xs text-center mt-2">
+                    Create a qr to distribute your NFTs via qr
+                  </p>
+                </motion.div>
+              </div>
+            )}
             <div>
               <button
-                onClick={campaignsetup}
-                className="px-6 flex gap-2 items-center hover:scale-105 duration-300 ease-in justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+                onClick={qrSetup}
+                className="px-6 flex gap-2 hover:scale-105 duration-300 ease-in items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
               >
                 <GoPlus />
-                Create claim links
+                Create qr
+              </button>
+            </div>
+          </div>{" "}
+          <div className="bg-white mt-8 px-2 py-4">
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg text-[#2E2C34] font-bold">Minter</h2>
+              <button
+                onClick={createContract}
+                className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-2 py-1 text-white rounded-md"
+              >
+                <GoPlus className="md:text-2xl text-sm" /> New Collection
+              </button>
+            </div>
+            {minter?.length > 0 ? (
+              <>
+                <div
+                  className="overflow-x-scroll mt-6 flex space-x-4 no-scrollbar"
+                  onScroll={handleScroll}
+                >
+                  {minter?.map((data, index) => (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, scale: 0 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 1 }}
+                      className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
+                    >
+                      <div className="px-4 w-80">
+                        <div className="flex justify-between items-center">
+                          <div className="flex items-center gap-3">
+                            <img
+                              width="80px"
+                              height="80px"
+                              src={data[4]}
+                              alt="Dispenser"
+                              className="rounded-lg"
+                            />
+                            <div>
+                              <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
+                                {data[2]}
+                              </h2>
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                {/* {convertNanosecondsToDate(data?.createdAt)} */}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED] mt-4 w-full"></div>
+                        <div className="w-full">
+                          <div className="flex w-full justify-start relative">
+                            <div className="w-1/2 p-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Address
+                                </p>
+                                <p className="text-[#564BF1] font-semibold text-sm line-clamp-1">
+                                  {data[1]?.toText()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                              <div className="flex flex-col justify-start pl-4">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  All token copies
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  1
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="border bg-[#EBEAED] w-full"></div>
+                          <div className="flex flex-wrap relative">
+                            <div className="w-1/2 mt-2 flex justify-start">
+                              <div className="flex flex-col justify-start">
+                                <p className="text-[#84818A] md:text-sm text-xs">
+                                  Token standard
+                                </p>
+                                <p className="text-[#2E2C34] font-semibold text-sm">
+                                  EXT
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-center mt-4">
+                  {minter?.map((_, index) => (
+                    <div
+                      key={index}
+                      className={`h-2 w-2 rounded-full mx-1 ${
+                        currentIndex === index ? "bg-[#564BF1]" : "bg-gray-300"
+                      }`}
+                    ></div>
+                  ))}
+                </div>{" "}
+              </>
+            ) : (
+              <div className="bg-[#F5F4F7] py-4 mt-8 rounded-md px-2">
+                <motion.div
+                  initial={{ scale: 1, opacity: 1 }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.9 }}
+                  className=" rounded-xl flex flex-col px-8 items-center py-4 justify-center cursor-pointer"
+                >
+                  <h2 className="gray text-base  font-bold mt-3 text-center">
+                    New campaign
+                  </h2>
+                  <p className="gray text-xs text-center mt-2">
+                    Create a campaign to distribute your NFTs via claim links
+                  </p>
+                </motion.div>
+              </div>
+            )}
+            <div>
+              <button
+                onClick={createContract}
+                className="px-6 flex gap-2 hover:scale-105 duration-300 ease-in items-center justify-center w-full py-3 mt-6 bg-[#5542F6] text-white rounded-sm text-sm"
+              >
+                <GoPlus />
+                Create collection
               </button>
             </div>
           </div>
@@ -1135,8 +1230,8 @@ const DashBoardHome = () => {
                         </p>
                       </div>
                       <div className="flex gap-2 items-center">
-                        <p className="text-xs text-[#564BF1] font-semibold">
-                          0xf8c...992h4
+                        <p className="text-xs text-[#564BF1] truncate font-semibold">
+                          {data[1]?.toText()}
                         </p>
                       </div>
                     </div>

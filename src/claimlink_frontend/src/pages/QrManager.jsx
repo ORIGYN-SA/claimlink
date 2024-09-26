@@ -11,6 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchQrData } from "../redux/features/qrManagerSlice";
 import QRCode from "react-qr-code";
 import { useAuth } from "../connect/useClient";
+import ScrollToTop from "../common/ScroolToTop";
 
 const QrManager = () => {
   const dispatch = useDispatch();
@@ -43,6 +44,7 @@ const QrManager = () => {
   return (
     <>
       {" "}
+      <ScrollToTop />
       <div className="hidden sm:block"></div>
       <div className="min-h-screen p-4 ">
         <div className="flex items-center justify-between w-full p-2">

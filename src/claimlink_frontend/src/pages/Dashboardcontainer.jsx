@@ -9,6 +9,7 @@ import { motion } from "framer-motion";
 import { TfiPlus } from "react-icons/tfi";
 import { useAuth } from "../connect/useClient";
 import Breadcrumb from "../components/Breadcrumb"; // Ensure this component exists
+import ScrollToTop from "../common/ScroolToTop";
 
 const DashboardContainer = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -59,85 +60,88 @@ const DashboardContainer = () => {
   );
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100">
-      {/* Header Section */}
-      <div className="bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-6 m-2"></div>
-      <div className="flex  sm:flex-row items-center justify-between w-full p-2 mb-6">
-        <p className="text-2xl font-bold text-gray-800">Campaigns</p>
-        <div className="flex items-center  sm:mt-0">
-          {/* New Campaign Button for Mobile */}
-          <div className="sm:hidden mr-4">
-            <Link
-              to="/campaign-setup"
-              className="flex items-center justify-center text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-2 border rounded capitalize text-white"
-            >
-              <IoIosAdd size={20} />
-              New Campaign
-            </Link>
-          </div>
-          {/* Filter Dropdown for Desktop */}
-          <div className="hidden sm:flex items-center">
-            <select
-              name="Filter"
-              id="filter"
-              className="flex items-center justify-center outline-none gap-2 px-4 py-2 border border-gray-500 rounded-md capitalize bg-white text-gray-700"
-            >
-              <option value="filter">Filter</option>
-              <option value="new">New</option>
-              <option value="old">Old</option>
-            </select>
-            <IoIosArrowDown className="ml-2 text-gray-600" size={16} />
-          </div>
-        </div>
-      </div>
-
-      {/* Conditional Rendering Based on Loading and Collections */}
-      {isLoadingCampaigns || isLoadingCollections ? (
-        <Loader />
-      ) : collections.length === 0 ? (
-        // Message Box When No Collections Exist
-        <div className="flex justify-center items-center mt-10">
-          <div className="bg-white shadow-lg rounded-lg p-8 max-w-md text-center">
-            <TfiPlus className="mx-auto mb-6 text-[#5542F6]" size={48} />
-            <h2 className="text-2xl font-semibold mb-4">
-              No Collections Found
-            </h2>
-            <p className="text-gray-600 mb-6">
-              You need to create a collection and mint NFTs before creating a
-              campaign.
-            </p>
-            <div className="flex justify-center space-x-4">
+    <>
+      <ScrollToTop />
+      <div className="min-h-screen p-4 bg-gray-100">
+        {/* Header Section */}
+        <div className="bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-6 m-2"></div>
+        <div className="flex  sm:flex-row items-center justify-between w-full p-2 mb-6">
+          <p className="text-2xl font-bold text-gray-800">Campaigns</p>
+          <div className="flex items-center  sm:mt-0">
+            {/* New Campaign Button for Mobile */}
+            <div className="sm:hidden mr-4">
               <Link
-                to="/minter"
-                className="px-4 py-2 bg-[#5542F6] text-white rounded hover:bg-[#443cd8] transition-colors duration-200"
+                to="/campaign-setup"
+                className="flex items-center justify-center text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-2 border rounded capitalize text-white"
               >
-                Create Collection
+                <IoIosAdd size={20} />
+                New Campaign
               </Link>
             </div>
+            {/* Filter Dropdown for Desktop */}
+            <div className="hidden sm:flex items-center">
+              <select
+                name="Filter"
+                id="filter"
+                className="flex items-center justify-center outline-none gap-2 px-4 py-2 border border-gray-500 rounded-md capitalize bg-white text-gray-700"
+              >
+                <option value="filter">Filter</option>
+                <option value="new">New</option>
+                <option value="old">Old</option>
+              </select>
+              <IoIosArrowDown className="ml-2 text-gray-600" size={16} />
+            </div>
           </div>
         </div>
-      ) : (
-        // Campaigns Grid
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {/* New Campaign Card */}
-          <Link to="/campaign-setup" className="w-full">
-            <NewCampaignCard />
-          </Link>
-          {/* Existing Campaigns */}
-          {campaigns?.map((campaign) => (
-            <div key={campaign.id} className="w-full ">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5 }}
-              >
-                <CampaignCard campaign={campaign} />
-              </motion.div>
+
+        {/* Conditional Rendering Based on Loading and Collections */}
+        {isLoadingCampaigns || isLoadingCollections ? (
+          <Loader />
+        ) : collections.length === 0 ? (
+          // Message Box When No Collections Exist
+          <div className="flex justify-center items-center mt-10">
+            <div className="bg-white shadow-lg rounded-lg p-8 max-w-md text-center">
+              <TfiPlus className="mx-auto mb-6 text-[#5542F6]" size={48} />
+              <h2 className="text-2xl font-semibold mb-4">
+                No Collections Found
+              </h2>
+              <p className="text-gray-600 mb-6">
+                You need to create a collection and mint NFTs before creating a
+                campaign.
+              </p>
+              <div className="flex justify-center space-x-4">
+                <Link
+                  to="/minter"
+                  className="px-4 py-2 bg-[#5542F6] text-white rounded hover:bg-[#443cd8] transition-colors duration-200"
+                >
+                  Create Collection
+                </Link>
+              </div>
             </div>
-          ))}
-        </div>
-      )}
-    </div>
+          </div>
+        ) : (
+          // Campaigns Grid
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {/* New Campaign Card */}
+            <Link to="/campaign-setup" className="w-full">
+              <NewCampaignCard />
+            </Link>
+            {/* Existing Campaigns */}
+            {campaigns?.map((campaign) => (
+              <div key={campaign.id} className="w-full ">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <CampaignCard campaign={campaign} />
+                </motion.div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

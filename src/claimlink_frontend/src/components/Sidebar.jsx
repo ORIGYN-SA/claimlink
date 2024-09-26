@@ -27,7 +27,7 @@ const Sidebar = ({ setSidebarOpen }) => {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
-  { path: "/users-nft", label: "Users Nft", icon: RiNftFill },  
+    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
   ];
 
   return (
@@ -79,7 +79,7 @@ const Sidebar = ({ setSidebarOpen }) => {
               </Link>
             ))}
           </div>
-          <div className="mt-36">
+          <div className="mt-20">
             <div className="border-t border-gray-200 mb-2"></div>
             <Link
               to="/technical-help"
