@@ -12,6 +12,7 @@ import { PlugLogin, StoicLogin, NFIDLogin, IdentityLogin } from "ic-auth";
 import { useAuth } from "../connect/useClient";
 import DashBoardHome from "./DashboardHome";
 import { useNavigate } from "react-router-dom";
+import ScrollToTop from "../common/ScroolToTop";
 
 const Dashboard = ({
   children = <DashBoardHome />,
@@ -64,6 +65,7 @@ const Dashboard = ({
 
   return (
     <>
+      <ScrollToTop />
       {window.innerWidth < 640 ? (
         <div className="flex flex-col bg-gray-50 h-full">
           <header className="w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">

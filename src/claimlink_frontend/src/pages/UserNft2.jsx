@@ -11,6 +11,7 @@ import { Principal } from "@dfinity/principal";
 import { GoLink } from "react-icons/go";
 import { useParams } from "react-router-dom";
 import { IoIosArrowDown } from "react-icons/io";
+import ScrollToTop from "../common/ScroolToTop";
 const UserNft2 = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -55,6 +56,7 @@ const UserNft2 = () => {
 
   return (
     <>
+      <ScrollToTop />
       <div className=" p-6 min-h-full">
         <div>
           <div className="flex justify-between items-center">

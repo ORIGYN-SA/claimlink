@@ -93,7 +93,9 @@ export default function StyledDropzone({ onDrop, loading }) {
         <ul>
           {acceptedFiles.map((file) => (
             <li key={file.path}>
-              {file.path} - {file.size} bytes
+              <p>
+                {file.path} - {(file.size / 1024).toFixed(2)} KB
+              </p>
             </li>
           ))}
         </ul>

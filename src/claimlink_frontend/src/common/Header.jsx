@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import { MdOutlineArrowDropDown } from "react-icons/md";
-import { RxHamburgerMenu } from "react-icons/rx";
+import { RxAvatar, RxHamburgerMenu } from "react-icons/rx";
 import { useNavigate } from "react-router-dom";
 import WalletModal from "./WalletModal";
 import { useAuth } from "../connect/useClient";
+import { SlRefresh } from "react-icons/sl";
+import { IoMdLogOut } from "react-icons/io";
+import { IoCopyOutline } from "react-icons/io5";
+import toast from "react-hot-toast";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
@@ -34,7 +38,39 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
       setPrincipalText("connect wallet");
     }
   }, [isConnected, principal]);
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!");
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      toast.error("Failed to copy link.");
+    }
+    document.body.removeChild(textarea);
+  };
 
+  const handleCopy = (text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Address copied to clipboard!");
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to copy using Clipboard API, using fallback",
+            err
+          );
+          fallbackCopy(text);
+        });
+    } else {
+      fallbackCopy(text);
+    }
+  };
   return (
     <>
       {menubar ? (
@@ -56,22 +92,51 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
 
       <div className="flex items-center space-x-4 font-semibold justify-end">
         <span
-          className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
+          className="flex items-center  justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}
         >
-          <p className="w-44 truncate font-bold">{principalText}</p>
+          {" "}
+          <RxAvatar size={24} className="text-[#5542F6] mr-2" />
+          <p className="w-44 truncate font-bold flex items-center">
+            {" "}
+            {principalText}
+          </p>
           <MdOutlineArrowDropDown size={24} className="text-gray-500" />
         </span>
       </div>
       {showLogout && (
-        <div className="absolute right-6 top-16 mt-2 bg-gray-200 rounded-3xl p-2">
+        <div className="absolute right-6 top-16 mt-2 bg-gray-200   p-2 rounded">
           {isConnected ? (
-            <button
-              className="font-xs text-[#2E2C34] font-semibold px-3 py-2 w-36"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+            <>
+              <div className="flex flex-col gap-2">
+                <button
+                  className="font-xs text-[#2E2C34] flex items-center gap-1 font-semibold px-3 py-2 w-36 hover:bg-gray-50 border border-gray-50"
+                  onClick={() => {
+                    handleCopy(principalText);
+                  }}
+                >
+                  <IoCopyOutline />
+                  Copy
+                </button>
+                <button
+                  className="font-xs text-[#2E2C34] flex items-center gap-1 font-semibold px-3 py-2 w-36 hover:bg-gray-50 border border-gray-50"
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                >
+                  <SlRefresh />
+                  Refresh
+                </button>
+
+                <button
+                  className="font-xs flex items-center gap-1 text-[#2E2C34] hover:bg-gray-50 border border-gray-50  rounded font-semibold px-3 py-2 w-36"
+                  onClick={handleLogout}
+                >
+                  <IoMdLogOut />
+                  Logout
+                </button>
+              </div>
+            </>
           ) : (
             <button
               className="font-xs text-[#2E2C34] font-semibold px-3 py-2 w-36"
