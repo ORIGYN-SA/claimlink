@@ -69,9 +69,25 @@ const AddToken = () => {
 
   const handleMetadataChange = (index, e) => {
     const { name, value } = e.target;
+
+    let newValue = value; // Use a separate variable for the new value
+
+    if (name === "value") {
+      // Check if the value is a number and convert to positive if negative
+      if (!isNaN(newValue) && newValue.trim() !== "") {
+        newValue = Math.abs(newValue).toString(); // Convert to absolute value and ensure it's a string
+      }
+    } else if (name === "key") {
+      // Ensure key only accepts text (you can add additional checks if needed)
+      if (!isNaN(newValue)) {
+        newValue = ""; // Reset key if it is a number
+      }
+    }
+
     const newData = formData.metadata.data.map((item, i) =>
-      i === index ? { ...item, [name]: value } : item
+      i === index ? { ...item, [name]: newValue } : item
     );
+
     setFormData((prevData) => ({
       ...prevData,
       metadata: { ...prevData.metadata, data: newData },
@@ -190,7 +206,7 @@ const AddToken = () => {
 
     // Validate asset (required)
     if (!formData.asset) {
-      newErrors.asset = "Asset is required.";
+      newErrors.asset = "Image is required.";
     }
 
     // Validate metadata (optional, but key-value pairs must be valid if present)
@@ -236,7 +252,12 @@ const AddToken = () => {
           formData.thumbnail,
           [
             {
-              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+              data: [
+                [
+                  metadata.data[0].key,
+                  { text: metadata.data[0].value.toString() },
+                ],
+              ],
             },
           ],
           parseInt(formData.decimals)
@@ -311,7 +332,12 @@ const AddToken = () => {
           formData.thumbnail,
           [
             {
-              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
+              data: [
+                [
+                  metadata.data[0].key,
+                  { text: metadata.data[0].value.toString() },
+                ],
+              ],
             },
           ],
           1
@@ -390,6 +416,9 @@ const AddToken = () => {
                   )}
                   <StyledDropzone onDrop={handleProfileChange} />
                 </div>
+                {errors.asset && (
+                  <p className="text-red-500 text-sm">{errors.asset}</p>
+                )}
               </div>
             )}
 

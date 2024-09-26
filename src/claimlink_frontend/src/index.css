@@ -8,6 +8,17 @@
   @apply font-manrope font-normal;
 }
 
+/* Hide scrollbars for webkit browsers (Chrome, Safari) */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbars for Firefox */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
 .black {
   color: #2e2c34;
 }

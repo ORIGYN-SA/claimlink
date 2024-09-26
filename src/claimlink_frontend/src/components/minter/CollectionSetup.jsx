@@ -55,7 +55,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       console.error(
         "Selected file is too large. Please select an image file less than or equal to 5 MB."
       );
-      toast.error("Please select an image file less than or equal to 5 MB");
+      toast.error("Please select an image file less than or equal to 1 MB");
       return;
     }
 
