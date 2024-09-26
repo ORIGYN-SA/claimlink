@@ -9,9 +9,8 @@ import { useAuth } from "../../connect/useClient";
 
 const CampaignSetup = ({ handleNext, formData, setFormData }) => {
   const [collections, setCollections] = useState([]);
-  const { identity, backend, principal } = useAuth();
+  const { backend } = useAuth();
   const [error, setError] = useState(null);
-
   const [selectedContract, setSelectedContract] = useState("nfts");
   const [selectedOption, setSelectedOption] = useState(null);
   const [errors, setErrors] = useState({});
@@ -20,7 +19,6 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
     const loadData = async () => {
       try {
         const data = await backend?.getUserCollections();
-        console.log("coll from capm", data[0]);
         if (data.length > 0) {
           const formattedCollections = data[0].map((collection, index) => ({
             value: collection[1].toText(),
@@ -37,31 +35,40 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
       loadData();
     }
 
-    // Automatically set the contract to "nfts" when the component mounts
     setFormData((prev) => ({ ...prev, contract: "nfts" }));
   }, [backend, setFormData]);
 
   const handleContractSelect = (contractType) => {
     setSelectedContract(contractType);
     setFormData({ ...formData, contract: contractType });
+    validate(); // Validate when contract is selected
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    validate(); // Validate on input change
   };
 
   const handleSelectChange = (selectedOption) => {
     setSelectedOption(selectedOption);
     setFormData({ ...formData, collection: selectedOption?.value });
+    // Clear collection error when a valid option is selected
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      collection: "",
+    }));
   };
 
   const validate = () => {
     let tempErrors = {};
-    tempErrors.title = formData.title ? "" : "Title is required.";
-    tempErrors.collection = formData.collection
-      ? ""
-      : "Collection is required.";
+    tempErrors.title = formData.title.trim() ? "" : "Title is required.";
+
+    // Only check for collection error if no collection is selected
+    if (!formData.collection) {
+      tempErrors.collection = "Collection is required.";
+    }
+
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
   };
@@ -181,7 +188,6 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
             </div>
             <MainButton text="Continue" type="submit" />
           </div>
-          <div className=""></div>
           <div className="hidden sm:flex w-[30%] h-full bg-white">
             <Summary formData={formData} />
           </div>

@@ -108,7 +108,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         <div className="absolute right-6 top-16 mt-2 bg-gray-200   p-2 rounded">
           {isConnected ? (
             <>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 z-10">
                 <button
                   className="font-xs text-[#2E2C34] flex items-center gap-1 font-semibold px-3 py-2 w-36 hover:bg-gray-50 border border-gray-50"
                   onClick={() => {

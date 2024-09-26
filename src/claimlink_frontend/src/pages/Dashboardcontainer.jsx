@@ -89,7 +89,6 @@ const DashboardContainer = () => {
                 <option value="new">New</option>
                 <option value="old">Old</option>
               </select>
-              <IoIosArrowDown className="ml-2 text-gray-600" size={16} />
             </div>
           </div>
         </div>

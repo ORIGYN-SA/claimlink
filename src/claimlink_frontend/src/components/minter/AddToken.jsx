@@ -183,7 +183,7 @@ const AddToken = () => {
     }
 
     // Validate name (required)
-    if (!formData.name) {
+    if (!formData.name.trim()) {
       newErrors.name = "Name is required.";
     }
 

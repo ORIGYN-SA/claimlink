@@ -9,7 +9,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.title) {
+    if (!formData.title.trim()) {
       newErrors.title = "Title is required.";
     }
 
@@ -39,10 +39,20 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    const trimmedValue = value.trim();
+
     setFormData({
       ...formData,
       [name]: name === "duration" ? Math.abs(value) : value, // Ensure duration is always positive
     });
+
+    // Clear specific error when there is valid input
+    if (trimmedValue) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name]: "", // Clear the error for the field that is being changed
+      }));
+    }
   };
 
   const handleSubmit = (e) => {

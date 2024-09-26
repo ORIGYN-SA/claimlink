@@ -105,7 +105,7 @@ const QRSetForm = ({ name, quantity = 1 }) => {
             disabled={loading}
             value={campaign}
             onChange={handleCampaignChange}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base text-gray-500 border-gray-100 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full  pl-3 pr-10 py-2 text-base text-gray-500 border-gray-100 border-2 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
           >
             <option value="">Choose campaign</option>
             {campaignIds?.map((id) => (

@@ -229,7 +229,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         </div>
 
         {/* Toggle CSV Upload */}
-        <div className="mt-6 flex flex-col">
+        {/* <div className="mt-6 flex flex-col">
           <label className="text-lg font-semibold py-3">
             Or Upload CSV File
           </label>
@@ -240,7 +240,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           >
             Upload CSV
           </button>
-        </div>
+        </div> */}
 
         {/* CSV Upload Input Field (Visible when clicked) */}
         {csvVisible && (

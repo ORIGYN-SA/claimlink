@@ -36,7 +36,7 @@ const QrSetup = ({ handleNext, setName, setQuantity }) => {
     e.preventDefault();
 
     // Check if the setName field is empty
-    if (!formData.setName) {
+    if (!formData.setName.trim()) {
       setError("Name of the set is required");
       return;
     }
