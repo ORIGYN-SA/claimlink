@@ -9,13 +9,14 @@ import { useSelector, useDispatch } from "react-redux";
 import toast from "react-hot-toast";
 import { useAuth } from "../../connect/useClient";
 import { TailSpin } from "react-loader-spinner";
+import PaymentModel from "../../common/PaymentModel";
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { identity, backend, principal } = useAuth();
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -31,7 +32,12 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   });
 
   const [image, setImage] = useState("");
-
+  const toggleModal = () => {
+    if (!validateForm()) {
+      return;
+    }
+    setIsModalOpen(!isModalOpen); // Toggle modal open/close state
+  };
   const imageToFileBlob = (imageFile) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -125,9 +131,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       return;
     }
 
-    if (!validateForm()) {
-      return;
-    }
     setLoading(true);
 
     try {
@@ -289,20 +292,21 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                 </span>
               )}
             </div>
-            <div className="flex gap-4 md:w-auto w-full mt-10">
-              <BackButton
-                onClick={handleBack}
-                text={"Back"}
-                loading={loading}
-              />
-
-              <MainButton
-                type="submit"
-                text={"Deploy collection"}
-                loading={loading}
-              />
-            </div>
           </form>
+          <div className="flex gap-4 md:w-auto w-full mt-10">
+            <BackButton onClick={handleBack} text={"Back"} loading={loading} />
+
+            <MainButton onClick={toggleModal} text={"Submit"} />
+            {isModalOpen ? (
+              <PaymentModel
+                loading={loading}
+                img={image}
+                toggleModal={toggleModal}
+                name={formData.title}
+                onClick={handleCreate}
+              />
+            ) : null}
+          </div>
         </div>
       </div>
     </motion.div>

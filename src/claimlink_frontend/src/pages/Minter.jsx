@@ -19,7 +19,7 @@ const Minter = () => {
   const { identity, backend, principal } = useAuth();
   const { id } = useParams();
   const [copy, setCopy] = useState();
-
+  const [page, setpage] = useState(1);
   const createContract = () => {
     navigate("/minter/new-contract");
   };
@@ -330,6 +330,13 @@ const Minter = () => {
                 : collections?.map((data, index) => (
                     <CollectionCard data={data} />
                   ))}
+            </div>
+            <div className="flex w-40 border border-blue-300 justify-end items-end">
+              {[1, 2, 3, 4, 5, 6].map((data, index) => (
+                <div key={index} className="border border-blue-400 px-2 py-1">
+                  {data}
+                </div>
+              ))}{" "}
             </div>
           </div>
         )}
