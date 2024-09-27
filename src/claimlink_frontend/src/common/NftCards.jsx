@@ -19,6 +19,12 @@ const NftCards = ({ nft, filter }) => {
     setDescriptionModel(!descriptionModel);
   };
   const navigate = useNavigate();
+  const limitCharacters = (text, charLimit) => {
+    if (text.length > charLimit) {
+      return text.slice(0, charLimit) + "...";
+    }
+    return text;
+  };
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0 }}
@@ -45,11 +51,11 @@ const NftCards = ({ nft, filter }) => {
       )}
       {filter == "non-fungible" ? (
         <h2 className="text-xl black  font-bold  mt-5 ">
-          {nft[2]?.nonfungible?.name}
+          {limitCharacters(nft[2]?.nonfungible?.name, 15)}
         </h2>
       ) : (
         <h2 className="text-xl black  font-bold  mt-5 ">
-          {nft[1]?.nonfungible?.name}
+          {limitCharacters(nft[1]?.nonfungible?.name, 15)}
         </h2>
       )}
       <p className="text-xs gray mt-1">April 5, 13:34</p>
@@ -125,8 +131,10 @@ const NftCards = ({ nft, filter }) => {
           </div>
         )}
       </div>
-      <div className="border
-       border-gray-200 my-4"></div>
+      <div
+        className="border
+       border-gray-200 my-4"
+      ></div>
       <button
         onClick={() => {
           navigate("/campaign-setup");

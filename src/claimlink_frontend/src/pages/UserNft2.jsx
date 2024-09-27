@@ -53,6 +53,12 @@ const UserNft2 = () => {
       loadData();
     }
   }, [backend, id]);
+  const limitCharacters = (text, charLimit) => {
+    if (text.length > charLimit) {
+      return text.slice(0, charLimit) + "...";
+    }
+    return text;
+  };
 
   return (
     <>
@@ -129,7 +135,7 @@ const UserNft2 = () => {
                       </div>
                       <div className="flex justify-between">
                         <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                          {data[1]?.nonfungible?.name}
+                          {limitCharacters(data[1]?.nonfungible?.name, 15)}
                         </h2>
 
                         <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
