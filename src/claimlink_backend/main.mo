@@ -27,7 +27,6 @@ import ExtCommon "../extv2/motoko/ext/Common";
 actor Main {
 
     type AccountIdentifier = ExtCore.AccountIdentifier;
-    type SubAccount = ExtCore.SubAccount;
     type TokenIndex  = ExtCore.TokenIndex;
     type TokenIdentifier  = ExtCore.TokenIdentifier;
     type CommonError = ExtCore.CommonError;
@@ -61,17 +60,6 @@ actor Main {
     };
     type TransferRequest = ExtCore.TransferRequest;
     type TransferResponse = ExtCore.TransferResponse;
-    type AccountBalanceArgs = { account : AccountIdentifier };
-    public type TimeStamp = { timestamp_nanos : Nat64 };
-    public type Tokens = { e8s : Nat64 };
-    public type TransferArgs = {
-        to : Blob;
-        fee : Tokens;
-        memo : Nat64;
-        from_subaccount : ?Blob;
-        created_at_time : ?TimeStamp;
-        amount : Tokens;
-    };
     type Deposit = {
         tokenId : TokenIndex;
         sender : Principal;
@@ -120,15 +108,6 @@ actor Main {
         claimPattern : Text;
         createdBy : AccountIdentifier
     };
-    public type TransferError_1 = {
-        #TxTooOld : { allowed_window_nanos : Nat64 };
-        #BadFee : { expected_fee : Tokens };
-        #TxDuplicate : { duplicate_of : Nat64 };
-        #TxCreatedInFuture;
-        #InsufficientFunds : { balance : Tokens };
-    };
-    public type Result_6 = { #Ok : Nat64; #Err : TransferError_1 };
-
 
 
 
@@ -187,11 +166,6 @@ actor Main {
     // Stores details about the tokens coming into this vault
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
-
-    let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
-        transfer : shared TransferArgs -> async Result_6;
-        account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
-    };
 
     public shared query func getDepositItem(key : Nat32) : async ?Deposit {
         return depositItemsMap.get(key); 
@@ -415,100 +389,6 @@ actor Main {
 
 
     };
-
-    // Collection creation
-    // public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
-    //     // if (Principal.isAnonymous(user)) {
-    //     //     throw Error.reject("Anonymous principals are not allowed.");
-    //     // };
-    //     let collectionCreationFee : Nat64 = 100_000_000; // Example: 1 ICP = 100_000_000 e8s
-    //     let userAccount : AccountIdentifier = AID.fromPrincipal(user,null);
-    //     let platformAccount : AccountIdentifier = AID.fromPrincipal(user,null);
-    //     let balanceResult = await LedgerCanister.account_balance_dfx({ account = userAccount });
-    //     if (balanceResult.e8s < collectionCreationFee) {
-    //         throw Error.reject("Insufficient balance to create collection. Please ensure you have enough ICP.");
-    //     };
-    //     let transferRequest: TransferArgs = {
-    //         to = platformAccount;
-    //         amount = { e8s = collectionCreationFee };
-    //         fee = { e8s = 10_000 };
-    //         memo = 0;
-    //         from_subaccount = null;
-    //         created_at_time = null; 
-    //     };
-    //     let transferResponse = await LedgerCanister.transfer(transferRequest);
-    //     switch (transferResponse) {
-    //         case (#Ok(nat)) {
-    //             // Step 3: If transfer succeeds, proceed with collection creation
-    //             Cycles.add<system>(500_000_000_000);
-    //             let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
-    //             let extCollectionCanisterId = await extToken.getCanisterId();
-    //             let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
-    //                 ext_setCollectionMetadata : (name: Text, symbol: Text, metadata: Text) -> async ();
-    //                 setMinter: (minter: Principal) -> async ();
-    //                 ext_admin: () -> async Principal;
-    //             };
-
-    //             // Set the user as the minter and set metadata for the collection
-    //             await collectionCanisterActor.setMinter(user);
-    //             await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-
-    //             // Step 4: Update userCollectionMap and return the result
-    //             let collections = usersCollectionMap.get(user);
-    //             let buffer = Buffer.fromArray<Principal>(allCollections);
-    //             buffer.add(extCollectionCanisterId);
-    //             allCollections := Buffer.toArray(buffer);
-    //             switch (collections) {
-    //                 case null {
-    //                     let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-    //                     usersCollectionMap.put(user, updatedCollections);
-    //                     return (user, extCollectionCanisterId);
-    //                 };
-    //                 case (?collections) {
-    //                     let updatedObj = List.push((Time.now(), extCollectionCanisterId), List.fromArray(collections));
-    //                     usersCollectionMap.put(user, List.toArray(updatedObj));
-    //                     return (user, extCollectionCanisterId);
-    //                 };
-    //             };
-    //         };
-    //         case (#Err(error)) {
-    //         // Handle transfer errors
-            
-    //         };
-    //     };
-    //     // let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
-    //     // let extCollectionCanisterId = await extToken.getCanisterId();
-    //     // let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
-    //     //     ext_setCollectionMetadata : (
-    //     //         name : Text,
-    //     //         symbol : Text,
-    //     //         metadata : Text
-    //     //     ) -> async ();
-    //     //     setMinter : ( minter : Principal)-> async();
-    //     //     ext_admin : () -> async Principal
-    //     // };
-    //     // await collectionCanisterActor.setMinter(user);
-    //     // await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-    //     // // Updating the userCollectionMap 
-    //     // let collections = usersCollectionMap.get(user);
-    //     // let buffer = Buffer.fromArray<Principal>(allCollections);
-    //     // buffer.add(extCollectionCanisterId);
-    //     // allCollections := Buffer.toArray(buffer);
-    //     // switch(collections){
-    //     //     case null {
-    //     //         let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-    //     //         usersCollectionMap.put(user,updatedCollections);
-    //     //         return (user, extCollectionCanisterId);
-    //     //     };
-    //     //     case (?collections){
-    //     //         let updatedObj = List.push((Time.now(), extCollectionCanisterId),List.fromArray(collections));
-    //     //         usersCollectionMap.put(user,List.toArray(updatedObj));
-    //     //         return (user, extCollectionCanisterId);
-    //     //     };
-    //     // };
-
-
-    // };
 
     // Getting Collection Metadata 
     public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
