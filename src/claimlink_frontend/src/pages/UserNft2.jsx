@@ -139,10 +139,10 @@ const UserNft2 = () => {
                       <h2 className="text-sm  font-semibold text-[#837f8e] mb-3 ">
                         {id}
                       </h2>
-                      <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
+                      {/* <button className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm">
                         <GoLink />
                         View on Explorer
-                      </button>
+                      </button> */}
                     </>
 
                     {/* <p className="text-xs text-[#84818A] mt-1 ">

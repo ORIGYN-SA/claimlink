@@ -113,7 +113,7 @@ const approutes = createBrowserRouter([
   {
     path: "/dispensers/dispenser-setup",
     element: (
-      <Dashboard stepper={true} headerText={"New dispeser"} menubar={false}>
+      <Dashboard stepper={true} headerText={"New dispenser"} menubar={false}>
         <DispenserForm />
       </Dashboard>
     ),

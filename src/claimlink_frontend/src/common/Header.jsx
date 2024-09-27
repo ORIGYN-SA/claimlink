@@ -71,6 +71,12 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
       fallbackCopy(text);
     }
   };
+  const limitCharacters = (text, charLimit) => {
+    if (text.length > charLimit) {
+      return text.slice(0, charLimit) + "...";
+    }
+    return text;
+  };
   return (
     <>
       {menubar ? (
@@ -97,9 +103,8 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         >
           {" "}
           <RxAvatar size={24} className="text-[#5542F6] mr-2" />
-          <p className="w-44 truncate font-bold flex items-center">
-            {" "}
-            {principalText}
+          <p className="w-40 truncate font-bold flex items-center overflow-hidden whitespace-nowrap">
+            {limitCharacters(principalText, 17)}
           </p>
           <MdOutlineArrowDropDown size={24} className="text-gray-500" />
         </span>

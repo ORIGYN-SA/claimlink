@@ -801,7 +801,7 @@ const DashBoardHome = () => {
         <>
           <div className="mt-6 flex justify-between gap-4">
             {loading1 ? (
-              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+              <div className="  flex mx-auto justify-center items-center    rounded-md ">
                 <InfinitySpin
                   visible={true}
                   width="200"
@@ -920,7 +920,10 @@ const DashBoardHome = () => {
             )}
 
             {loading3 ? (
-              <div className="bg-white flex mx-auto justify-center items-center w-[600px]  h-96 rounded-md ">
+              <div
+                className=" flex mx-auto justify-center items-center
+                h-96 rounded-md "
+              >
                 <InfinitySpin
                   visible={true}
                   width="200"
@@ -1044,7 +1047,7 @@ const DashBoardHome = () => {
           </div>
           <div className="mt-4 flex justify-between gap-4">
             {loading2 ? (
-              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+              <div className="  flex mx-auto justify-center items-center   rounded-md ">
                 <InfinitySpin
                   visible={true}
                   width="200"
@@ -1157,7 +1160,7 @@ const DashBoardHome = () => {
               </div>
             )}
             {loading2 ? (
-              <div className="bg-white flex mx-auto justify-center items-center w-[600px]   rounded-md ">
+              <div className="  flex mx-auto justify-center items-center   rounded-md ">
                 <InfinitySpin
                   visible={true}
                   width="200"
