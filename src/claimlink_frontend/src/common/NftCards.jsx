@@ -20,11 +20,15 @@ const NftCards = ({ nft, filter }) => {
   };
   const navigate = useNavigate();
   const limitCharacters = (text, charLimit) => {
+    if (!text || text.length === 0) {
+      return ""; // or return a fallback string like "N/A" if needed
+    }
     if (text.length > charLimit) {
       return text.slice(0, charLimit) + "...";
     }
     return text;
   };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0 }}

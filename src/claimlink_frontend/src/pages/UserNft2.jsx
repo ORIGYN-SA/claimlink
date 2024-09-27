@@ -54,6 +54,9 @@ const UserNft2 = () => {
     }
   }, [backend, id]);
   const limitCharacters = (text, charLimit) => {
+    if (!text || text.length === 0) {
+      return ""; // or return a fallback string like "N/A" if needed
+    }
     if (text.length > charLimit) {
       return text.slice(0, charLimit) + "...";
     }

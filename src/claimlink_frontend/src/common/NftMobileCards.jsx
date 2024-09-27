@@ -19,6 +19,17 @@ const NftMobileCards = ({ nft, filter }) => {
     setDescriptionModel(!descriptionModel);
   };
   const navigate = useNavigate();
+
+  const limitCharacters = (text, charLimit) => {
+    if (!text || text.length === 0) {
+      return ""; // or return a fallback string like "N/A" if needed
+    }
+    if (text.length > charLimit) {
+      return text.slice(0, charLimit) + "...";
+    }
+    return text;
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0 }}
@@ -47,11 +58,11 @@ const NftMobileCards = ({ nft, filter }) => {
         <div className="ml-2">
           {filter == "non-fungible" ? (
             <h2 className="text-xl black  font-bold  mt-5 ">
-              {nft[2]?.nonfungible?.name}
+              {limitCharacters(nft[2]?.nonfungible?.name, 15)}
             </h2>
           ) : (
             <h2 className="text-xl black  font-bold  mt-5 ">
-              {nft[1]?.nonfungible?.name}
+              {limitCharacters(nft[1]?.nonfungible?.name, 15)}
             </h2>
           )}
 
