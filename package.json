@@ -17,10 +17,12 @@
   ],
   "dependencies": {
     "@dfinity/auth-client": "^2.0.0",
+    "@dfinity/nns": "^6.0.0",
     "@fontsource-variable/manrope": "^5.0.20",
     "@fontsource/quicksand": "^5.0.18",
     "@headlessui/react": "^2.1.0",
     "@heroicons/react": "^2.1.4",
+    "@nfid/identitykit": "^0.0.3",
     "@reduxjs/toolkit": "^2.2.6",
     "@tsparticles/react": "^3.0.0",
     "@web3forms/react": "^1.1.3",

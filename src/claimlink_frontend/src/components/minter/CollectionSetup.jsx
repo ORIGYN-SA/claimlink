@@ -124,7 +124,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
   };
 
   const handleCreate = async (e) => {
-    e.preventDefault();
     console.log("Starting collection creation");
     if (!backend) {
       toast.error("Backend actor not initialized");
@@ -303,7 +302,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                 img={image}
                 toggleModal={toggleModal}
                 name={formData.title}
-                onClick={handleCreate}
+                handlecreate={handleCreate}
               />
             ) : null}
           </div>

@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { useAuth } from "../connect/useClient";
 import { useNavigate } from "react-router-dom";
 
 const WalletModal = ({ isOpen, onClose }) => {
   const { login } = useAuth();
+
   const { backend, principal, connectWallet, disconnect, isConnected } =
     useAuth();
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const WalletModal = ({ isOpen, onClose }) => {
             <RxCross1 className="text-black/90" />
           </button>
         </div>
+
         <div className="flex flex-col py-4 gap-4">
           <button
             onClick={() => handleLogin("Plug")}
