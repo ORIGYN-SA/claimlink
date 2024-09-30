@@ -4,7 +4,7 @@ import MainButton from "./Buttons";
 import { toast } from "react-hot-toast";
 import { Button } from "@headlessui/react";
 import logo from "../assets/img/logiicpp.png";
-const coffeeAmount = 1_000_000; // 0.04 ICP in e8s
+const coffeeAmount = 100_000; // 0.04 ICP in e8s
 const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
   const [message, setMessage] = useState("Make Payment");
   const [disabled, setDisabled] = useState(false);
@@ -27,9 +27,9 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
         const transfer = await window.ic?.plug?.requestTransfer(
           requestTransferArg
         );
-        console.log("Transfer details:", transfer);
+        console.log("Transfer details:", transfer.height.height);
 
-        if (transfer?.height && typeof transfer.height === "number") {
+        if (transfer?.height && typeof transfer.height.height === "number") {
           setMessage(`Transferred ${coffeeAmount} e8s`);
           setPaymentStatus("Payment successful");
           toast.success("Payment successful!");
@@ -72,6 +72,10 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
         </div>
 
         <div className="flex justify-between items-center">
+          <div className=" flex border items-center mt-4 rounded-md bg-blue-300 px-4 py-2">
+            <p className="font-bold">Price: 0.001 ICP</p>
+            <img className="w-6" src={logo} alt="ICP Logo" />
+          </div>
           <Button
             className="border border-blue-500 flex font-semibold gap-2 px-4 py-2 rounded-md mt-4 text-black"
             onClick={handlePayment}
@@ -79,10 +83,6 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
           >
             {loading ? "Processing..." : message}
           </Button>
-          <div className="ml-4  flex border items-center mt-4 rounded-md bg-blue-300 px-4 py-2">
-            <p className="font-bold">Price: 0.04 ICP</p>
-            <img className="w-6" src={logo} alt="ICP Logo" />
-          </div>
         </div>
       </div>
     </div>
