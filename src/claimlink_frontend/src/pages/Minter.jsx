@@ -331,13 +331,13 @@ const Minter = () => {
                     <CollectionCard data={data} />
                   ))}
             </div>
-            <div className="flex w-40 border border-blue-300 justify-end items-end">
+            {/* <div className="flex w-40 border border-blue-300 justify-end items-end">
               {[1, 2, 3, 4, 5, 6].map((data, index) => (
                 <div key={index} className="border border-blue-400 px-2 py-1">
                   {data}
                 </div>
               ))}{" "}
-            </div>
+            </div> */}
           </div>
         )}
       </div>
