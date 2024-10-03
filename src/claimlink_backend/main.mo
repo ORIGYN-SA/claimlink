@@ -20,6 +20,8 @@ import Bool "mo:base/Bool";
 import HashMap "mo:base/HashMap";
 import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
+import Blob "mo:base/Blob";
+import Option "mo:base/Option";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 import ExtCommon "../extv2/motoko/ext/Common";
@@ -27,6 +29,7 @@ import ExtCommon "../extv2/motoko/ext/Common";
 actor Main {
 
     type AccountIdentifier = ExtCore.AccountIdentifier;
+    type SubAccount = ExtCore.SubAccount;
     type TokenIndex  = ExtCore.TokenIndex;
     type TokenIdentifier  = ExtCore.TokenIdentifier;
     type CommonError = ExtCore.CommonError;
@@ -60,6 +63,17 @@ actor Main {
     };
     type TransferRequest = ExtCore.TransferRequest;
     type TransferResponse = ExtCore.TransferResponse;
+    type AccountBalanceArgs = { account : AccountIdentifier };
+    public type TimeStamp = { timestamp_nanos : Nat64 };
+    public type Tokens = { e8s : Nat64 };
+    public type TransferArgs = {
+        to : Blob;
+        fee : Tokens;
+        memo : Nat64;
+        from_subaccount : ?Blob;
+        created_at_time : ?TimeStamp;
+        amount : Tokens;
+    };
     type Deposit = {
         tokenId : TokenIndex;
         sender : Principal;
@@ -108,6 +122,14 @@ actor Main {
         claimPattern : Text;
         createdBy : AccountIdentifier
     };
+    public type TransferError_1 = {
+        #TxTooOld : { allowed_window_nanos : Nat64 };
+        #BadFee : { expected_fee : Tokens };
+        #TxDuplicate : { duplicate_of : Nat64 };
+        #TxCreatedInFuture;
+        #InsufficientFunds : { balance : Tokens };
+    };
+    public type Result_6 = { #Ok : Nat64; #Err : TransferError_1 };
 
 
 
@@ -166,6 +188,72 @@ actor Main {
     // Stores details about the tokens coming into this vault
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
+
+    let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
+        transfer : shared TransferArgs -> async Result_6;
+        account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
+    };
+
+    func accountIdentifierToBlob(principal: Principal, subaccount: ?Blob) : Blob {
+        let principalBytes : [Nat8] = Blob.toArray(Principal.toBlob(principal));
+        let defaultSubaccount : [Nat8] = Array.freeze<Nat8>(Array.init<Nat8>(32, 0));
+        let subaccountBytes : [Nat8] = switch (subaccount) {
+            case (?blob) { Blob.toArray(blob) }; 
+            case null { defaultSubaccount };  
+        };        
+        let accountIdBytes : [Nat8] = Array.append<Nat8>(principalBytes, subaccountBytes);
+        return Blob.fromArray(accountIdBytes);
+    };
+
+
+    public shared ({ caller = user }) func transferICP(collectionCreationFee: Nat64, platformAccount: Principal) : async Text {
+
+        let userAccountBlob = accountIdentifierToBlob(user, null); 
+        let platformAccountBlob = accountIdentifierToBlob(platformAccount, null);
+        let userAccount = AID.fromPrincipal(user,null);
+        let balanceResult = await LedgerCanister.account_balance_dfx({ account = userAccount });
+
+        if (balanceResult.e8s < collectionCreationFee) {
+            return "Insufficient balance.";
+        };
+        let transferRequest: TransferArgs = {
+            to = platformAccountBlob;
+            amount = { e8s = collectionCreationFee }; 
+            fee = { e8s = 10_000 };
+            memo = 0;
+            from_subaccount = ?userAccountBlob;
+            created_at_time = null;
+        };
+        let transferResponse = await LedgerCanister.transfer(transferRequest);
+        switch (transferResponse) {
+            case (#Ok(nat)) {
+                return "Transfer successful: " # Nat64.toText(nat);
+            };
+            case (#Err(error)) {
+                return "Transfer failed: " # errorToString(error); 
+            };
+        };
+    };
+
+    func errorToString(error: TransferError_1) : Text {
+        switch (error) {
+            case (#TxTooOld(record)) {
+                return "Transaction too old. Allowed window: " # Nat64.toText(record.allowed_window_nanos);
+            };
+            case (#BadFee(record)) {
+                return "Bad fee. Expected fee: " # Nat64.toText(record.expected_fee.e8s);
+            };
+            case (#TxDuplicate(record)) {
+                return "Transaction is a duplicate of transaction: " # Nat64.toText(record.duplicate_of);
+            };
+            case (#TxCreatedInFuture) {
+                return "Transaction was created in the future.";
+            };
+            case (#InsufficientFunds(record)) {
+                return "Insufficient funds. Balance: " # Nat64.toText(record.balance.e8s);
+            };
+        };
+    };
 
     public shared query func getDepositItem(key : Nat32) : async ?Deposit {
         return depositItemsMap.get(key); 
@@ -381,8 +469,8 @@ actor Main {
                 return (user, extCollectionCanisterId);
             };
             case (?collections){
-                let updatedObj = List.push((Time.now(), extCollectionCanisterId),List.fromArray(collections));
-                usersCollectionMap.put(user,List.toArray(updatedObj));
+                let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
+                usersCollectionMap.put(user, updatedObj);
                 return (user, extCollectionCanisterId);
             };
         };
@@ -390,58 +478,167 @@ actor Main {
 
     };
 
+    // Collection creation
+    // public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
+    //     // if (Principal.isAnonymous(user)) {
+    //     //     throw Error.reject("Anonymous principals are not allowed.");
+    //     // };
+    //     let collectionCreationFee : Nat64 = 100_000_000; // Example: 1 ICP = 100_000_000 e8s
+    //     let userAccount : AccountIdentifier = AID.fromPrincipal(user,null);
+    //     let platformAccount : AccountIdentifier = AID.fromPrincipal(user,null);
+    //     let balanceResult = await LedgerCanister.account_balance_dfx({ account = userAccount });
+    //     if (balanceResult.e8s < collectionCreationFee) {
+    //         throw Error.reject("Insufficient balance to create collection. Please ensure you have enough ICP.");
+    //     };
+    //     let transferRequest: TransferArgs = {
+    //         to = platformAccount;
+    //         amount = { e8s = collectionCreationFee };
+    //         fee = { e8s = 10_000 };
+    //         memo = 0;
+    //         from_subaccount = null;
+    //         created_at_time = null; 
+    //     };
+    //     let transferResponse = await LedgerCanister.transfer(transferRequest);
+    //     switch (transferResponse) {
+    //         case (#Ok(nat)) {
+    //             // Step 3: If transfer succeeds, proceed with collection creation
+    //             Cycles.add<system>(500_000_000_000);
+    //             let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
+    //             let extCollectionCanisterId = await extToken.getCanisterId();
+    //             let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
+    //                 ext_setCollectionMetadata : (name: Text, symbol: Text, metadata: Text) -> async ();
+    //                 setMinter: (minter: Principal) -> async ();
+    //                 ext_admin: () -> async Principal;
+    //             };
+
+    //             // Set the user as the minter and set metadata for the collection
+    //             await collectionCanisterActor.setMinter(user);
+    //             await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
+
+    //             // Step 4: Update userCollectionMap and return the result
+    //             let collections = usersCollectionMap.get(user);
+    //             let buffer = Buffer.fromArray<Principal>(allCollections);
+    //             buffer.add(extCollectionCanisterId);
+    //             allCollections := Buffer.toArray(buffer);
+    //             switch (collections) {
+    //                 case null {
+    //                     let updatedCollections = [(Time.now(), extCollectionCanisterId)];
+    //                     usersCollectionMap.put(user, updatedCollections);
+    //                     return (user, extCollectionCanisterId);
+    //                 };
+    //                 case (?collections) {
+    //                     let updatedObj = List.push((Time.now(), extCollectionCanisterId), List.fromArray(collections));
+    //                     usersCollectionMap.put(user, List.toArray(updatedObj));
+    //                     return (user, extCollectionCanisterId);
+    //                 };
+    //             };
+    //         };
+    //         case (#Err(error)) {
+    //         // Handle transfer errors
+            
+    //         };
+    //     };
+    //     // let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
+    //     // let extCollectionCanisterId = await extToken.getCanisterId();
+    //     // let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
+    //     //     ext_setCollectionMetadata : (
+    //     //         name : Text,
+    //     //         symbol : Text,
+    //     //         metadata : Text
+    //     //     ) -> async ();
+    //     //     setMinter : ( minter : Principal)-> async();
+    //     //     ext_admin : () -> async Principal
+    //     // };
+    //     // await collectionCanisterActor.setMinter(user);
+    //     // await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
+    //     // // Updating the userCollectionMap 
+    //     // let collections = usersCollectionMap.get(user);
+    //     // let buffer = Buffer.fromArray<Principal>(allCollections);
+    //     // buffer.add(extCollectionCanisterId);
+    //     // allCollections := Buffer.toArray(buffer);
+    //     // switch(collections){
+    //     //     case null {
+    //     //         let updatedCollections = [(Time.now(), extCollectionCanisterId)];
+    //     //         usersCollectionMap.put(user,updatedCollections);
+    //     //         return (user, extCollectionCanisterId);
+    //     //     };
+    //     //     case (?collections){
+    //     //         let updatedObj = List.push((Time.now(), extCollectionCanisterId),List.fromArray(collections));
+    //     //         usersCollectionMap.put(user,List.toArray(updatedObj));
+    //     //         return (user, extCollectionCanisterId);
+    //     //     };
+    //     // };
+
+
+    // };
+
     // Getting Collection Metadata 
     public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
         let collections = usersCollectionMap.get(user);
+        
         switch (collections) {
             case (null) {
                 return null;
             };
             case (?collections) {
-                var result : [(Time.Time, Principal, Text, Text, Text)] = [];
+                var result : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
+                
                 for ((timestamp, collectionCanisterId) in collections.vals()) {
                     let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
                         getCollectionDetails: () -> async (Text, Text, Text);
                     };
+
                     let details = await collectionCanister.getCollectionDetails();
-                    result := Array.append(result, [(timestamp, collectionCanisterId, details.0, details.1, details.2)]);
+                    result := List.push((timestamp, collectionCanisterId, details.0, details.1, details.2), result);
                 };
-                return ?result;
+
+                let finalResult = List.toArray(List.reverse(result));
+                return ?finalResult;
             };
         };
     };
 
-    public shared ({caller = user}) func getUserCollectionDetailsPaginate(page: Nat, pageSize: Nat) : async ?[(Time.Time, Principal, Text, Text, Text)] {
+
+    public shared ({caller = user}) func getUserCollectionDetailsPaginate(
+        page: Nat, 
+        pageSize: Nat
+    ) : async {
+        data: [(Time.Time, Principal, Text, Text, Text)];
+        current_page: Nat;
+        total_pages: Nat
+    } {
         let collections = usersCollectionMap.get(user);
 
         switch (collections) {
             case (null) {
-                return null;
+                return {
+                    data = [];
+                    current_page = 0;
+                    total_pages = 0
+                };
             };
             case (?collections) {
-
-                // Determine the total number of collections
                 let totalCollections = collections.size();
-
-                // Calculate the starting index based on page and pageSize
-                let startIndex = page * pageSize;
-
-                // Check if the startIndex is out of bounds
-                if (startIndex >= totalCollections) {
-                    return ?[];
+                let totalPages = if (totalCollections % pageSize == 0) {
+                    totalCollections / pageSize;
+                } else {
+                    (totalCollections / pageSize) + 1;
                 };
 
-                // Calculate the ending index, ensuring it doesn't go beyond the total number of collections
-                let endIndex = Int.min(totalCollections, startIndex + pageSize);
+                let startIndex = page * pageSize;
+                if (startIndex >= totalCollections) {
+                    return {
+                        data = []; 
+                        current_page = page + 1;
+                        total_pages = totalPages
+                    };
+                };
+                let endIndex = Nat.min(totalCollections, startIndex + pageSize);
 
-                // Initialize an empty list to store results
                 var resultList : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
-
-                // Traverse the list and pick the required range (startIndex to endIndex)
                 var currentIndex: Nat = 0;
-                for ((timestamp,collectionCanisterId) in collections.vals()) {
+                for ((timestamp, collectionCanisterId) in collections.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
-                        // let (timestamp, collectionCanisterId) = collection;
                         let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
                             getCollectionDetails: () -> async (Text, Text, Text);
                         };
@@ -451,11 +648,18 @@ actor Main {
                     currentIndex += 1;
                 };
 
-                // Convert the list back to an array and return
-                return ?List.toArray(List.reverse(resultList)); // Reverse to maintain the original order
+            let res = List.toArray(List.reverse(resultList));
+
+                return {
+                    data = res;
+                    current_page = page + 1;
+                    total_pages = totalPages
+                };
             };
         };
     };
+
+
 
     // Getting Collections that user own(only gets canisterIds of respective collections)
     public shared query ({caller = user}) func getUserCollections() : async ?[(Time.Time,Principal)] {
@@ -601,6 +805,56 @@ actor Main {
         tokensDataToBeMinted.get(_collectionCanisterId)
     };
 
+    public shared func getStoredTokensPaginate(
+        _collectionCanisterId: Principal, 
+        page: Nat, 
+        pageSize: Nat
+    ) : async { 
+        data: [(Nat32, Metadata)]; 
+        current_page: Nat; 
+        total_pages: Nat 
+    } {
+
+        switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
+            case (?tokensArray) {
+                let totalItems = tokensArray.size();
+                let totalPages = if (totalItems % pageSize == 0) {
+                    totalItems / pageSize
+                } else {
+                    (totalItems / pageSize) + 1
+                };
+
+                let startIndex = page * pageSize;
+                if (startIndex >= totalItems) {
+                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                };
+                let endIndex = Nat.min(totalItems, startIndex + pageSize);
+                var resultTokens: List.List<(Nat32, Metadata)> = List.nil();
+                var currentIndex: Nat = 0;
+                for (token in tokensArray.vals()) {
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
+                        resultTokens := List.push(token, resultTokens);
+                    };
+                    currentIndex += 1;
+                };
+
+                let resultArray = List.toArray(List.reverse(resultTokens));
+
+                return {
+                    data = resultArray;
+                    current_page = page + 1;
+                    total_pages = totalPages;
+                };
+            };
+            case null {
+                return { data = []; current_page = 0; total_pages = 0 };
+            };
+        }
+    };
+
+
+
+
     
     
     // Get Fungible token details for specific collection
@@ -649,178 +903,154 @@ actor Main {
         _collectionCanisterId: Principal,
         page: Nat,
         pageSize: Nat
-    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+    ) : async {
+        data: [(TokenIndex, AccountIdentifier, Metadata)];
+        current_page: Nat;
+        total_pages: Nat
+    } {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+            getAllNonFungibleTokenData: () -> async [(TokenIndex, AccountIdentifier, Metadata)];
         };
 
-        // Fetch all token data from the collection canister
         let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
-
-        // Convert caller Principal to AccountIdentifier
         let userAID = AID.fromPrincipal(user, null);
-
-        // Filter tokens that belong to the user
+        // Filter tokens by owner
         let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
             func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
-                let (_, owner, _) = tokenData;
+                let (tokenIndex, owner, metadata) = tokenData;
                 owner == userAID
             }
         );
-
-        // Calculate the starting index based on the page and pageSize
-        let startIndex = page * pageSize;
-
-        // If the startIndex exceeds the length of the userTokens array, return an empty array
-        if (startIndex >= Array.size(userTokens)) {
-            return [];
+        let totalItems = userTokens.size();
+        let totalPages = if (totalItems % pageSize == 0) {
+            totalItems / pageSize
+        } else {
+            (totalItems / pageSize) + 1
         };
 
-        // Calculate the ending index, ensuring it doesn't exceed the length of the userTokens array
-        let endIndex = Nat.min(Array.size(userTokens), startIndex + pageSize);
+        let startIndex = page * pageSize;
+        if (startIndex >= totalItems) {
+            return {
+                data = [];
+                current_page = page + 1;
+                total_pages = totalPages
+            };
+        };
+        let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
-        // Slice the filtered tokens to return only the ones for the specified page
-        let sliced =  Array.slice(userTokens, startIndex, endIndex - startIndex);
-        
-        return Iter.toArray(sliced);
+        var paginatedTokens: List.List<(TokenIndex, AccountIdentifier, Metadata)> = List.nil();
+        var currentIndex: Nat = 0;
+        for (token in userTokens.vals()) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+                paginatedTokens := List.push(token, paginatedTokens);
+            };
+            currentIndex += 1;
+        };
+
+        let paginatedTokensArray = List.toArray(List.reverse(paginatedTokens));
+
+        return {
+            data = paginatedTokensArray;
+            current_page = page + 1;
+            total_pages = totalPages
+        };
     };
 
 
-    // public shared ({caller = user}) func getUserCollection
+
+
 
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, [(TokenIndex, Metadata)])] {
-        // Initialize an empty array to store the result.
         var resultArray = Buffer.Buffer<(Principal, Text, [(TokenIndex, Metadata)])>(0);
 
-        // Convert user Principal to AccountIdentifier.
         let userAID = AID.fromPrincipal(user, null);
 
-        // Iterate over each collection canister stored in allCollections.
         for (collectionCanisterId in allCollections.vals()) {
-            // Create the actor for interacting with the current collection canister.
             let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
                 tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
                 ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
                 getCollectionDetails : () -> async (Text, Text, Text);  // Assume title is the first field.
             };
 
-            // Fetch the collection details to get the title.
             let collectionDetails = await collectionCanisterActor.getCollectionDetails();
             let collectionTitle = collectionDetails.0;  // Extract the collection title.
 
-            // Fetch the list of TokenIndices for the user.
             let tokensResult = await collectionCanisterActor.tokens(userAID);
 
-            // Initialize an empty array to store tokens for this collection.
             var tokenMetadataArray = Buffer.Buffer<(TokenIndex, Metadata)>(0);
 
-            // Handle the Result for tokens.
             switch (tokensResult) {
                 case (#ok(tokenIds)) {
-                    // Iterate over each TokenIndex and fetch metadata.
                     for (tokenIndex in tokenIds.vals()) {
                         let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
                         let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
 
-                        // Handle the Result for metadata.
                         switch (metadataResult) {
                             case (#ok(metadata)) {
-                                // Add the token index and metadata to the array for this collection.
                                 tokenMetadataArray.add((tokenIndex, metadata));
                             };
                             case (#err(_)) {
-                                // Optionally handle metadata retrieval failure.
                             };
                         };
                     };
-
-                    // If we have any tokens for this collection, add to the result array.
                     if (tokenMetadataArray.size() > 0) {
                         resultArray.add((collectionCanisterId, collectionTitle, Buffer.toArray(tokenMetadataArray)));
                     };
                 };
                 case (#err(_)) {
-                    // Optionally handle token retrieval failure.
                 };
             };
         };
 
-        // Return the result as an array.
         return Buffer.toArray(resultArray);
     };
 
 
     public shared ({ caller = user }) func getUserTokensFromAllCollectionsPaginate(page: Nat, pageSize: Nat) : async [(Principal, Text, [(TokenIndex, Metadata)])] {
-        // Initialize an empty list to store the result.
+
         var resultList: List.List<(Principal, Text, [(TokenIndex, Metadata)])> = List.nil();
 
-        // Convert user Principal to AccountIdentifier.
         let userAID = AID.fromPrincipal(user, null);
-
-        // Convert the collections array to a list for easier manipulation
         let collectionsList = allCollections.vals();
-
-        // Determine the total number of collections
         let totalCollections = allCollections.size();
-
-        // Calculate the starting index based on page and pageSize
         let startIndex = page * pageSize;
-
-        // Check if the startIndex is out of bounds
         if (startIndex >= totalCollections) {
+            Debug.print("startIndex >= totalC");
+            Debug.print(Nat.toText(totalCollections));
             return [];  // Return an empty result if the start index is out of bounds
         };
-
-        // Calculate the ending index, ensuring it doesn't go beyond the total number of collections
-        let endIndex = Int.min(totalCollections, startIndex + pageSize);
-
-        // Initialize a currentIndex to keep track of the list iteration
+        let endIndex = Nat.min(totalCollections, startIndex + pageSize);
         var currentIndex: Nat = 0;
-
-        // Iterate over the collection canisters within the range (startIndex to endIndex)
         for (collection in collectionsList) {
             if (currentIndex >= startIndex and currentIndex < endIndex) {
                 let collectionCanisterId = collection;
 
-                // Create the actor for interacting with the current collection canister.
                 let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
                     tokens: (aid: AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
                     ext_metadata: (token: TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
                     getCollectionDetails: () -> async (Text, Text, Text);  // Assume title is the first field.
                 };
-
-                // Fetch the collection details to get the title.
                 let collectionDetails = await collectionCanisterActor.getCollectionDetails();
                 let collectionTitle = collectionDetails.0;  // Extract the collection title.
-
-                // Fetch the list of TokenIndices for the user.
                 let tokensResult = await collectionCanisterActor.tokens(userAID);
-
-                // Initialize an empty list to store tokens for this collection.
                 var tokenMetadataList: List.List<(TokenIndex, Metadata)> = List.nil();
 
-                // Handle the Result for tokens.
                 switch (tokensResult) {
                     case (#ok(tokenIds)) {
-                        // Iterate over each TokenIndex and fetch metadata.
                         for (tokenIndex in tokenIds.vals()) {
                             let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
                             let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
 
-                            // Handle the Result for metadata.
                             switch (metadataResult) {
                                 case (#ok(metadata)) {
-                                    // Add the token index and metadata to the list for this collection.
                                     tokenMetadataList := List.push((tokenIndex, metadata), tokenMetadataList);
                                 };
                                 case (#err(_)) {
-                                    // Optionally handle metadata retrieval failure.
                                 };
                             };
                         };
 
-                        // If we have any tokens for this collection, add to the result list.
                         if (not List.isNil(tokenMetadataList)) {
                             resultList := List.push((collectionCanisterId, collectionTitle, List.toArray(List.reverse(tokenMetadataList))), resultList);
                         };
@@ -834,8 +1064,7 @@ actor Main {
 
         };
 
-        // Convert the result list to an array and return it.
-        return List.toArray(List.reverse(resultList));  // Reverse to maintain the original order
+        return List.toArray(List.reverse(resultList));  
     };
 
 
