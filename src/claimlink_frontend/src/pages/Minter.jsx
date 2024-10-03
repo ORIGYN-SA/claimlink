@@ -4,8 +4,6 @@ import { TfiPlus } from "react-icons/tfi";
 import { useNavigate } from "react-router-dom";
 import { GoPlus } from "react-icons/go";
 import { IoSettingsOutline } from "react-icons/io5";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchMinterData } from "../redux/features/minterSlice";
 import { useAuth } from "../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
@@ -19,7 +17,8 @@ const Minter = () => {
   const { identity, backend, principal } = useAuth();
   const { id } = useParams();
   const [copy, setCopy] = useState();
-  const [page, setpage] = useState(1);
+  const [page, setPage] = useState(1);
+  const [totalCollections, setTotalCollections] = useState(0);
   const createContract = () => {
     navigate("/minter/new-contract");
   };
@@ -27,30 +26,42 @@ const Minter = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const data = await backend?.getUserCollectionDetails();
-        setCollections(data[0]);
-        console.log("collection is", data[0]);
-        // const principal = Principal.fromUint8Array(
-        //   collections?.[0]?.[1]?.[0]?._arr
-        // );
-        // const principalText = principal.toText();
+  const itemsPerPage = 7;
+  const loadData = async (pageNumber = 1) => {
+    try {
+      setLoading(true);
+      const start = pageNumber - 1; // Calculate the start index
+      const data = await backend?.getUserCollectionDetailsPaginate(
+        start,
+        itemsPerPage
+      );
+      setCollections(data[0]);
 
-        console.log("prin is", data[0][0][1].toText());
-      } catch (error) {
-        console.error("Data loading error:", error);
-        setError(error);
-      } finally {
-        setLoading(false);
+      // Fetch total collection count once
+      if (pageNumber === 1) {
+        const res = await backend?.getUserCollectionDetails();
+        setTotalCollections(res[0]?.length);
       }
-    };
-
-    if (backend) {
-      loadData();
+    } catch (error) {
+      console.error("Data loading error:", error);
+      setError(error);
+    } finally {
+      setLoading(false);
     }
-  }, [backend]);
+  };
+
+  useEffect(() => {
+    if (backend) {
+      loadData(page); // Load the data for the initial page
+    }
+  }, [backend, page]);
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber); // Update the page number when user clicks on a page button
+  };
+
+  const totalPages = Math.ceil(totalCollections / itemsPerPage); // Calculate total pages
+
   const getNonfungibleTokensNft = async () => {
     try {
       let idd = Principal.fromText(id);
@@ -331,13 +342,55 @@ const Minter = () => {
                     <CollectionCard data={data} />
                   ))}
             </div>
-            {/* <div className="flex w-40 border border-blue-300 justify-end items-end">
-              {[1, 2, 3, 4, 5, 6].map((data, index) => (
-                <div key={index} className="border border-blue-400 px-2 py-1">
-                  {data}
+            <div className="flex justify-center mt-6">
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-6 items-center space-x-2">
+                  {/* Prev button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      page === 1
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
+                    Prev
+                  </button>
+
+                  {/* Page number buttons */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                      <button
+                        key={pageNum}
+                        className={`mx-1 px-3 py-1 rounded ${
+                          page === pageNum
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      page === totalPages
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </button>
                 </div>
-              ))}{" "}
-            </div> */}
+              )}
+            </div>
           </div>
         )}
       </div>
