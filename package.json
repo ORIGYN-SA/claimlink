@@ -16,8 +16,14 @@
     "src/claimlink_frontend"
   ],
   "dependencies": {
-    "@dfinity/auth-client": "^2.0.0",
+    "@dfinity/agent": "^2.1.2",
+    "@dfinity/auth-client": "^2.1.2",
+    "@dfinity/candid": "^2.1.2",
+    "@dfinity/identity": "^2.1.2",
+    "@dfinity/ledger-icp": "^2.6.0",
     "@dfinity/nns": "^6.0.0",
+    "@dfinity/principal": "^2.1.2",
+    "@dfinity/utils": "^2.5.1",
     "@fontsource-variable/manrope": "^5.0.20",
     "@fontsource/quicksand": "^5.0.18",
     "@headlessui/react": "^2.1.0",
@@ -36,6 +42,7 @@
     "identityvault": "^0.1.11",
     "mops": "^3.0.2",
     "papaparse": "^5.4.1",
+    "radix-ui": "^1.0.1",
     "react-countdown": "^2.3.6",
     "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",

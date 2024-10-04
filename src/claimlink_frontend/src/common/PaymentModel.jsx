@@ -29,7 +29,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
         );
         console.log("Transfer details:", transfer.height.height);
 
-        if (transfer?.height && typeof transfer.height.height === "number") {
+        if (transfer?.height && typeof transfer?.height.height === "number") {
           setMessage(`Transferred ${coffeeAmount} e8s`);
           setPaymentStatus("Payment successful");
           toast.success("Payment successful!");
@@ -139,33 +139,33 @@ const PaymentModel = ({ img, toggleModal, name, loading, onClick }) => {
       // Create an HTTP agent
       const agent = new HttpAgent();
 
-      // In local development, you may need to fetch the root key
-      if (process.env.NODE_ENV !== "production") {
-        await agent.fetchRootKey(); // Ensure the root key is available for local environments
-      }
+  // In local development, you may need to fetch the root key
+  if (process.env.NODE_ENV !== "production") {
+    await agent.fetchRootKey(); // Ensure the root key is available for local environments
+  }
 
-      // Create the actor
-      const actor = createActor(idlFactory, {
-        agent,
-        canisterId: "bkyz2-fmaaa-aaaaa-qaaaq-cai", // ICP Ledger canister ID
-      });
-      console.log("actor", actor);
-      console.log("Calling transfer method with args:", transferArgs);
-      const response = await actor.transfer(transferArgs);
-      console.log("Transfer response:", response);
-      const transferStatus = response?.status;
+  // Create the actor
+  const actor = createActor(idlFactory, {
+    agent,
+    canisterId: "bkyz2-fmaaa-aaaaa-qaaaq-cai", // ICP Ledger canister ID
+  });
+  console.log("actor", actor);
+  console.log("Calling transfer method with args:", transferArgs);
+  const response = await actor.transfer(transferArgs);
+  console.log("Transfer response:", response);
+  const transferStatus = response?.status;
 
-      if (transferStatus === "COMPLETED") {
-        setMessage(`Transferred ${coffeeAmount.toString()} e8s successfully!`);
-      } else if (transferStatus === "PENDING") {
-        setMessage("Transfer is pending.");
-      } else {
-        setMessage("Transfer failed.");
-      }
-    } catch (error) {
-      console.error("Transfer failed due to an error:", error);
-      setMessage("Transfer failed due to an error.");
-    }
+  if (transferStatus === "COMPLETED") {
+    setMessage(`Transferred ${coffeeAmount.toString()} e8s successfully!`);
+  } else if (transferStatus === "PENDING") {
+    setMessage("Transfer is pending.");
+  } else {
+    setMessage("Transfer failed.");
+  }
+} catch (error) {
+  console.error("Transfer failed due to an error:", error);
+  setMessage("Transfer failed due to an error.");
+}
   };
 
   // Function to handle payment with NFID
@@ -174,47 +174,47 @@ const PaymentModel = ({ img, toggleModal, name, loading, onClick }) => {
     setMessage("Connecting to wallet...");
     console.log("Checking if user is authenticated:", isConnected); // Debugging authentication status
 
-    // Check if the user is authenticated with NFID
-    if (isConnected) {
-      try {
-        console.log("User is authenticated, proceeding with transfer..."); // Debugging user authentication
-        // Set the destination principal
-        const destinationPrincipal = Principal.fromText(
-          "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe"
-        );
-        console.log("Destination principal:", destinationPrincipal.toText()); // Debugging destination principal
+// Check if the user is authenticated with NFID
+if (isConnected) {
+  try {
+    console.log("User is authenticated, proceeding with transfer..."); // Debugging user authentication
+    // Set the destination principal
+    const destinationPrincipal = Principal.fromText(
+      "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe"
+    );
+    console.log("Destination principal:", destinationPrincipal.toText()); // Debugging destination principal
 
-        const accountIdentifier =
-          accountIdentifierFromPrincipal(destinationPrincipal);
-        console.log("Account identifier:", accountIdentifier); // Debugging account identifier
+    const accountIdentifier =
+      accountIdentifierFromPrincipal(destinationPrincipal);
+    console.log("Account identifier:", accountIdentifier); // Debugging account identifier
 
-        // Prepare transfer arguments
-        const transferArgs = {
-          to: fromHexString(accountIdentifier), // Convert hex string to Uint8Array
-          fee: { e8s: BigInt(10000) }, // Network fee in e8s
-          memo: BigInt(0), // Memo, can be anything or left as 0
-          from_subaccount: [], // Optional subaccount
-          created_at_time: [], // Optional, leave empty
-          amount: { e8s: BigInt(coffeeAmount) }, // Amount in e8s
-        };
+    // Prepare transfer arguments
+    const transferArgs = {
+      to: fromHexString(accountIdentifier), // Convert hex string to Uint8Array
+      fee: { e8s: BigInt(10000) }, // Network fee in e8s
+      memo: BigInt(0), // Memo, can be anything or left as 0
+      from_subaccount: [], // Optional subaccount
+      created_at_time: [], // Optional, leave empty
+      amount: { e8s: BigInt(coffeeAmount) }, // Amount in e8s
+    };
 
-        console.log("Transfer arguments prepared:", transferArgs); // Debugging transfer arguments
-        await handleTransfer(transferArgs); // Perform the transfer
-      } catch (error) {
-        console.error("Error during transfer setup or execution:", error); // Error handling debug
-        setMessage("Error occurred during transfer.");
-      }
-    } else {
-      setMessage("Wallet connection was refused");
-      console.warn("Wallet connection was refused"); // Wallet refused debug
-    }
+    console.log("Transfer arguments prepared:", transferArgs); // Debugging transfer arguments
+    await handleTransfer(transferArgs); // Perform the transfer
+  } catch (error) {
+    console.error("Error during transfer setup or execution:", error); // Error handling debug
+    setMessage("Error occurred during transfer.");
+  }
+} else {
+  setMessage("Wallet connection was refused");
+  console.warn("Wallet connection was refused"); // Wallet refused debug
+}
 
-    // Re-enable the button after 5 seconds
-    setTimeout(() => {
-      el.target.disabled = false;
-      setMessage("Buy me a coffee");
-      console.log("Re-enabled the button after timeout."); // Button re-enable debug
-    }, 5000);
+// Re-enable the button after 5 seconds
+setTimeout(() => {
+  el.target.disabled = false;
+  setMessage("Buy me a coffee");
+  console.log("Re-enabled the button after timeout."); // Button re-enable debug
+}, 5000);
   };
 
   return (
