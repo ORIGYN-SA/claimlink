@@ -35,7 +35,8 @@ const Minter = () => {
         start,
         itemsPerPage
       );
-      setCollections(data[0]);
+      setCollections(data.data);
+      console.log(data.data);
 
       // Fetch total collection count once
       if (pageNumber === 1) {

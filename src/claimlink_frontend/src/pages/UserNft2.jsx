@@ -28,6 +28,10 @@ const UserNft2 = () => {
         const res = await backend.getUserTokensFromAllCollections();
         const idd = Principal.fromText(id); // Convert id to Principal
 
+        const res1 = await backend.getNonFungibleTokensPaginate(idd, 0, 10);
+        console.log(res1, "users nft form the user nft page ");
+        const totalPages = parseInt(res1.total_pages);
+
         // Filter the collections that match the idd
         const matchedCollection = res.find(
           (collection) => collection[0].toText() === idd.toText()
@@ -35,7 +39,7 @@ const UserNft2 = () => {
 
         if (matchedCollection) {
           // Set the value at index 2 of the matched collection to state
-          setCollections(matchedCollection[2]);
+          setCollections(res1.data);
 
           console.log(matchedCollection[2], "Matched user NFT collection");
         } else {
@@ -127,7 +131,7 @@ const UserNft2 = () => {
                     <>
                       <div className="flex justify-start  space-x-4">
                         <img
-                          src={data[1]?.nonfungible?.asset}
+                          src={data[2]?.nonfungible?.asset}
                           alt="Campaign"
                           className="w-full h-64 object-cover rounded-md"
                           style={{
@@ -138,7 +142,7 @@ const UserNft2 = () => {
                       </div>
                       <div className="flex justify-between">
                         <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">
-                          {limitCharacters(data[1]?.nonfungible?.name, 15)}
+                          {limitCharacters(data[2]?.nonfungible?.name, 15)}
                         </h2>
 
                         <h2 className="text-lg  font-semibold text-[#2E2C34] my-3 ">

@@ -50,7 +50,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
       console.error("Payment error:", error);
       setMessage("Payment failed due to an error");
       toast.error("An error occurred during the payment process");
-      handlecreate();
+      //handlecreate();
     } finally {
       setLoading(false);
       setTimeout(() => {

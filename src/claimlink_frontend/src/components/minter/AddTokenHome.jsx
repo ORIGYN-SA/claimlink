@@ -1,19 +1,16 @@
 import { motion } from "framer-motion";
 import React, { useMemo, useState, useEffect } from "react";
-import { TbInfoHexagon } from "react-icons/tb";
+
 import { TfiPlus } from "react-icons/tfi";
-import StyledDropzone from "../../common/StyledDropzone";
-import Toggle from "react-toggle";
+
 import { GoDownload, GoLink, GoPlus } from "react-icons/go";
 import { BsCopy, BsQrCode } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import CommonModal from "../../common/CommonModel";
-import { IoSettingsOutline } from "react-icons/io5";
+
 import { useParams } from "react-router-dom";
 import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
-import DescriptionComponent from "../../common/DescriptionModel";
-import { RxCross2 } from "react-icons/rx";
+
 import toast from "react-hot-toast";
 import NftCards from "../../common/NftCards";
 import NftMobileCards from "../../common/NftMobileCards";
@@ -37,6 +34,8 @@ const AddTokenHome = () => {
   const [loader, setLoader] = useState(true);
   const [descriptionModel, setDescriptionModel] = useState();
   const [ids, setIds] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1); // Track current page
+  const [totalPages, setTotalPages] = useState(1);
 
   const { backend } = useAuth();
   const addToken = () => {
@@ -103,69 +102,67 @@ const AddTokenHome = () => {
     }
   }, [backend]);
 
-  const getTokensNft = async () => {
+  useEffect(() => {
+    if (filter === "stored") {
+      getTokensNft(currentPage);
+    } else {
+      getNonfungibleTokensNft(currentPage);
+    }
+  }, [backend, filter, currentPage]);
+
+  const getTokensNft = async (page = 1) => {
     try {
       setLoader(true);
       let idd = Principal.fromText(id);
-      const res = await backend.getStoredTokens(idd);
-
-      console.log(res);
-      getNft(res[0]);
+      const res1 = await backend.getStoredTokensPaginate(idd, page - 1, 1);
+      const totalPages = parseInt(res1.total_pages);
+      getNft(res1.data);
+      setTotalPages(totalPages);
     } catch (error) {
-      console.log("Error getting nfts ", error);
+      console.log("Error getting NFTs ", error);
     } finally {
       setLoader(false);
     }
   };
 
-  const getNonfungibleTokensNft = async () => {
+  const getNonfungibleTokensNft = async (page = 1) => {
     try {
       setLoader(true);
       let idd = Principal.fromText(id);
-      console.log("HELLO FROM THE NON  FUNGIBLE ");
-      const res = await backend.getNonFungibleTokens(idd);
-
-      console.log(res);
-      getNft(res);
+      const res1 = await backend.getNonFungibleTokensPaginate(idd, page - 1, 1);
+      const totalPages = parseInt(res1.total_pages);
+      getNft(res1.data);
+      setTotalPages(totalPages);
     } catch (error) {
-      console.log("Error getting nfts ", error);
+      console.log("Error getting NFTs ", error);
     } finally {
       setLoader(false);
-      setIds(true);
     }
   };
 
+  const handlePageChange = (pageNum) => {
+    setCurrentPage(pageNum);
+  };
   const handleDes = () => {
     setDescriptionModel(!descriptionModel);
   };
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to page 1 when filter changes
+  }, [filter]);
   function formatTimestamp(timestamp) {
-    // Convert nanoseconds to milliseconds by dividing by 1,000,000
     const milliseconds = Number(timestamp / 1000000n);
 
-    // Create a new Date object with the milliseconds
     const date = new Date(milliseconds);
 
-    // Extract the components of the date
     const month = date.toLocaleString("en-US", { month: "long" });
     const day = date.getDate();
     const year = date.getFullYear();
     const hours = date.getHours().toString().padStart(2, "0");
     const minutes = date.getMinutes().toString().padStart(2, "0");
 
-    // Format the date as "Month Day, Year Hour:Minute"
     return `${month} ${day}, ${year} ${hours}:${minutes}`;
   }
-
-  useEffect(() => {
-    if (filter == "stored") {
-      getTokensNft();
-    } else {
-      getNonfungibleTokensNft();
-    }
-  }, [backend, filter]);
-
-  console.log(filter);
-
   const pageVariants = {
     initial: {
       opacity: 0,
@@ -232,7 +229,6 @@ const AddTokenHome = () => {
                         </p>
                         <BsCopy className="w-3 h-3 text-[#564BF1]" />
                       </div>
-                      {/* <p className="black font-medium text-lg">10</p> */}
                     </div>
                   </div>
                 </div>
@@ -278,15 +274,6 @@ const AddTokenHome = () => {
                   </div>
                 </div>
               </div>
-              {/* <button
-                onClick={() => {
-                  navigate("/dispensers");
-                }}
-                className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-4 bg-[#5542F6] text-white rounded-sm text-sm"
-              >
-                <GoLink />
-                Create claim links
-              </button> */}
             </div>
           </motion.div>
 
@@ -437,6 +424,54 @@ const AddTokenHome = () => {
                 </>
               )}
             </div>
+            <div className="flex justify-center mt-6">
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-6 items-center space-x-2">
+                  {/* Prev button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      currentPage === 1
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  >
+                    Prev
+                  </button>
+
+                  {/* Page number buttons */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                      <button
+                        key={pageNum}
+                        className={`mx-1 px-3 py-1 rounded ${
+                          currentPage === pageNum
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      currentPage === totalPages
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
           <div className="w-1/3 h- bg-white p-6">
             {collections ? (
@@ -498,18 +533,6 @@ const AddTokenHome = () => {
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
-            {/* {!loader &&
-              (nft.length > 0)(
-                <button
-                  onClick={() => {
-                    navigate("/dispensers");
-                  }}
-                  className="px-6 flex gap-2 items-center justify-center w-full py-3 mt-4 bg-[#5542F6] text-white rounded-sm text-sm"
-                >
-                  <GoLink />
-                  Create claim links
-                </button>
-              )} */}
           </div>
         </motion.div>
       )}
