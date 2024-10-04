@@ -12,9 +12,11 @@ import imageCompression from "browser-image-compression";
 import { CiImageOn, CiWallet } from "react-icons/ci";
 import { AiOutlineLink } from "react-icons/ai";
 import MainButton from "../../common/Buttons";
+import PaymentModel from "../../common/PaymentModel";
+import NftPayment from "../../common/NftPayment";
 
 const AddToken = () => {
-  const [showCopies, setShowCopies] = useState(false);
+  const [showCopies, setShowCopies] = useState(null);
   const [tokenType, setTokenType] = useState("nonfungible");
   const { identity, backend, principal } = useAuth();
   const [operation, setOperation] = useState("mint");
@@ -23,6 +25,7 @@ const AddToken = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   console.log("id", id);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // useEffect(() => {
   //   if (formData.contract === "tokens") {
@@ -228,16 +231,15 @@ const AddToken = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
     }
-    if (!validateForm()) {
-      // toast.error("Please enter valid data");
-      console.log("form", errors);
-      return;
-    }
+    // if (!validateForm()) {
+    //   // toast.error("Please enter valid data");
+    //   console.log("form", errors);
+    //   return;
+    // }
     console.log(backend);
     setLoading(true);
     try {
@@ -392,7 +394,11 @@ const AddToken = () => {
     }
   };
   console.log(operation);
-
+  const toggleModal = () => {
+    if (validateForm()) {
+      setIsModalOpen(!isModalOpen);
+    }
+  };
   return (
     <motion.div
       initial={{ scale: 1, opacity: 0 }}
@@ -408,7 +414,7 @@ const AddToken = () => {
           <h2 className="text-xl font-semibold md:mt-0 mt-8">Add token </h2>
         </div>
         <div>
-          <form onSubmit={handleSubmit}>
+          <form>
             {tokenType == "nonfungible" && (
               <div className="mt-2 flex flex-col ">
                 <label className="text-md font-semibold py-3 ">
@@ -656,21 +662,25 @@ const AddToken = () => {
                 </div>
               </>
             )}
-
-            <div className="flex gap-4 mt-6">
-              <MainButton
-                text={"Submit"}
-                onClick={handleSubmit}
-                loading={loading || loading2}
+          </form>
+          <div className="flex gap-4 mt-6">
+            <MainButton text={"Submit"} onClick={toggleModal} />
+            {isModalOpen && (
+              <NftPayment
+                loading={loading}
+                toggleModal={toggleModal}
+                img={formData.asset}
+                name={formData.name}
+                handlecreate={handleSubmit}
               />
-              {/* <button
+            )}
+            {/* <button
                 className="px-6 py-3 md:w-auto w-full bg-[#5542F6] text-white shadow-lg rounded-md text-sm"
                 onClick={handleSubmit}
               >
                 Submit
               </button> */}
-            </div>
-          </form>
+          </div>
         </div>
       </div>
     </motion.div>
