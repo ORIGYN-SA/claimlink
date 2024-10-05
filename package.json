@@ -28,6 +28,7 @@
     "@fontsource/quicksand": "^5.0.18",
     "@headlessui/react": "^2.1.0",
     "@heroicons/react": "^2.1.4",
+    "@nfid/embed": "^0.10.3",
     "@nfid/identitykit": "^0.0.3",
     "@reduxjs/toolkit": "^2.2.6",
     "@tsparticles/react": "^3.0.0",

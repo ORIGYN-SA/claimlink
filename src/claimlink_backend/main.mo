@@ -25,6 +25,7 @@ import Option "mo:base/Option";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 import ExtCommon "../extv2/motoko/ext/Common";
+import IcpLedger "canister:icp_ledger_canister";
 
 actor Main {
 
@@ -64,15 +65,30 @@ actor Main {
     type TransferRequest = ExtCore.TransferRequest;
     type TransferResponse = ExtCore.TransferResponse;
     type AccountBalanceArgs = { account : AccountIdentifier };
+    type BinaryAccountBalanceArgs = { account : Blob };
     public type TimeStamp = { timestamp_nanos : Nat64 };
     public type Tokens = { e8s : Nat64 };
-    public type TransferArgs = {
-        to : Blob;
-        fee : Tokens;
-        memo : Nat64;
-        from_subaccount : ?Blob;
-        created_at_time : ?TimeStamp;
+    // public type TransferArgs = {
+    //     to : AccountIdentifier;
+    //     fee : Tokens;
+    //     memo : Nat64;
+    //     from_subaccount : ?AccountIdentifier;
+    //     created_at_time : ?TimeStamp;
+    //     amount : Tokens;
+    // };
+    type TransferArgs = {
         amount : Tokens;
+        toPrincipal : Principal;
+        toSubaccount : ?IcpLedger.SubAccount;
+    };
+    type ICPTs = { e8s : Nat64 };
+    type SendArgs = {
+        memo : Nat64;
+        amount : ICPTs;
+        fee : ICPTs;
+        from_subaccount : ?SubAccount;
+        to : AccountIdentifier;
+        created_at_time : ?Time.Time;
     };
     type Deposit = {
         tokenId : TokenIndex;
@@ -190,68 +206,59 @@ actor Main {
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
 
     let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
+        account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
         transfer : shared TransferArgs -> async Result_6;
+        send_dfx : shared SendArgs -> async Nat64;
         account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
     };
 
-    func accountIdentifierToBlob(principal: Principal, subaccount: ?Blob) : Blob {
-        let principalBytes : [Nat8] = Blob.toArray(Principal.toBlob(principal));
-        let defaultSubaccount : [Nat8] = Array.freeze<Nat8>(Array.init<Nat8>(32, 0));
-        let subaccountBytes : [Nat8] = switch (subaccount) {
-            case (?blob) { Blob.toArray(blob) }; 
-            case null { defaultSubaccount };  
-        };        
-        let accountIdBytes : [Nat8] = Array.append<Nat8>(principalBytes, subaccountBytes);
-        return Blob.fromArray(accountIdBytes);
-    };
+    public shared ({caller = user}) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
 
+        let from = Principal.toLedgerAccount(user, null);
+        let balanceResult = await IcpLedger.account_balance({account = from});
+        Debug.print(
+        "Transferring "
+        # debug_show (args.amount)
+        # " tokens to principal "
+        # debug_show (args.toPrincipal)
+        # " blob from "
+        # debug_show (from)
+        # " caller "
+        # debug_show (user)
+        # " balance "
+        # debug_show (balanceResult)
+        );
+        
 
-    public shared ({ caller = user }) func transferICP(collectionCreationFee: Nat64, platformAccount: Principal) : async Text {
-
-        let userAccountBlob = accountIdentifierToBlob(user, null); 
-        let platformAccountBlob = accountIdentifierToBlob(platformAccount, null);
-        let userAccount = AID.fromPrincipal(user,null);
-        let balanceResult = await LedgerCanister.account_balance_dfx({ account = userAccount });
-
-        if (balanceResult.e8s < collectionCreationFee) {
-            return "Insufficient balance.";
+        let transferArgs : IcpLedger.TransferArgs = {
+        // can be used to distinguish between transactions
+        memo = 0;
+        // the amount we want to transfer
+        amount = args.amount;
+        // the ICP ledger charges 10_000 e8s for a transfer
+        fee = { e8s = 10_000 };
+        // we are transferring from the canisters default subaccount, therefore we don't need to specify it
+        from_subaccount = ?from;
+        // we take the principal and subaccount from the arguments and convert them into an account identifier
+        to = Principal.toLedgerAccount(args.toPrincipal, args.toSubaccount);
+        // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
+        created_at_time = null;
         };
-        let transferRequest: TransferArgs = {
-            to = platformAccountBlob;
-            amount = { e8s = collectionCreationFee }; 
-            fee = { e8s = 10_000 };
-            memo = 0;
-            from_subaccount = ?userAccountBlob;
-            created_at_time = null;
-        };
-        let transferResponse = await LedgerCanister.transfer(transferRequest);
-        switch (transferResponse) {
-            case (#Ok(nat)) {
-                return "Transfer successful: " # Nat64.toText(nat);
-            };
-            case (#Err(error)) {
-                return "Transfer failed: " # errorToString(error); 
-            };
-        };
-    };
 
-    func errorToString(error: TransferError_1) : Text {
-        switch (error) {
-            case (#TxTooOld(record)) {
-                return "Transaction too old. Allowed window: " # Nat64.toText(record.allowed_window_nanos);
+        try {
+        // initiate the transfer
+        let transferResult = await IcpLedger.transfer(transferArgs);
+
+        // check if the transfer was successfull
+        switch (transferResult) {
+            case (#Err(transferError)) {
+            return #err("Couldn't transfer funds:\n" # debug_show (transferError));
             };
-            case (#BadFee(record)) {
-                return "Bad fee. Expected fee: " # Nat64.toText(record.expected_fee.e8s);
-            };
-            case (#TxDuplicate(record)) {
-                return "Transaction is a duplicate of transaction: " # Nat64.toText(record.duplicate_of);
-            };
-            case (#TxCreatedInFuture) {
-                return "Transaction was created in the future.";
-            };
-            case (#InsufficientFunds(record)) {
-                return "Insufficient funds. Balance: " # Nat64.toText(record.balance.e8s);
-            };
+            case (#Ok(blockIndex)) { return #ok blockIndex };
+        };
+        } catch (error : Error) {
+        // catch any errors that might occur during the transfer
+        return #err("Reject message: " # Error.message(error));
         };
     };
 
@@ -411,7 +418,7 @@ actor Main {
                 };
             };
         };
-    }; 
+     }; 
 
     public shared ({caller = user}) func removeCollectionFromUserMap (collection_id : Principal) : async Text {
         // if (Principal.isAnonymous(user)) {
