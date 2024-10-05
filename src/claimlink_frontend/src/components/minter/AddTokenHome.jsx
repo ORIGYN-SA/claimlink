@@ -114,7 +114,7 @@ const AddTokenHome = () => {
     try {
       setLoader(true);
       let idd = Principal.fromText(id);
-      const res1 = await backend.getStoredTokensPaginate(idd, page - 1, 1);
+      const res1 = await backend.getStoredTokensPaginate(idd, page - 1, 5);
       const totalPages = parseInt(res1.total_pages);
       getNft(res1.data);
       setTotalPages(totalPages);
@@ -129,7 +129,7 @@ const AddTokenHome = () => {
     try {
       setLoader(true);
       let idd = Principal.fromText(id);
-      const res1 = await backend.getNonFungibleTokensPaginate(idd, page - 1, 1);
+      const res1 = await backend.getNonFungibleTokensPaginate(idd, page - 1, 5);
       const totalPages = parseInt(res1.total_pages);
       getNft(res1.data);
       setTotalPages(totalPages);
@@ -287,7 +287,7 @@ const AddTokenHome = () => {
             </button>
           </div>
           {loader ? (
-            [1, 2].map((index) => (
+            [1, 2, 3, 4, 5].map((index) => (
               <div
                 className="bg-white px-4 py-4 mt-4 rounded-xl flex flex-col cursor-pointer"
                 key={index}
@@ -376,7 +376,7 @@ const AddTokenHome = () => {
               </motion.div>
 
               {loader ? (
-                [1, 2].map((index) => (
+                [1, 2,3,4,5].map((index) => (
                   <div
                     className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                     key={index}

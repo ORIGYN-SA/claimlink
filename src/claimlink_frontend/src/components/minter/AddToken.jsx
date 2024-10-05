@@ -229,8 +229,7 @@ const AddToken = () => {
     return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;

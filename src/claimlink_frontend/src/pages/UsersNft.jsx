@@ -19,7 +19,8 @@ const UsersNft = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const res1 = await backend.getUserTokensFromAllCollections(); // Get all collections for pagination info
+        const res1 = await backend.getUserTokensFromAllCollections();
+        // Get all collections for pagination info
         const totalCollections = res1.length;
         setTotalPages(Math.ceil(totalCollections / itemsPerPage)); // Set total pages
 

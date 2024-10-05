@@ -26,7 +26,7 @@ const Minter = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
 
-  const itemsPerPage = 7;
+  const itemsPerPage = 4;
   const loadData = async (pageNumber = 1) => {
     try {
       setLoading(true);
