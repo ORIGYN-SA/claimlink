@@ -37,7 +37,7 @@ const LoginPage = () => {
           claimlink
           <MdArrowOutward className="bg-[#3B00B9] rounded text-white mt-1" />
         </p>
-        <div className="bg-white p-8 rounded-xl shadow-lg sm:w-[28%] mt-24 h-[70%]">
+        <div className="bg-white p-8  rounded-xl shadow-lg sm:w-[28%]  mt-24">
           <div
             className="flex justify-center mb-6 cursor-pointer"
             onClick={() => {

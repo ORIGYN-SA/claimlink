@@ -2,20 +2,18 @@ import React, { useState } from "react";
 import { useAuthClient } from "../connect/useAuthClient";
 
 const NfidWallet = () => {
-  const { isConnected, login, logout, principal, backend } = useAuthClient(); // Access auth state
+  const { isConnected, login, logout, principal, backend } = useAuthClient();
 
   return (
     <div>
       {!isConnected ? (
-        // Show connect wallet button if not connected
         <button onClick={login} className="bg-blue-500 text-white p-2 rounded">
           Connect Wallet
         </button>
       ) : (
-        // Show custom connected wallet button if connected
         <CustomConnectedWalletButton
           connectedAccount={principal.toText()}
-          icpBalance={0} // Assuming ICP balance fetching is implemented elsewhere
+          icpBalance={0}
           onDisconnect={logout}
         />
       )}
