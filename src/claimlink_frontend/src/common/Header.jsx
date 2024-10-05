@@ -12,7 +12,8 @@ import toast from "react-hot-toast";
 
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const navigate = useNavigate();
-  const { isConnected, principal, disconnect } = useAuth();
+  const { isConnected, principal, logout } = useAuth();
+  console.log("fdgd", useAuth());
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [principalText, setPrincipalText] = useState("connect wallet");
@@ -22,7 +23,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
   };
 
   const handleLogout = () => {
-    disconnect();
+    logout();
     navigate("/");
   };
 
