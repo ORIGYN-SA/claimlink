@@ -2,7 +2,7 @@ import Principal "mo:base/Principal";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 import Array "mo:base/Array";
-actor CanisterRegistry {
+actor class CanisterRegistry(owner : Principal){
     
     // Define operation error types
     public type OperationError = {
@@ -53,10 +53,14 @@ actor CanisterRegistry {
     let NAME_LIMIT: Nat = 24;
 
     // Define the Admins structure
-    stable var admins: [Principal] = [];
+    stable var admins: [Principal] = [owner];
 
     // CanisterDB (equivalent to the Rust HashMap)
     stable var canisterDB: [(Principal, CanisterMetadata)] = [];
+
+    public query func owners() : async [Principal]{
+        admins
+    };
 
     // Utility function to check if a given principal is an admin
     public func isAdmin(account: Principal): async Bool {
@@ -189,11 +193,6 @@ actor CanisterRegistry {
             case null
                 return null;
         };
-    };
-
-    // Init function to set the first admin as the caller
-    public func init(caller: Principal) {
-        admins := [caller];
     };
 
 
