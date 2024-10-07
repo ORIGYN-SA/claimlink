@@ -631,8 +631,18 @@ actor Main {
         let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
         switch (addResult) {
             case (#ok(())) {
-                // Successfully added the canister metadata to the registry
-                return (user, extCollectionCanisterId);
+                switch(collections){
+                    case null {
+                        let updatedCollections = [(Time.now(), extCollectionCanisterId)];
+                        usersCollectionMap.put(user,updatedCollections);
+                        return (user, extCollectionCanisterId);
+                    };
+                    case (?collections){
+                        let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
+                        usersCollectionMap.put(user, updatedObj);
+                        return (user, extCollectionCanisterId);
+                    };
+                };
             };
             case (#err(errType)) {
                 // Handle different error types
@@ -645,18 +655,7 @@ actor Main {
                 throw Error.reject("Failed to add canister to registry: " # errorMessage);
             };
         };
-        switch(collections){
-            case null {
-                let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-                usersCollectionMap.put(user,updatedCollections);
-                return (user, extCollectionCanisterId);
-            };
-            case (?collections){
-                let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
-                usersCollectionMap.put(user, updatedObj);
-                return (user, extCollectionCanisterId);
-            };
-        };
+        
 
 
     };
