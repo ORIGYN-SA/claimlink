@@ -5,6 +5,7 @@ import { Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { Checkbox } from "@headlessui/react";
 import { useAuth } from "../connect/useClient";
+import { ConnectWallet } from "@nfid/identitykit/react";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -128,7 +129,10 @@ const LoginPage = () => {
         </div>
 
         {!isConnected ? (
-          <ConnectBtn onClick={handleLoginClick} />
+          <ConnectWallet
+            connectButtonComponent={ConnectBtn}
+            className="rounded-full bg-black"
+          />
         ) : (
           <button
             className="w-full mt-6 bg-red-500 text-white py-4 font-semibold rounded-xl transition duration-200"
