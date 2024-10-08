@@ -72,13 +72,13 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
           <RxCross2 className="cursor-pointer text-xl" onClick={toggleModal} />
         </div>
         <div className="mb-6 flex flex-col justify-center items-center">
-          <p className="text-xl text-black py-4">Collection Name: {name}</p>
+          <p className="text-xl text-black py-4">Token Name: {name}</p>
           <img src={img} className="w-32" alt="Collection Image" />
         </div>
 
         <div className="flex justify-between items-center">
           <div className=" flex border items-center mt-4 rounded-md bg-blue-300 px-4 py-2">
-            <p className="font-bold">Price: 0.0001 ICP</p>
+            <p className="font-bold">Price: 0.001 ICP</p>
             <img className="w-6" src={logo} alt="ICP Logo" />
           </div>
           <Button

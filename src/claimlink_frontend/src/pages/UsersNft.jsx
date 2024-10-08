@@ -25,11 +25,9 @@ const UsersNft = () => {
         setTotalPages(Math.ceil(totalCollections / itemsPerPage)); // Set total pages
 
         const startIndex = page - 1;
-        const res = await backend.getUserTokensFromAllCollectionsPaginate(
-          startIndex,
-          itemsPerPage + 1
-        );
+        const res = await backend.getUserTokensFromAllCollections();
         setCollections(res);
+        console.log(res);
         console.log(res1, res, "user nfts");
       } catch (error) {
         console.error("Data loading error:", error);
