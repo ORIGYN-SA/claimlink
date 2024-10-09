@@ -20,6 +20,7 @@ import Bool "mo:base/Bool";
 import Float "mo:base/Float";
 import Buffer "mo:base/Buffer";
 import Blob "mo:base/Blob";
+import Option "mo:base/Option";
 import AID "../extv2/motoko/util/AccountIdentifier";
 import ExtCore "../extv2/motoko/ext/Core";
 import ExtCommon "../extv2/motoko/ext/Common";
@@ -1143,44 +1144,52 @@ actor Main {
 
 
 
-    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, [(TokenIndex, Metadata)])] {
-        var resultArray = Buffer.Buffer<(Principal, Text, [(TokenIndex, Metadata)])>(0);
+    public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
+        var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
 
         let userAID = AID.fromPrincipal(user, null);
+        let userCollections = usersCollectionMap.get(user);
 
         for (collectionCanisterId in allCollections.vals()) {
-            let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
-                tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
-                ext_metadata : (token : TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
-                getCollectionDetails : () -> async (Text, Text, Text);  // Assume title is the first field.
+            var presentInUserCollections = false;
+
+            switch (userCollections) {
+                case (?collections) {
+                    // Use Array.find to check if collectionCanisterId exists in collections
+                    presentInUserCollections := Option.isSome(Array.find(collections, func((_ : Time.Time, principal : Principal)) : Bool { 
+                        principal == collectionCanisterId 
+                    }));
+                };
+                case null { 
+                    presentInUserCollections := false;
+                };
             };
 
-            let collectionDetails = await collectionCanisterActor.getCollectionDetails();
-            let collectionTitle = collectionDetails.0;  // Extract the collection title.
+            // Skip processing if the collection is already in userCollections
+            if (not presentInUserCollections) {
+                let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+                    tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+                    getCollectionDetails : () -> async (Text, Text, Text); 
+                };
 
-            let tokensResult = await collectionCanisterActor.tokens(userAID);
+                // Retrieve collection details
+                let collectionDetails = await collectionCanisterActor.getCollectionDetails();
+                let collectionTitle = collectionDetails.0;
 
-            var tokenMetadataArray = Buffer.Buffer<(TokenIndex, Metadata)>(0);
+                // Get tokens of the user in the collection
+                let tokensResult = await collectionCanisterActor.tokens(userAID);
 
-            switch (tokensResult) {
-                case (#ok(tokenIds)) {
-                    for (tokenIndex in tokenIds.vals()) {
-                        let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
-                        let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
-
-                        switch (metadataResult) {
-                            case (#ok(metadata)) {
-                                tokenMetadataArray.add((tokenIndex, metadata));
-                            };
-                            case (#err(_)) {
-                            };
+                // Process the token result
+                switch (tokensResult) {
+                    case (#ok(tokenIds)) {
+                        let tokenCount = tokenIds.size();
+                        if (tokenCount > 0) {
+                            resultArray.add((collectionCanisterId, collectionTitle, tokenCount));
                         };
                     };
-                    if (tokenMetadataArray.size() > 0) {
-                        resultArray.add((collectionCanisterId, collectionTitle, Buffer.toArray(tokenMetadataArray)));
+                    case (#err(_)) {
+                        // Ignore errors for collections where token retrieval fails
                     };
-                };
-                case (#err(_)) {
                 };
             };
         };
@@ -1189,65 +1198,6 @@ actor Main {
     };
 
 
-    public shared ({ caller = user }) func getUserTokensFromAllCollectionsPaginate(page: Nat, pageSize: Nat) : async [(Principal, Text, [(TokenIndex, Metadata)])] {
-
-        var resultList: List.List<(Principal, Text, [(TokenIndex, Metadata)])> = List.nil();
-
-        let userAID = AID.fromPrincipal(user, null);
-        let collectionsList = allCollections.vals();
-        let totalCollections = allCollections.size();
-        let startIndex = page * pageSize;
-        if (startIndex >= totalCollections) {
-            Debug.print("startIndex >= totalC");
-            Debug.print(Nat.toText(totalCollections));
-            return [];  // Return an empty result if the start index is out of bounds
-        };
-        let endIndex = Nat.min(totalCollections, startIndex + pageSize);
-        var currentIndex: Nat = 0;
-        for (collection in collectionsList) {
-            if (currentIndex >= startIndex and currentIndex < endIndex) {
-                let collectionCanisterId = collection;
-
-                let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
-                    tokens: (aid: AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
-                    ext_metadata: (token: TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
-                    getCollectionDetails: () -> async (Text, Text, Text);  // Assume title is the first field.
-                };
-                let collectionDetails = await collectionCanisterActor.getCollectionDetails();
-                let collectionTitle = collectionDetails.0;  // Extract the collection title.
-                let tokensResult = await collectionCanisterActor.tokens(userAID);
-                var tokenMetadataList: List.List<(TokenIndex, Metadata)> = List.nil();
-
-                switch (tokensResult) {
-                    case (#ok(tokenIds)) {
-                        for (tokenIndex in tokenIds.vals()) {
-                            let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(collectionCanisterId, tokenIndex);
-                            let metadataResult = await collectionCanisterActor.ext_metadata(tokenIdentifier);
-
-                            switch (metadataResult) {
-                                case (#ok(metadata)) {
-                                    tokenMetadataList := List.push((tokenIndex, metadata), tokenMetadataList);
-                                };
-                                case (#err(_)) {
-                                };
-                            };
-                        };
-
-                        if (not List.isNil(tokenMetadataList)) {
-                            resultList := List.push((collectionCanisterId, collectionTitle, List.toArray(List.reverse(tokenMetadataList))), resultList);
-                        };
-                    };
-                    case (#err(_)) {
-                        // Optionally handle token retrieval failure.
-                    };
-                };
-            };
-            currentIndex += 1;
-
-        };
-
-        return List.toArray(List.reverse(resultList));  
-    };
 
 
     func principalToUser(principal: Principal) : User {
