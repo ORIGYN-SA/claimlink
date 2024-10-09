@@ -56,7 +56,7 @@ const UsersNft = () => {
       <div className=" p-6 min-h-full">
         <div>
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-bold text-[#2E2C34]">My NFT</h2>
+            <h2 className="text-lg font-bold text-[#2E2C34]">Collected NFT</h2>
             <select
               name="Filter"
               id="filter"
@@ -93,7 +93,7 @@ const UsersNft = () => {
                       <div
                         className="flex justify-between items-center"
                         onClick={() => {
-                          navigate(`/user-nft/${data[0].toText()}`);
+                          navigate(`/collected-nft/${data[0].toText()}`);
                         }}
                       >
                         <button className="text-sm font-semibold text-[#837f8e]">

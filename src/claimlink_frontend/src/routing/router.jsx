@@ -83,15 +83,15 @@ const approutes = createBrowserRouter([
     ),
   },
   {
-    path: "/users-nft",
+    path: "/collected-nft",
     element: (
-      <Dashboard headerText={"Users Nft"} menubar={false}>
+      <Dashboard headerText={"Collected Nft"} menubar={false}>
         <UsersNft />
       </Dashboard>
     ),
   },
   {
-    path: "/user-nft/:id",
+    path: "/collected-nft/:id",
     element: (
       <Dashboard headerText={"Users Nft"} menubar={false}>
         <UserNft2 />

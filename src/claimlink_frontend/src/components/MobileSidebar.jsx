@@ -38,7 +38,7 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
-    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
+    { path: "/collected-nft", label: "Collected Nft", icon: RiNftFill },
   ];
 
   useEffect(() => {
@@ -129,7 +129,7 @@ export function MobileFooter() {
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },
     { path: "/minter", label: "Minter", icon: MdMoney },
-    { path: "/users-nft", label: "Users Nft", icon: RiNftFill },
+    { path: "/collected-nft", label: "Collected Nft", icon: RiNftFill },
   ];
   const { login, principal, isConnected, disconnect } = useAuth();
   const scrollToTop = () => {
