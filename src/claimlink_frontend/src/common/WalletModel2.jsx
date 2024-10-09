@@ -1,23 +1,31 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { useAuth } from "../connect/useClient";
-import { useNavigate } from "react-router-dom";
 import { ConnectWallet } from "@nfid/identitykit/react";
 
-const WalletModal2 = () => {
-  const { login } = useAuth();
-  const navigate = useNavigate();
-  const handleLogin = (provider) => {
-    login(provider);
+const WalletModal2 = ({ isOpen, onClose }) => {
+  const { login, isConnected } = useAuth();
 
-    onClose();
-  };
+  // Automatically close modal if wallet is connected
+  useEffect(() => {
+    if (isConnected && onClose) {
+      onClose();
+    }
+  }, [isConnected, onClose]);
+
+  if (!isOpen) return null; // Don't render if modal is closed
 
   return (
     <div className="fixed inset-0 z-30 bg-gray-500 bg-opacity-75 flex items-center justify-center">
       <div className="bg-white rounded p-4 w-96">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Select Wallet</h2>
+          <button
+            className="bg-[#5542F6] p-2 rounded-md text-white text-sm font-medium"
+            onClick={onClose}
+          >
+            <RxCross1 />
+          </button>
         </div>
         <div className="flex flex-col py-4 gap-4">
           <ConnectWallet
