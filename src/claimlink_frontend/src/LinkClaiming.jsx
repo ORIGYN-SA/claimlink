@@ -223,7 +223,7 @@ const LinkClaiming = () => {
           className="transition-transform h-[90vh] duration-300 transform hover:scale-105 ease-in"
         />
       </div>
-      <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
+      <WalletModal2 />
     </div>
   );
 };

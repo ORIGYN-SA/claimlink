@@ -2,8 +2,9 @@ import React from "react";
 import { RxCross1 } from "react-icons/rx";
 import { useAuth } from "../connect/useClient";
 import { useNavigate } from "react-router-dom";
+import { ConnectWallet } from "@nfid/identitykit/react";
 
-const WalletModal2 = ({ isOpen, onClose, connected = true }) => {
+const WalletModal2 = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
   const handleLogin = (provider) => {
@@ -19,29 +20,12 @@ const WalletModal2 = ({ isOpen, onClose, connected = true }) => {
       <div className="bg-white rounded p-4 w-96">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Select Wallet</h2>
-          {connected ? (
-            <button
-              className="bg-[#5542F6] p-2 rounded-md text-white text-sm font-medium"
-              onClick={onClose}
-            >
-              <RxCross1 />
-            </button>
-          ) : null}
         </div>
         <div className="flex flex-col py-4 gap-4">
-          <button
-            onClick={() => handleLogin("Plug")}
-            className="mt-2 hover:bg-[#5542F6] text-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
-          >
-            Plug Wallet
-          </button>
-
-          <button
-            onClick={() => handleLogin("NFID")}
-            className="mt-2 hover:bg-[#5542F6] text-[#5542F6] hover:text-white transition duration-300 py-2 px-8 text-xl font-semibold border border-[#5542F6]"
-          >
-            NFID
-          </button>
+          <ConnectWallet
+            connectButtonComponent={ConnectBtn}
+            className="rounded-full bg-black"
+          />
         </div>
       </div>
     </div>
@@ -49,3 +33,12 @@ const WalletModal2 = ({ isOpen, onClose, connected = true }) => {
 };
 
 export default WalletModal2;
+
+const ConnectBtn = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
+  >
+    Sign in
+  </button>
+);

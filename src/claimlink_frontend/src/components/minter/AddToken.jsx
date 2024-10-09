@@ -448,6 +448,13 @@ const AddToken = () => {
               >
                 {/* <option value="fungible">Fungible</option> */}
                 <option value="nonfungible">Non-Fungible</option>
+                <option
+                  value="nonfungible"
+                  disabled={true}
+                  className="text-gray-500"
+                >
+                  Fungible <p className="text-gray-200">(comming soon)</p>
+                </option>
               </select>
             </div>
 
