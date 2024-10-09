@@ -338,11 +338,7 @@ const Dispensers = () => {
                   transition={{ duration: 1 }}
                   className="bg-white px-5 py-4  hidden sm:block rounded-xl flex flex-col cursor-pointer "
                 >
-                  <Link
-                    to={`/dispensers/${dispenser.id}/${campaignDetails[
-                      dispenser.campaignId
-                    ]?.collection?.toText()}`}
-                  >
+                  <Link to={`/dispensers/${dispenser.id}`}>
                     <div className="flex justify-start  space-x-4">
                       <img
                         src="https://via.placeholder.com/100"
