@@ -54,8 +54,6 @@ const LinkClaiming = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        setLoading(true);
-
         // Fetch dispenser data
         const dispenserData = await backend?.getDispenserDetails(canisterId);
         if (dispenserData) {

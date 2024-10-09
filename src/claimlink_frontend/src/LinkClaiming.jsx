@@ -48,7 +48,6 @@ const LinkClaiming = () => {
   useEffect(() => {
     const getDeposits = async () => {
       try {
-        setLoadingData(true);
         const detail = await backend.getAlldepositItemsMap();
         console.log("Deposits:", detail);
         setDeposits(detail);
