@@ -17,6 +17,84 @@
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+} /* Change calendar header background (month navigation) */
+.flatpickr-months .flatpickr-month {
+  background-color: #5542f6 !important;
+  color: white !important;
+}
+
+/* Change the background of selected and hovered days */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange,
+.flatpickr-day:hover {
+  background-color: #5542f6 !important;
+  color: white !important;
+}
+
+/* Change the background of the time picker */
+
+/* Change the background of the entire calendar popup */
+.flatpickr-calendar {
+  background-color: #5542f6 !important;
+  color: white !important;
+}
+
+/* Customize the buttons (e.g., clear or close buttons) */
+.flatpickr-calendar .flatpickr-next-month,
+.flatpickr-calendar .flatpickr-prev-month {
+  background-color: #5542f6 !important;
+  color: white !important;
+  border: none;
+}
+/* Style the month selector (header) */
+.flatpickr-month {
+  background-color: #5542f6 !important; /* Background for the month dropdown */
+  color: white !important; /* Text color for month and year */
+}
+
+.flatpickr-monthDropdown-months,
+.flatpickr-current-month {
+  background-color: #5542f6 !important; /* Month dropdown background */
+  color: white !important; /* Text color */
+}
+
+/* Style the weekdays row */
+.flatpickr-weekdays {
+  background-color: #5542f6 !important; /* Weekdays background */
+  color: white !important; /* Text color for weekdays (Sun, Mon, etc.) */
+}
+
+/* Style individual weekdays */
+.flatpickr-weekday {
+  background-color: #5542f6 !important; /* Each weekday cell background */
+  color: white !important; /* Weekday text color */
+}
+
+/* Change the background of each day */
+.flatpickr-day {
+  background-color: white !important; /* Default day background */
+  color: black !important; /* Default text color for days */
+}
+
+/* Highlight the selected day */
+.flatpickr-day.selected,
+.flatpickr-day.startRange,
+.flatpickr-day.endRange {
+  background-color: #5542f6 !important; /* Selected day and today background */
+  color: white !important; /* Selected day text color */
+}
+
+/* Hover effect for days */
+.flatpickr-day:hover {
+  background-color: #5542f6 !important; /* Hover background */
+  color: white !important; /* Hover text color */
+}
+
+/* Time picker background */
+.flatpickr-calendar {
+  border-radius: 8px !important; /* Apply uniform border radius to all corners */
+  overflow: hidden !important; /* Ensure content inside respects the border radius */
 }
 
 .black {

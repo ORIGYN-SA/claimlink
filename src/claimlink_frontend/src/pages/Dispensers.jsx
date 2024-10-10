@@ -210,7 +210,6 @@ const Dispensers = () => {
                     id="filter"
                     className="border border-gray-400 px-2 py-1 rounded-md outline-none text-sm"
                   >
-                    <option value="filter">Filter</option>
                     <option value="new">New</option>
                     <option value="old">Old</option>
                   </select>

@@ -18,7 +18,7 @@ const Minter = () => {
   const { id } = useParams();
   const [copy, setCopy] = useState();
   const [page, setPage] = useState(1);
-  const [totalCollections, setTotalCollections] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const createContract = () => {
     navigate("/minter/new-contract");
   };
@@ -36,13 +36,11 @@ const Minter = () => {
         itemsPerPage
       );
       setCollections(data.data);
-      console.log(data.data);
+      console.log(data);
 
       // Fetch total collection count once
-      if (pageNumber === 1) {
-        const res = await backend?.getUserCollectionDetails();
-        setTotalCollections(res[0]?.length);
-      }
+
+      setTotalPages(parseInt(data.total_pages));
     } catch (error) {
       console.error("Data loading error:", error);
       setError(error);
@@ -61,7 +59,7 @@ const Minter = () => {
     setPage(pageNumber); // Update the page number when user clicks on a page button
   };
 
-  const totalPages = Math.ceil(totalCollections / itemsPerPage); // Calculate total pages
+  // Calculate total pages
 
   const getNonfungibleTokensNft = async () => {
     try {
@@ -249,6 +247,55 @@ const Minter = () => {
                     ))}
               </>
             }
+            <div className="flex justify-center mt-6">
+              {/* Pagination controls */}
+              {totalPages > 1 && (
+                <div className="flex justify-center mt-6 items-center space-x-2">
+                  {/* Prev button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      page === 1
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(page - 1)}
+                    disabled={page === 1}
+                  >
+                    Prev
+                  </button>
+
+                  {/* Page number buttons */}
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                      <button
+                        key={pageNum}
+                        className={`mx-1 px-3 py-1 rounded ${
+                          page === pageNum
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )}
+
+                  {/* Next button */}
+                  <button
+                    className={`px-3 py-1 rounded ${
+                      page === totalPages
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(page + 1)}
+                    disabled={page === totalPages}
+                  >
+                    Next
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div>

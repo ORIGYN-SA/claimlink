@@ -329,6 +329,54 @@ const AddTokenHome = () => {
               ))}
             </>
           )}
+          <div className="flex justify-center mt-6">
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-6 items-center space-x-2">
+                {/* Prev button */}
+                <button
+                  className={`px-3 py-1 rounded ${
+                    currentPage === 1
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                >
+                  Prev
+                </button>
+
+                {/* Page number buttons */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        currentPage === pageNum
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                )}
+
+                {/* Next button */}
+                <button
+                  className={`px-3 py-1 rounded ${
+                    currentPage === totalPages
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       ) : (
         <motion.div
@@ -376,7 +424,7 @@ const AddTokenHome = () => {
               </motion.div>
 
               {loader ? (
-                [1, 2,3,4,5].map((index) => (
+                [1, 2, 3, 4, 5].map((index) => (
                   <div
                     className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                     key={index}

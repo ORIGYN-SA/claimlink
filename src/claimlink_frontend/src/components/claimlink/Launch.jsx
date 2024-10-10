@@ -8,6 +8,8 @@ import { useAuth } from "../../connect/useClient";
 import { Principal } from "@dfinity/principal";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import Flatpickr from "react-flatpickr";
+import "flatpickr/dist/themes/material_blue.css";
 const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -55,6 +57,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    console.log(formData.expirationDate, "expiry date");
     console.log("Starting campaign creation");
 
     if (!backend) {
@@ -93,12 +96,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           }
         });
 
-      const paddedHour = formData.hour.padStart(2, "0");
-      const paddedMinute = formData.minute.padStart(2, "0");
-      const dateString = `${formData.expirationDate}T${paddedHour}:${
-        paddedMinute || 0
-      }:00Z`;
-      const date = new Date(dateString);
+      const date = new Date(formData.expirationDate);
       const expirationTime = date.getTime() * 1000000;
 
       if (isNaN(expirationTime)) {
@@ -139,6 +137,10 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
     }
   };
 
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 30);
+
   const pageVariants = {
     initial: { opacity: 0, x: "-100vw" },
     in: { opacity: 1, x: 0 },
@@ -166,7 +168,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       transition={pageTransition}
       className="flex justify-between"
     >
-      <div className="p-4 sm:w-[70%] w-80 space-y-6">
+      <div className="p-4 sm:w-[70%] w-full space-y-6">
         <h1 className="text-3xl font-semibold">Wallet Option</h1>
         <div>
           <p className="font-semibold text-sm text-gray-400 my-4">
@@ -231,52 +233,19 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           <div className="mt-6 space-y-4 sm:w-[75%]">
             <h1 className="text-lg font-semibold">Expiration Date</h1>
             <div className="flex md:flex-row flex-col w-full justify-between gap-4">
-              <input
-                type="date"
-                disabled={loading}
-                name="expirationDate"
-                id="expirationDate"
-                className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
+              <Flatpickr
+                options={{
+                  enableTime: true,
+                  dateFormat: "Y-m-d H:i",
+                  minDate: "today", // Ensure that the minimum selectable date is today
+                  maxDate: maxDate,
+                }}
                 value={formData.expirationDate}
-                min={dateStr}
-                onChange={(e) =>
-                  setFormData({ ...formData, expirationDate: e.target.value })
-                }
+                onChange={([date]) => {
+                  setFormData({ ...formData, expirationDate: date });
+                }}
+                className="  px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
               />
-              <div className="flex md:justify-normal justify-between gap-4">
-                <select
-                  name="startHour"
-                  disabled={loading}
-                  id="startHour"
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.hour}
-                  onChange={(e) =>
-                    setFormData({ ...formData, hour: e.target.value })
-                  }
-                >
-                  {Array.from({ length: 24 }, (_, i) => i).map((hr) => (
-                    <option key={hr} value={hr}>
-                      {hr}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="startMinute"
-                  id="startMinute"
-                  disabled={loading}
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.minute}
-                  onChange={(e) =>
-                    setFormData({ ...formData, minute: e.target.value })
-                  }
-                >
-                  {Array.from({ length: 60 }, (_, i) => i).map((min) => (
-                    <option key={min} value={min}>
-                      {min}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
             {errors.expirationDate && (
               <p className="text-red-500 text-sm mt-1">

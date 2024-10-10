@@ -85,7 +85,6 @@ const DashboardContainer = () => {
                 id="filter"
                 className="flex items-center justify-center outline-none gap-2 px-4 py-2 border border-gray-500 rounded-md capitalize bg-white text-gray-700"
               >
-                <option value="filter">Filter</option>
                 <option value="new">New</option>
                 <option value="old">Old</option>
               </select>
