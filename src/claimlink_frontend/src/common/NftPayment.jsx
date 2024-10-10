@@ -40,6 +40,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
           toast.success("Payment successful!");
 
           handlecreate();
+          toggleModal();
         } else if (transfer.height === null || transfer.height === undefined) {
           setMessage("Transfer is pending...");
           toast.loading("Payment pending...");
@@ -77,12 +78,11 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
         </div>
 
         <div className="flex justify-between items-center">
-          <div className=" flex border items-center mt-4 rounded-md bg-blue-300 px-4 py-2">
+          <div className=" flex  items-center mt-4 rounded-md  px-4 py-2">
             <p className="font-bold">Price: 0.001 ICP</p>
-            <img className="w-6" src={logo} alt="ICP Logo" />
           </div>
           <Button
-            className="border border-blue-500 flex font-semibold gap-2 px-4 py-2 rounded-md mt-4 text-black"
+            className="border  bg-[#5542F6] text-white  flex font-semibold gap-2 px-4 py-2 rounded-md mt-4 "
             onClick={handlePayment}
             disabled={disabled || loading}
           >

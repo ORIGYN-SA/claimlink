@@ -57,12 +57,12 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     const file = acceptedFiles[0];
 
     // Set max size to 1MB
-    const maxSizeInBytes = 1024 * 1024 * 1; // 1MB
+    const maxSizeInBytes = 1024 * 1024 * 0.2; // 1MB
     if (file.size > maxSizeInBytes) {
       console.error(
-        "Selected file is too large. Please select an image file less than or equal to 1 MB."
+        "Selected file is too large. Please select an image file less than or equal to 200 KB."
       );
-      toast.error("Please select an image file less than or equal to 1 MB");
+      toast.error("Please select an image file less than or equal to 200 KB");
       return;
     }
 
@@ -188,7 +188,12 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       transition={pageTransition}
       className="flex"
     >
-      <div className="p-6 w-full md:w-3/5">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center h-[100%] w-full    z-50">
+          <TailSpin color="#5542F6" height={100} width={100} />
+        </div>
+      )}
+      <div className={`p-6 w-full md:w-3/5 ${loading ? "opacity-50" : ""}`}>
         <div>
           <div className="flex md:hidden justify-start">
             <MobileHeader htext={"New Contract"} />
@@ -269,7 +274,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               >
                 Collection thumbnail{" "}
                 <span className="text-gray-400 text-base mb-3 font-normal">
-                  (PNG ,Max 1MB)
+                  (PNG ,Max 200KB)
                 </span>
               </label>
               <div className="flex gap-4 flex-col md:flex-row">

@@ -72,7 +72,6 @@ const ClaimForm = () => {
     displayWallets: [],
     expirationDate: 2024 - 10 - 10,
     walletOptions: {
-      internetIdentity: false,
       plugWallet: false,
       other: false,
     },

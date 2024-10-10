@@ -14,6 +14,7 @@ import { AiOutlineLink } from "react-icons/ai";
 import MainButton from "../../common/Buttons";
 import PaymentModel from "../../common/PaymentModel";
 import NftPayment from "../../common/NftPayment";
+import { TailSpin } from "react-loader-spinner";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(null);
@@ -138,12 +139,12 @@ const AddToken = () => {
 
     const file = acceptedFiles[0];
 
-    const maxSizeInBytes = 1024 * 1024 * 1;
+    const maxSizeInBytes = 1024 * 1024 * 0.2;
     if (file.size > maxSizeInBytes) {
       console.error(
-        "Selected file is too large. Please select an image file less than or equal to 5 MB."
+        "Selected file is too large. Please select an image file less than or equal to 200 KB."
       );
-      toast.error("Please select an image file less than or equal to 1 MB");
+      toast.error("Please select an image file less than or equal to 200 kB");
       return;
     }
 
@@ -155,7 +156,7 @@ const AddToken = () => {
 
     try {
       const options = {
-        maxSizeMB: 0.1,
+        maxSizeMB: 0.2,
         maxWidthOrHeight: 200,
         useWebWorker: true,
       };
@@ -405,7 +406,12 @@ const AddToken = () => {
       exit={{}}
       className="flex "
     >
-      <div className="p-6 w-full md:w-3/5">
+      {loading && (
+        <div className="fixed inset-0 flex items-center justify-center h-full w-full z-50">
+          <TailSpin color="#5542F6" height={100} width={100} />
+        </div>
+      )}
+      <div className={`p-6 w-full md:w-3/5 ${loading ? "opacity-50" : ""}`}>
         <div className="flex md:hidden justify-start">
           <MobileHeader htext={"New Contract"} />
         </div>
@@ -419,7 +425,7 @@ const AddToken = () => {
                 <label className="text-md font-semibold py-3 ">
                   Upload a file
                   <span className="text-gray-400 text-sm mb-3 font-normal ">
-                    (PNG . Max 1MB)
+                    (PNG . Max 200KB)
                   </span>
                 </label>
                 <div className="flex gap-4 flex-col md:flex-row">
@@ -440,22 +446,12 @@ const AddToken = () => {
 
             <div className="flex flex-col mt-4">
               <label className="text-md font-semibold py-3 ">Token Type</label>
-              <select
+              <input
                 value={tokenType}
-                disabled={loading || loading2}
                 onChange={(e) => setTokenType(e.target.value)}
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-              >
-                {/* <option value="fungible">Fungible</option> */}
-                <option value="nonfungible">Non-Fungible</option>
-                <option
-                  value="nonfungible"
-                  disabled={true}
-                  className="text-gray-500"
-                >
-                  Fungible <p className="text-gray-200">(comming soon)</p>
-                </option>
-              </select>
+                disabled={true}
+              />
             </div>
 
             <div className="flex flex-col mt-4">

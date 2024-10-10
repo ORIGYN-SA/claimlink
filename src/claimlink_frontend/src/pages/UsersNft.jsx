@@ -111,52 +111,6 @@ const UsersNft = () => {
           </div>
 
           {/* Pagination controls */}
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-6 items-center space-x-2">
-              {/* Prev button */}
-              <button
-                className={`px-3 py-1 rounded ${
-                  page === 1
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => handlePageChange(page - 1)}
-                disabled={page === 1}
-              >
-                Prev
-              </button>
-
-              {/* Page numbers */}
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => (
-                  <button
-                    key={pageNum}
-                    className={`mx-1 px-3 py-1 rounded ${
-                      page === pageNum
-                        ? "bg-[#564BF1] text-white"
-                        : "bg-gray-200"
-                    }`}
-                    onClick={() => handlePageChange(pageNum)}
-                  >
-                    {pageNum}
-                  </button>
-                )
-              )}
-
-              {/* Next button */}
-              <button
-                className={`px-3 py-1 rounded ${
-                  page === totalPages
-                    ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => handlePageChange(page + 1)}
-                disabled={page === totalPages}
-              >
-                Next
-              </button>
-            </div>
-          )}
         </div>
       </div>
     </>

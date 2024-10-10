@@ -88,18 +88,6 @@ export default function StyledDropzone({ onDrop, loading }) {
           </p>
         </div>
       </div>
-      <aside className="mt-4">
-        <h4>Files</h4>
-        <ul>
-          {acceptedFiles.map((file) => (
-            <li key={file.path}>
-              <p>
-                {file.path} - {(file.size / 1024).toFixed(2)} KB
-              </p>
-            </li>
-          ))}
-        </ul>
-      </aside>
     </div>
   );
 }

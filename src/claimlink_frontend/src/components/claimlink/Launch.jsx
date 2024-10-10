@@ -23,11 +23,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (
-      !formData.walletOptions.internetIdentity &&
-      !formData.walletOptions.plugWallet &&
-      !formData.walletOptions.other
-    ) {
+    if (!formData.walletOptions.plugWallet && !formData.walletOptions.other) {
       newErrors.walletOptions = "Please select at least one wallet option.";
     }
 
@@ -89,8 +85,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         .filter((option) => formData.walletOptions[option])
         .map((option) => {
           switch (option) {
-            case "internetIdentity":
-              return "internetidentity";
             case "plugWallet":
               return "plug";
             case "other":
@@ -103,7 +97,9 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       const paddedHour = formData.hour.padStart(2, "0");
       const paddedMinute = formData.minute.padStart(2, "0");
 
-      const dateString = `${formData.expirationDate}T${paddedHour}:${paddedMinute}:00Z`;
+      const dateString = `${formData.expirationDate}T${paddedHour}:${
+        paddedMinute || 0
+      }:00Z`;
       const date = new Date(dateString);
 
       if (isNaN(date.getTime())) {
@@ -180,17 +176,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             Select the wallet that will be highlighted as "recommended"
           </p>
           <div className="mt-2 flex flex-col ">
-            <label className="inline-flex items-center">
-              <input
-                type="radio"
-                name="wallet"
-                checked={formData.walletOptions.internetIdentity}
-                onChange={() => handleWalletOptionChange("internetIdentity")}
-                className="form-radio"
-                style={{ backgroundColor: "#5542F6" }}
-              />
-              <span className="ml-2">Internet Identity</span>
-            </label>
             <label className="inline-flex items-center">
               <input
                 type="radio"
@@ -303,45 +288,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             )}
           </div>
         </div>
-
-        {/* <div>
-          <div className="flex items-center justify-between sm:w-[75%]">
-            <p className="font-semibold text-lg">Include ICP</p>
-            <Switch
-              disabled={loading}
-              checked={formData.includeICP}
-              onChange={(include) => handleIncludeICPChange(include)}
-              className="group inline-flex h-6 w-12 items-center rounded-full bg-gray-200 transition"
-            >
-              <span className="size-4 translate-x-1 rounded-full bg-[#5542F6] transition group-data-[checked]:translate-x-7" />
-            </Switch>
-          </div>
-          <p className="font-semibold text-sm text-gray-400 my-4">
-            Include ICP in the link for users to claim
-          </p>
-          {formData.includeICP && (
-            <div className="mt-6 space-y-4 sm:w-[75%]">
-              <h1 className="text-lg font-semibold">Amount of ICP</h1>
-              <div className="flex flex-col w-full justify-between gap-4">
-                <input
-                  type="number"
-                  disabled={loading}
-                  name="icpAmount"
-                  id="icpAmount"
-                  className="bg-white px-2 py-2 outline-none border border-gray-200 sm:w-[50%] w-full rounded-md"
-                  value={formData.icpAmount}
-                  onChange={(e) =>
-                    setFormData({ ...formData, icpAmount: e.target.value })
-                  }
-                  placeholder="0.0"
-                />
-              </div>
-              {errors.icpAmount && (
-                <p className="text-red-500 text-sm mt-1">{errors.icpAmount}</p>
-              )}
-            </div>
-          )}
-        </div> */}
 
         <div className="bg-gray-400  my-8 border border-gray-300/2"></div>
 
