@@ -12,7 +12,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const { backend, principal } = useAuth();
-  const [time, setTime] = useState(0);
   const liveUrl =
     process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
   console.log("Live URL:", liveUrl);
@@ -96,19 +95,17 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
 
       const paddedHour = formData.hour.padStart(2, "0");
       const paddedMinute = formData.minute.padStart(2, "0");
-
       const dateString = `${formData.expirationDate}T${paddedHour}:${
         paddedMinute || 0
       }:00Z`;
       const date = new Date(dateString);
+      const expirationTime = date.getTime() * 1000000;
 
-      if (isNaN(date.getTime())) {
-        console.error("Invalid Date generated:", dateString);
-      } else {
-        const timestampMillis = date.getTime();
-        setTime(timestampMillis);
-        console.log("Valid time:", date, "Timestamp:", timestampMillis);
+      if (isNaN(expirationTime)) {
+        throw new Error("Invalid expiration time");
       }
+
+      console.log("Expiration time:", expirationTime);
 
       const res = await backend?.createCampaign(
         formData.title,
@@ -118,7 +115,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         tokenIds,
         formData.walletOption,
         selectedWalletOptions,
-        time
+        expirationTime
       );
 
       if (res) {
