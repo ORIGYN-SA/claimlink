@@ -218,6 +218,9 @@ actor Main {
     // Daily Stats
     stable var dailyLinksCreatedCount: Nat = 0;
     stable var dailyLinksClaimedCount: Nat = 0;
+
+    private var claimedTokensMap = TrieMap.TrieMap<Principal, [(Principal, Nat)]>(Principal.equal, Principal.hash);
+
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
     private stable var stableCampaigns : [(Text,Campaign)] = [];
@@ -1147,49 +1150,20 @@ actor Main {
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
         var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
 
-        let userAID = AID.fromPrincipal(user, null);
-        let userCollections = usersCollectionMap.get(user);
+        let userClaims : ?[(Principal, Nat)] = claimedTokensMap.get(user);
 
-        for (collectionCanisterId in allCollections.vals()) {
-            var presentInUserCollections = false;
-
-            switch (userCollections) {
-                case (?collections) {
-                    // Use Array.find to check if collectionCanisterId exists in collections
-                    presentInUserCollections := Option.isSome(Array.find(collections, func((_ : Time.Time, principal : Principal)) : Bool { 
-                        principal == collectionCanisterId 
-                    }));
-                };
-                case null { 
-                    presentInUserCollections := false;
-                };
+        switch (userClaims) {
+            case null {
+                return [];
             };
-
-            // Skip processing if the collection is already in userCollections
-            if (not presentInUserCollections) {
-                let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
-                    tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
-                    getCollectionDetails : () -> async (Text, Text, Text); 
-                };
-
-                // Retrieve collection details
-                let collectionDetails = await collectionCanisterActor.getCollectionDetails();
-                let collectionTitle = collectionDetails.0;
-
-                // Get tokens of the user in the collection
-                let tokensResult = await collectionCanisterActor.tokens(userAID);
-
-                // Process the token result
-                switch (tokensResult) {
-                    case (#ok(tokenIds)) {
-                        let tokenCount = tokenIds.size();
-                        if (tokenCount > 0) {
-                            resultArray.add((collectionCanisterId, collectionTitle, tokenCount));
-                        };
+            case (?claimedCollectionData) {
+                for ((collectionCanisterId, tokenCount) in claimedCollectionData.vals()) {
+                    let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+                        getCollectionDetails : () -> async (Text, Text, Text);
                     };
-                    case (#err(_)) {
-                        // Ignore errors for collections where token retrieval fails
-                    };
+                    let collectionDetailsResult = await collectionCanisterActor.getCollectionDetails();
+                    let collectionTitle = collectionDetailsResult.0;
+                    resultArray.add((collectionCanisterId, collectionTitle, tokenCount));
                 };
             };
         };
@@ -1198,6 +1172,59 @@ actor Main {
     };
 
 
+
+    // public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
+    //     var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
+
+    //     let userAID = AID.fromPrincipal(user, null);
+    //     let userCollections = usersCollectionMap.get(user);
+
+    //     for (collectionCanisterId in allCollections.vals()) {
+    //         var presentInUserCollections = false;
+
+    //         switch (userCollections) {
+    //             case (?collections) {
+    //                 // Use Array.find to check if collectionCanisterId exists in collections
+    //                 presentInUserCollections := Option.isSome(Array.find(collections, func((_ : Time.Time, principal : Principal)) : Bool { 
+    //                     principal == collectionCanisterId 
+    //                 }));
+    //             };
+    //             case null { 
+    //                 presentInUserCollections := false;
+    //             };
+    //         };
+
+    //         // Skip processing if the collection is already in userCollections
+    //         if (not presentInUserCollections) {
+    //             let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+    //                 tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+    //                 getCollectionDetails : () -> async (Text, Text, Text); 
+    //             };
+
+    //             // Retrieve collection details
+    //             let collectionDetails = await collectionCanisterActor.getCollectionDetails();
+    //             let collectionTitle = collectionDetails.0;
+
+    //             // Get tokens of the user in the collection
+    //             let tokensResult = await collectionCanisterActor.tokens(userAID);
+
+    //             // Process the token result
+    //             switch (tokensResult) {
+    //                 case (#ok(tokenIds)) {
+    //                     let tokenCount = tokenIds.size();
+    //                     if (tokenCount > 0) {
+    //                         resultArray.add((collectionCanisterId, collectionTitle, tokenCount));
+    //                     };
+    //                 };
+    //                 case (#err(_)) {
+    //                     // Ignore errors for collections where token retrieval fails
+    //                 };
+    //             };
+    //         };
+    //     };
+
+    //     return Buffer.toArray(resultArray);
+    // };
 
 
     func principalToUser(principal: Principal) : User {
@@ -1397,10 +1424,6 @@ actor Main {
         _depositKey: Nat32
     ) : async Result.Result<Int, Text> {
         
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
-
         let depositItemOpt = depositItemsMap.get(_depositKey);
 
         switch (depositItemOpt) {
@@ -1409,25 +1432,69 @@ actor Main {
                 return #err("Deposit Key not found, might be claimed already..!");
             };
             case (?depositItem) {
-                switch (depositItem.claimPattern) {
+                let claimResult = switch (depositItem.claimPattern) {
                     case ("transfer") {
-                        // Call claimLink for already minted tokens
-                        return await claimLink(user, _collectionCanisterId, depositItem, _depositKey);
+                        await claimLink(user, _collectionCanisterId, depositItem, _depositKey);
                     };
                     case ("mint") {
-                        // Call mintAtClaim for tokens that need to be minted
-                        return await mintAtClaim(user, _collectionCanisterId, depositItem, _depositKey);
+                        await mintAtClaim(user, _collectionCanisterId, depositItem, _depositKey);
                     };
                     case _ {
                         throw Error.reject("Invalid claim pattern: " # depositItem.claimPattern);
                         return #err("Invalid claim pattern");
                     };
                 };
+
+                switch (claimResult) {
+                    case (#ok(claimRes)) {
+                        // Retrieve existing claims for the user
+                        let userClaims : ?[(Principal, Nat)] = claimedTokensMap.get(user);
+                        
+                        let updatedClaims : [(Principal, Nat)] = switch (userClaims) {
+                            case null {
+                                // No existing claims, initialize with a new entry
+                                [(_collectionCanisterId, 1)];
+                            };
+                            case (?(existingClaims)) {
+                                // Convert to List for easier manipulation
+                                let claimsList = List.fromArray(existingClaims);
+
+                                // Check if the collection canister ID is already in the list
+                                var found = false;
+                                var updatedList = List.map<(Principal, Nat), (Principal, Nat)>(claimsList, func (claim : (Principal, Nat)) : (Principal, Nat) {
+                                    if (claim.0 == _collectionCanisterId) {
+                                        found := true;
+                                        // Increment the token count for this collection
+                                        (claim.0, claim.1 + 1);
+                                    } else {
+                                        claim;
+                                    }
+                                });
+
+                                // If not found, add a new entry for this collection
+                                if (not found) {
+                                    updatedList := List.push<(Principal, Nat)>((_collectionCanisterId, 1), updatedList);
+                                };
+
+                                // Convert back to array for storing in the TrieMap
+                                List.toArray(updatedList);
+                            };
+                        };
+
+                        // Update the claimed tokens map with the new or updated list
+                        claimedTokensMap.put(user, updatedClaims);
+                        return #ok(claimRes);
+                    };
+                    case (#err e) {
+                        return #err(e);
+                    };
+                };
             };
         };
     };
 
-    
+
+        
 
 
     // Token will be transfered to user who claims through the shared link
