@@ -26,7 +26,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
         setMessage("Plug wallet is connected");
 
         const requestTransferArg = {
-          to: "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe", // Replace with actual principal address
+          to: "7yywi-leri6-n33rr-vskr6-yb4nd-dvj6j-xg2b4-reiw6-dljs7-slclz-2ae", // Replace with actual principal address
           amount: coffeeAmount,
         };
         const transfer = await window.ic?.plug?.requestTransfer(
@@ -56,6 +56,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
       console.error("Payment error:", error);
       setMessage("Payment failed due to an error");
       toast.error("An error occurred during the payment process");
+     
     } finally {
       setLoading(false);
       setTimeout(() => {
