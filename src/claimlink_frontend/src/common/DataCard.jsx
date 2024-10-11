@@ -66,7 +66,7 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
             alt="Avatar"
           />
           <div className="">
-            <span className="text-gray-800 flex items-center font-bold text-lg gap-2">
+            <span className="text-gray-800 flex items-center  font-semibold  text-lg gap-2">
               {campaignDetails?.createdBy?.toText()}
               <BsCopy
                 className="text-[#564BF1]"
@@ -84,7 +84,7 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
         </div>
         <div className="flex justify-center mt-2">
           <p
-            className="text-[#564BF1] underline gap-2 flex items-center"
+            className="text-[#564BF1] underline gap-2 truncate flex items-center cursor-pointer"
             onClick={() => {
               handleCopy(url2);
             }}
@@ -103,7 +103,7 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
               alt="Item"
               className="w-10 h-10 rounded-md"
             />
-            <span className="text-gray-800 flex items-center w-[88px] pl-12 truncate font-semibold gap-2">
+            <span className="text-gray-800 flex items-center w-[88px]  pl-12  truncate font-semibold gap-2">
               {campaignDetails?.createdBy?.toText()}
             </span>
             <BsCopy

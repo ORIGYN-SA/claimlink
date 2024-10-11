@@ -1,23 +1,12 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaSun, FaMoon } from "react-icons/fa";
-import { IoMdStar } from "react-icons/io";
 import { AiOutlineLink } from "react-icons/ai";
 import { IoIosCloseCircle } from "react-icons/io";
-import { useAuth } from "../connect/useClient";
-import { RiNftFill } from "react-icons/ri";
-import {
-  MdArrowOutward,
-  MdDashboard,
-  MdLink,
-  MdQrCode,
-  MdMoney,
-} from "react-icons/md";
-import { RiStackFill } from "react-icons/ri";
+import { RiNftFill, RiStackFill } from "react-icons/ri";
+import { MdArrowOutward, MdDashboard, MdQrCode, MdMoney } from "react-icons/md";
 
 const Sidebar = ({ setSidebarOpen }) => {
   const [isWhiteBackground, setWhiteBackground] = useState(true);
-  // const { login, isAuthenticated, principal, logout } = useAuth();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -47,20 +36,13 @@ const Sidebar = ({ setSidebarOpen }) => {
             />
           </p>
 
-          {/* <button
-          onClick={toggleBackground}
-          className="mb-4 p-2 bg-green-500 text-white rounded-md flex items-center justify-center"
-        >
-          {isWhiteBackground ? <FaMoon /> : <FaSun />}
-        </button> */}
-
           <div className="mb-4  space-y-2">
             {menuItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={` flex items-center tracking-wide h-[48px] text-xs    font-semibold gap-2 py-3 p-2 rounded transition duration-200 ${
-                  currentPath === item.path
+                className={`flex items-center tracking-wide h-[48px] text-xs font-semibold gap-2 py-3 p-2 rounded transition duration-200 ${
+                  currentPath === item.path || currentPath.startsWith(item.path)
                     ? "bg-[#dad6f797]  text-[#5542F6]"
                     : isWhiteBackground
                     ? "text-[#878097]"
@@ -69,7 +51,8 @@ const Sidebar = ({ setSidebarOpen }) => {
               >
                 <item.icon
                   className={`flex ${
-                    currentPath === item.path
+                    currentPath === item.path ||
+                    currentPath.startsWith(item.path)
                       ? "text-[#5542F6]"
                       : "text-gray-400"
                   } hover:text-[#5542F6]`}
@@ -99,19 +82,6 @@ const Sidebar = ({ setSidebarOpen }) => {
             </Link>
           </div>
         </div>
-
-        {/* <div className="flex flex-col shadow-lg rounded-md mt-12 p-4 mx-4">
-          <p
-            className={`mb-4  text-xs font-quicksand    ${
-              isWhiteBackground ? "text-[#2E2C34]" : "text-gray-400"
-            }`}
-          >
-            Release your maximum potential software
-          </p>
-          <button className="px-4 py-2 bg-[#5542F6]  text-xs font-quicksand  rounded transition  duration-200 hover:bg-blue-600 text-white">
-            Upgrade to Pro
-          </button>
-        </div> */}
       </div>
     </>
   );

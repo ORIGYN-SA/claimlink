@@ -227,81 +227,83 @@ const Dispensers = () => {
                   transition={{ duration: 1 }}
                   className="bg-white  py-4 mt-6 rounded-xl flex flex-col shadow-md"
                 >
-                  <div className="px-6">
-                    <div className="flex justify-between items-center ">
-                      <div className="flex items-center gap-3">
-                        <img
-                          width="80px"
-                          height="80px"
-                          src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
-                          alt="Dispenser"
-                          className="rounded-lg"
-                        />
-                        <div className="">
-                          <h2 className=" text-sm font-bold text-[#2E2C34]  ">
-                            {data?.title}
-                          </h2>
-                          <p className="text-[#84818A] md:text-sm text-xs line-clamp-1 ">
-                            {convertNanosecondsToDate(data?.createdAt)}
-                          </p>
+                  <Link to={`/dispensers/${data.id}`}>
+                    <div className="px-6">
+                      <div className="flex justify-between items-center ">
+                        <div className="flex items-center gap-3">
+                          <img
+                            width="80px"
+                            height="80px"
+                            src="https://images.pexels.com/photos/3621234/pexels-photo-3621234.jpeg?auto=compress&cs=tinysrgb&w=600"
+                            alt="Dispenser"
+                            className="rounded-lg"
+                          />
+                          <div className="">
+                            <h2 className=" text-sm font-bold text-[#2E2C34]  ">
+                              {data?.title}
+                            </h2>
+                            <p className="text-[#84818A] md:text-sm text-xs line-clamp-1 ">
+                              {convertNanosecondsToDate(data?.createdAt)}
+                            </p>
+                          </div>
+                        </div>
+                        <div>
+                          <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
                         </div>
                       </div>
-                      <div>
-                        <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
+                      <div className="border bg-[#EBEAED] mt-6 w-full"></div>
+                      <div className=" w-full">
+                        <div className="flex w-full justify-start relative">
+                          <div className="w-1/2 p-2 flex justify-start">
+                            <div className="flex flex-col justify-start">
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                Status
+                              </p>
+                              <p className="text-red-500 font-medium text-sm">
+                                <button className="p-1 rounded-full bg-green-400"></button>
+                              </p>
+                            </div>
+                          </div>
+                          <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                            <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                            <div className="flex flex-col justify-start pl-4">
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                Start Date
+                              </p>
+                              <p className="text-[#2E2C34] font-semibold text-sm">
+                                {datein(data?.startDate)}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="border bg-[#EBEAED]  w-full"></div>
+                        <div className="flex flex-wrap  relative">
+                          <div className="w-1/2 p-2 flex justify-start">
+                            <div className="flex flex-col justify-start">
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                Duration
+                              </p>
+                              <p className="text-[#2E2C34] font-semibold text-sm">
+                                {String(data?.duration)} Min
+                              </p>
+                            </div>
+                          </div>
+                          <div className="w-1/2 p-2 flex flex-col justify-start relative">
+                            <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
+                            <div className="flex flex-col justify-start pl-4">
+                              <p className="text-[#84818A] md:text-sm text-xs">
+                                Links
+                              </p>
+                              <p className="text-[#2E2C34] font-semibold text-sm">
+                                {campaignDetails[data?.campaignId]?.[0]
+                                  .depositIndices.length ?? "1"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="border bg-[#EBEAED] mt-6 w-full"></div>
-                    <div className=" w-full">
-                      <div className="flex w-full justify-start relative">
-                        <div className="w-1/2 p-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Status
-                            </p>
-                            <p className="text-red-500 font-medium text-sm">
-                              Not Uploaded
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                          <div className="flex flex-col justify-start pl-4">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Start Date
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              {datein(data?.startDate)}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="border bg-[#EBEAED]  w-full"></div>
-                      <div className="flex flex-wrap  relative">
-                        <div className="w-1/2 p-2 flex justify-start">
-                          <div className="flex flex-col justify-start">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Duration
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              {String(data?.duration)} Min
-                            </p>
-                          </div>
-                        </div>
-                        <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                          <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                          <div className="flex flex-col justify-start pl-4">
-                            <p className="text-[#84818A] md:text-sm text-xs">
-                              Links
-                            </p>
-                            <p className="text-[#2E2C34] font-semibold text-sm">
-                              {campaignDetails[data?.campaignId]?.[0]
-                                .depositIndices.length ?? "1"}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                  </Link>
                 </motion.div>
               ))}
             </div>

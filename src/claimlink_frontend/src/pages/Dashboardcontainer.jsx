@@ -186,43 +186,50 @@ const CampaignCard = ({ campaign }) => {
   }
   return (
     <>
-      <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className=" flex gap-2 items-center  justify-between w-full ">
-            <div className="flex gap-2">
-              <div className="flex justify-start  space-x-4">
-                <img
-                  src="https://via.placeholder.com/100"
-                  alt="Campaign"
-                  className="w-12 h-12 object-cover rounded-md"
-                  style={{
-                    border: "2px solid white",
-                    zIndex: 3,
-                  }}
-                />
-                <img
-                  src="https://via.placeholder.com/100"
-                  alt="Campaign"
-                  className="w-12 h-12 object-cover rounded-md"
-                  style={{
-                    border: "2px solid white",
-                    zIndex: 2,
-                    marginLeft: -24,
-                  }}
-                />
+      <Link
+        className="max-w-sm mx-auto   bg-white  cursor-pointer   rounded-lg overflow-hidden"
+        to={`/claim-link/${campaign?.id}`}
+      >
+        <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div className=" flex gap-2 items-center  justify-between w-full ">
+              <div className="flex gap-2">
+                <div className="flex justify-start  space-x-4">
+                  <img
+                    src="https://via.placeholder.com/100"
+                    alt="Campaign"
+                    className="w-12 h-12 object-cover rounded-md"
+                    style={{
+                      border: "2px solid white",
+                      zIndex: 3,
+                    }}
+                  />
+                  <img
+                    src="https://via.placeholder.com/100"
+                    alt="Campaign"
+                    className="w-12 h-12 object-cover rounded-md"
+                    style={{
+                      border: "2px solid white",
+                      zIndex: 2,
+                      marginLeft: -24,
+                    }}
+                  />
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold">{campaign?.title}</h2>
+                  <p className="text-sm text-gray-500">
+                    {" "}
+                    {convertNanosecondsToDate(campaign?.createdAt)}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-semibold">Test campaign</h2>
-                <p className="text-sm text-gray-500">December 5, 13:54</p>
-              </div>
+              <IoSettingsOutline size={24} className="text-gray-400  " />
             </div>
-            <IoSettingsOutline size={24} className="text-gray-400  " />
           </div>
-        </div>
-        <div className="grid grid-cols-2 ">
-          <div className="flex flex-col  border-l-0 py-2 border-b-0 border  border-gray-300 items-start">
+          <div className="grid grid-cols-2 ">
+            {/* <div className="flex flex-col  border-l-0 py-2 border-b-0 border  border-gray-300 items-start">
             <span className="text-sm text-gray-500">Token</span>
-            <span className="font-medium">ERC1155</span>
+            <span className="font-medium">EXT</span>
           </div>
           <div className="flex justify-between border-b-0 border p-2  border-r-0   border-gray-300 ">
             <div className="flex flex-col items-start">
@@ -230,33 +237,37 @@ const CampaignCard = ({ campaign }) => {
               <span className="font-medium">100/100</span>
             </div>
             <div className="w-12 h-12 rounded-full bg-white border-4 border-r-gray-200 border-t-gray-200 border-[#5542F6] flex items-center justify-center"></div>
-          </div>
-          <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
-            <span className="text-sm text-gray-500">Contract</span>
-            <span className="font-medium text-[#5542F6]">0xf8c...992h4</span>
-          </div>
-          <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
-            <span className="text-sm text-gray-500">Network</span>
-            <span className="font-medium">Internet Computer</span>
-          </div>
-          <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
-            <span className="text-sm text-gray-500">Token standard</span>
-            <span className="font-medium">ERC1155</span>
-          </div>
-          <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
-            <span className="text-sm text-gray-500">Links</span>
-            <span className="font-medium">100</span>
-          </div>
-          <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
-            <span className="text-sm text-gray-500">Sponsorship</span>
-            <span className="font-medium">Disable</span>
-          </div>
-          <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
-            <span className="text-sm text-gray-500">Claim pattern</span>
-            <span className="font-medium">Transfer</span>
+          </div> */}
+            <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
+              <span className="text-sm text-gray-500">Contract</span>
+              <span className="font-medium text-[#5542F6] line-clamp-1">
+                {" "}
+                {campaign?.collection.toText()}
+              </span>
+            </div>
+            <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
+              <span className="text-sm text-gray-500">Network</span>
+              <span className="font-medium">Internet Computer</span>
+            </div>
+            <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
+              <span className="text-sm text-gray-500">Token standard</span>
+              <span className="font-medium">{campaign?.tokenType}</span>
+            </div>
+            <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
+              <span className="text-sm text-gray-500">Links</span>
+              <span className="font-medium">{campaign?.tokenIds?.length}</span>
+            </div>
+            <div className="flex flex-col items-start border-l-0 py-2 border-b-0 border  border-gray-300">
+              <span className="text-sm text-gray-500">Sponsorship</span>
+              <span className="font-medium">Disable</span>
+            </div>
+            <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
+              <span className="text-sm text-gray-500">Claim pattern</span>
+              <span className="font-medium">{campaign?.claimPattern}</span>
+            </div>
           </div>
         </div>
-      </div>
+      </Link>
       <Link
         className="max-w-sm mx-auto sm:block hidden bg-white  cursor-pointer   rounded-lg overflow-hidden"
         to={`/claim-link/${campaign?.id}`}
@@ -317,7 +328,7 @@ const CampaignCard = ({ campaign }) => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Links</span>
-              <span className="font-semibold">1</span>
+              <span className="font-semibold">{campaign?.tokenIds.length}</span>
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claims</span>
