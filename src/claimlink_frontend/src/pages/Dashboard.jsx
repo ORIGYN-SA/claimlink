@@ -124,7 +124,7 @@ const Dashboard = ({
               />
             </header>
             {stepper ? "" : <Breadcrumb />}
-            <div className="bg-gray-50 h-full">{children}</div>
+            <div className="bg-gray-100 h-full">{children}</div>
           </div>
         </div>
       )}

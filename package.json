@@ -45,6 +45,7 @@
     "mops": "^3.0.2",
     "papaparse": "^5.4.1",
     "radix-ui": "^1.0.1",
+    "react-confetti": "^6.1.0",
     "react-countdown": "^2.3.6",
     "react-countup": "^6.5.3",
     "react-dropzone": "^14.2.3",

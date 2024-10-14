@@ -11,7 +11,7 @@ import bgmain1 from "./assets/img/mainbg1.png";
 import bgmain2 from "./assets/img/mainbg2.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
-
+import Confetti from "react-confetti";
 const LinkClaiming = () => {
   const navigate = useNavigate();
   const {
@@ -23,6 +23,9 @@ const LinkClaiming = () => {
     isConnected,
   } = useAuth();
   const [deposits, setDeposits] = useState([]);
+  const width = window.innerWidth || 300;
+  const height = window.innerHeight || 200;
+  const [celebrate, setCelebrate] = useState(false);
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -73,7 +76,11 @@ const LinkClaiming = () => {
       console.log("Response of claim:", res);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
-        navigate("/");
+        setCelebrate(true);
+        setTimeout(() => {
+          setCelebrate(false);
+          navigate("/");
+        }, 9000);
       } else {
         toast.error("Failed to claim the NFT.");
       }
@@ -106,7 +113,7 @@ const LinkClaiming = () => {
     console.log("matched", matchedDeposit);
     if (!matchedDeposit) {
       return (
-        <div className="my-auto mt-16 text-xl text-red-500">
+        <div className="my-auto mt-16 text-xl text-center text-red-500">
           No matching NFT found.
         </div>
       );
@@ -173,7 +180,7 @@ const LinkClaiming = () => {
         <img
           src={bgmain1}
           alt=""
-          className="transition-transform duration-300  h-[90vh] transform hover:scale-105 ease-in"
+          className="transition-transform duration-300  z-20 h-[90vh] transform hover:scale-105 ease-in"
         />
       </div>
       <motion.div
@@ -219,10 +226,13 @@ const LinkClaiming = () => {
         <img
           src={bgmain2}
           alt=""
-          className="transition-transform h-[90vh] duration-300 transform hover:scale-105 ease-in"
+          className="transition-transform h-[90vh] z-20 duration-300 transform hover:scale-105 ease-in"
         />
       </div>
       <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
+      {celebrate ? (
+        <Confetti className="z-20" width={width} height={height} />
+      ) : null}
     </div>
   );
 };
