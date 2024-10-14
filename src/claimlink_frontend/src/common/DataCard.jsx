@@ -4,7 +4,7 @@ import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
 
 const DataCard = ({ campaignDetails, depositIndex, keys }) => {
-  console.log(campaignDetails);
+  console.log(campaignDetails, "campaign details ");
   console.log(depositIndex);
 
   const PROD = true;
@@ -56,6 +56,25 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
     }
   };
 
+  function convertNanosecondsToDate(nanosecondTimestamp) {
+    // Convert nanoseconds to milliseconds
+    const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+
+    // Create a Date object
+    const date = new Date(millisecondTimestamp);
+
+    // Define options for formatting the date
+    const options = {
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    };
+
+    // Format the date to a human-readable string
+    return date.toLocaleString("en-US", options);
+  }
+
   return (
     <>
       <div className="max-w-sm sm:hidden rounded overflow-hidden shadow-lg p-4">
@@ -75,7 +94,9 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
                 }}
               />
             </span>
-            <div className="text-gray-500 text-xs">April 11, 2024, 20:19</div>
+            <div className="text-gray-500 text-xs">
+              {convertNanosecondsToDate(campaignDetails?.createdAt)}
+            </div>
           </div>
           <div className="border-l border-gray-300 p-2">
             <div className="text-gray-500">Links</div>
@@ -115,7 +136,7 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
           </div>
           <div className="flex items-center space-x-2">
             <span className="text-gray-800 font-semibold">
-              September 13, 2024
+              {convertNanosecondsToDate(campaignDetails?.createdAt)}
             </span>
             {/* <span className="text-gray-500">20:19</span> */}
           </div>
