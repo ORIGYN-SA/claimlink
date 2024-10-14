@@ -215,9 +215,16 @@ actor Main {
     private stable var stableUserLinks : [(Principal,[Link])] = [];
     stable var claimCount : Nat = 0;
     stable var linksCount : Nat = 0;
+    stable var userClaimCount : Nat = 0;
+    stable var userLinksCount : Nat = 0;
     // Daily Stats
     stable var dailyLinksCreatedCount: Nat = 0;
     stable var dailyLinksClaimedCount: Nat = 0;
+    stable var dailyUserLinksCreatedCount: Nat = 0;
+    stable var dailyUserLinksClaimedCount: Nat = 0;
+    private var dailyUserLinksCreatedMap = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+    private var dailyUserLinksClaimedMap = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+
 
     private var claimedTokensMap = TrieMap.TrieMap<Principal, [(Principal, Nat)]>(Principal.equal, Principal.hash);
 
@@ -479,18 +486,41 @@ actor Main {
     type DashboardStats = {
         totalLinks: Nat;
         claimedLinks: Nat;
+        userLinksCount : Nat;
+        userClaimCount : Nat;
         linksCoundToday : Nat;
         claimsCountToday : Nat;
+        userLinksCoundToday : Nat;
+        userClaimsCountToday : Nat;
         campaigns: ?[Campaign];
         qrSets: ?[QRSet];
         dispensers: ?[Dispenser];
     };
+
+    func incrementUserLinksCreated(user: Principal) {
+        let currentCount = switch (dailyUserLinksCreatedMap.get(user)) {
+            case null { 0 };
+            case (?count) { count };
+        };
+        dailyUserLinksCreatedMap.put(user, currentCount + 1);
+    };
+
+    func incrementUserLinksClaimed(user: Principal) {
+        let currentCount = switch (dailyUserLinksClaimedMap.get(user)) {
+            case null { 0 };
+            case (?count) { count };
+        };
+        dailyUserLinksClaimedMap.put(user, currentCount + 1);
+    };
+
 
 
     // Function to reset daily stats at midnight
     func resetDailyStats(): async () {
         dailyLinksCreatedCount := 0;
         dailyLinksClaimedCount := 0;
+        dailyUserLinksCreatedMap := TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+        dailyUserLinksClaimedMap := TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
         // Schedule the next reset at midnight
         await setMidnightTimer();
     };
@@ -522,12 +552,38 @@ actor Main {
         let campaigns = userCampaignsMap.get(user);
         let qrSets = userQRSetMap.get(user);
         let dispensers = userDispensersMap.get(user);
+        let userSpecificLinksCount = switch (userLinks.get(user)) {
+            case (null) { 0 };
+            case (?userLinksList) { userLinksList.size() };
+        };
+
+        let userSpecificClaimsCount = switch (claimedTokensMap.get(user)) {
+            case (null) { 0 };
+            case (?userClaimsList) {
+                Array.foldLeft(userClaimsList, 0, func(acc : Nat, item : (Principal, Nat)) : Nat {
+                    acc + item.1;
+                });
+            };
+        };
+        let userLinksCreatedToday = switch (dailyUserLinksCreatedMap.get(user)) {
+            case null { 0 };
+            case (?count) { count };
+        };
+
+        let userLinksClaimedToday = switch (dailyUserLinksClaimedMap.get(user)) {
+            case null { 0 };
+            case (?count) { count };
+        };
       
         return {
             totalLinks = linksCount;
             claimedLinks = claimCount;
+            userLinksCount = userSpecificLinksCount;
+            userClaimCount = userSpecificClaimsCount;
             linksCoundToday = dailyLinksCreatedCount;
             claimsCountToday = dailyLinksClaimedCount;
+            userLinksCoundToday = userLinksCreatedToday;
+            userClaimsCountToday = userLinksClaimedToday;
             campaigns = campaigns;
             qrSets = qrSets;
             dispensers = dispensers;
@@ -1305,6 +1361,7 @@ actor Main {
         depositItemsMap.put(key, newDeposit);
         linksCount := linksCount + 1;
         dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
+        incrementUserLinksCreated(user);
         // Return the key for tracking purposes (no token transfer here)
         return key;
     };
@@ -1393,6 +1450,7 @@ actor Main {
                         depositItemsMap.put(key,newDeposit);
                         linksCount := linksCount + 1;
                         dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
+                        incrementUserLinksCreated(user);
                         key;
                     };
                     case null {
@@ -1603,6 +1661,7 @@ actor Main {
 
                 claimCount := claimCount + 1;
                 dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
+                incrementUserLinksClaimed(user);
                 return #ok(0); // Successful claim
             };
 
@@ -1716,6 +1775,7 @@ actor Main {
 
                         claimCount := claimCount + 1;
                         dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
+                        incrementUserLinksClaimed(user);
                         return #ok(0); // Successful mint
                     };
                     case null {
