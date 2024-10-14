@@ -53,7 +53,7 @@ const UsersNft = () => {
   return (
     <>
       <ScrollToTop />
-      <div className=" p-6 min-h-full">
+      <div className=" p-6 h-screen bg-gray-100">
         <div>
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-[#2E2C34]">Collected NFT</h2>
@@ -70,7 +70,7 @@ const UsersNft = () => {
             {loading
               ? [1, 2, 3, 4, 5, 6, 7, 8].map((index) => (
                   <div
-                    className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                    className=" h-full bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
                     key={index}
                   >
                     <div className="mt-2 w-full">

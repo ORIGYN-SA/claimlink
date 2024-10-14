@@ -14,6 +14,7 @@ import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
 import QRCode from "react-qr-code"; // QR code library
 import { saveAs } from "file-saver"; // For downloading the QR code
+import Confetti from "react-confetti";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -26,6 +27,8 @@ const LinkClaiming = () => {
     isConnected,
   } = useAuth();
   const [deposits, setDeposits] = useState([]);
+  const width = window.innerWidth || 300;
+  const height = window.innerHeight || 200;
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +41,7 @@ const LinkClaiming = () => {
   const currentUrl = window.location.href; // Get the current page URL
   const [dispenser, setDispenser] = useState(null);
   const [campaign, setCampaign] = useState([]);
+  const [celebrate, setCelebrate] = useState(false);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -110,7 +114,11 @@ const LinkClaiming = () => {
       console.log("Response of claim:", res);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
-        navigate("/");
+        setCelebrate(true);
+        setTimeout(() => {
+          setCelebrate(false);
+          navigate("/");
+        }, 9000);
       } else if (res.err) {
         toast.error(`${res.err}`);
       } else {
@@ -298,6 +306,9 @@ const LinkClaiming = () => {
         />
       </div>
       <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
+      {celebrate ? (
+        <Confetti className="z-20" width={width} height={height} />
+      ) : null}
     </div>
   );
 };

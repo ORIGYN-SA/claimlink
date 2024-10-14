@@ -384,8 +384,8 @@ const Dispensers = () => {
                     <div className="w-full">
                       <div className="flex justify-between">
                         <p className="text-xs text-[#84818A]">Status</p>
-                        <p className="text-[#F95657] text-xs font-semibold">
-                          Not Uploaded
+                        <p className="text-green-400 text-xs font-semibold">
+                          Uploaded
                         </p>
                       </div>
                       <div className="flex justify-between mt-2">
