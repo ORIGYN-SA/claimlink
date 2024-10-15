@@ -58,10 +58,12 @@ const DashBoardHome = () => {
         );
 
         // Ensure both values are numbers and handle division by zero
-        const claimedLinks = parseFloat(data.claimedLinks) || 0;
-        const totalLinks = parseFloat(data.totalLinks) || 0;
-        const claimsCountToday = parseFloat(data.claimsCountToday) || 0;
-        const linksCoundToday = parseFloat(data.linksCoundToday) || 0;
+        const claimedLinks = parseFloat(data.userClaimCount) || 0;
+        const totalLinks =
+          parseFloat(data.userClaimCount + data.userLinksCount) || 0;
+        const claimsCountToday = parseFloat(data.userClaimsCountToday) || 0;
+        const linksCoundToday =
+          parseFloat(data.userLinksCoundToday + data.userClaimCount) || 0;
 
         const total1 = totalLinks > 0 ? (claimedLinks / totalLinks) * 100 : 0;
         const total2 =
@@ -199,12 +201,12 @@ const DashBoardHome = () => {
           <p>
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={dashboard?.totalLinks}
+              end={dashboard?.userClaimCount + dashboard?.userLinksCount}
               duration={5}
             />
           </p>
           <p className="text-xs text-[#6FC773] ">
-            +{parseInt(dashboard?.linksCoundToday) || 0}
+            +{parseInt(dashboard?.userLinksCoundToday) || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
@@ -212,12 +214,12 @@ const DashBoardHome = () => {
           <p className="text-2xl text-[#2E2C34] font-bold">
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={dashboard?.claimedLinks}
+              end={dashboard?.userClaimCount}
               duration={5}
             />
           </p>
           <p className="text-xs text-[#6FC773] ">
-            +{parseInt(dashboard?.claimsCountToday) || 0}
+            +{parseInt(dashboard?.UserClaimsCountToday) || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
@@ -322,7 +324,9 @@ const DashBoardHome = () => {
                                       <>{data?.value},</>;
                                     </div>;
                                   })}
-                                  /{parseInt(dashboard?.claimsCountToday) || 0}
+                                  /
+                                  {parseInt(dashboard?.UserClaimsCountToday) ||
+                                    0}
                                 </p>
                               </div>
                             </div>
@@ -862,11 +866,7 @@ const DashBoardHome = () => {
                       </div>
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
-                          {data?.tokenIds.map((data, index) => {
-                            <div key={index}>
-                              <>{data?.value},</>;
-                            </div>;
-                          })}
+                          {data.tokenIds.length}
                         </p>
                       </div>
                       <div className="flex gap-2 items-center">
