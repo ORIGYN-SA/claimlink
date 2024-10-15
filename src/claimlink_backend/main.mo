@@ -215,15 +215,13 @@ actor Main {
     private stable var stableUserLinks : [(Principal,[Link])] = [];
     stable var claimCount : Nat = 0;
     stable var linksCount : Nat = 0;
-    stable var userClaimCount : Nat = 0;
-    stable var userLinksCount : Nat = 0;
+    stable var userClaimCount : [(Principal, Nat)] = [];
+    stable var userLinksCount : [(Principal, Nat)] = [];
     // Daily Stats
     stable var dailyLinksCreatedCount: Nat = 0;
     stable var dailyLinksClaimedCount: Nat = 0;
-    stable var dailyUserLinksCreatedCount: Nat = 0;
-    stable var dailyUserLinksClaimedCount: Nat = 0;
-    private var dailyUserLinksCreatedMap = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
-    private var dailyUserLinksClaimedMap = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+    stable var dailyUserLinksCreatedCount: [(Principal, Nat)] = [];
+    stable var dailyUserLinksClaimedCount: [(Principal, Nat)] = [];
 
 
     private var claimedTokensMap = TrieMap.TrieMap<Principal, [(Principal, Nat)]>(Principal.equal, Principal.hash);
@@ -497,30 +495,55 @@ actor Main {
         dispensers: ?[Dispenser];
     };
 
-    func incrementUserLinksCreated(user: Principal) {
-        let currentCount = switch (dailyUserLinksCreatedMap.get(user)) {
-            case null { 0 };
-            case (?count) { count };
+    func updateUserCountArray(countArray: [(Principal, Nat)], user: Principal) : [(Principal, Nat)] {
+        var updatedArray: [(Principal, Nat)] = [];
+        var userFound = false;
+
+        for (userCount in countArray.vals()) {
+            switch userCount {
+                case ((p, count)) {
+                    if (p == user) {
+                        updatedArray := Array.append(updatedArray, [(p, count + 1)]);
+                        userFound := true;
+                    } else {
+                        updatedArray := Array.append(updatedArray, [(p, count)]);
+                    }
+                };
+            };
         };
-        dailyUserLinksCreatedMap.put(user, currentCount + 1);
+
+        if (not userFound) {
+            updatedArray := Array.append(updatedArray, [(user, 1)]);
+        };
+
+        return updatedArray;
     };
 
-    func incrementUserLinksClaimed(user: Principal) {
-        let currentCount = switch (dailyUserLinksClaimedMap.get(user)) {
-            case null { 0 };
-            case (?count) { count };
+    func findUserCount(user: Principal, countArray: [(Principal, Nat)]): Nat {
+        let indexOpt = Array.find<(Principal, Nat)>(countArray, func ((p : Principal, _ : Nat)) { p == user });
+        switch (indexOpt) {
+            case (?i) {
+                let (_, count) = i;
+                count;
+            };
+            case null {
+                0;
+            };
         };
-        dailyUserLinksClaimedMap.put(user, currentCount + 1);
     };
 
+    // Helper function to reset the daily user stats
+    func resetDailyUserCounts() {
+        dailyUserLinksCreatedCount := [];
+        dailyUserLinksClaimedCount := [];
+    };
 
 
     // Function to reset daily stats at midnight
     func resetDailyStats(): async () {
         dailyLinksCreatedCount := 0;
         dailyLinksClaimedCount := 0;
-        dailyUserLinksCreatedMap := TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
-        dailyUserLinksClaimedMap := TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+        resetDailyUserCounts();
         // Schedule the next reset at midnight
         await setMidnightTimer();
     };
@@ -552,38 +575,22 @@ actor Main {
         let campaigns = userCampaignsMap.get(user);
         let qrSets = userQRSetMap.get(user);
         let dispensers = userDispensersMap.get(user);
-        let userSpecificLinksCount = switch (userLinks.get(user)) {
-            case (null) { 0 };
-            case (?userLinksList) { userLinksList.size() };
-        };
-
-        let userSpecificClaimsCount = switch (claimedTokensMap.get(user)) {
-            case (null) { 0 };
-            case (?userClaimsList) {
-                Array.foldLeft(userClaimsList, 0, func(acc : Nat, item : (Principal, Nat)) : Nat {
-                    acc + item.1;
-                });
-            };
-        };
-        let userLinksCreatedToday = switch (dailyUserLinksCreatedMap.get(user)) {
-            case null { 0 };
-            case (?count) { count };
-        };
-
-        let userLinksClaimedToday = switch (dailyUserLinksClaimedMap.get(user)) {
-            case null { 0 };
-            case (?count) { count };
-        };
+       
+        let userLinks = findUserCount(user, userLinksCount);
+        let userClaims = findUserCount(user, userClaimCount);
+        let dailyUserLinks = findUserCount(user, dailyUserLinksCreatedCount);
+        let dailyUserClaims = findUserCount(user, dailyUserLinksClaimedCount);
+      
       
         return {
             totalLinks = linksCount;
             claimedLinks = claimCount;
-            userLinksCount = userSpecificLinksCount;
-            userClaimCount = userSpecificClaimsCount;
+            userLinksCount = userLinks;
+            userClaimCount = userClaims;
             linksCoundToday = dailyLinksCreatedCount;
             claimsCountToday = dailyLinksClaimedCount;
-            userLinksCoundToday = userLinksCreatedToday;
-            userClaimsCountToday = userLinksClaimedToday;
+            userLinksCoundToday = dailyUserLinks;
+            userClaimsCountToday = dailyUserClaims;
             campaigns = campaigns;
             qrSets = qrSets;
             dispensers = dispensers;
@@ -1288,7 +1295,8 @@ actor Main {
     };
 
     // Token will be transfered to this Vault and gives you req details to construct a link out of it, which you can share
-    public shared ({caller = user}) func createLink(
+    public shared  func createLink(
+        user : Principal,
         _collectionCanisterId: Principal,
         _from: Principal,
         _tokenId: TokenIndex
@@ -1361,13 +1369,16 @@ actor Main {
         depositItemsMap.put(key, newDeposit);
         linksCount := linksCount + 1;
         dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
-        incrementUserLinksCreated(user);
+        userLinksCount := updateUserCountArray(userLinksCount, user);
+        dailyUserLinksCreatedCount := updateUserCountArray(dailyUserLinksCreatedCount, user);
+
         // Return the key for tracking purposes (no token transfer here)
         return key;
     };
 
 
-    public shared ({caller = user}) func createLinkForNonMinted(
+    public shared func createLinkForNonMinted(
+        user : Principal,
         _collectionCanisterId : Principal,
         _from : Principal,
         _tokenId : Nat32
@@ -1450,7 +1461,8 @@ actor Main {
                         depositItemsMap.put(key,newDeposit);
                         linksCount := linksCount + 1;
                         dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
-                        incrementUserLinksCreated(user);
+                        userLinksCount := updateUserCountArray(userLinksCount, user);
+                        dailyUserLinksCreatedCount := updateUserCountArray(dailyUserLinksCreatedCount, user);
                         key;
                     };
                     case null {
@@ -1661,7 +1673,8 @@ actor Main {
 
                 claimCount := claimCount + 1;
                 dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
-                incrementUserLinksClaimed(user);
+                userClaimCount := updateUserCountArray(userClaimCount, user);
+                dailyUserLinksClaimedCount := updateUserCountArray(dailyUserLinksClaimedCount, user);
                 return #ok(0); // Successful claim
             };
 
@@ -1775,7 +1788,8 @@ actor Main {
 
                         claimCount := claimCount + 1;
                         dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
-                        incrementUserLinksClaimed(user);
+                        userClaimCount := updateUserCountArray(userClaimCount, user);
+                        dailyUserLinksClaimedCount := updateUserCountArray(dailyUserLinksClaimedCount, user);
                         return #ok(0); // Successful mint
                     };
                     case null {
@@ -1813,9 +1827,9 @@ actor Main {
         for (tokenId in tokenIds.vals()) {
             var linkKeys : Nat32 = 0;
             if(claimPattern == "transfer"){
-                linkKeys := await createLink(collection, user, tokenId);
+                linkKeys := await createLink(user,collection, user, tokenId);
             } else if (claimPattern == "mint") {
-                linkKeys := await createLinkForNonMinted(collection, user, tokenId);
+                linkKeys := await createLinkForNonMinted(user,collection, user, tokenId);
             } else {
                 throw Error.reject("Invalid claimPattern: " # claimPattern);
             };
