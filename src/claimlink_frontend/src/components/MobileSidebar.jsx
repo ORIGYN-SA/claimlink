@@ -13,12 +13,12 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isVisible, setIsVisible] = useState(false);
-  const { login, isConnected, principal, disconnect } = useAuth();
+  const { login, isConnected, principal, disconnect, logout } = useAuth();
   const [principals, setPrincipal] = useState("connect wallet");
 
   const handleLogin = () => {
     if (isConnected) {
-      disconnect();
+      logout();
       navigate("/");
     } else {
       login("NFID");
@@ -131,7 +131,7 @@ export function MobileFooter() {
     { path: "/minter", label: "Minter", icon: MdMoney },
     { path: "/collected-nft", label: "Collected Nft", icon: RiNftFill },
   ];
-  const { login, principal, isConnected, disconnect } = useAuth();
+  const { login, principal, isConnected, disconnect, logout } = useAuth();
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -140,7 +140,7 @@ export function MobileFooter() {
   };
   const handleLogin = () => {
     if (isConnected) {
-      disconnect();
+      logout();
       navigate("/");
     } else {
       login("NFID");
