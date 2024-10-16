@@ -75,7 +75,7 @@ const UserNft2 = () => {
   return (
     <>
       <ScrollToTop />
-      <div className="p-6 min-h-full">
+      <div className="p-6 min-h-screen">
         <div>
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-[#2E2C34]">Collected NFT</h2>

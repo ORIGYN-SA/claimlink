@@ -148,7 +148,7 @@ const NewCampaignCard = () => {
     <motion.div
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="h-full hidden sm:block"
+      className="min-h-screen hidden sm:block"
     >
       <div className="flex flex-col items-center justify-center rounded-lg h-[370px] bg-[#dad6f797] text-center   transition-shadow duration-300">
         <div className="w-16 h-16 rounded-md bg-white flex items-center justify-center mb-6">

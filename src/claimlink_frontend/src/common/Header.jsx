@@ -9,13 +9,13 @@ import { SlRefresh } from "react-icons/sl";
 import { IoMdLogOut } from "react-icons/io";
 import { IoCopyOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
-
+import logo from "../assets/img/logoicp.png";
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const modalRef = useRef(null);
   const dropdownRef = useRef(null);
 
   const navigate = useNavigate();
-  const { isConnected, principal, logout } = useAuth();
+  const { isConnected, principal, logout, balance } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [principalText, setPrincipalText] = useState("connect wallet");
@@ -125,6 +125,14 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         ref={modalRef}
         className="flex items-center space-x-4 font-semibold justify-end"
       >
+        {!isConnected ? (
+          <div className="border border-gray-200 px-4 py-2 animate-pulse"></div>
+        ) : (
+          <div className="rounded-md px-2 py-1 flex items-center gap-2 border border-gray-200 bg-[#5442f60d] text-[#5542F6]">
+            <img src={logo} alt="" className="w-8 h-6" />
+            <p className="text-xl font-medium">{balance}</p>
+          </div>
+        )}{" "}
         <span
           className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}
