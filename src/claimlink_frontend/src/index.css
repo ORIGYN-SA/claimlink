@@ -97,6 +97,16 @@
   overflow: hidden !important; /* Ensure content inside respects the border radius */
 }
 
+.loader {
+  border-top-color: #5542f6;
+  animation: spin 1s ease-in-out infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .black {
   color: #2e2c34;
 }

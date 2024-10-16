@@ -9,6 +9,7 @@ import { useAuth } from "../../connect/useClient";
 
 const CampaignSetup = ({ handleNext, formData, setFormData }) => {
   const [collections, setCollections] = useState([]);
+  const [loading, setLoading] = useState(true); // State to track loading
   const { backend } = useAuth();
   const [error, setError] = useState(null);
   const [selectedContract, setSelectedContract] = useState("nfts");
@@ -20,9 +21,8 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
       try {
         const data = await backend?.getUserCollectionDetails();
 
-        console.log(data, "collection list ");
         if (data.length > 0) {
-          const formattedCollections = data[0].map((collection, index) => ({
+          const formattedCollections = data[0].map((collection) => ({
             value: collection[1].toText(),
             label: `${collection[2]} : ${collection[1].toText()}`,
           }));
@@ -30,6 +30,8 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
         }
       } catch (error) {
         setError(error);
+      } finally {
+        setLoading(false); // Stop loading after data is fetched
       }
     };
 
@@ -177,17 +179,33 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
 
             <div className="sm:w-[75%] w-full space-y-3">
               <p className="text-gray-900 font-semibold">Collection</p>
-              <Select
-                value={selectedOption}
-                onChange={handleSelectChange}
-                options={collections}
-                placeholder="Select Collection"
-                className={`${errors.collection ? "border-red-500" : ""}`}
-              />
+
+              {/* Show the select box with a loader inside if loading */}
+              <div className="relative">
+                <Select
+                  value={selectedOption}
+                  onChange={handleSelectChange}
+                  options={collections}
+                  placeholder="Select Collection"
+                  className={`${
+                    errors.collection ? "border-red-500" : ""
+                  } relative z-10`}
+                  isDisabled={loading} // Disable the select if loading
+                />
+
+                {/* Loader displayed when data is being fetched */}
+                {loading && (
+                  <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-50 z-20">
+                    <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+                  </div>
+                )}
+              </div>
+
               {errors.collection && (
                 <p className="text-red-500 text-sm">{errors.collection}</p>
               )}
             </div>
+
             <MainButton text="Continue" type="submit" />
           </div>
           <div className="hidden sm:flex w-[30%] h-full bg-white">
