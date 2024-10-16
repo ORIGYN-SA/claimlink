@@ -1182,6 +1182,28 @@ actor Main {
         );
         return userTokens;
     };
+    // Get NFT details for specific collection
+    public shared func getNonFungibleTokensByUserPrincipal(
+        user : Principal,
+        _collectionCanisterId: Principal,
+    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        };
+
+        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
+        let userAID = AID.fromPrincipal(user,null);
+
+        // Filter tokens by owner
+        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+            allTokens,
+            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+                let (tokenIndex, owner, metadata) = tokenData;
+                owner == userAID
+            }
+        );
+        return userTokens;
+    };
 
     // Get NFT details for specific collection
     public shared ({ caller = user }) func getNonFungibleTokensPaginate(
@@ -2118,6 +2140,17 @@ actor Main {
             };
             await markCampaignStatus(campaignId, #Completed);
        }else{
+
+            let depositIndicesOpt = campaignLinks.get(campaignId);
+            switch (depositIndicesOpt) {
+                case (?depositIndices) {
+                    for (depositIndex in depositIndices.vals()) {
+                        depositItemsMap.delete(depositIndex);
+                    };
+                };
+                case null {};
+            };
+
             await markCampaignStatus(campaignId, #Expired);
             await markDispenserStatus(dispenserId, #Expired);
             await markQRSetStatus(qrSetId, #Expired);
@@ -2218,22 +2251,24 @@ actor Main {
         userCampaignsMap.get(user);
     };
 
-    func getUsedTokenIds() : async [TokenIndex] {
+    func getUsedTokenIds(_collectionCanisterId : Principal) : async [TokenIndex] {
         var usedTokenIds: [TokenIndex] = [];
         
         for ((_, campaign) in campaigns.entries()) {
-            for (depositIndex in campaign.depositIndices.vals()) {
-                let depositItem = depositItemsMap.get(depositIndex);
-                switch (depositItem) {
-                    case (?item) {
-                        usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
-                    };
-                    case null {
-                        // Handle the case where the deposit index does not exist in depositItems
-                        Debug.print("Deposit index not found: " # Nat32.toText(depositIndex));
+            if(campaign.collection == _collectionCanisterId){
+                for (depositIndex in campaign.depositIndices.vals()) {
+                    let depositItem = depositItemsMap.get(depositIndex);
+                    switch (depositItem) {
+                        case (?item) {
+                            usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+                        };
+                        case null {
+                            // Handle the case where the deposit index does not exist in depositItems
+                            Debug.print("Deposit index not found: " # Nat32.toText(depositIndex));
+                        };
                     };
                 };
-            };
+            }
         };
         
         return usedTokenIds;
@@ -2242,14 +2277,16 @@ actor Main {
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
         _collectionCanisterId: Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
-        let allTokens = await getNonFungibleTokens(_collectionCanisterId);
-        let usedTokenIds = await getUsedTokenIds();
-        Debug.print(debug_show(usedTokenIds));
+        let allTokens = await getNonFungibleTokensByUserPrincipal(user, _collectionCanisterId);
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId);
+        Debug.print("All Tokens:");
+        Debug.print(debug_show(Array.size(allTokens)));
+        Debug.print("Used Token IDs:");
+        Debug.print(debug_show(Array.size(usedTokenIds)));
         let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
             func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, _, _) = tokenData;
-                Debug.print(debug_show(tokenData));
                 return Array.find<TokenIndex>(usedTokenIds, func (usedTokenId: TokenIndex) : Bool {
                     return usedTokenId == tokenIndex;
                 }) == null;
@@ -2257,6 +2294,7 @@ actor Main {
         );
 
         
+        Debug.print(debug_show(Array.size(availableTokens)));
         return availableTokens;
     };
 
