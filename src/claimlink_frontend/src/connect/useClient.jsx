@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import { useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
 
@@ -8,11 +8,40 @@ const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const { user, connect, disconnect, identity } = useIdentityKit();
+  const [delegationExpiry, setDelegationExpiry] = useState(null);
+  const { user, connect, disconnect, identity, icpBalance } = useIdentityKit();
+
+  const checkDelegationExpiry = () => {
+    if (delegationExpiry) {
+      const currentTime = Date.now();
+      console.log(
+        "Delegation Expiry Time:",
+        new Date(delegationExpiry).toLocaleString()
+      );
+
+      if (currentTime >= delegationExpiry) {
+        console.log("Delegation expired, logging out...");
+        disconnect();
+        setIsConnected(false);
+      }
+    }
+  };
 
   useEffect(() => {
-    if (user) {
+    if (user && identity !== "AnonymousIdentity") {
       setIsConnected(true);
+
+      const expiryTime = Number(
+        identity?._delegation?.delegations?.[0]?.delegation?.expiration
+      );
+
+      if (expiryTime) {
+        setDelegationExpiry(expiryTime / 1e6);
+      }
+
+      const interval = setInterval(checkDelegationExpiry, 1000);
+
+      return () => clearInterval(interval);
     } else {
       setIsConnected(false);
     }
@@ -20,8 +49,10 @@ export const useAuthClient = () => {
 
   return {
     isConnected,
+    delegationExpiry,
     login: connect,
     logout: disconnect,
+    balance: icpBalance,
     principal: user?.principal,
     backend: createActor(canisterID, {
       agentOptions: { identity, verifyQuerySignatures: false },
@@ -35,6 +66,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+// Access AuthContext here
 
 // import React, { createContext, useContext, useEffect, useState } from "react";
 // import {

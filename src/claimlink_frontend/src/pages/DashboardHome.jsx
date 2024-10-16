@@ -194,7 +194,7 @@ const DashBoardHome = () => {
     setCurrentIndex(index);
   };
   return (
-    <div className=" p-6 ">
+    <div className=" p-6 min-h-screen">
       <div className="grid md:grid-cols-4 grid-cols-2 w-full gap-4 justify-between">
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Links total</p>

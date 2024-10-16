@@ -9,12 +9,15 @@ import { Principal } from "@dfinity/principal";
 import { useParams } from "react-router-dom";
 import CollectionCard from "../common/CollectionCard";
 import ScrollToTop from "../common/ScroolToTop";
+import { useIdentityKit } from "@nfid/identitykit/react";
 const Minter = () => {
+  const { user, connect, disconnect } = useIdentityKit();
+
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const { identity, backend, principal } = useAuth();
+  const { identity, backend, principal, balance } = useAuth();
   const { id } = useParams();
   const [copy, setCopy] = useState();
   const [page, setPage] = useState(1);
@@ -22,6 +25,8 @@ const Minter = () => {
   const createContract = () => {
     navigate("/minter/new-contract");
   };
+  console.log("auth", useIdentityKit());
+  console.log("auth22", balance);
   const openmynft = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
@@ -30,15 +35,13 @@ const Minter = () => {
   const loadData = async (pageNumber = 1) => {
     try {
       setLoading(true);
-      const start = pageNumber - 1; // Calculate the start index
+      const start = pageNumber - 1;
       const data = await backend?.getUserCollectionDetailsPaginate(
         start,
         itemsPerPage
       );
       setCollections(data.data);
       console.log(data);
-
-      // Fetch total collection count once
 
       setTotalPages(parseInt(data.total_pages));
     } catch (error) {
@@ -93,7 +96,7 @@ const Minter = () => {
   return (
     <>
       <ScrollToTop />
-      <div className=" p-6 min-h-full">
+      <div className=" p-6 min-h-screen">
         {window.innerWidth < 640 ? (
           <div>
             {" "}
