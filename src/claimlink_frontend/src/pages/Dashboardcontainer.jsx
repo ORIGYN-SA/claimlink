@@ -274,9 +274,21 @@ const CampaignCard = ({ campaign }) => {
         </div>
       </Link>
       <Link
-        className="max-w-sm mx-auto sm:block hidden bg-white  cursor-pointer   rounded-lg overflow-hidden"
-        to={`/claim-link/${campaign?.id}`}
+        className={`max-w-sm mx-auto sm:block hidden bg-white cursor-pointer rounded-lg overflow-hidden ${
+          Object.keys(campaign?.status || {})[0] === "Expired" ||
+          Object.keys(campaign?.status || {})[0] === "Completed"
+            ? "pointer-events-none opacity-50" // Disable link and add opacity
+            : ""
+        }`}
+        to={
+          Object.keys(campaign?.status || {})[0] === "Expired" ||
+          Object.keys(campaign?.status || {})[0] === "Completed"
+            ? "#" // Disable link
+            : `/claim-link/${campaign?.id}`
+        }
       >
+        {/* Link content here */}
+
         <div className="relative h-12 mt-6 px-6">
           <div className="flex justify-start  space-x-4">
             <img
@@ -293,9 +305,16 @@ const CampaignCard = ({ campaign }) => {
         <div className="px-6 py-4">
           <div className="flex justify-between">
             <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
-            <p className="text-xs text-green-600 font-bold mt-2">
+            <p
+              className={`text-xs font-bold mt-2 ${
+                Object.keys(campaign?.status || {})[0] === "Expired"
+                  ? "text-red-600" // For expired
+                  : Object.keys(campaign?.status || {})[0] === "Ongoing"
+                  ? "text-blue-600" // For complete
+                  : "text-green-600" // Default for ongoing
+              }`}
+            >
               {Object.keys(campaign?.status || {})[0]}{" "}
-              {/* Displays "Ongoing" */}
             </p>
           </div>
 
