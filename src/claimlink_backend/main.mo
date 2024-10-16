@@ -108,6 +108,11 @@ actor Main {
         status :Text;
     };
     type User = ExtCore.User;
+    type Status = {
+        #Ongoing;
+        #Completed;
+        #Expired;
+    };
     type Campaign = {
         id : Text;
         title : Text;
@@ -121,6 +126,7 @@ actor Main {
         createdBy : Principal;
         createdAt : Time.Time;
         depositIndices : [Nat32];
+        status : Status;
     };
     type QRSet = {
         id: Text;
@@ -129,6 +135,7 @@ actor Main {
         campaignId: Text;
         createdAt: Time.Time;
         creator: Principal;
+        status : Status
     };
     type Dispenser = {
         id : Text;
@@ -138,7 +145,8 @@ actor Main {
         duration : Int;
         createdBy: Principal;
         campaignId : Text;
-        whitelist : [Principal]
+        whitelist : [Principal];
+        status : Status
     };
     type Link = {
         tokenId : TokenIndex;
@@ -225,6 +233,7 @@ actor Main {
 
 
     private var claimedTokensMap = TrieMap.TrieMap<Principal, [(Principal, Nat)]>(Principal.equal, Principal.hash);
+    private stable var stableClaimedTokensMap : [(Principal, [(Principal, Nat)])] = [];
 
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
@@ -446,7 +455,7 @@ actor Main {
         stableCampaignTimers := Iter.toArray(campaignTimers.entries());
         stableDispenserTimers := Iter.toArray(dispenserTimers.entries());
         stableDepositMap := Iter.toArray(depositItemsMap.entries());
-
+        stableClaimedTokensMap := Iter.toArray(claimedTokensMap.entries());
     };
 
     // Postupgrade function to restore the data from stable variables
@@ -465,6 +474,7 @@ actor Main {
         campaignTimers := TrieMap.fromEntries(stableCampaignTimers.vals(), Text.equal, Text.hash);
         dispenserTimers := TrieMap.fromEntries(stableDispenserTimers.vals(), Text.equal, Text.hash);
         depositItemsMap := TrieMap.fromEntries(stableDepositMap.vals(), Nat32.equal, nat32Hash);
+        claimedTokensMap := TrieMap.fromEntries(stableClaimedTokensMap.vals(), Principal.equal, Principal.hash);
     };
 
 
@@ -1653,13 +1663,14 @@ actor Main {
                                             createdBy = campaign.createdBy;
                                             createdAt = campaign.createdAt;
                                             depositIndices = updatedDepositIndices;
+                                            status = #Ongoing
                                         };
 
                                     campaigns.put(campaignId, updatedCampaign);
 
                                     // If no remaining links, delete the campaign
                                     if (newLinks.size() == 0) {
-                                        await deleteCampaign(campaignId);
+                                        await completeCampaign(campaignId);
                                     };
                                 };
                                 case null { /* Handle if campaign not found */ };
@@ -1775,8 +1786,40 @@ actor Main {
                                     return key != _depositKey;
                                 });
                                 campaignLinks.put(campaignId, newLinks);
+                                let campaignOpt = campaigns.get(campaignId);
+                                switch (campaignOpt) {
+                                    case (?campaign) {
+                                        // Update depositIndices in the campaign object
+                                        let updatedDepositIndices = Array.filter<Nat32>(campaign.depositIndices, func(index: Nat32): Bool {
+                                            return index != _depositKey;
+                                        });
+                                        let updatedCampaign : Campaign = {
+                                                id = campaign.id;
+                                                title = campaign.title;
+                                                tokenType = campaign.tokenType;
+                                                collection = campaign.collection;
+                                                claimPattern = campaign.claimPattern;
+                                                tokenIds = campaign.tokenIds;
+                                                walletOption = campaign.walletOption;
+                                                displayWallets = campaign.displayWallets;
+                                                expirationDate = campaign.expirationDate;
+                                                createdBy = campaign.createdBy;
+                                                createdAt = campaign.createdAt;
+                                                depositIndices = updatedDepositIndices;
+                                                status = #Ongoing
+                                            };
+
+                                        campaigns.put(campaignId, updatedCampaign);
+
+                                        // If no remaining links, delete the campaign
+                                        if (newLinks.size() == 0) {
+                                            await completeCampaign(campaignId);
+                                        };
+                                    };
+                                    case null { /* Handle if campaign not found */ };
+                                };
                                 if(newLinks.size()==0){
-                                    await deleteCampaign(campaignId);
+                                    await markCampaignStatus(campaignId, #Completed);
                                 }
                             };
                             case null {
@@ -1856,6 +1899,7 @@ actor Main {
             createdBy = user;
             createdAt = Time.now();
             depositIndices = linkResponses;
+            status = #Ongoing
         };
         campaigns.put(campaignId, campaign);
 
@@ -1883,14 +1927,14 @@ actor Main {
         let natDuration = Nat64.toNat(Nat64.fromIntWrap(duration));
         if (duration > 0) {
             let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                await deleteCampaign(campaignId);
+                await completeCampaign(campaignId);
             });
             campaignTimers.put(campaignId, id);
         };
     };
 
     // internal function to take care of link expiration
-    func deleteCampaign(campaignId: Text) : async () {
+    func completeCampaign(campaignId: Text) : async () {
         // Retrieve QRSetId and DispenserId from qdcMap
         var qrSetId : Text = "";
         var dispenserId : Text = "";
@@ -1907,66 +1951,115 @@ actor Main {
         });
         qdcMap := List.toArray(updatedQdcList);
 
-        // Remove QRSet if it exists
-        if (qrSetId != "") {
-            qrSetMap.delete(qrSetId);
+        // Remove links related to the campaign in `campaignLinks` and `userLinks`
+        for ((user, links) in userLinks.entries()) {
+            let linksToKeep = Array.filter<Link>(links, func(link) {
+                let campaignOpt = campaignLinks.get(campaignId);
+                switch (campaignOpt) {
+                    case (?campaignLinkList) {
+                        Array.find<Nat32>(campaignLinkList, func(depositKey) {
+                            depositKey == link.linkKey 
+                        }) == null 
+                    };
+                    case null { true }; 
+                }
+            });
+
+            if (Array.size(linksToKeep) > 0) {
+                userLinks.put(user, linksToKeep);
+            } else {
+                userLinks.delete(user);
+            };
         };
 
-        // Remove Dispenser if it exists
-        if (dispenserId != "") {
-            dispensers.delete(dispenserId);
+        let linksSize = switch(campaignLinks.get(campaignId)){
+            case(?links){
+                Array.size(links)
+            };
+            case null{
+                0
+            };
         };
-        // Delete links related to the campaign
+
+
+       if(linksSize == 0){
+            if (qrSetId != "" ) {
+                await markQRSetStatus(qrSetId, #Completed);
+            };
+            if (dispenserId != "") {
+                await markDispenserStatus(dispenserId, #Completed);
+            };
+            await markCampaignStatus(campaignId, #Completed);
+       }else{
+            await markCampaignStatus(campaignId, #Expired);
+            await markDispenserStatus(dispenserId, #Expired);
+            await markQRSetStatus(qrSetId, #Expired);
+       };
+
+        // Remove the campaign itself from `campaignLinks`
         campaignLinks.delete(campaignId);
+        
 
         // Delete the campaign itself
-        campaigns.delete(campaignId);
+        // campaigns.delete(campaignId);
 
         // Cancel the scheduled timer if it exists
-        switch (campaignTimers.get(campaignId)) {
-            case (?timerId) {
-                Timer.cancelTimer(timerId);
-                campaignTimers.delete(campaignId);
-            };
-            case null {};
-        };
+        // switch (campaignTimers.get(campaignId)) {
+        //     case (?timerId) {
+        //         Timer.cancelTimer(timerId);
+        //         campaignTimers.delete(campaignId);
+        //     };
+        //     case null {};
+        // };
 
         // Remove the campaign from the user's campaign map
-        for ((user, userCampaigns) in userCampaignsMap.entries()) {
-            let updatedCampaigns = Array.filter<Campaign>(userCampaigns ,func (campaign) : Bool {
-                campaign.id != campaignId
-            });
-            if (updatedCampaigns.size() == 0) {
-                userCampaignsMap.delete(user);
-            } else {
-                userCampaignsMap.put(user, updatedCampaigns);
-            };
-        };
+        // for ((user, userCampaigns) in userCampaignsMap.entries()) {
+        //     let updatedCampaigns = Array.filter<Campaign>(userCampaigns ,func (campaign) : Bool {
+        //         campaign.id != campaignId
+        //     });
+        //     if (updatedCampaigns.size() == 0) {
+        //         userCampaignsMap.delete(user);
+        //     } else {
+        //         userCampaignsMap.put(user, updatedCampaigns);
+        //     };
+        // };
 
         // Remove related QR sets from user's QR set map
-        for ((user, userQRSets) in userQRSetMap.entries()) {
-            let updatedQRSets = Array.filter<QRSet>(userQRSets ,func (qrSet) : Bool {
-                qrSet.campaignId != campaignId
-            });
-            if (updatedQRSets.size() == 0) {
-                userQRSetMap.delete(user);
-            } else {
-                userQRSetMap.put(user, updatedQRSets);
-            };
-        };
+        // for ((user, userQRSets) in userQRSetMap.entries()) {
+        //     let updatedQRSets = Array.filter<QRSet>(userQRSets ,func (qrSet) : Bool {
+        //         qrSet.campaignId != campaignId
+        //     });
+        //     if (updatedQRSets.size() == 0) {
+        //         userQRSetMap.delete(user);
+        //     } else {
+        //         userQRSetMap.put(user, updatedQRSets);
+        //     };
+        // };
 
         // Remove related dispensers from user's dispenser map
-        for ((user, userDispensers) in userDispensersMap.entries()) {
-            let updatedDispensers = Array.filter<Dispenser>(
-                userDispensers,
-                func(dispenser) : Bool {
-                    dispenser.campaignId != campaignId;
-                },
-            );
-            if (updatedDispensers.size() == 0) {
-                userDispensersMap.delete(user);
-            } else {
-                userDispensersMap.put(user, updatedDispensers);
+        // for ((user, userDispensers) in userDispensersMap.entries()) {
+        //     let updatedDispensers = Array.filter<Dispenser>(
+        //         userDispensers,
+        //         func(dispenser) : Bool {
+        //             dispenser.campaignId != campaignId;
+        //         },
+        //     );
+        //     if (updatedDispensers.size() == 0) {
+        //         userDispensersMap.delete(user);
+        //     } else {
+        //         userDispensersMap.put(user, updatedDispensers);
+        //     };
+        // };
+    };
+
+
+    public func markCampaignStatus(campaignId: Text, newStatus: Status) : async () {
+        let campaignOpt = campaigns.get(campaignId);
+        switch (campaignOpt) {
+            case null {};
+            case (?campaign) {
+                let updatedCampaign = { campaign with status = newStatus };
+                campaigns.put(campaignId, updatedCampaign);
             };
         };
     };
@@ -2013,6 +2106,7 @@ actor Main {
             campaignId = campaignId;
             createdAt = Time.now();
             creator = user;
+            status = #Ongoing
         };
 
         // Update qdcMap with the QRSet and DispenserId
@@ -2061,6 +2155,20 @@ actor Main {
 
         qrSetId
     };
+
+
+    public func markQRSetStatus(qrSetId: Text, newStatus: Status) : async () {
+        let qrSetOpt = qrSetMap.get(qrSetId);
+        switch (qrSetOpt) {
+            case null {};
+            case (?qrSet) {
+                let updatedQRSet = { qrSet with status = newStatus };
+                qrSetMap.put(qrSetId, updatedQRSet);
+            };
+        };
+    };
+
+
 
     private func generateQRSetId(user : Principal) : Text {
         // Using user ID (Principal) and current timestamp to generate a unique campaign ID
@@ -2129,6 +2237,7 @@ actor Main {
             duration = _duration;
             campaignId = _campaignId;
             whitelist = _whitelist;
+            status = #Ongoing
         };
 
         // Update qdcMap with the QRSet and DispenserId
@@ -2179,6 +2288,17 @@ actor Main {
             };
         };
         return dispenserId;
+    };
+
+    public func markDispenserStatus(dispenserId: Text, newStatus: Status) : async () {
+        let dispenserOpt = dispensers.get(dispenserId);
+        switch (dispenserOpt) {
+            case null {};
+            case (?dispenser) {
+                let updatedDispenser = { dispenser with status = newStatus };
+                dispensers.put(dispenserId, updatedDispenser);
+            };
+        };
     };
 
    public shared ({ caller = user }) func dispenserClaim(
@@ -2283,49 +2403,41 @@ actor Main {
         
         if (timeRemaining > 0) {
             let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                await deleteDispenser(dispenserId);
+                await markDispenserStatus(dispenserId, #Expired);
             });
             dispenserTimers.put(dispenserId, id);
         };
     };
 
-    func deleteDispenser(dispenserId: Text) : async  () {
+    // func deleteDispenser(dispenserId: Text) : async  () {
 
-        // Delete the dispenser itself
-        dispensers.delete(dispenserId);
+    //     // Delete the dispenser itself
+    //     dispensers.delete(dispenserId);
 
-        // Cancel the scheduled timer if it exists
-        switch (dispenserTimers.get(dispenserId)) {
-            case (?timerId) {
-                Timer.cancelTimer(timerId);
-                dispenserTimers.delete(dispenserId);
-            };
-            case null {};
-        };
+    //     // Cancel the scheduled timer if it exists
+    //     switch (dispenserTimers.get(dispenserId)) {
+    //         case (?timerId) {
+    //             Timer.cancelTimer(timerId);
+    //             dispenserTimers.delete(dispenserId);
+    //         };
+    //         case null {};
+    //     };
 
-        // Remove the dispenser from the user's dispenser map
-        for ((user, userDispensers) in userDispensersMap.entries()) {
-            let updatedDispensers = Array.filter<Dispenser>(
-                userDispensers,
-                func(dispenser) : Bool {
-                    dispenser.id != dispenserId;
-                },
-            );
-            if (updatedDispensers.size() == 0) {
-                userDispensersMap.delete(user);
-            } else {
-                userDispensersMap.put(user, updatedDispensers);
-            };
-        };
-    };
-
-
-
-
-
-
-
-
+    //     // Remove the dispenser from the user's dispenser map
+    //     for ((user, userDispensers) in userDispensersMap.entries()) {
+    //         let updatedDispensers = Array.filter<Dispenser>(
+    //             userDispensers,
+    //             func(dispenser) : Bool {
+    //                 dispenser.id != dispenserId;
+    //             },
+    //         );
+    //         if (updatedDispensers.size() == 0) {
+    //             userDispensersMap.delete(user);
+    //         } else {
+    //             userDispensersMap.put(user, updatedDispensers);
+    //         };
+    //     };
+    // };
 
     // Get details of a specific Dispenser
     public shared query func getDispenserDetails(dispenserId : Text) : async ?Dispenser {
