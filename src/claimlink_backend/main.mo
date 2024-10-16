@@ -858,6 +858,32 @@ actor Main {
     };
 
 
+    public shared ({caller = user}) func getUserCollectionNames() : async ?[(Principal, Text)] {
+        let collections = usersCollectionMap.get(user);
+        
+        switch (collections) {
+            case (null) {
+                return null;
+            };
+            case (?collections) {
+                var result : List.List<(Principal, Text)> = List.nil();
+                
+                for ((timestamp, collectionCanisterId) in collections.vals()) {
+                    let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
+                        getCollectionDetails: () -> async (Text, Text, Text);
+                    };
+
+                    let details = await collectionCanister.getCollectionDetails();
+                    result := List.push((collectionCanisterId, details.0), result);
+                };
+
+                let finalResult = List.toArray(List.reverse(result));
+                return ?finalResult;
+            };
+        };
+    };
+
+
     public shared ({caller = user}) func getUserCollectionDetailsPaginate(
         page: Nat, 
         pageSize: Nat
@@ -1244,6 +1270,67 @@ actor Main {
         return Buffer.toArray(resultArray);
     };
 
+    public shared ({ caller = user }) func getUserTokensFromAllCollectionsPaginate(
+        page: Nat, 
+        pageSize: Nat
+    ) : async { 
+        data: [(Principal, Text, Nat)]; 
+        current_page: Nat; 
+        total_pages: Nat 
+    } {
+        var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
+        let userClaims : ?[(Principal, Nat)] = claimedTokensMap.get(user);
+
+        switch (userClaims) {
+            case null {
+                return { data = []; current_page = 0; total_pages = 0 };
+            };
+            case (?claimedCollectionData) {
+                let totalItems = claimedCollectionData.size();
+
+                // Calculate total pages
+                let totalPages = if (totalItems % pageSize == 0) {
+                    totalItems / pageSize
+                } else {
+                    (totalItems / pageSize) + 1
+                };
+
+                // Calculate start and end index for pagination
+                let startIndex = page * pageSize;
+                if (startIndex >= totalItems) {
+                    // If the start index exceeds total items, return empty data
+                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                };
+
+                let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+                // Collect the paginated tokens
+                var resultTokens: List.List<(Principal, Text, Nat)> = List.nil();
+                var currentIndex: Nat = 0;
+                for ((collectionCanisterId, tokenCount) in claimedCollectionData.vals()) {
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
+                        let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
+                            getCollectionDetails : () -> async (Text, Text, Text);
+                        };
+                        let collectionDetailsResult = await collectionCanisterActor.getCollectionDetails();
+                        let collectionTitle = collectionDetailsResult.0;
+                        resultTokens := List.push((collectionCanisterId, collectionTitle, tokenCount), resultTokens);
+                    };
+                    currentIndex += 1;
+                };
+
+                let resultArray = List.toArray(List.reverse(resultTokens));
+
+                return {
+                    data = resultArray;
+                    current_page = page + 1;
+                    total_pages = totalPages
+                };
+            };
+        }
+    };
+
+
 
 
     // public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
@@ -1512,6 +1599,10 @@ actor Main {
                 return #err("Deposit Key not found, might be claimed already..!");
             };
             case (?depositItem) {
+                if(depositItem.sender == user){
+                    throw Error.reject("Sender cannot claim Link");
+                    return #err("Sender cannot claim Link");
+                };
                 let claimResult = switch (depositItem.claimPattern) {
                     case ("transfer") {
                         await claimLink(user, _collectionCanisterId, depositItem, _depositKey);
@@ -1573,7 +1664,38 @@ actor Main {
         };
     };
 
+    // Function to update user campaigns map based on changes in campaigns
+    func updateUserCampaignsMap(campaignId: Text, user: Principal, updatedDepositIndices: [Nat32]) : async () {
+        let existingUserCampaignsOpt = userCampaignsMap.get(user);
+        
+        switch (existingUserCampaignsOpt) {
+            case (?existingUserCampaigns) {
+                var updatedCampaigns: [Campaign] = [];
+                var campaignUpdated = false;
 
+                // Iterate through existing campaigns
+                for (existingCampaign in existingUserCampaigns.vals()) {
+                    if (existingCampaign.id == campaignId) {
+                        let updatedCampaign: Campaign = {
+                            existingCampaign with depositIndices = updatedDepositIndices
+                        };
+                        updatedCampaigns := Array.append(updatedCampaigns, [updatedCampaign]);
+                        campaignUpdated := true;
+                    } else {
+                        updatedCampaigns := Array.append(updatedCampaigns, [existingCampaign]);
+                    };
+                };
+
+                if (campaignUpdated) {
+                    userCampaignsMap.put(user, updatedCampaigns);
+                } else {
+
+                }
+            };
+            case null {
+            };
+        };
+    };
         
 
 
@@ -1667,6 +1789,9 @@ actor Main {
                                         };
 
                                     campaigns.put(campaignId, updatedCampaign);
+
+                                    await updateUserCampaignsMap(campaignId, depositObj.sender, updatedDepositIndices);
+
 
                                     // If no remaining links, delete the campaign
                                     if (newLinks.size() == 0) {
@@ -1810,6 +1935,8 @@ actor Main {
                                             };
 
                                         campaigns.put(campaignId, updatedCampaign);
+                                        
+                                        await updateUserCampaignsMap(campaignId, _depositItem.sender, updatedDepositIndices);
 
                                         // If no remaining links, delete the campaign
                                         if (newLinks.size() == 0) {
@@ -2062,6 +2189,19 @@ actor Main {
                 campaigns.put(campaignId, updatedCampaign);
             };
         };
+
+        // Update the userCampaignsMap
+        for ((user, campaigns) in userCampaignsMap.entries()) {
+            let updatedCampaigns = Array.map<Campaign, Campaign>(campaigns, func(campaign) : Campaign {
+                if (campaign.id == campaignId) {
+                    return { campaign with status = newStatus }; 
+                } else {
+                    return campaign;
+                };
+            });
+            userCampaignsMap.put(user, updatedCampaigns);
+        };
+        
     };
 
 
@@ -2077,6 +2217,108 @@ actor Main {
     public shared query ({ caller = user }) func getUserCampaigns() : async ?[Campaign] {
         userCampaignsMap.get(user);
     };
+
+    func getUsedTokenIds() : async [TokenIndex] {
+        var usedTokenIds: [TokenIndex] = [];
+        
+        for ((_, campaign) in campaigns.entries()) {
+            for (depositIndex in campaign.depositIndices.vals()) {
+                let depositItem = depositItemsMap.get(depositIndex);
+                switch (depositItem) {
+                    case (?item) {
+                        usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+                    };
+                    case null {
+                        // Handle the case where the deposit index does not exist in depositItems
+                        Debug.print("Deposit index not found: " # Nat32.toText(depositIndex));
+                    };
+                };
+            };
+        };
+        
+        return usedTokenIds;
+    };
+
+    public shared ({ caller = user }) func getAvailableTokensForCampaign(
+        _collectionCanisterId: Principal
+    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+        let allTokens = await getNonFungibleTokens(_collectionCanisterId);
+        let usedTokenIds = await getUsedTokenIds();
+        Debug.print(debug_show(usedTokenIds));
+        let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+            allTokens,
+            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+                let (tokenIndex, _, _) = tokenData;
+                Debug.print(debug_show(tokenData));
+                return Array.find<TokenIndex>(usedTokenIds, func (usedTokenId: TokenIndex) : Bool {
+                    return usedTokenId == tokenIndex;
+                }) == null;
+            }
+        );
+
+        
+        return availableTokens;
+    };
+
+
+
+
+
+    public shared query ({ caller = user }) func getUserCampaignsPaginate(
+        page: Nat, 
+        pageSize: Nat
+    ) : async { 
+        data: [Campaign]; 
+        current_page: Nat; 
+        total_pages: Nat 
+    } {
+        // Retrieve the campaigns for the current user
+        switch (userCampaignsMap.get(user)) {
+            case (?campaignArray) {
+                let totalItems = campaignArray.size();
+                
+                // Calculate total pages
+                let totalPages = if (totalItems % pageSize == 0) {
+                    totalItems / pageSize
+                } else {
+                    (totalItems / pageSize) + 1
+                };
+
+                // Calculate start and end index for pagination
+                let startIndex = page * pageSize;
+                if (startIndex >= totalItems) {
+                    // If the start index exceeds total items, return empty data
+                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                };
+
+                let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+                // Collect the paginated campaigns
+                var resultCampaigns: List.List<Campaign> = List.nil();
+                var currentIndex : Nat = 0;
+                for (campaign in campaignArray.vals()) {
+                    if(currentIndex >= startIndex and currentIndex < endIndex){
+                        resultCampaigns := List.push(campaign, resultCampaigns);
+                    };
+                    currentIndex += 1;
+                };
+
+                let resultArray = List.toArray(List.reverse(resultCampaigns));
+
+                return {
+                    data = resultArray;
+                    current_page = page + 1;
+                    total_pages = totalPages
+                };
+            };
+            
+            case null {
+                return { data = []; current_page = 0; total_pages = 0 };
+            };
+        }
+    };
+
+
 
     // Generation of unique campaign ID
     private func generateCampaignId(user : Principal) : Text {
@@ -2158,15 +2400,31 @@ actor Main {
 
 
     public func markQRSetStatus(qrSetId: Text, newStatus: Status) : async () {
+        // Update the main qrSetMap
         let qrSetOpt = qrSetMap.get(qrSetId);
         switch (qrSetOpt) {
             case null {};
             case (?qrSet) {
-                let updatedQRSet = { qrSet with status = newStatus };
-                qrSetMap.put(qrSetId, updatedQRSet);
+                if (qrSet.status != #Completed) {
+                    let updatedQRSet = { qrSet with status = newStatus };
+                    qrSetMap.put(qrSetId, updatedQRSet);
+                }
             };
         };
+
+        // Update the user-specific qrSet maps
+        for ((user, qrSets) in userQRSetMap.entries()) {
+            let updatedQRSets = Array.map<QRSet, QRSet>(qrSets, func(qrSet) : QRSet {
+                if (qrSet.id == qrSetId) {
+                    return { qrSet with status = newStatus };
+                } else {
+                    return qrSet; 
+                }
+            });
+            userQRSetMap.put(user, updatedQRSets);
+        };
     };
+
 
 
 
@@ -2186,6 +2444,62 @@ actor Main {
     public shared query ({ caller = user }) func getUserQRSets() : async ?[QRSet] {
         userQRSetMap.get(user)
     };
+
+    public shared query ({ caller = user }) func getUserQRSetsPaginate(
+        page: Nat, 
+        pageSize: Nat
+    ) : async { 
+        data: [QRSet]; 
+        current_page: Nat; 
+        total_pages: Nat 
+    } {
+        // Retrieve the QR sets for the current user
+        switch (userQRSetMap.get(user)) {
+            case (?qrSetArray) {
+                let totalItems = qrSetArray.size();
+                
+                // Calculate total pages
+                let totalPages = if (totalItems % pageSize == 0) {
+                    totalItems / pageSize
+                } else {
+                    (totalItems / pageSize) + 1
+                };
+
+                // Calculate start and end index for pagination
+                let startIndex = page * pageSize;
+                if (startIndex >= totalItems) {
+                    // If the start index exceeds total items, return empty data
+                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                };
+
+                let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+                // Collect the paginated QR sets
+                var resultQRSets: List.List<QRSet> = List.nil();
+                var currentIndex: Nat = 0;
+                for (qrSet in qrSetArray.vals()) {
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
+                        resultQRSets := List.push(qrSet, resultQRSets);
+                    };
+                    currentIndex += 1;
+                };
+
+                let resultArray = List.toArray(List.reverse(resultQRSets));
+
+                return {
+                    data = resultArray;
+                    current_page = page + 1;
+                    total_pages = totalPages
+                };
+            };
+            
+            case null {
+                // Return empty data if no QR sets are found for the user
+                return { data = []; current_page = 0; total_pages = 0 };
+            };
+        }
+    };
+
 
     // public shared({caller = user}) func deleteQRSet(qrSetId: Text) : async Int {
     //     // Check if the QRSet exists
@@ -2291,15 +2605,31 @@ actor Main {
     };
 
     public func markDispenserStatus(dispenserId: Text, newStatus: Status) : async () {
+        // Update the main dispensers map
         let dispenserOpt = dispensers.get(dispenserId);
         switch (dispenserOpt) {
             case null {};
             case (?dispenser) {
-                let updatedDispenser = { dispenser with status = newStatus };
-                dispensers.put(dispenserId, updatedDispenser);
+                if (dispenser.status != #Completed) {
+                    let updatedDispenser = { dispenser with status = newStatus };
+                    dispensers.put(dispenserId, updatedDispenser);
+                }
             };
         };
+
+        // Update the user-specific dispensers maps
+        for ((user, dispensers) in userDispensersMap.entries()) {
+            let updatedDispensers = Array.map<Dispenser, Dispenser>(dispensers, func(dispenser) : Dispenser {
+                if (dispenser.id == dispenserId) {
+                    return { dispenser with status = newStatus }; 
+                } else {
+                    return dispenser; 
+                }
+            });
+            userDispensersMap.put(user, updatedDispensers);
+        }
     };
+
 
    public shared ({ caller = user }) func dispenserClaim(
         _dispenserId: Text
@@ -2448,6 +2778,62 @@ actor Main {
     public shared query ({ caller = user }) func getUserDispensers() : async ?[Dispenser] {
         userDispensersMap.get(user);
     };
+
+    public shared query ({ caller = user }) func getUserDispensersPaginate(
+        page: Nat, 
+        pageSize: Nat
+    ) : async { 
+        data: [Dispenser]; 
+        current_page: Nat; 
+        total_pages: Nat 
+    } {
+        // Retrieve the dispensers for the current user
+        switch (userDispensersMap.get(user)) {
+            case (?dispenserArray) {
+                let totalItems = dispenserArray.size();
+
+                // Calculate total pages
+                let totalPages = if (totalItems % pageSize == 0) {
+                    totalItems / pageSize
+                } else {
+                    (totalItems / pageSize) + 1
+                };
+
+                // Calculate start and end index for pagination
+                let startIndex = page * pageSize;
+                if (startIndex >= totalItems) {
+                    // If the start index exceeds total items, return empty data
+                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                };
+
+                let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+                // Collect the paginated dispensers
+                var resultDispensers: List.List<Dispenser> = List.nil();
+                var currentIndex: Nat = 0;
+                for (dispenser in dispenserArray.vals()) {
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
+                        resultDispensers := List.push(dispenser, resultDispensers);
+                    };
+                    currentIndex += 1;
+                };
+
+                let resultArray = List.toArray(List.reverse(resultDispensers));
+
+                return {
+                    data = resultArray;
+                    current_page = page + 1;
+                    total_pages = totalPages
+                };
+            };
+            
+            case null {
+                // Return empty data if no dispensers are found for the user
+                return { data = []; current_page = 0; total_pages = 0 };
+            };
+        }
+    };
+
 
     // Generation of unique dispenser ID
     private func generateDispenserId(user : Principal) : Text {
