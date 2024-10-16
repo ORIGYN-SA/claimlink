@@ -217,6 +217,11 @@ const CampaignCard = ({ campaign }) => {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold">{campaign?.title}</h2>
+
+                  <h2 className="text-lg font-semibold">
+                    {Object.keys(campaign?.status || {})}
+                  </h2>
+
                   <p className="text-sm text-gray-500">
                     {" "}
                     {convertNanosecondsToDate(campaign?.createdAt)}
@@ -283,30 +288,17 @@ const CampaignCard = ({ campaign }) => {
                 zIndex: 3,
               }}
             />
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Campaign"
-              className="w-12 h-12 object-cover rounded-md"
-              style={{
-                border: "2px solid white",
-                zIndex: 2,
-                marginLeft: -24,
-              }}
-            />
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Campaign"
-              className="w-12 h-12 object-cover rounded-md"
-              style={{
-                border: "2px solid white",
-                zIndex: 1,
-                marginLeft: -24,
-              }}
-            />
           </div>
         </div>
         <div className="px-6 py-4">
-          <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
+          <div className="flex justify-between">
+            <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
+            <p className="text-xs text-green-600 font-bold mt-2">
+              {Object.keys(campaign?.status || {})[0]}{" "}
+              {/* Displays "Ongoing" */}
+            </p>
+          </div>
+
           <p className="text-gray-500 text-xs">
             {convertNanosecondsToDate(campaign?.createdAt)}
           </p>

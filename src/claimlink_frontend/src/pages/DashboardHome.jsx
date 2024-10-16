@@ -174,10 +174,8 @@ const DashBoardHome = () => {
 
     // Define options for formatting the date
     const options = {
-      month: "long",
+      month: "short",
       day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
     };
 
     // Format the date to a human-readable string
@@ -1218,8 +1216,8 @@ const DashBoardHome = () => {
                         </div>
                       </div>
                       <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          Dec 5, 13:54
+                        <p className="text-xs text-[#2E2C34] truncate w-[75px] font-semibold">
+                          {convertNanosecondsToDate(data[0])}
                         </p>
                       </div>
                       <div>
@@ -1229,7 +1227,7 @@ const DashBoardHome = () => {
                       </div>
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          10
+                          1
                         </p>
                       </div>
                       <div className="flex gap-2 items-center">

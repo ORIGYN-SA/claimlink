@@ -18,11 +18,13 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const data = await backend?.getUserCollections();
+        const data = await backend?.getUserCollectionDetails();
+
+        console.log(data, "collection list ");
         if (data.length > 0) {
           const formattedCollections = data[0].map((collection, index) => ({
             value: collection[1].toText(),
-            label: `Collection ${index + 1}: ${collection[1].toText()}`,
+            label: `${collection[2]} : ${collection[1].toText()}`,
           }));
           setCollections(formattedCollections);
         }

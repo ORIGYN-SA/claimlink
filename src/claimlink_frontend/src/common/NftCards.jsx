@@ -62,7 +62,7 @@ const NftCards = ({ nft, filter }) => {
           {limitCharacters(nft[1]?.nonfungible?.name, 15)}
         </h2>
       )}
-      <p className="text-xs gray mt-1">April 5, 13:34</p>
+      {/* <p className="text-xs gray mt-1">April 5, 13:34</p> */}
       <div className="border border-gray-200 my-4 w-full"></div>
       <div className=" w-full">
         {filter == "non-fungible" && (
@@ -143,7 +143,7 @@ const NftCards = ({ nft, filter }) => {
         onClick={() => {
           navigate("/campaign-setup");
         }}
-        className="px-2 flex gap-2  items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
+        className="px-2 flex gap-2    items-center justify-center w-full py-3  bg-[#5442f621] text-[#564BF1] rounded-sm text-sm"
       >
         <GoLink />
         Create claim links

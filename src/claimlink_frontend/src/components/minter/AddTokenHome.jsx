@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useRef, useEffect } from "react";
 
 import { TfiPlus } from "react-icons/tfi";
 
@@ -30,12 +30,14 @@ const AddTokenHome = () => {
   const [nft, getNft] = useState();
   const [nonFungibleNft, getNonFungibleNft] = useState();
   const [collections, setCollections] = useState();
-  const [filter, setFilter] = useState("non-fungible");
+  const [filter, setFilter] = useState();
   const [loader, setLoader] = useState(true);
   const [descriptionModel, setDescriptionModel] = useState();
   const [ids, setIds] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(1);
+  const [nftCount, setNftCount] = useState(0);
+  const [storedCount, SetStoredCount] = useState(0);
 
   const { backend } = useAuth();
   const addToken = () => {
@@ -86,10 +88,25 @@ const AddTokenHome = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        let idd = Principal.fromText(id);
         const data = await backend?.getUserCollectionDetails();
+        const data2 = await backend.getStoredTokensPaginate(idd, 0, 5);
+        const data3 = await backend.getNonFungibleTokensPaginate(idd, 0, 5);
+
+        SetStoredCount(data2.data.length);
+        setNftCount(data3.data.length);
+
+        console.log(data2.data.length, "stored length");
+        console.log(data3.data.length, "nft length");
+
+        // Set the initial filter based on counts
+        if (data2.data.length > data3.data.length) {
+          setFilter("stored");
+        } else {
+          setFilter("non-fungible");
+        }
 
         const res = data[0].filter((data) => id == data[1]?.toText());
-
         console.log(res, "collection details");
         setCollections(res);
       } catch (error) {
@@ -103,12 +120,26 @@ const AddTokenHome = () => {
   }, [backend]);
 
   useEffect(() => {
-    if (filter === "stored") {
-      getTokensNft(currentPage);
-    } else {
-      getNonfungibleTokensNft(currentPage);
+    const loadNfts = async () => {
+      try {
+        if (filter === "stored") {
+          await getTokensNft(currentPage);
+          setLoader(false);
+        } else if (filter === "non-fungible") {
+          await getNonfungibleTokensNft(currentPage);
+          setLoader(false);
+        }
+      } catch (error) {
+        console.error("Error loading NFTs:", error);
+      } finally {
+      }
+    };
+
+    if (backend) {
+      setLoader(true); // Start loader before fetching data
+      loadNfts();
     }
-  }, [backend, filter, currentPage]);
+  }, [backend, filter, currentPage, nftCount, storedCount]);
 
   const getTokensNft = async (page = 1) => {
     try {
@@ -121,7 +152,6 @@ const AddTokenHome = () => {
     } catch (error) {
       console.log("Error getting NFTs ", error);
     } finally {
-      setLoader(false);
     }
   };
 
@@ -136,7 +166,6 @@ const AddTokenHome = () => {
     } catch (error) {
       console.log("Error getting NFTs ", error);
     } finally {
-      setLoader(false);
     }
   };
 
@@ -268,8 +297,8 @@ const AddTokenHome = () => {
                   <div className="w-1/2 p-2 flex flex-col justify-start relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
                     <div className="flex flex-col justify-start pl-4">
-                      <p className="gray text-xs">All token copies</p>
-                      <p className="font-semibold text-sm black">0</p>
+                      {/* <p className="gray text-xs">All token copies</p>
+                      <p className="font-semibold text-sm black">0</p> */}
                     </div>
                   </div>
                 </div>
@@ -388,22 +417,7 @@ const AddTokenHome = () => {
           <div className="p-6 w-2/3">
             <div className="flex justify-between">
               <h2 className="text-xl font-semibold">My NFTs </h2>
-              <select
-                name="Filter"
-                id="filter"
-                className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
-                onChange={(e) => {
-                  const selectedValue = e.target.value;
-                  if (selectedValue == "stored") {
-                    setFilter("stored");
-                  } else if (selectedValue == "non-fungible") {
-                    setFilter("non-fungible");
-                  }
-                }}
-              >
-                <option value="non-fungible">Minted</option>
-                <option value="stored">Stored</option>
-              </select>
+              <CustomDropdown filter={filter} setFilter={setFilter} />
             </div>
 
             <div className="grid grid-cols-3 gap-4">
@@ -411,7 +425,9 @@ const AddTokenHome = () => {
                 initial={{ scale: 1, opacity: 1 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.9 }}
-                className="bg-[#E9E8FC] px-4 py-8 mt-8 rounded-xl flex flex-col h-[364px] items-center justify-center cursor-pointer"
+                className={`bg-[#E9E8FC] px-4 py-8 mt-8 rounded-xl flex flex-col items-center justify-center cursor-pointer ${
+                  filter == "stored" ? "h-[300px]" : "h-[345px]"
+                }`}
                 onClick={addToken}
               >
                 <div className="bg-white p-2 m-2 rounded-md">
@@ -576,8 +592,8 @@ const AddTokenHome = () => {
                 )}
               </div>
               <div className="flex justify-between mt-2">
-                <p className="gray text-sm">All token copies</p>
-                <p className="black font-semibold text-sm">1</p>
+                {/* <p className="gray text-sm">All token copies</p>
+                <p className="black font-semibold text-sm">1</p> */}
               </div>
             </div>
             <div className="border border-gray-200 my-4"></div>
@@ -585,6 +601,70 @@ const AddTokenHome = () => {
         </motion.div>
       )}
     </>
+  );
+};
+
+const CustomDropdown = ({ filter, setFilter }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null); // Create a ref to track the dropdown
+
+  const options = [
+    { value: "non-fungible", label: "Minted" },
+    { value: "stored", label: "Stored" },
+  ];
+
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleOptionClick = (value) => {
+    setFilter(value); // Set the filter based on selection
+    setIsOpen(false); // Close the dropdown after selection
+  };
+
+  // Function to detect clicks outside the dropdown
+  const handleClickOutside = (event) => {
+    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      setIsOpen(false); // Close dropdown if clicked outside
+    }
+  };
+
+  useEffect(() => {
+    // Add event listener for clicks outside the dropdown
+    document.addEventListener("mousedown", handleClickOutside);
+
+    // Clean up the event listener on component unmount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div ref={dropdownRef} className="relative inline-block text-left">
+      {/* Dropdown Button */}
+      <button
+        onClick={toggleDropdown}
+        className="border border-[#564BF1] bg-white px-2 py-1 text-[#564BF1] rounded-md text-sm"
+      >
+        {filter === "non-fungible" ? "Minted" : "Stored"}
+        <span className="ml-1">&#9662;</span> {/* Down arrow icon */}
+      </button>
+
+      {/* Dropdown Options */}
+      {isOpen && (
+        <ul className="absolute z-10 mt-2 w-full bg-white border border-gray-300 rounded-md shadow-lg">
+          {options.map((option) => (
+            <li
+              key={option.value}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+              onClick={() => handleOptionClick(option.value)}
+            >
+              {option.label}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 };
 
