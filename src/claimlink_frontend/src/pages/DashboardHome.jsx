@@ -852,7 +852,7 @@ const DashBoardHome = () => {
                           className="rounded-sm"
                         /> */}
                         <div>
-                          <h2 className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
+                          <h2 className="text-xs text-[#2E2C34] w-8 font-semibold line-clamp-1">
                             {data.title}
                           </h2>
                         </div>
@@ -869,7 +869,12 @@ const DashBoardHome = () => {
                       </div>
                       <div className="flex gap-2 items-center">
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          {data?.tokenIds.length}/{data?.tokenIds.length}
+                          {data?.tokenIds.length - data?.depositIndices.length}/
+                          {data?.tokenIds.length}
+                          {console.log(
+                            data?.depositIndices.length,
+                            "diposit index length"
+                          )}
                         </p>
                         <button className="text-[#3B00B9] w-12 px-2 py-1 text-sm bg-[#564BF1] rounded-md"></button>
                       </div>

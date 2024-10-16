@@ -20,6 +20,7 @@ const DistributionPage = ({
   const [tokenOptions, setTokenOptions] = useState([]);
   const [clid, setClid] = useState();
   const [type, setType] = useState();
+  const [loading, setLoading] = useState(false); // Add loading state
 
   useEffect(() => {
     if (formData.collection) {
@@ -31,6 +32,7 @@ const DistributionPage = ({
   useEffect(() => {
     const loadData = async () => {
       try {
+        setLoading(true); // Start loader
         if (!clid) {
           console.error("clid is undefined or empty");
           return;
@@ -58,6 +60,8 @@ const DistributionPage = ({
         }
       } catch (error) {
         console.error("Error loading tokens:", error);
+      } finally {
+        setLoading(false); // Stop loader
       }
     };
 
@@ -156,22 +160,35 @@ const DistributionPage = ({
         </div>
 
         <div className="sm:w-[75%] w-full space-y-3">
-          <p className="text-gray-900 font-semibold">Collection</p>
-          <Select
-            value={formData.tokenIds?.map((id) =>
-              (formData.pattern === "transfer"
-                ? nftOptions
-                : tokenOptions
-              ).find((option) => option.value === id)
+          <p className="text-gray-900 font-semibold">Tokens</p>
+          <div className="relative">
+            {/* Show the select box with a loader inside if loading */}
+            <Select
+              value={formData.tokenIds?.map((id) =>
+                (formData.pattern === "transfer"
+                  ? nftOptions
+                  : tokenOptions
+                ).find((option) => option.value === id)
+              )}
+              onChange={handleSelectChange}
+              options={
+                formData.pattern === "transfer" ? nftOptions : tokenOptions
+              }
+              isMulti
+              placeholder="Select Tokens"
+              className={`${
+                errors.tokenIds ? "border-red-500" : ""
+              } relative z-10`}
+              isDisabled={loading} // Disable the select if loading
+            />
+
+            {/* Loader displayed when data is being fetched */}
+            {loading && (
+              <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-50 z-20">
+                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+              </div>
             )}
-            onChange={handleSelectChange}
-            options={
-              formData.pattern === "transfer" ? nftOptions : tokenOptions
-            }
-            isMulti
-            placeholder="Select Collection"
-            className={`${errors.tokenIds ? "border-red-500" : ""}`}
-          />
+          </div>
           {errors.tokenIds && (
             <p className="text-red-500 text-sm mt-2">{errors.tokenIds}</p>
           )}
