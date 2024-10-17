@@ -343,7 +343,9 @@ const CampaignCard = ({ campaign }) => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claims</span>
-              <span className="font-semibold">0</span>
+              <span className="font-semibold">
+                {campaign?.tokenIds.length - campaign?.depositIndices.length}
+              </span>
             </div>
             <hr className="my-2" />
 

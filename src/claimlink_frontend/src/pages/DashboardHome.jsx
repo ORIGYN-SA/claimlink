@@ -871,10 +871,7 @@ const DashBoardHome = () => {
                         <p className="text-xs text-[#2E2C34] font-semibold">
                           {data?.tokenIds.length - data?.depositIndices.length}/
                           {data?.tokenIds.length}
-                          {console.log(
-                            data?.depositIndices.length,
-                            "diposit index length"
-                          )}
+                          
                         </p>
                         <button className="text-[#3B00B9] w-12 px-2 py-1 text-sm bg-[#564BF1] rounded-md"></button>
                       </div>

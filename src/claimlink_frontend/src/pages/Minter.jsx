@@ -198,7 +198,7 @@ const Minter = () => {
                                   {collection[2]}
                                 </h2>
                                 <p className="text-[#84818A] md:text-sm text-xs ">
-                                  April 5, 13:34
+                                {formatTimestamp(collection[0])}
                                 </p>
                               </div>
                             </div>
@@ -311,8 +311,8 @@ const Minter = () => {
                 id="filter"
                 className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
               >
-                <option value="new">New</option>
-                <option value="old">Old</option>
+                <option value="new">Newest</option>
+                <option value="old">Oldest</option>
               </select>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-5 mt-5">

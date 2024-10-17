@@ -122,6 +122,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     setFormErrors(errors);
     return formIsValid;
   };
+  console.log(backend, "backend");
 
   const handleCreate = async (e) => {
     console.log("Starting collection creation");
@@ -135,7 +136,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     try {
       console.log("Form data:", formData);
 
-      const res = await backend?.createExtCollection(
+      const res = await backend.createExtCollection(
         formData.title,
         formData.symbol,
         formData.img

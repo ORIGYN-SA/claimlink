@@ -42,7 +42,8 @@ const DistributionPage = ({
         const id = Principal.fromText(clid);
 
         if (formData.pattern === "transfer") {
-          const nftData = await backend.getNonFungibleTokens(id);
+          const nftData = await backend.getAvailableTokensForCampaign(id);
+          console.log(nftData, "available tokens");
           setNftOptions(
             nftData.map((nft) => ({
               value: nft[0].toString(),

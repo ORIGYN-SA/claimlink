@@ -108,7 +108,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!selectedOption && principalIds.length === 0) {
+    if (!selectedOption) {
       newErrors.campaign = "You must select a campaign or upload a CSV.";
     }
 
@@ -222,6 +222,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
             options={campaign}
             placeholder="Select Campaign"
             className={errors.campaign ? "border-red-500" : ""}
+            required
           />
           {errors.campaign && (
             <p className="text-red-500 text-sm">{errors.campaign}</p>
