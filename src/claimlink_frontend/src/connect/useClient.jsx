@@ -35,8 +35,7 @@ export const useAuthClient = () => {
         toast.success("Delegation expired, logging out...");
         disconnect();
         //window.location.href = "/login";
-        window.location.reload();
-
+        window.location.reload;
       }
     }
   };
@@ -64,7 +63,7 @@ export const useAuthClient = () => {
     } else {
       setIsConnected(false);
     }
-  }, [user]);
+  }, [user, delegationExpiry]);
 
   return {
     isConnected,
