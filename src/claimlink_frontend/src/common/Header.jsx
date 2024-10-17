@@ -129,9 +129,9 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         {!isConnected ? (
           <div className="border border-gray-200 px-4 py-2 animate-pulse"></div>
         ) : (
-          <div className="rounded-md px-2 py-1 flex items-center gap-2 border border-gray-200 bg-[#5442f60d] text-[#5542F6]">
-            <img src={logo} alt="" className="w-8 h-6" />
-            <p className="text-xl font-medium">{balance}</p>
+          <div className="rounded-md px-2 py-1 flex items-center gap-2 border border-gray-200 bg-[#5442f60d] ">
+            <p className="text-xl text-[#5542F6] font-medium">ICP</p>
+            <p className="text-xl font-medium">{balance?.toFixed(4)}</p>
           </div>
         )}{" "}
         <span
@@ -200,7 +200,6 @@ const ConnectBtn = ({ onClick }) => (
     Sign in
   </button>
 );
-// Mobile Header Component
 export function MobileHeader({ htext }) {
   const navigate = useNavigate();
 
