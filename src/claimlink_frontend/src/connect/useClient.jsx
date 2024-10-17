@@ -1,13 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
-
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [delegationExpiry, setDelegationExpiry] = useState(null);
@@ -35,7 +34,7 @@ export const useAuthClient = () => {
       if (currentTime >= delegationExpiry) {
         toast.success("Delegation expired, logging out...");
         disconnect();
-        window.location.reload();
+        window.location.href = "/login";
       }
     }
   };
@@ -50,6 +49,12 @@ export const useAuthClient = () => {
       if (expiryTime) {
         setDelegationExpiry(expiryTime / 1e6);
       }
+
+      // const expiryTime = Date.now() + 30 * 1000;
+
+      // if (expiryTime) {
+      //   setDelegationExpiry(expiryTime);
+      // }
 
       const interval = setInterval(checkDelegationExpiry, 1000);
 

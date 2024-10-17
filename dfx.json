@@ -5,6 +5,10 @@
       "type": "motoko",
       "dependencies": ["registry"]
     },
+    "extv2": {
+      "main": "src/extv2/ext_v2/v2.mo",
+      "type": "motoko"
+    },
     "claimlink_frontend": {
       "dependencies": [
         "claimlink_backend"
