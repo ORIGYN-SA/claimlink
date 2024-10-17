@@ -278,6 +278,10 @@ actor Main {
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
 
+    public query func availableCycles() : async Nat {
+        return Cycles.balance();
+    };
+
     // let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
     //     // account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
     //     // transfer : shared TransferArgs -> async Result_6;
@@ -478,6 +482,7 @@ actor Main {
     };
 
 
+    
     func generateKey(caller: AccountIdentifier, timestamp: Time.Time, _tokenId: TokenIndex): Hash.Hash {
         let callerNat32 = AID.hash(caller);
         let timestampNat32 = Int.hash(timestamp);
@@ -2016,6 +2021,11 @@ actor Main {
         let campaignId = generateCampaignId(user);
         var linkResponses: [Nat32] = [];
 
+        switch (?expirationDate) {
+            case (?exp) await scheduleCampaignDeletion(campaignId, exp);
+            case null throw Error.reject("Invalid expiration date format");
+        };
+
         for (tokenId in tokenIds.vals()) {
             var linkKeys : Nat32 = 0;
             if(claimPattern == "transfer"){
@@ -2050,6 +2060,8 @@ actor Main {
             depositIndices = linkResponses;
             status = #Ongoing
         };
+
+
         campaigns.put(campaignId, campaign);
 
         let userCampaigns = userCampaignsMap.get(user);
@@ -2062,10 +2074,6 @@ actor Main {
             };
         };
 
-        switch (?expirationDate) {
-            case (?exp) await scheduleCampaignDeletion(campaignId, exp);
-            case null Debug.print("Invalid expiration date format");
-        };
 
         return (campaignId, linkResponses);
     };
@@ -2264,7 +2272,6 @@ actor Main {
                         };
                         case null {
                             // Handle the case where the deposit index does not exist in depositItems
-                            Debug.print("Deposit index not found: " # Nat32.toText(depositIndex));
                         };
                     };
                 };
@@ -2279,10 +2286,6 @@ actor Main {
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let allTokens = await getNonFungibleTokensByUserPrincipal(user, _collectionCanisterId);
         let usedTokenIds = await getUsedTokenIds(_collectionCanisterId);
-        Debug.print("All Tokens:");
-        Debug.print(debug_show(Array.size(allTokens)));
-        Debug.print("Used Token IDs:");
-        Debug.print(debug_show(Array.size(usedTokenIds)));
         let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
             func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
@@ -2294,7 +2297,6 @@ actor Main {
         );
 
         
-        Debug.print(debug_show(Array.size(availableTokens)));
         return availableTokens;
     };
 
