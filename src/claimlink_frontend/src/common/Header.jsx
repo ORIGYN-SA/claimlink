@@ -195,7 +195,7 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
 const ConnectBtn = ({ onClick }) => (
   <button
     onClick={onClick}
-    className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
+    className="w-[100px] mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
   >
     Sign in
   </button>
