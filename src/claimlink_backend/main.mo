@@ -266,7 +266,7 @@ actor Main {
     };
     private var tokensDataToBeMinted = TrieMap.TrieMap<Principal,[(Nat32,Metadata)]>(Principal.equal,Principal.hash);
     private stable var stableTokensDataToBeMinted : [(Principal,[(Nat32,Metadata)])] = [];
-    private var nextTokenIndex : Nat32 = 0;
+    private stable var nextTokenIndex : Nat32 = 0;
     // Campaign Timer
     private var campaignTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
     private stable var stableCampaignTimers : [(Text, Timer.TimerId)] = [];
@@ -1525,7 +1525,7 @@ actor Main {
                 // Check if the tokenId already exists
                 let tokenExists = List.some<Link>(
                     linksList,
-                    func(link) { link.tokenId == _tokenId and link.claimPattern == "mint" }
+                    func(link) { link.tokenId == _tokenId and link.claimPattern == "mint"  and link.collection == _collectionCanisterId  }
                 );
 
                 if (tokenExists) {
@@ -2259,7 +2259,7 @@ actor Main {
         userCampaignsMap.get(user);
     };
 
-    func getUsedTokenIds(_collectionCanisterId : Principal) : async [TokenIndex] {
+    func getUsedTokenIds(_collectionCanisterId : Principal, stored : Bool) : async [TokenIndex] {
         var usedTokenIds: [TokenIndex] = [];
         
         for ((_, campaign) in campaigns.entries()) {
@@ -2268,7 +2268,11 @@ actor Main {
                     let depositItem = depositItemsMap.get(depositIndex);
                     switch (depositItem) {
                         case (?item) {
-                            usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+                            if(item.claimPattern == "transfer" and not stored){
+                                usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+                            }else if(item.claimPattern == "mint" and stored){
+                                usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+                            };
                         };
                         case null {
                             // Handle the case where the deposit index does not exist in depositItems
@@ -2285,7 +2289,7 @@ actor Main {
         _collectionCanisterId: Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let allTokens = await getNonFungibleTokensByUserPrincipal(user, _collectionCanisterId);
-        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId);
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
         let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
             func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
@@ -2300,6 +2304,30 @@ actor Main {
         return availableTokens;
     };
 
+    public shared ({ caller = user }) func getAvailableStoredTokensForCampaign(
+        _collectionCanisterId: Principal
+    ) : async [(Nat32, Metadata)] {
+        let allTokens = await getStoredTokens(_collectionCanisterId);
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, true);
+        let tokens : [(Nat32,Metadata)] = switch(allTokens){
+            case(?t){
+                t
+            };
+            case null{
+                []
+            };
+        };
+        let availableTokens : [(Nat32, Metadata)] = Array.filter(
+            tokens,
+            func (tokenData: (Nat32, Metadata)) : Bool {
+                let (tokenIndex, _) = tokenData;
+                return Array.find<Nat32>(usedTokenIds, func (usedTokenId: Nat32) : Bool {
+                    return usedTokenId == tokenIndex;
+                }) == null;
+            }
+        );
+        return availableTokens;
+    };
 
 
 
