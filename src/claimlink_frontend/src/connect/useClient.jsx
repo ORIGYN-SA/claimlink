@@ -34,7 +34,9 @@ export const useAuthClient = () => {
       if (currentTime >= delegationExpiry) {
         toast.success("Delegation expired, logging out...");
         disconnect();
-        window.location.href = "/login";
+        //window.location.href = "/login";
+        window.location.reload();
+
       }
     }
   };
