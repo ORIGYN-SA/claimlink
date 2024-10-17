@@ -848,7 +848,7 @@ const DashBoardHome = () => {
                     </p>
                   </div>
                   <button className="flex items-center text-sm  hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md">
-                    <GoPlus className="md:text-2xl text-sm" /> New camapign
+                    <GoPlus className="md:text-2xl text-sm" /> New campaign
                   </button>
                 </div>
                 <div className="mt-4">
@@ -958,7 +958,7 @@ const DashBoardHome = () => {
                     <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
                       <RiStackFill className="text-[#564BF1] text-sm font-bold" />
                     </div>
-                    <h2 className=" text-base text-[#2E2C34]  font-bold">
+                    <h2 className="   text-[#2E2C34]  font-bold">
                       {" "}
                       Dispensers
                     </h2>
@@ -971,7 +971,7 @@ const DashBoardHome = () => {
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in  gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
                     <GoPlus className="md:text-2xl text-sm" /> Create new
-                    dispenser
+                    Dispenser
                   </button>
                 </div>
                 <div className="mt-4">
@@ -1035,7 +1035,7 @@ const DashBoardHome = () => {
                     </div>
                     <h2 className=" text-base text-[#2E2C34]  font-bold">
                       {" "}
-                      dispenser
+                      Dispenser
                     </h2>
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
@@ -1148,17 +1148,14 @@ const DashBoardHome = () => {
                     <div className="border border-[#E9E8FC] py-2 px-2 rounded-lg bg-[#564bf118]">
                       <MdQrCode className="text-[#564BF1] text-sm font-bold" />
                     </div>
-                    <h2 className=" text-base text-[#2E2C34]  font-bold">
-                      {" "}
-                      qr codes
-                    </h2>
+                    <h2 className=" text-[#2E2C34]  font-bold"> Qr codes</h2>
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
                   <button
                     onClick={qrSetup}
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
-                    <GoPlus className="md:text-2xl text-sm" /> NewQr code
+                    <GoPlus className="md:text-2xl text-sm" /> New Qr code
                   </button>
                 </div>
                 <motion.div
@@ -1233,7 +1230,7 @@ const DashBoardHome = () => {
                     </div>
                     <h2 className=" text-base text-[#2E2C34]  font-bold">
                       {" "}
-                      minter
+                      Minter
                     </h2>
                     <p className="text-[#84818A] text-base">0</p>
                   </div>
@@ -1241,7 +1238,7 @@ const DashBoardHome = () => {
                     onClick={createContract}
                     className="flex items-center text-sm hover:scale-105 duration-300 ease-in   gap-2 bg-[#564BF1] px-3 py-1 text-white rounded-md"
                   >
-                    <GoPlus className="md:text-2xl text-sm" /> new collection
+                    <GoPlus className="md:text-2xl text-sm" /> New collection
                   </button>
                 </div>
                 <motion.div
