@@ -12,6 +12,7 @@ import bgmain2 from "./assets/img/mainbg2.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
 import Confetti from "react-confetti";
+
 const LinkClaiming = () => {
   const navigate = useNavigate();
   const {
@@ -22,6 +23,7 @@ const LinkClaiming = () => {
     disconnect,
     isConnected,
   } = useAuth();
+
   const [deposits, setDeposits] = useState([]);
   const width = window.innerWidth || 300;
   const height = window.innerHeight || 200;
@@ -34,12 +36,10 @@ const LinkClaiming = () => {
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
-
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
   }, [canisterId, nftIndex]);
-
   useEffect(() => {
     if (isConnected && principal) {
       setPrincipalText(principal.toText());
