@@ -10,6 +10,7 @@ import { IoMdLogOut } from "react-icons/io";
 import { IoCopyOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
 import logo from "../assets/img/logoicp.png";
+import { ConnectWallet } from "@nfid/identitykit/react";
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const modalRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -180,21 +181,25 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
               </button>
             </div>
           ) : (
-            <button
-              className="font-xs text-[#2E2C34] font-semibold px-3 py-2 w-36"
-              onClick={() => setShowModal(true)}
-            >
-              Login
-            </button>
+            <ConnectWallet
+              connectButtonComponent={ConnectBtn}
+              className="rounded-full bg-black"
+            />
           )}
         </div>
       )}
-
-      <WalletModal isOpen={showModal} onClose={() => setShowModal(false)} />
     </>
   );
 };
 
+const ConnectBtn = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
+  >
+    Sign in
+  </button>
+);
 // Mobile Header Component
 export function MobileHeader({ htext }) {
   const navigate = useNavigate();
