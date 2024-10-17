@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
+import { Navigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
@@ -24,14 +26,16 @@ export const useAuthClient = () => {
   const checkDelegationExpiry = () => {
     if (delegationExpiry) {
       const currentTime = Date.now();
+
       console.log(
         "Delegation Expiry Time:",
         new Date(delegationExpiry).toLocaleString()
       );
 
       if (currentTime >= delegationExpiry) {
-        console.log("Delegation expired, logging out...");
+        toast.success("Delegation expired, logging out...");
         disconnect();
+        window.location.reload();
       }
     }
   };
@@ -43,7 +47,6 @@ export const useAuthClient = () => {
       const expiryTime = Number(
         identity?._delegation?.delegations?.[0]?.delegation?.expiration
       );
-
       if (expiryTime) {
         setDelegationExpiry(expiryTime / 1e6);
       }
