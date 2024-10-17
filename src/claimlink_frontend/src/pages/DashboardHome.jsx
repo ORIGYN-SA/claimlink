@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../connect/useClient";
 import { InfinitySpin } from "react-loader-spinner";
 import dummyimg from "../assets/img/dummyimg.png";
+import CollectionDashBoardCard from "../common/CollectionDashBoardCard";
 const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -165,9 +166,17 @@ const DashBoardHome = () => {
     }
   }, [backend]);
 
-  function convertNanosecondsToDate(nanosecondTimestamp) {
-    // Convert nanoseconds to milliseconds
-    const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+  function convertNanosecondsToDate(timestamp) {
+    let millisecondTimestamp;
+
+    // Check if the input is in nanoseconds (e.g., more than 13 digits)
+    if (timestamp > 9999999999999n) {
+      // Convert nanoseconds to milliseconds
+      millisecondTimestamp = Number(timestamp / 1000000n);
+    } else {
+      // Treat as milliseconds directly
+      millisecondTimestamp = Number(timestamp);
+    }
 
     // Create a Date object
     const date = new Date(millisecondTimestamp);
@@ -181,6 +190,7 @@ const DashBoardHome = () => {
     // Format the date to a human-readable string
     return date.toLocaleString("en-US", options);
   }
+
   const contracts = [1, 2, 3, 4, 5, 6];
   const len = [];
 
@@ -442,8 +452,18 @@ const DashBoardHome = () => {
                                 <p className="text-[#84818A] md:text-sm text-xs">
                                   Status
                                 </p>
-                                <p className="text-[#2E2C34] font-semibold text-sm">
-                                  <button className="bg-green-400 p-1 rounded-full"></button>
+                                <p
+                                  className={`text-xs font-bold mt-2 ${
+                                    Object.keys(data?.status || {})[0] ===
+                                    "Expired"
+                                      ? "text-red-600" // For expired
+                                      : Object.keys(data?.status || {})[0] ===
+                                        "Ongoing"
+                                      ? "text-blue-600" // For complete
+                                      : "text-green-600" // Default for ongoing
+                                  }`}
+                                >
+                                  {Object.keys(data?.status || {})[0]}{" "}
                                 </p>
                               </div>
                             </div>
@@ -871,7 +891,6 @@ const DashBoardHome = () => {
                         <p className="text-xs text-[#2E2C34] font-semibold">
                           {data?.tokenIds.length - data?.depositIndices.length}/
                           {data?.tokenIds.length}
-                          
                         </p>
                         <button className="text-[#3B00B9] w-12 px-2 py-1 text-sm bg-[#564BF1] rounded-md"></button>
                       </div>
@@ -980,15 +999,17 @@ const DashBoardHome = () => {
                         </p>
                       </div>
 
-                      <div>
-                        <button
-                          className={`text-white text-xs p-1 rounded-md ${
-                            index % 2 == 0 ? "bg-[#564BF1]" : "bg-[#F95657]"
-                          }`}
-                        >
-                          {index % 2 == 0 ? "Active" : "Inactive"}
-                        </button>
-                      </div>
+                      <p
+                        className={`text-xs font-bold mt-2 ${
+                          Object.keys(data?.status || {})[0] === "Expired"
+                            ? "text-red-600" // For expired
+                            : Object.keys(data?.status || {})[0] === "Ongoing"
+                            ? "text-blue-600" // For complete
+                            : "text-green-600" // Default for ongoing
+                        }`}
+                      >
+                        {Object.keys(data?.status || {})[0]}{" "}
+                      </p>
 
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
@@ -1199,45 +1220,7 @@ const DashBoardHome = () => {
                     <p>Address</p>
                   </div>
                   {minter.map((data, index) => (
-                    <div
-                      key={index}
-                      className="grid grid-cols-5 gap-4 items-center rounded-md bg-white px-1 py-3"
-                    >
-                      <div className="flex items-center gap-1">
-                        <img
-                          width="40px"
-                          height="60px"
-                          src={data[4]}
-                          alt="Dispenser"
-                          className="rounded-sm"
-                        />
-                        <div>
-                          <h2 className="text-xs text-[#2E2C34] font-semibold truncate w-12">
-                            {data[2]}
-                          </h2>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#2E2C34] truncate w-[75px] font-semibold">
-                          {convertNanosecondsToDate(data[0])}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          EXT
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          1
-                        </p>
-                      </div>
-                      <div className="flex gap-2 items-center">
-                        <p className="text-xs text-[#564BF1] truncate font-semibold">
-                          {data[1]?.toText()}
-                        </p>
-                      </div>
-                    </div>
+                    <CollectionDashBoardCard data={data} />
                   ))}
                 </div>
               </div>

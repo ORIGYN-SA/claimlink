@@ -316,6 +316,7 @@ const AddToken = () => {
   };
 
   const mintatclaim = async () => {
+    setLoading(true);
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -391,6 +392,7 @@ const AddToken = () => {
       console.error("Error creating:", error);
     } finally {
       setLoading2(false);
+      setLoading(false);
     }
   };
   console.log(operation);

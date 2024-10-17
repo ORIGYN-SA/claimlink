@@ -129,9 +129,19 @@ const Dispensers = () => {
   );
 
   // Function to convert nanoseconds to a readable date
-  const convertNanosecondsToDate = (nanosecondTimestamp) => {
+  const convertNanosecondsToDate = (timestamp) => {
     try {
-      const millisecondTimestamp = Number(nanosecondTimestamp / 1000000n);
+      let millisecondTimestamp;
+
+      // Check if the input is in nanoseconds (e.g., more than 13 digits)
+      if (typeof timestamp === "bigint" && timestamp > 9999999999999n) {
+        // Convert nanoseconds to milliseconds
+        millisecondTimestamp = Number(timestamp / 1000000n);
+      } else {
+        // Treat as milliseconds directly
+        millisecondTimestamp = Number(timestamp);
+      }
+
       const date = new Date(millisecondTimestamp);
       const options = {
         month: "long",
@@ -139,6 +149,7 @@ const Dispensers = () => {
         hour: "2-digit",
         minute: "2-digit",
       };
+
       return date.toLocaleString("en-US", options);
     } catch (error) {
       console.error("Error converting timestamp:", error);
@@ -148,10 +159,22 @@ const Dispensers = () => {
 
   // Function to format date in YYYY-MM-DD
   const formatDate = (timestamp) => {
-    const date = new Date(Number(timestamp));
+    let millisecondTimestamp;
+
+    // Check if the input is in nanoseconds (more than 13 digits)
+    if (typeof timestamp === "bigint" && timestamp > 9999999999999n) {
+      // Convert nanoseconds to milliseconds
+      millisecondTimestamp = Number(timestamp / 1000000n);
+    } else {
+      // Treat as milliseconds directly
+      millisecondTimestamp = Number(timestamp);
+    }
+
+    const date = new Date(millisecondTimestamp);
     const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1)
       .toString()
       .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+
     return formattedDate;
   };
 
@@ -259,8 +282,18 @@ const Dispensers = () => {
                               <p className="text-[#84818A] md:text-sm text-xs">
                                 Status
                               </p>
-                              <p className="text-red-500 font-medium text-sm">
-                                <button className="p-1 rounded-full bg-green-400"></button>
+                              <p
+                                className={`text-xs font-bold mt-2 ${
+                                  Object.keys(data?.status || {})[0] ===
+                                  "Expired"
+                                    ? "text-red-600" // For expired
+                                    : Object.keys(data?.status || {})[0] ===
+                                      "Ongoing"
+                                    ? "text-blue-600" // For complete
+                                    : "text-green-600" // Default for ongoing
+                                }`}
+                              >
+                                {Object.keys(data?.status || {})[0]}{" "}
                               </p>
                             </div>
                           </div>
@@ -337,9 +370,21 @@ const Dispensers = () => {
                   initial={{ opacity: 0, scale: 0 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 1 }}
-                  className="bg-white px-5 py-4  hidden sm:block rounded-xl flex flex-col cursor-pointer "
+                  className={`p-4 sm:block hidden bg-white cursor-pointer rounded-lg overflow-hidden ${
+                    Object.keys(dispenser?.status || {})[0] === "Expired" ||
+                    Object.keys(dispenser?.status || {})[0] === "Completed"
+                      ? "pointer-events-none opacity-50" // Disable link and add opacity
+                      : ""
+                  }`}
                 >
-                  <Link to={`/dispensers/${dispenser.id}`}>
+                  <Link
+                    to={
+                      Object.keys(dispenser?.status || {})[0] === "Expired" ||
+                      Object.keys(dispenser?.status || {})[0] === "Completed"
+                        ? "#" // Disable link
+                        : `/dispensers/${dispenser?.id}`
+                    }
+                  >
                     <div className="flex justify-start  space-x-4">
                       <img
                         src="https://via.placeholder.com/100"
@@ -384,8 +429,18 @@ const Dispensers = () => {
                     <div className="w-full">
                       <div className="flex justify-between">
                         <p className="text-xs text-[#84818A]">Status</p>
-                        <p className="text-green-400 text-xs font-semibold">
-                          Uploaded
+                        <p
+                          className={`text-xs font-bold mt-2 ${
+                            Object.keys(dispenser?.status || {})[0] ===
+                            "Expired"
+                              ? "text-red-600" // For expired
+                              : Object.keys(dispenser?.status || {})[0] ===
+                                "Ongoing"
+                              ? "text-blue-600" // For complete
+                              : "text-green-600" // Default for ongoing
+                          }`}
+                        >
+                          {Object.keys(dispenser?.status || {})[0]}{" "}
                         </p>
                       </div>
                       <div className="flex justify-between mt-2">

@@ -13,8 +13,10 @@ const CollectionCard = ({ data }) => {
       setLoader(true);
 
       const res = await backend.getNonFungibleTokens(data[1]);
-      console.log(res.length, "length");
-      setCopy(res.length);
+      const res1 = await backend.getStoredTokens(data[1]);
+      setCopy(res.length + res1.length);
+      console.log(res.length + res1.length, "hello sun ");
+
       console.log(res);
     } catch (error) {
       console.log("Error getting nfts length ", error);

@@ -119,7 +119,7 @@ const DashboardContainer = () => {
           </div>
         ) : (
           // Campaigns Grid
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 ">
             {/* New Campaign Card */}
             <Link to="/campaign-setup" className="w-full">
               <NewCampaignCard />
@@ -148,7 +148,7 @@ const NewCampaignCard = () => {
     <motion.div
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="min-h-screen hidden sm:block"
+      className=" hidden sm:block"
     >
       <div className="flex flex-col items-center justify-center rounded-lg h-[370px] bg-[#dad6f797] text-center   transition-shadow duration-300">
         <div className="w-16 h-16 rounded-md bg-white flex items-center justify-center mb-6">
@@ -188,7 +188,12 @@ const CampaignCard = ({ campaign }) => {
     <>
       <Link
         className="max-w-sm mx-auto   bg-white  cursor-pointer   rounded-lg overflow-hidden"
-        to={`/claim-link/${campaign?.id}`}
+        to={
+          Object.keys(campaign?.status || {})[0] === "Expired" ||
+          Object.keys(campaign?.status || {})[0] === "Completed"
+            ? "#" // Disable link
+            : `/claim-link/${campaign?.id}`
+        }
       >
         <div className="max-w-sm sm:hidden mx-auto bg-white rounded-lg   p-4">
           <div className="flex items-center justify-between mb-4">
@@ -218,9 +223,17 @@ const CampaignCard = ({ campaign }) => {
                 <div>
                   <h2 className="text-lg font-semibold">{campaign?.title}</h2>
 
-                  <h2 className="text-lg font-semibold">
-                    {Object.keys(campaign?.status || {})}
-                  </h2>
+                  <p
+                    className={`text-xs font-bold mt-2 ${
+                      Object.keys(campaign?.status || {})[0] === "Expired"
+                        ? "text-red-600" // For expired
+                        : Object.keys(campaign?.status || {})[0] === "Ongoing"
+                        ? "text-blue-600" // For complete
+                        : "text-green-600" // Default for ongoing
+                    }`}
+                  >
+                    {Object.keys(campaign?.status || {})[0]}{" "}
+                  </p>
 
                   <p className="text-sm text-gray-500">
                     {" "}

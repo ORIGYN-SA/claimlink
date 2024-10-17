@@ -2,10 +2,14 @@ import React, { useState } from "react";
 import { TbInfoHexagon } from "react-icons/tb";
 import { motion } from "framer-motion";
 import MainButton from "../../common/Buttons";
+import Flatpickr from "react-flatpickr";
 
 const DispenserSetup = ({ handleNext, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
 
+  const today = new Date();
+  const maxDate = new Date();
+  maxDate.setDate(today.getDate() + 30);
   const validateForm = () => {
     const newErrors = {};
 
@@ -115,62 +119,27 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
               Start Date
             </label>
             <div className="flex md:flex-row flex-col w-full justify-between gap-4">
-              {/* Date Input */}
-              <input
-                type="date"
-                name="startDate"
-                id="startDate"
-                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md w-full"
+              <Flatpickr
+                options={{
+                  enableTime: true,
+                  dateFormat: "Y-m-d H:i",
+                  minDate: "today", // Ensure that the minimum selectable date is today
+                  maxDate: maxDate,
+                }}
                 value={formData.startDate}
-                onChange={handleChange}
-                min={dateStr}
-              />
-              {/* Time Select Inputs */}
-              <div className="flex md:justify-normal justify-between gap-4">
-                {/* Hour Select */}
-                <select
-                  name="startHour"
-                  id="startHour"
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.startHour}
-                  onChange={handleChange}
-                >
-                  <option value="">Hour</option>
-                  {Array.from({ length: 24 }, (_, i) => (
-                    <option
-                      key={i}
-                      value={i}
-                      disabled={formData.startDate === dateStr && i < hour}
-                    >
-                      {i < 10 ? `0${i}` : i}
-                    </option>
-                  ))}
-                </select>
+                onChange={([date]) => {
+                  setFormData({ ...formData, startDate: date });
 
-                {/* Minute Select */}
-                <select
-                  name="startMinute"
-                  id="startMinute"
-                  className="bg-white w-full px-2 py-2 outline-none border border-gray-200 rounded-md"
-                  value={formData.startMinute}
-                  onChange={handleChange}
-                >
-                  <option value="">Minute</option>
-                  {Array.from({ length: 60 }, (_, i) => (
-                    <option
-                      key={i}
-                      value={i}
-                      disabled={
-                        formData.startDate === dateStr &&
-                        formData.startHour === String(hour) &&
-                        i < minute
-                      }
-                    >
-                      {i < 10 ? `0${i}` : i}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  // Clear the error when a valid date is selected
+                  if (date) {
+                    setErrors((prevErrors) => ({
+                      ...prevErrors,
+                      startDate: "", // Clear the specific error for startDate
+                    }));
+                  }
+                }}
+                className="  px-2 py-2 outline-none border border-gray-200   w-full rounded-md"
+              />
             </div>
 
             {/* Info and Error Messages */}

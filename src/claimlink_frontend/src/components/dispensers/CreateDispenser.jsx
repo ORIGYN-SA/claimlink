@@ -149,20 +149,23 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
 
       console.log(`Formatted DateTime: ${formattedDateTime}`);
 
-      const date = new Date(formattedDateTime);
+      const date = new Date(startDate);
       console.log("Date object:", date);
 
       // Get the timestamp in milliseconds (this will now be in the local time zone)
       const timestampMillis = date.getTime();
       console.log("Milliseconds since epoch:", timestampMillis);
 
+      // Convert milliseconds to nanoseconds
+      const timestampNanos = timestampMillis * 1_000_000;
+      console.log("Nanoseconds since epoch:", timestampNanos);
       let whitelist = principalIds
         .filter((id) => id.trim().length > 0)
         .map((id) => Principal.fromText(id.trim()));
 
       const result = await backend.createDispenser(
         formData.title,
-        Number(timestampMillis),
+        Number(timestampNanos),
         Number(formData.duration),
         selectedOption?.value || "",
         whitelist
