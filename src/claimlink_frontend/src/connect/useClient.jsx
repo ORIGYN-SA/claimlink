@@ -9,7 +9,17 @@ const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
   const [delegationExpiry, setDelegationExpiry] = useState(null);
-  const { user, connect, disconnect, identity, icpBalance } = useIdentityKit();
+  const {
+    user,
+    connect,
+    disconnect: identityKitDisconnect,
+    identity,
+    icpBalance,
+  } = useIdentityKit();
+  const disconnect = () => {
+    identityKitDisconnect();
+    setIsConnected(false);
+  };
 
   const checkDelegationExpiry = () => {
     if (delegationExpiry) {
@@ -22,7 +32,6 @@ export const useAuthClient = () => {
       if (currentTime >= delegationExpiry) {
         console.log("Delegation expired, logging out...");
         disconnect();
-        setIsConnected(false);
       }
     }
   };
@@ -66,6 +75,7 @@ export const AuthProvider = ({ children }) => {
 };
 
 export const useAuth = () => useContext(AuthContext);
+
 // Access AuthContext here
 
 // import React, { createContext, useContext, useEffect, useState } from "react";

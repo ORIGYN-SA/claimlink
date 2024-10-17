@@ -3,7 +3,6 @@ import { RxCross2 } from "react-icons/rx";
 import MainButton from "./Buttons";
 import { toast } from "react-hot-toast";
 import { Button } from "@headlessui/react";
-
 const coffeeAmount = 100_000; // 0.04 ICP in e8s
 // ICP=
 // 1,000,000,000,000 cycles per ICP
