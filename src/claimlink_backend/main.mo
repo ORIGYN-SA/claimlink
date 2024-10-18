@@ -282,6 +282,21 @@ actor Main {
         return Cycles.balance();
     };
 
+    public shared ({caller = user}) func resetStats(){
+        if(not Principal.isController(user)){
+            throw Error.reject("You can't control this canister")
+        };
+        claimCount := 0;
+        linksCount := 0;
+        userClaimCount := [];
+        userLinksCount := [];
+        
+        dailyLinksCreatedCount := 0;
+        dailyLinksClaimedCount := 0;
+        dailyUserLinksCreatedCount := [];
+        dailyUserLinksClaimedCount := [];
+    };
+
     // let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
     //     // account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
     //     // transfer : shared TransferArgs -> async Result_6;
@@ -857,15 +872,15 @@ actor Main {
 
     public shared ({ caller = user }) func getUserCollectionNames() : async ?[(Principal, Text)] {
         let collections = usersCollectionMap.get(user);
-
+        
         switch (collections) {
             case (null) {
                 return null;
             };
             case (?collections) {
                 var result : List.List<(Principal, Text)> = List.nil();
-
-                for ((timestamp, collectionCanisterId) in collections.vals()) {
+                let newestFirst = Array.reverse(collections);
+                for ((timestamp, collectionCanisterId) in newestFirst.vals()) {
                     let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
                         getCollectionDetails : () -> async (Text, Text, Text);
                     };
@@ -899,6 +914,7 @@ actor Main {
                 };
             };
             case (?collections) {
+                let newestFirst = Array.reverse(collections);
                 let totalCollections = collections.size();
                 let totalPages = if (totalCollections % pageSize == 0) {
                     totalCollections / pageSize;
@@ -918,7 +934,7 @@ actor Main {
 
                 var resultList : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
                 var currentIndex : Nat = 0;
-                for ((timestamp, collectionCanisterId) in collections.vals()) {
+                for ((timestamp, collectionCanisterId) in newestFirst.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
                             getCollectionDetails : () -> async (Text, Text, Text);
@@ -2182,13 +2198,13 @@ actor Main {
         // campaigns.delete(campaignId);
 
         // Cancel the scheduled timer if it exists
-        // switch (campaignTimers.get(campaignId)) {
-        //     case (?timerId) {
-        //         Timer.cancelTimer(timerId);
-        //         campaignTimers.delete(campaignId);
-        //     };
-        //     case null {};
-        // };
+        switch (campaignTimers.get(campaignId)) {
+            case (?timerId) {
+                Timer.cancelTimer(timerId);
+                campaignTimers.delete(campaignId);
+            };
+            case null {};
+        };
 
         // Remove the campaign from the user's campaign map
         // for ((user, userCampaigns) in userCampaignsMap.entries()) {
@@ -2355,7 +2371,7 @@ actor Main {
         switch (userCampaignsMap.get(user)) {
             case (?campaignArray) {
                 let totalItems = campaignArray.size();
-
+                let newestFirst = Array.reverse(campaignArray);
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
                     totalItems / pageSize;
@@ -2379,7 +2395,7 @@ actor Main {
                 // Collect the paginated campaigns
                 var resultCampaigns : List.List<Campaign> = List.nil();
                 var currentIndex : Nat = 0;
-                for (campaign in campaignArray.vals()) {
+                for (campaign in newestFirst.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultCampaigns := List.push(campaign, resultCampaigns);
                     };
@@ -2542,7 +2558,7 @@ actor Main {
         switch (userQRSetMap.get(user)) {
             case (?qrSetArray) {
                 let totalItems = qrSetArray.size();
-
+                let newestFirst = Array.reverse(qrSetArray);
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
                     totalItems / pageSize;
@@ -2566,7 +2582,7 @@ actor Main {
                 // Collect the paginated QR sets
                 var resultQRSets : List.List<QRSet> = List.nil();
                 var currentIndex : Nat = 0;
-                for (qrSet in qrSetArray.vals()) {
+                for (qrSet in newestFirst.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultQRSets := List.push(qrSet, resultQRSets);
                     };
@@ -2890,7 +2906,7 @@ actor Main {
         switch (userDispensersMap.get(user)) {
             case (?dispenserArray) {
                 let totalItems = dispenserArray.size();
-
+                let newestFirst = Array.reverse(dispenserArray);
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
                     totalItems / pageSize;
@@ -2914,7 +2930,7 @@ actor Main {
                 // Collect the paginated dispensers
                 var resultDispensers : List.List<Dispenser> = List.nil();
                 var currentIndex : Nat = 0;
-                for (dispenser in dispenserArray.vals()) {
+                for (dispenser in newestFirst.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultDispensers := List.push(dispenser, resultDispensers);
                     };
