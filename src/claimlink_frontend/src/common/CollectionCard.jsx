@@ -8,14 +8,14 @@ const CollectionCard = ({ data }) => {
   const { backend } = useAuth();
   const [loader, setLoader] = useState(true);
   const navigate = useNavigate();
+
   const getNonfungibleTokensNft = async () => {
     try {
       setLoader(true);
 
-      const res = await backend.getNonFungibleTokens(data[1]);
-      const res1 = await backend.getStoredTokens(data[1]);
-      setCopy(res.length + res1.length);
-      console.log(res.length + res1.length, "hello sun ");
+      const res = await backend.getNonFungibleTokensPaginate(data[1], 0, 1);
+      const res1 = await backend.getStoredTokensPaginate(data[1], 0, 1);
+      setCopy(parseInt(res.total_pages) + parseInt(res1.total_pages));
 
       console.log(res);
     } catch (error) {
@@ -24,6 +24,7 @@ const CollectionCard = ({ data }) => {
       setLoader(false);
     }
   };
+
   useEffect(() => {
     getNonfungibleTokensNft();
   }, [backend]);
@@ -38,7 +39,7 @@ const CollectionCard = ({ data }) => {
         navigate(`/minter/${data[1]?.toText()}/token-home`);
       }}
     >
-      <div className="flex justify-start  space-x-4">
+      <div className="flex justify-start space-x-4">
         <img
           src={data[4]}
           alt="Campaign"
@@ -69,25 +70,26 @@ const CollectionCard = ({ data }) => {
           }}
         />
       </div>
-      <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 ">{data[2]}</h2>
-      {/* <p className="text-xs text-[#84818A] mt-1 ">
-      {formatTimestamp(data[0])}
-    </p> */}
+      <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 ">{data[2]}</h2>
       <div className="border border-gray-300 my-4 w-full"></div>
       <div className="mt-2 w-full">
         <div className="flex justify-between">
-          <p className="text-xs text-[#84818A] ">Address</p>
+          <p className="text-xs text-[#84818A]">Address</p>
           <p className="text-[#564BF1] text-xs line-clamp-1 w-24 font-semibold">
             {data[1]?.toText()}
           </p>
         </div>
         <div className="flex justify-between mt-2">
-          <p className="text-xs text-[#84818A] ">All token copies</p>
-          <p className="text-[#2E2C34] text-xs font-semibold">{copy}</p>
+          <p className="text-xs text-[#84818A]">All token copies</p>
+          {loader ? (
+            <div className="w-12 h-4 bg-gray-300 animate-pulse rounded"></div>
+          ) : (
+            <p className="text-[#2E2C34] text-xs font-semibold">{copy}</p>
+          )}
         </div>
         <div className="flex justify-between mt-2">
-          <p className="text-xs text-[#84818A] ">Token standard</p>
-          <p className="text-[#2E2C34] text-xs  font-semibold">EXT</p>
+          <p className="text-xs text-[#84818A]">Token standard</p>
+          <p className="text-[#2E2C34] text-xs font-semibold">EXT</p>
         </div>
       </div>
     </motion.div>

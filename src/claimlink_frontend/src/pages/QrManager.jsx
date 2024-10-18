@@ -50,23 +50,15 @@ const QrManager = () => {
         <div className="flex items-center justify-between w-full p-2">
           <p className="text-xl font-semibold">QR manager</p>
           <div className="sm:hidden">
-            <button className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize">
+            <Link
+              to="/qr-setup"
+              className=" flex items-center justify-center  text-sm border-[#5542F6] bg-[#5542F6] gap-2 px-4 py-1 border  text-white rounded capitalize"
+            >
               <IoIosAdd className="text-center " size={20} />
               New QR set
-            </button>
+            </Link>
           </div>
-          <div className="hidden sm:block">
-            <select
-              name="Filter"
-              id="filter"
-              className=" flex items-center justify-center border-[#5542F6] gap-2 px-4 py-1 border  text-[#5542F6] rounded capitalize"
-            >
-              <IoIosArrowDown className="text-center " size={12} />
-              <option value="filter">Filter</option>
-              <option value="new">New</option>
-              <option value="old">Old</option>
-            </select>
-          </div>
+          <div className="hidden sm:block"></div>
         </div>
         <div className="grid mobile:grid-col-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4  ">
           <Link to="/qr-setup" className="w-full   mb-4   ">

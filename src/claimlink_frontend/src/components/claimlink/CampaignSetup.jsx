@@ -43,6 +43,7 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
     setFormData((prev) => ({ ...prev, contract: "nfts" }));
   }, [backend, setFormData]);
 
+  const currentDate = new Date(Date.now());
   const handleContractSelect = (contractType) => {
     setSelectedContract(contractType);
     setFormData({ ...formData, contract: contractType });
@@ -109,8 +110,11 @@ const CampaignSetup = ({ handleNext, formData, setFormData }) => {
                 <BsArrowLeft className="text-[#564BF1] w-6 h-6 font-semibold" />
               </div>
               <div>
-                <p className="font-medium text-lg">Test</p>
-                <p className="text-gray-500">16.04.2024 20:55</p>
+                <p className="font-medium text-lg">campaign</p>
+                <p className="text-gray-500">
+                  {" "}
+                  {currentDate.toLocaleDateString()}
+                </p>
               </div>
             </div>
             <p className="text-2xl text-gray-900 font-semibold">

@@ -48,7 +48,7 @@ const InfoCard = ({ data }) => {
           </div>
           <div className="flex flex-col border p-4 border-l-0 border-gray-300">
             <span className="text-sm text-gray-500">Start date</span>
-            <span className="font-medium">April 11, 2024</span>
+            <span className="font-medium"> {formattedDate}</span>
           </div>
           <div className="flex flex-col border p-4 border-r-0 border-gray-300">
             <span className="text-sm text-gray-500">Quantity</span>

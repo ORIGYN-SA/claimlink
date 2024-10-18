@@ -146,6 +146,7 @@ const AddTokenHome = () => {
       setLoader(true);
       let idd = Principal.fromText(id);
       const res1 = await backend.getStoredTokensPaginate(idd, page - 1, 5);
+
       const totalPages = parseInt(res1.total_pages);
       getNft(res1.data);
       setTotalPages(totalPages);
@@ -435,14 +436,14 @@ const AddTokenHome = () => {
                 </div>
                 <h2 className="blue text-xl  font-bold mt-3">Add token</h2>
                 <p className="blue text-xs text-center mt-2">
-                  Click here to add a new tocken to this collection
+                  Click here to add a new token to this collection
                 </p>
               </motion.div>
 
               {loader ? (
                 [1, 2, 3, 4, 5].map((index) => (
                   <div
-                    className="bg-white px-4 py-4 rounded-xl flex flex-col cursor-pointer"
+                    className="bg-white px-4 py-4 rounded-xl flex mt-4 flex-col cursor-pointer"
                     key={index}
                   >
                     <div className="flex justify-start  space-x-4 animate-pulse">

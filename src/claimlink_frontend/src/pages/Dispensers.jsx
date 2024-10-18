@@ -227,16 +227,7 @@ const Dispensers = () => {
                   </button>
                 </div>
                 {/* Filter Dropdown for Desktop */}
-                <div className="hidden sm:flex items-center">
-                  <select
-                    name="Filter"
-                    id="filter"
-                    className="border border-gray-400 px-2 py-1 rounded-md outline-none text-sm"
-                  >
-                    <option value="new">New</option>
-                    <option value="old">Old</option>
-                  </select>
-                </div>
+
                 {/* New Dispenser Button for Desktop */}
               </div>
             </div>
@@ -304,7 +295,7 @@ const Dispensers = () => {
                                 Start Date
                               </p>
                               <p className="text-[#2E2C34] font-semibold text-sm">
-                                {datein(data?.startDate)}
+                                {formatDate(data?.startDate)}
                               </p>
                             </div>
                           </div>

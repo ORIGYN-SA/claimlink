@@ -32,7 +32,7 @@ const Minter = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
 
-  const itemsPerPage = 4;
+  const itemsPerPage = 7;
   const loadData = async (pageNumber = 1) => {
     try {
       setLoading(true);
@@ -232,14 +232,9 @@ const Minter = () => {
               <h2 className="text-lg  font-bold text-[#2E2C34]">
                 My NFT contracts
               </h2>
-              <select
-                name="Filter"
-                id="filter"
-                className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
-              >
-                <option value="new">Newest</option>
-                <option value="old">Oldest</option>
-              </select>
+              <p className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm">
+                Newest First
+              </p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-5 mt-5">
               <motion.div

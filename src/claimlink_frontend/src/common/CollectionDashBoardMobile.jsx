@@ -1,26 +1,47 @@
-import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "../connect/useClient";
-import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import { IoSettingsOutline } from "react-icons/io5";
 
-const CollectionMobileCard = ({ collection }) => {
+const CollectionDashBoardMobile = ({ data }) => {
+  function convertNanosecondsToDate(timestamp) {
+    let millisecondTimestamp;
+
+    // Check if the input is in nanoseconds (e.g., more than 13 digits)
+    if (timestamp > 9999999999999n) {
+      // Convert nanoseconds to milliseconds
+      millisecondTimestamp = Number(timestamp / 1000000n);
+    } else {
+      // Treat as milliseconds directly
+      millisecondTimestamp = Number(timestamp);
+    }
+
+    // Create a Date object
+    const date = new Date(millisecondTimestamp);
+
+    // Define options for formatting the date
+    const options = {
+      month: "short",
+      day: "numeric",
+    };
+
+    // Format the date to a human-readable string
+    return date.toLocaleString("en-US", options);
+  }
+
   const [copy, setCopy] = useState(0);
   const { backend } = useAuth();
   const [loader, setLoader] = useState(true);
-  const navigate = useNavigate();
 
   const getNonfungibleTokensNft = async () => {
     try {
       setLoader(true);
 
-      const res = await backend.getNonFungibleTokensPaginate(
-        collection[1],
-        0,
-        1
-      );
-      const res1 = await backend.getStoredTokensPaginate(collection[1], 0, 1);
+      const res = await backend.getNonFungibleTokensPaginate(data[1], 0, 1);
+
+      const res1 = await backend.getStoredTokensPaginate(data[1], 0, 1);
       setCopy(parseInt(res.total_pages) + parseInt(res1.total_pages));
+      console.log(res.length + res1.length, "hello sun ");
 
       console.log(res);
     } catch (error) {
@@ -39,26 +60,25 @@ const CollectionMobileCard = ({ collection }) => {
       initial={{ opacity: 0, scale: 0 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 1 }}
-      className="bg-white py-4 mt-6 rounded-xl flex flex-col shadow-md"
-      onClick={() => {
-        navigate(`/minter/${collection[1]?.toText()}/token-home`);
-      }}
+      className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
     >
-      <div className="px-4">
+      <div className="px-4 w-80">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img
               width="80px"
               height="80px"
-              src={collection[4]}
+              src={data[4]}
               alt="Dispenser"
               className="rounded-lg"
             />
             <div>
-              <h2 className="md:text-lg text-sm font-semibold text-[#2E2C34]">
-                {collection[2]}
+              <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
+                {data[2]}
               </h2>
-              <p className="text-[#84818A] md:text-sm text-xs"></p>
+              <p className="text-[#84818A] md:text-sm text-xs">
+                {/* {convertNanosecondsToDate(data?.createdAt)} */}
+              </p>
             </div>
           </div>
           <div>
@@ -71,8 +91,8 @@ const CollectionMobileCard = ({ collection }) => {
             <div className="w-1/2 p-2 flex justify-start">
               <div className="flex flex-col justify-start">
                 <p className="text-[#84818A] md:text-sm text-xs">Address</p>
-                <p className="text-[#564BF1] font-semibold text-sm">
-                  {collection[1]?.toText()}
+                <p className="text-[#564BF1] font-semibold text-sm line-clamp-1">
+                  {data[1]?.toText()}
                 </p>
               </div>
             </div>
@@ -83,7 +103,7 @@ const CollectionMobileCard = ({ collection }) => {
                   All token copies
                 </p>
                 {loader ? (
-                  <div className="w-12 h-4 bg-gray-300 animate-pulse rounded"></div>
+                  <div className="w-16 h-5 bg-gray-300 animate-pulse rounded"></div>
                 ) : (
                   <p className="text-[#2E2C34] font-semibold text-sm">{copy}</p>
                 )}
@@ -107,4 +127,4 @@ const CollectionMobileCard = ({ collection }) => {
   );
 };
 
-export default CollectionMobileCard;
+export default CollectionDashBoardMobile;

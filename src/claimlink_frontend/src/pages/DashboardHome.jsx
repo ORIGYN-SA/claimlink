@@ -13,6 +13,8 @@ import { useAuth } from "../connect/useClient";
 import { InfinitySpin } from "react-loader-spinner";
 import dummyimg from "../assets/img/dummyimg.png";
 import CollectionDashBoardCard from "../common/CollectionDashBoardCard";
+import CollectionDashBoardMobile from "../common/CollectionDashBoardMobile";
+
 const DashBoardHome = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const navigate = useNavigate();
@@ -60,17 +62,24 @@ const DashBoardHome = () => {
 
         // Ensure both values are numbers and handle division by zero
         const claimedLinks = parseFloat(data.userClaimCount) || 0;
-        const totalLinks =
-          parseFloat(data.userClaimCount + data.userLinksCount) || 0;
+        const totalLinks = parseFloat(data.userLinksCount) || 0;
         const claimsCountToday = parseFloat(data.userClaimsCountToday) || 0;
-        const linksCoundToday =
-          parseFloat(data.userLinksCoundToday + data.userClaimCount) || 0;
+        const linksCoundToday = parseFloat(data.userLinksCoundToday) || 0;
 
-        const total1 = totalLinks > 0 ? (claimedLinks / totalLinks) * 100 : 0;
+        const total1 =
+          totalLinks > 0
+            ? (claimedLinks / parseInt(totalLinks - claimedLinks)) * 100
+            : 0;
         const total2 =
-          totalLinks > 0 ? (claimsCountToday / totalLinks) * 100 : 0;
+          totalLinks > 0
+            ? (claimsCountToday / parseInt(totalLinks - claimsCountToday)) * 100
+            : 0;
         const total3 =
-          linksCoundToday > 0 ? (claimsCountToday / linksCoundToday) * 100 : 0;
+          linksCoundToday > 0
+            ? (claimsCountToday /
+                parseInt(linksCoundToday - claimsCountToday)) *
+              100
+            : 0;
         setTotal(total1);
         setTotal1(total2);
         setTotal2(total3);
@@ -209,7 +218,7 @@ const DashBoardHome = () => {
           <p>
             <CountUp
               className="text-2xl text-[#2E2C34]  font-bold"
-              end={dashboard?.userClaimCount + dashboard?.userLinksCount}
+              end={dashboard?.userLinksCount}
               duration={5}
             />
           </p>
@@ -227,7 +236,7 @@ const DashBoardHome = () => {
             />
           </p>
           <p className="text-xs text-[#6FC773] ">
-            +{parseInt(dashboard?.UserClaimsCountToday) || 0}
+            +{parseInt(dashboard?.userClaimsCountToday) || 0}
           </p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
@@ -327,14 +336,9 @@ const DashBoardHome = () => {
                                   Claimed
                                 </p>
                                 <p className="text-[#2E2C34] font-semibold text-sm">
-                                  {data?.tokenIds.map((data, index) => {
-                                    <div key={index}>
-                                      <>{data?.value},</>;
-                                    </div>;
-                                  })}
-                                  /
-                                  {parseInt(dashboard?.UserClaimsCountToday) ||
-                                    0}
+                                  {data?.tokenIds.length -
+                                    data?.depositIndices.length}
+                                  /{data?.tokenIds.length}
                                 </p>
                               </div>
                             </div>
@@ -479,20 +483,12 @@ const DashBoardHome = () => {
                                   Duration
                                 </p>
                                 <p className="text-[#564BF1] font-semibold text-sm">
-                                  {String(data?.duration)}
+                                  {String(data?.duration)} min
                                 </p>
                               </div>
                             </div>
                             <div className="w-1/2 p-2 flex flex-col justify-start relative">
                               <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                              <div className="flex flex-col justify-start pl-4">
-                                <p className="text-[#84818A] md:text-sm text-xs">
-                                  Users
-                                </p>
-                                <p className="text-[#2E2C34] font-semibold text-sm">
-                                  {data?.whitelist?.length}
-                                </p>
-                              </div>
                             </div>
                           </div>
                         </div>
@@ -707,77 +703,7 @@ const DashBoardHome = () => {
                   onScroll={handleScroll}
                 >
                   {minter?.map((data, index) => (
-                    <motion.div
-                      key={index}
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 1 }}
-                      className="bg-[#F7F7F7] py-4 rounded-xl flex flex-col  w-[100vw] my-4"
-                    >
-                      <div className="px-4 w-80">
-                        <div className="flex justify-between items-center">
-                          <div className="flex items-center gap-3">
-                            <img
-                              width="80px"
-                              height="80px"
-                              src={data[4]}
-                              alt="Dispenser"
-                              className="rounded-lg"
-                            />
-                            <div>
-                              <h2 className="md:text-lg text-sm font-bold text-[#2E2C34]">
-                                {data[2]}
-                              </h2>
-                              <p className="text-[#84818A] md:text-sm text-xs">
-                                {/* {convertNanosecondsToDate(data?.createdAt)} */}
-                              </p>
-                            </div>
-                          </div>
-                          <div>
-                            <IoSettingsOutline className="w-6 h-6 text-[#84818A]" />
-                          </div>
-                        </div>
-                        <div className="border bg-[#EBEAED] mt-4 w-full"></div>
-                        <div className="w-full">
-                          <div className="flex w-full justify-start relative">
-                            <div className="w-1/2 p-2 flex justify-start">
-                              <div className="flex flex-col justify-start">
-                                <p className="text-[#84818A] md:text-sm text-xs">
-                                  Address
-                                </p>
-                                <p className="text-[#564BF1] font-semibold text-sm line-clamp-1">
-                                  {data[1]?.toText()}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="w-1/2 p-2 flex flex-col justify-start relative">
-                              <div className="absolute left-0 top-0 bottom-0 w-px bg-[#EBEAED]"></div>
-                              <div className="flex flex-col justify-start pl-4">
-                                <p className="text-[#84818A] md:text-sm text-xs">
-                                  All token copies
-                                </p>
-                                <p className="text-[#2E2C34] font-semibold text-sm">
-                                  1
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="border bg-[#EBEAED] w-full"></div>
-                          <div className="flex flex-wrap relative">
-                            <div className="w-1/2 mt-2 flex justify-start">
-                              <div className="flex flex-col justify-start">
-                                <p className="text-[#84818A] md:text-sm text-xs">
-                                  Token standard
-                                </p>
-                                <p className="text-[#2E2C34] font-semibold text-sm">
-                                  EXT
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
+                    <CollectionDashBoardMobile data={data} />
                   ))}
                 </div>
                 <div className="flex justify-center mt-4">
@@ -975,17 +901,16 @@ const DashBoardHome = () => {
                   </button>
                 </div>
                 <div className="mt-4">
-                  <div className="grid grid-cols-5 gap-4 text-xs text-[#504F54]">
+                  <div className="grid grid-cols-4 gap-4 text-xs text-[#504F54]">
                     <p className="text-xs text-[#504F54]">Title</p>
                     <p>Date</p>
                     <p>Status</p>
                     <p>Duration</p>
-                    <p>Users</p>
                   </div>
                   {dispenser.map((data, index) => (
                     <div
                       key={index}
-                      className="grid grid-cols-5 gap-4 items-center bg-white px-1 py-3"
+                      className="grid grid-cols-4 gap-4 items-center bg-white px-1 py-3"
                     >
                       <div>
                         <h2 className="text-xs text-[#2E2C34] font-semibold line-clamp-1">
@@ -1013,13 +938,7 @@ const DashBoardHome = () => {
 
                       <div>
                         <p className="text-xs text-[#2E2C34] font-semibold">
-                          {String(data?.duration)}
-                        </p>
-                      </div>
-
-                      <div className="flex gap-2 items-center">
-                        <p className="text-xs text-[#2E2C34] font-semibold">
-                          {data?.whitelist.length}
+                          {String(data?.duration)}min
                         </p>
                       </div>
                     </div>

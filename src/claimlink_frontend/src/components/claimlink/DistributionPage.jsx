@@ -51,7 +51,9 @@ const DistributionPage = ({
             }))
           );
         } else if (formData.pattern === "mint") {
-          const tokenData = await backend.getAvailableStoredTokensForCampaign(id);
+          const tokenData = await backend.getAvailableStoredTokensForCampaign(
+            id
+          );
           setTokenOptions(
             tokenData.map((token) => ({
               value: token[0].toString(),

@@ -26,6 +26,7 @@ const CollectionDashBoardCard = ({ data }) => {
     // Format the date to a human-readable string
     return date.toLocaleString("en-US", options);
   }
+
   const [copy, setCopy] = useState(0);
   const { backend } = useAuth();
   const [loader, setLoader] = useState(true);
@@ -34,9 +35,10 @@ const CollectionDashBoardCard = ({ data }) => {
     try {
       setLoader(true);
 
-      const res = await backend.getNonFungibleTokens(data[1]);
-      const res1 = await backend.getStoredTokens(data[1]);
-      setCopy(res.length + res1.length);
+      const res = await backend.getNonFungibleTokensPaginate(data[1], 0, 1);
+      console.log(res, "res1");
+      const res1 = await backend.getStoredTokensPaginate(data[1], 0, 1);
+      setCopy(parseInt(res.total_pages) + parseInt(res1.total_pages));
       console.log(res.length + res1.length, "hello sun ");
 
       console.log(res);
@@ -46,6 +48,7 @@ const CollectionDashBoardCard = ({ data }) => {
       setLoader(false);
     }
   };
+
   useEffect(() => {
     getNonfungibleTokensNft();
   }, [backend]);
@@ -75,7 +78,11 @@ const CollectionDashBoardCard = ({ data }) => {
         <p className="text-xs text-[#2E2C34] font-semibold">EXT</p>
       </div>
       <div>
-        <p className="text-xs text-[#2E2C34] font-semibold">{copy}</p>
+        {loader ? (
+          <div className="w-12 h-4 bg-gray-300 animate-pulse rounded"></div>
+        ) : (
+          <p className="text-xs text-[#2E2C34] font-semibold">{copy}</p>
+        )}
       </div>
       <div className="flex gap-2 items-center">
         <p className="text-xs text-[#564BF1] truncate font-semibold">

@@ -14,18 +14,12 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [selectedOption, setSelectedOption] = useState(null);
   const [loading, setLoading] = useState(false);
   const [principalIds, setPrincipalIds] = useState([]);
-  // const principalIds = [
-  //   "5gojq-7zyol-kqpfn-vett2-e6at4-2wmg5-wyshc-ptyz3-t7pos-okakd-7qe",
-  //   "af5my-z3ydu-n7qzv-3rrov-kfsoz-go3j6-d3eyl-3cgof-7adkz-qh5ut-fae",
-  //   "2vxsx-fae",
-  // ];
-  const [collection, setCollection] = useState([]);
+  const [collection, setCollection] = useState("");
   const [depositIndices, setDepositIndices] = useState([]);
   const [csvVisible, setCsvVisible] = useState(false);
   const [campaign, setCampaign] = useState([]);
-  const [allcampaign, setAllCampaign] = useState([]);
+  const [allCampaigns, setAllCampaigns] = useState([]);
   const navigate = useNavigate();
-  const [loading2, SetLoading2] = useState(false);
   const url = process.env.PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
     : "http://localhost:3000";
@@ -47,7 +41,6 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
                 return true;
               } catch (error) {
                 console.error("Invalid Principal ID:", id);
-                // toast.error(Invalid Principal ID: ${id});
                 return false;
               }
             });
@@ -72,30 +65,30 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
         const data = await backend.getUserCampaigns();
         const data2 = await backend.getCampaignsWithDispenser();
 
-        // Extract the IDs from data2 to filter them out later
         const dispenserCampaignIds = new Set(data2.map((camp) => camp));
-        console.log(dispenserCampaignIds, "dispenercampaignid ");
-        console.log(data, "dta");
+        console.log(dispenserCampaignIds, "dispenserCampaignIds");
+        console.log(data, "campaigns data");
 
         if (data.length > 0) {
-          const formattedCampaign = data[0]
-            .filter((camp) => !dispenserCampaignIds.has(camp.id)) // Filter out campaigns present in data2
-            .map((camp, index) => ({
+          // Assuming the status field is within each campaign object
+          const formattedCampaigns = data[0]
+            .filter(
+              (camp) =>
+                !dispenserCampaignIds.has(camp.id) &&
+                Object.keys(camp?.status || {})[0] === "Ongoing" // Filter for ongoing campaigns
+            )
+            .map((camp) => ({
               value: camp.id,
               label: `${camp.title}`,
               collection: camp.collection.toText(),
               depositIndices: camp.depositIndices,
             }));
 
-          setCampaign(formattedCampaign);
-          setAllCampaign(data);
-          console.log("coll", collection);
-          // console.log("deposit", depositIndices);
-          // console.log("campaign", data, data[0][0]?.tokenIds);
-          // setCollection((data[0][0]?.collection).toText());
+          setCampaign(formattedCampaigns);
+          setAllCampaigns(data);
         }
       } catch (error) {
-        console.error("Error loading data:", error);
+        console.error("Error loading campaigns:", error);
       }
     };
 
@@ -104,16 +97,11 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
     }
   }, [backend]);
 
-  console.log(backend);
   const validateForm = () => {
     const newErrors = {};
 
     if (!selectedOption) {
-      newErrors.campaign = "You must select a campaign or upload a CSV.";
-    }
-
-    if (!formData.tokenAmount) {
-      newErrors.tokenAmount = "Token amount is required.";
+      newErrors.campaign = "You must select a campaign.";
     }
 
     setErrors(newErrors);
@@ -122,64 +110,40 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    console.log("cl dd", collection, depositIndices);
-    console.log("formdata ", formData);
-    const { startDate, startHour, startMinute } = formData;
+
+    if (!validateForm()) {
+      return;
+    }
 
     setLoading(true);
-    // if (!validateForm()) {
-    //   // Fix: call the validation function
-    //   setLoading(false); // Stop loading if validation fails
-    //   return;
-    // }
-
     try {
-      // Format the date and time correctly WITHOUT forcing UTC (no 'Z' at the end)
-      const formatDateTime = (date, hour, minute) => {
-        const formattedHour = String(hour).padStart(2, "0");
-        const formattedMinute = String(minute).padStart(2, "0");
-        return `${date}T${formattedHour}:${formattedMinute}:00`;
-      };
+      const { startDate, startHour, startMinute, title, duration } = formData;
 
-      const formattedDateTime = formatDateTime(
-        startDate,
-        startHour,
-        startMinute
-      );
-
-      console.log(`Formatted DateTime: ${formattedDateTime}`);
+      const formattedDateTime = `${startDate}T${String(startHour).padStart(
+        2,
+        "0"
+      )}:${String(startMinute).padStart(2, "0")}:00`;
 
       const date = new Date(startDate);
-      console.log("Date object:", date);
-
-      // Get the timestamp in milliseconds (this will now be in the local time zone)
       const timestampMillis = date.getTime();
-      console.log("Milliseconds since epoch:", timestampMillis);
-
-      // Convert milliseconds to nanoseconds
       const timestampNanos = timestampMillis * 1_000_000;
-      console.log("Nanoseconds since epoch:", timestampNanos);
-      let whitelist = principalIds
+
+      const whitelist = principalIds
         .filter((id) => id.trim().length > 0)
         .map((id) => Principal.fromText(id.trim()));
 
       const result = await backend.createDispenser(
-        formData.title,
+        title,
         Number(timestampNanos),
-        Number(formData.duration),
-        selectedOption?.value || "",
+        Number(duration),
+        selectedOption.value || "",
         whitelist
       );
 
       if (result) {
         toast.success("Dispenser created successfully!");
-        console.log("Dispenser creation result:", result);
-
-        // Process deposit indices and generate dispenser links
-        depositIndices.forEach((depositIndex) => {
-          const dispenserLink = `${url}/dispensers/${result}/${collection}`;
-          console.log("Dispenser Link created successfully:", dispenserLink);
-        });
+        const dispenserLink = `${url}/dispensers/${result}/${collection}`;
+        console.log("Dispenser Link created successfully:", dispenserLink);
         navigate("/dispensers");
         handleNext();
       } else {
@@ -187,7 +151,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
       }
     } catch (error) {
       console.error("Error creating dispenser:", error);
-      toast.error(`Error while creating dispenser`);
+      toast.error("Error while creating dispenser");
     } finally {
       setLoading(false);
     }
@@ -221,6 +185,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
               setSelectedOption(option);
               setCollection(option?.collection);
               setDepositIndices(option.depositIndices);
+              setErrors((prev) => ({ ...prev, campaign: "" }));
             }}
             options={campaign}
             placeholder="Select Campaign"
@@ -232,21 +197,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           )}
         </div>
 
-        {/* Toggle CSV Upload */}
-        {/* <div className="mt-6 flex flex-col">
-          <label className="text-lg font-semibold py-3">
-            Or Upload CSV File
-          </label>
-          <button
-            type="button"
-            className="bg-blue-500 text-white px-4 py-2 rounded-md"
-            onClick={toggleCsvUpload}
-          >
-            Upload CSV
-          </button>
-        </div> */}
-
-        {/* CSV Upload Input Field (Visible when clicked) */}
+        {/* CSV Upload Section - Optional */}
         {csvVisible && (
           <div className="mt-4">
             <input
@@ -268,9 +219,11 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
           </div>
         )}
 
+        {/* Token Amount Input */}
+
         <div className="mt-6 flex justify-between items-center">
           <BackButton text="Back" onClick={handleBack} />
-          <MainButton text="Create" loading={loading} onClick={handleCreate} />
+          <MainButton text="Create" loading={loading} />
         </div>
       </form>
     </motion.div>

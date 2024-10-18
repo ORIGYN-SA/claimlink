@@ -78,17 +78,6 @@ const DashboardContainer = () => {
                 New Campaign
               </Link>
             </div>
-            {/* Filter Dropdown for Desktop */}
-            <div className="hidden sm:flex items-center">
-              <select
-                name="Filter"
-                id="filter"
-                className="flex items-center justify-center outline-none gap-2 px-4 py-2 border border-gray-500 rounded-md capitalize bg-white text-gray-700"
-              >
-                <option value="new">New</option>
-                <option value="old">Old</option>
-              </select>
-            </div>
           </div>
         </div>
 

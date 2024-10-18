@@ -140,10 +140,6 @@ const UserNft2 = () => {
                       <h2 className="text-lg font-semibold text-[#2E2C34] my-3">
                         {limitCharacters(data[2]?.nonfungible?.name, 15)}
                       </h2>
-
-                      <h2 className="text-lg font-semibold text-[#2E2C34] my-3">
-                        #{data[0]}
-                      </h2>
                     </div>
                     <h2 className="text-sm font-semibold text-[#837f8e] mb-3">
                       {id}

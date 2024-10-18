@@ -286,27 +286,87 @@ const AddToken = () => {
         }
       } else {
         console.log(operation);
-        // const res = await backend.mintExtFungible(
-        //   idd,
-        //   formData.name,
-        //   formData.symbol,
-        //   parseInt(formData.decimals),
-        //   [
-        //     {
-        //       data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
-        //     },
-        //   ],
-        //   1
-        // );
 
-        // if (res) {
-        //   console.log("nft created successfully:", res);
-        //   toast.success("nft created successfully!");
-        // } else {
-        //   console.log("Failed to create nft, no response received");
-        //   toast.error("Failed to create nft");
-        // }
-        mintatclaim();
+        setLoading(true);
+        if (!backend) {
+          toast.error("Backend actor not initialized");
+          return;
+        }
+        setLoading2(true);
+        console.log(backend);
+
+        try {
+          console.log("Form data:", formData);
+          console.log("Principal:", principal.toText());
+
+          const metadata = {
+            blob: formData.metadata.blob ? formData.metadata.blob : null,
+            data: formData.metadata.data.length ? formData.metadata.data : null,
+            json: formData.metadata.json ? formData.metadata.json : null,
+          };
+
+          let idd = Principal.fromText(id);
+
+          if (tokenType == "nonfungible") {
+            console.log(tokenType, "mint at claim");
+            const res = await backend?.storeTokendetails(
+              idd,
+              formData.name,
+              formData.description,
+              formData.asset,
+              formData.thumbnail,
+              [
+                {
+                  data: [
+                    [
+                      metadata.data[0].key,
+                      { text: metadata.data[0].value.toString() },
+                    ],
+                  ],
+                },
+              ],
+              parseInt(formData.decimals)
+            );
+
+            if (res) {
+              console.log(" non fungible token stored successfully:", res);
+              toast.success("Successfully stored!!");
+              navigate(-1);
+            } else {
+              console.log("Failed to create token, no response received");
+              toast.error("Failed to create token");
+            }
+          } else {
+            console.log(tokenType);
+            const res = await backend.storeTokendetails(
+              idd,
+              formData.name,
+              formData.symbol,
+              parseInt(formData.decimals),
+              [
+                {
+                  data: [
+                    [metadata.data[0].key, { text: metadata.data[0].value }],
+                  ],
+                },
+              ],
+              parseInt(formData.decimals)
+            );
+
+            if (res) {
+              console.log("non fungible token stored successfully:", res);
+              toast.success("non fungible token stored successfully!");
+            } else {
+              console.log("Failed to create nft, no response received");
+              toast.error("Failed to create non fungible token");
+            }
+          }
+        } catch (error) {
+          console.error("Error creating:", error);
+        } finally {
+          setLoading2(false);
+          setLoading(false);
+        }
       }
     } catch (error) {
       console.error("Error creating nft:", error);
@@ -315,86 +375,6 @@ const AddToken = () => {
     }
   };
 
-  const mintatclaim = async () => {
-    setLoading(true);
-    if (!backend) {
-      toast.error("Backend actor not initialized");
-      return;
-    }
-    setLoading2(true);
-    console.log(backend);
-
-    try {
-      console.log("Form data:", formData);
-      console.log("Principal:", principal.toText());
-
-      const metadata = {
-        blob: formData.metadata.blob ? formData.metadata.blob : null,
-        data: formData.metadata.data.length ? formData.metadata.data : null,
-        json: formData.metadata.json ? formData.metadata.json : null,
-      };
-
-      let idd = Principal.fromText(id);
-
-      if (tokenType == "nonfungible") {
-        console.log(tokenType, "mint at claim");
-        const res = await backend?.storeTokendetails(
-          idd,
-          formData.name,
-          formData.description,
-          formData.asset,
-          formData.thumbnail,
-          [
-            {
-              data: [
-                [
-                  metadata.data[0].key,
-                  { text: metadata.data[0].value.toString() },
-                ],
-              ],
-            },
-          ],
-          1
-        );
-
-        if (res) {
-          console.log(" non fungible token stored successfully:", res);
-          toast.success("Successfully stored!!");
-          navigate(-1);
-        } else {
-          console.log("Failed to create token, no response received");
-          toast.error("Failed to create token");
-        }
-      } else {
-        console.log(tokenType);
-        const res = await backend.storeTokendetails(
-          idd,
-          formData.name,
-          formData.symbol,
-          parseInt(formData.decimals),
-          [
-            {
-              data: [[metadata.data[0].key, { text: metadata.data[0].value }]],
-            },
-          ],
-          1
-        );
-
-        if (res) {
-          console.log("non fungible token stored successfully:", res);
-          toast.success("non fungible token stored successfully!");
-        } else {
-          console.log("Failed to create nft, no response received");
-          toast.error("Failed to create non fungible token");
-        }
-      }
-    } catch (error) {
-      console.error("Error creating:", error);
-    } finally {
-      setLoading2(false);
-      setLoading(false);
-    }
-  };
   console.log(operation);
   const toggleModal = () => {
     if (validateForm()) {
@@ -647,25 +627,24 @@ const AddToken = () => {
                 + Add Metadata
               </button>
             </div>
-            {operation === "mint" && (
-              <>
-                <div className="flex flex-col mt-4">
-                  <label className="text-md font-semibold py-3 ">
-                    Number of copies
-                  </label>
-                  <input
-                    type="number"
-                    disabled={loading || loading2}
-                    min={1}
-                    name="decimals"
-                    value={formData.decimals}
-                    onChange={handleInputChange}
-                    className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-                    placeholder="Decimals"
-                  />
-                </div>
-              </>
-            )}
+
+            <>
+              <div className="flex flex-col mt-4">
+                <label className="text-md font-semibold py-3 ">
+                  Number of copies
+                </label>
+                <input
+                  type="number"
+                  disabled={loading || loading2}
+                  min={1}
+                  name="decimals"
+                  value={formData.decimals}
+                  onChange={handleInputChange}
+                  className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+                  placeholder="Decimals"
+                />
+              </div>
+            </>
           </form>
           <div className="flex gap-4 mt-6">
             <MainButton text={"Submit"} onClick={toggleModal} />
