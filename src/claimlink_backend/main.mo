@@ -29,17 +29,20 @@ actor Main {
 
     type AccountIdentifier = ExtCore.AccountIdentifier;
     type SubAccount = ExtCore.SubAccount;
-    type TokenIndex  = ExtCore.TokenIndex;
-    type TokenIdentifier  = ExtCore.TokenIdentifier;
+    type TokenIndex = ExtCore.TokenIndex;
+    type TokenIdentifier = ExtCore.TokenIdentifier;
     type CommonError = ExtCore.CommonError;
     type MetadataLegacy = ExtCommon.Metadata;
 
-    type MetadataValue = (Text , {
-        #text : Text;
-        #blob : Blob;
-        #nat : Nat;
-        #nat8: Nat8;
-    });
+    type MetadataValue = (
+        Text,
+        {
+            #text : Text;
+            #blob : Blob;
+            #nat : Nat;
+            #nat8 : Nat8;
+        },
+    );
     type MetadataContainer = {
         #data : [MetadataValue];
         #blob : Blob;
@@ -105,7 +108,7 @@ actor Main {
         collectionCanister : Principal;
         timestamp : Time.Time;
         claimPattern : Text;
-        status :Text;
+        status : Text;
     };
     type User = ExtCore.User;
     type Status = {
@@ -129,31 +132,31 @@ actor Main {
         status : Status;
     };
     type QRSet = {
-        id: Text;
-        title: Text;
-        quantity: Nat;
-        campaignId: Text;
-        createdAt: Time.Time;
-        creator: Principal;
-        status : Status
+        id : Text;
+        title : Text;
+        quantity : Nat;
+        campaignId : Text;
+        createdAt : Time.Time;
+        creator : Principal;
+        status : Status;
     };
     type Dispenser = {
         id : Text;
         title : Text;
         startDate : Time.Time;
-        createdAt: Time.Time;
+        createdAt : Time.Time;
         duration : Int;
-        createdBy: Principal;
+        createdBy : Principal;
         campaignId : Text;
         whitelist : [Principal];
-        status : Status
+        status : Status;
     };
     type Link = {
         tokenId : TokenIndex;
         collection : Principal;
         linkKey : Nat32;
         claimPattern : Text;
-        createdBy : AccountIdentifier
+        createdBy : AccountIdentifier;
     };
     public type TransferError_1 = {
         #TxTooOld : { allowed_window_nanos : Nat64 };
@@ -187,12 +190,12 @@ actor Main {
         #Vec : [DetailValue];
     };
     public type AddCanisterInput = {
-        name: Text;
-        description: Text;
-        thumbnail: Text;
-        frontend: ?Text;
-        principal_id: Principal;
-        details: [(Text, DetailValue)];
+        name : Text;
+        description : Text;
+        thumbnail : Text;
+        frontend : ?Text;
+        principal_id : Principal;
+        details : [(Text, DetailValue)];
     };
     public type OperationError = {
         #NotAuthorized;
@@ -201,71 +204,68 @@ actor Main {
         #Unknown : Text;
     };
     public type CanisterMetadata = {
-        name: Text;
-        description: Text;
-        thumbnail: Text;
-        frontend: ?Text;
-        principal_id: Principal;
-        submitter: Principal;
-        last_updated_by: Principal;
-        last_updated_at: Time.Time;
-        details: [(Text, DetailValue)];
+        name : Text;
+        description : Text;
+        thumbnail : Text;
+        frontend : ?Text;
+        principal_id : Principal;
+        submitter : Principal;
+        last_updated_by : Principal;
+        last_updated_at : Time.Time;
+        details : [(Text, DetailValue)];
     };
-
-
 
     // Maps user and the collection canisterIds they create
     private stable var allCollections : [Principal] = [];
-    private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time,Principal)]>(Principal.equal, Principal.hash);
-    private stable var stableuserCollectionMap : [(Principal,[(Time.Time,Principal)])] = [];
+    private var usersCollectionMap = TrieMap.TrieMap<Principal, [(Time.Time, Principal)]>(Principal.equal, Principal.hash);
+    private stable var stableuserCollectionMap : [(Principal, [(Time.Time, Principal)])] = [];
     // Map to store created Links
-    private var userLinks =  TrieMap.TrieMap<Principal, [Link]>(Principal.equal, Principal.hash);
-    private stable var stableUserLinks : [(Principal,[Link])] = [];
+    private var userLinks = TrieMap.TrieMap<Principal, [Link]>(Principal.equal, Principal.hash);
+    private stable var stableUserLinks : [(Principal, [Link])] = [];
     stable var claimCount : Nat = 0;
     stable var linksCount : Nat = 0;
     stable var userClaimCount : [(Principal, Nat)] = [];
     stable var userLinksCount : [(Principal, Nat)] = [];
     // Daily Stats
-    stable var dailyLinksCreatedCount: Nat = 0;
-    stable var dailyLinksClaimedCount: Nat = 0;
-    stable var dailyUserLinksCreatedCount: [(Principal, Nat)] = [];
-    stable var dailyUserLinksClaimedCount: [(Principal, Nat)] = [];
-
+    stable var dailyLinksCreatedCount : Nat = 0;
+    stable var dailyLinksClaimedCount : Nat = 0;
+    stable var dailyUserLinksCreatedCount : [(Principal, Nat)] = [];
+    stable var dailyUserLinksClaimedCount : [(Principal, Nat)] = [];
 
     private var claimedTokensMap = TrieMap.TrieMap<Principal, [(Principal, Nat)]>(Principal.equal, Principal.hash);
     private stable var stableClaimedTokensMap : [(Principal, [(Principal, Nat)])] = [];
 
     //  Maps related to Campaigns
     private var campaigns = TrieMap.TrieMap<Text, Campaign>(Text.equal, Text.hash);
-    private stable var stableCampaigns : [(Text,Campaign)] = [];
+    private stable var stableCampaigns : [(Text, Campaign)] = [];
     private var campaignLinks = TrieMap.TrieMap<Text, [Nat32]>(Text.equal, Text.hash);
     private stable var stableCampaignLinks : [(Text, [Nat32])] = [];
     private var userCampaignsMap = TrieMap.TrieMap<Principal, [Campaign]>(Principal.equal, Principal.hash);
     private stable var stableUserCampaignsMap : [(Principal, [Campaign])] = [];
     // Maps related to dispensers
     private var dispensers = TrieMap.TrieMap<Text, Dispenser>(Text.equal, Text.hash);
-    private stable var stableDispensers : [(Text,Dispenser)] = [];
+    private stable var stableDispensers : [(Text, Dispenser)] = [];
     private var userDispensersMap = TrieMap.TrieMap<Principal, [Dispenser]>(Principal.equal, Principal.hash);
     private stable var stableUserDispensersMap : [(Principal, [Dispenser])] = [];
-    private var userClaimedDispensers = TrieMap.TrieMap<Principal,[Text]>(Principal.equal, Principal.hash);
-    private stable var stableuserClaimedDispensers : [(Principal,[Text])] = [];
+    private var userClaimedDispensers = TrieMap.TrieMap<Principal, [Text]>(Principal.equal, Principal.hash);
+    private stable var stableuserClaimedDispensers : [(Principal, [Text])] = [];
     // Maps related to QR set
     private var qrSetMap = TrieMap.TrieMap<Text, QRSet>(Text.equal, Text.hash);
-    private stable var stableQrSetMap : [(Text,QRSet)] = [];
+    private stable var stableQrSetMap : [(Text, QRSet)] = [];
     private var userQRSetMap = TrieMap.TrieMap<Principal, [QRSet]>(Principal.equal, Principal.hash);
     private stable var stableUserQrSetMap : [(Principal, [QRSet])] = [];
     // Map that stores QRsets and dispenser created on a Campaign
-    private stable var qdcMap : [(Text,(Text,Text))] = [];
+    private stable var qdcMap : [(Text, (Text, Text))] = [];
     // Token data Store
-    func nat32Hash(value: Nat32) : Hash.Hash {
+    func nat32Hash(value : Nat32) : Hash.Hash {
         let natValue = Nat32.toNat(value);
         return Hash.hash(natValue);
     };
-    func natHash(value: Nat) : Hash.Hash {
+    func natHash(value : Nat) : Hash.Hash {
         return Hash.hash(value);
     };
-    private var tokensDataToBeMinted = TrieMap.TrieMap<Principal,[(Nat32,Metadata)]>(Principal.equal,Principal.hash);
-    private stable var stableTokensDataToBeMinted : [(Principal,[(Nat32,Metadata)])] = [];
+    private var tokensDataToBeMinted = TrieMap.TrieMap<Principal, [(Nat32, Metadata)]>(Principal.equal, Principal.hash);
+    private stable var stableTokensDataToBeMinted : [(Principal, [(Nat32, Metadata)])] = [];
     private stable var nextTokenIndex : Nat32 = 0;
     // Campaign Timer
     private var campaignTimers = TrieMap.TrieMap<Text, Timer.TimerId>(Text.equal, Text.hash);
@@ -275,7 +275,7 @@ actor Main {
     private stable var stableDispenserTimers : [(Text, Timer.TimerId)] = [];
 
     // Stores details about the tokens coming into this vault
-    private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal,nat32Hash);
+    private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal, nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
 
     public query func availableCycles() : async Nat {
@@ -291,38 +291,36 @@ actor Main {
 
     // };
 
-    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
-        add_canister: (caller: Principal, metadata: AddCanisterInput, trusted_source: ?Principal) -> async Result.Result<(), OperationError>;
+    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
+        add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
-
-
     // public shared ({ caller = user }) func transferICP(
-    //     amount: Nat, 
-    //     fee: ?Nat, 
+    //     amount: Nat,
+    //     fee: ?Nat,
     //     spenderSubaccount: ?Blob,
     //     memo: ?Blob,
     //     createdAtTime: ?Nat64
     // ) : async Text {
-        
+
     //     let fromAccount: Account = {
     //         owner = user;
-    //         subaccount = null; 
+    //         subaccount = null;
     //     };
 
     //     let toAccount: Account = {
     //         owner = Principal.fromActor(Main);
-    //         subaccount = null; 
+    //         subaccount = null;
     //     };
 
     //     let transferArgs: TransferFromArgs = {
     //         to = toAccount;
-    //         fee = fee; 
-    //         spender_subaccount = spenderSubaccount; 
+    //         fee = fee;
+    //         spender_subaccount = spenderSubaccount;
     //         from = fromAccount;
-    //         memo = memo; 
-    //         created_at_time = createdAtTime; 
-    //         amount = amount; 
+    //         memo = memo;
+    //         created_at_time = createdAtTime;
+    //         amount = amount;
     //     };
 
     //     let transferResult: Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
@@ -369,10 +367,6 @@ actor Main {
     //     }
     // };
 
-
-
-
-
     // public shared ({caller = user}) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
 
     //     let fromAccount = Principal.toLedgerAccount(user, null);
@@ -400,7 +394,7 @@ actor Main {
     //     //         };
     //     //     };
     //     // };
-        
+
     //     // Prepare transfer arguments
     //     let transferArgs : IcpLedger.TransferArgs = {
     //         memo = 0;
@@ -420,7 +414,7 @@ actor Main {
     //             case (#Err(transferError)) {
     //                 return #err("Couldn't transfer funds:\n" # debug_show(transferError));
     //             };
-    //             case (#Ok(blockIndex)) { 
+    //             case (#Ok(blockIndex)) {
     //                 return #ok(blockIndex);
     //             };
     //         };
@@ -430,9 +424,8 @@ actor Main {
     //     };
     // };
 
-
     public shared query func getDepositItem(key : Nat32) : async ?Deposit {
-        return depositItemsMap.get(key); 
+        return depositItemsMap.get(key);
     };
 
     public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
@@ -442,7 +435,6 @@ actor Main {
         };
         return result;
     };
-
 
     system func preupgrade() {
         stableuserCollectionMap := Iter.toArray(usersCollectionMap.entries());
@@ -481,9 +473,7 @@ actor Main {
         claimedTokensMap := TrieMap.fromEntries(stableClaimedTokensMap.vals(), Principal.equal, Principal.hash);
     };
 
-
-    
-    func generateKey(caller: AccountIdentifier, timestamp: Time.Time, _tokenId: TokenIndex): Hash.Hash {
+    func generateKey(caller : AccountIdentifier, timestamp : Time.Time, _tokenId : TokenIndex) : Hash.Hash {
         let callerNat32 = AID.hash(caller);
         let timestampNat32 = Int.hash(timestamp);
         let tokenIdNat32 = _tokenId;
@@ -492,26 +482,26 @@ actor Main {
         let tokenIdNat = Nat32.toNat(tokenIdNat32);
         let largeModulus = 2 ** 128;
         let combinedNat = ((callerNat + timestampNat + tokenIdNat) % largeModulus);
-        return Hash.hash(combinedNat);  // Hash expects Nat32, so convert back
+        return Hash.hash(combinedNat); // Hash expects Nat32, so convert back
 
     };
 
     type DashboardStats = {
-        totalLinks: Nat;
-        claimedLinks: Nat;
+        totalLinks : Nat;
+        claimedLinks : Nat;
         userLinksCount : Nat;
         userClaimCount : Nat;
         linksCoundToday : Nat;
         claimsCountToday : Nat;
         userLinksCoundToday : Nat;
         userClaimsCountToday : Nat;
-        campaigns: ?[Campaign];
-        qrSets: ?[QRSet];
-        dispensers: ?[Dispenser];
+        campaigns : ?[Campaign];
+        qrSets : ?[QRSet];
+        dispensers : ?[Dispenser];
     };
 
-    func updateUserCountArray(countArray: [(Principal, Nat)], user: Principal) : [(Principal, Nat)] {
-        var updatedArray: [(Principal, Nat)] = [];
+    func updateUserCountArray(countArray : [(Principal, Nat)], user : Principal) : [(Principal, Nat)] {
+        var updatedArray : [(Principal, Nat)] = [];
         var userFound = false;
 
         for (userCount in countArray.vals()) {
@@ -522,7 +512,7 @@ actor Main {
                         userFound := true;
                     } else {
                         updatedArray := Array.append(updatedArray, [(p, count)]);
-                    }
+                    };
                 };
             };
         };
@@ -534,8 +524,8 @@ actor Main {
         return updatedArray;
     };
 
-    func findUserCount(user: Principal, countArray: [(Principal, Nat)]): Nat {
-        let indexOpt = Array.find<(Principal, Nat)>(countArray, func ((p : Principal, _ : Nat)) { p == user });
+    func findUserCount(user : Principal, countArray : [(Principal, Nat)]) : Nat {
+        let indexOpt = Array.find<(Principal, Nat)>(countArray, func((p : Principal, _ : Nat)) { p == user });
         switch (indexOpt) {
             case (?i) {
                 let (_, count) = i;
@@ -553,9 +543,8 @@ actor Main {
         dailyUserLinksClaimedCount := [];
     };
 
-
     // Function to reset daily stats at midnight
-    func resetDailyStats(): async () {
+    func resetDailyStats() : async () {
         dailyLinksCreatedCount := 0;
         dailyLinksClaimedCount := 0;
         resetDailyUserCounts();
@@ -569,34 +558,36 @@ actor Main {
         let secondsUntilMidnight = getSecondsUntilMidnight(now);
         let nanosecondsUntilMidnight = secondsUntilMidnight * 1_000_000_000;
         // Schedule a timer to trigger resetDailyStats at the next midnight
-        let id = Timer.setTimer<system>(#nanoseconds nanosecondsUntilMidnight, func () : async () {
-            await resetDailyStats();
-        });
+        let id = Timer.setTimer<system>(
+            #nanoseconds nanosecondsUntilMidnight,
+            func() : async () {
+                await resetDailyStats();
+            },
+        );
     };
 
     // Function to calculate how many seconds until midnight
-    func getSecondsUntilMidnight(currentTime: Time.Time): Nat {
-        let secondsInDay: Nat = 24 * 60 * 60;
+    func getSecondsUntilMidnight(currentTime : Time.Time) : Nat {
+        let secondsInDay : Nat = 24 * 60 * 60;
         let currentTimeOfDay = Nat64.toNat(Nat64.fromIntWrap(currentTime % secondsInDay));
         return secondsInDay - currentTimeOfDay;
     };
 
-    public shared func initStatTimer()  : async () {
-        await setMidnightTimer()
+    public shared func initStatTimer() : async () {
+        await setMidnightTimer();
     };
 
-    public shared ({caller = user}) func dashboardDetails() : async DashboardStats {
+    public shared ({ caller = user }) func dashboardDetails() : async DashboardStats {
 
         let campaigns = userCampaignsMap.get(user);
         let qrSets = userQRSetMap.get(user);
         let dispensers = userDispensersMap.get(user);
-       
+
         let userLinks = findUserCount(user, userLinksCount);
         let userClaims = findUserCount(user, userClaimCount);
         let dailyUserLinks = findUserCount(user, dailyUserLinksCreatedCount);
         let dailyUserClaims = findUserCount(user, dailyUserLinksClaimedCount);
-      
-      
+
         return {
             totalLinks = linksCount;
             claimedLinks = claimCount;
@@ -612,13 +603,12 @@ actor Main {
         };
     };
 
-
     // func knowAdmin(caller : Principal) : async Bool{
     //     let extToken = await ExtTokenClass.EXTNFT(caller);
     //     extToken._isAdmin(caller);
     // };
 
-    public shared ({caller = user }) func addCollectionToUserMap (collection_id : Principal) : async Text {
+    public shared ({ caller = user }) func addCollectionToUserMap(collection_id : Principal) : async Text {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
@@ -627,7 +617,7 @@ actor Main {
         switch (userCollections) {
             case null {
                 // No collections exist, create a new list with the current collection
-                let newCollections: [(Time.Time, Principal)] = [(currentTime, collection_id)];
+                let newCollections : [(Time.Time, Principal)] = [(currentTime, collection_id)];
                 usersCollectionMap.put(user, newCollections);
                 return "Collection added";
             };
@@ -635,7 +625,7 @@ actor Main {
                 // Check if the collection already exists
                 let collectionExists = List.some<(Time.Time, Principal)>(
                     List.fromArray(collections),
-                    func x { x.1 == collection_id }
+                    func x { x.1 == collection_id },
                 );
                 if (collectionExists) {
                     return "Collection already added";
@@ -647,9 +637,9 @@ actor Main {
                 };
             };
         };
-     }; 
+    };
 
-    public shared ({caller = user}) func removeCollectionFromUserMap (collection_id : Principal) : async Text {
+    public shared ({ caller = user }) func removeCollectionFromUserMap(collection_id : Principal) : async Text {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
@@ -662,7 +652,7 @@ actor Main {
                 // Filter out the collection to remove
                 let updatedCollections = List.filter<(Time.Time, Principal)>(
                     List.fromArray(collections),
-                    func x { x.1 != collection_id }
+                    func x { x.1 != collection_id },
                 );
                 if (List.isNil(updatedCollections)) {
                     usersCollectionMap.delete(user);
@@ -686,40 +676,40 @@ actor Main {
             ext_setCollectionMetadata : (
                 name : Text,
                 symbol : Text,
-                metadata : Text
+                metadata : Text,
             ) -> async ();
-            setMinter : ( minter : Principal)-> async();
-            ext_admin : () -> async Principal
+            setMinter : (minter : Principal) -> async ();
+            ext_admin : () -> async Principal;
         };
         await collectionCanisterActor.setMinter(user);
         await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-        // Updating the userCollectionMap 
+        // Updating the userCollectionMap
         let collections = usersCollectionMap.get(user);
         let buffer = Buffer.fromArray<Principal>(allCollections);
         buffer.add(extCollectionCanisterId);
         allCollections := Buffer.toArray(buffer);
-        let canisterMetadata: CanisterMetadata = {
+        let canisterMetadata : CanisterMetadata = {
             name = _title;
-            description = _symbol;  // Assuming metadata holds the description
-            thumbnail = _metadata;            // Set a thumbnail if you have one
-            frontend = null;          // Set frontend if applicable
+            description = _symbol; // Assuming metadata holds the description
+            thumbnail = _metadata; // Set a thumbnail if you have one
+            frontend = null; // Set frontend if applicable
             principal_id = extCollectionCanisterId;
-            submitter = user;          // The user creating the collection
+            submitter = user; // The user creating the collection
             last_updated_by = user;
             last_updated_at = Time.now();
-            details = [];              // You can add more details if needed
+            details = []; // You can add more details if needed
         };
 
         let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
         switch (addResult) {
             case (#ok(())) {
-                switch(collections){
+                switch (collections) {
                     case null {
                         let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-                        usersCollectionMap.put(user,updatedCollections);
+                        usersCollectionMap.put(user, updatedCollections);
                         return (user, extCollectionCanisterId);
                     };
-                    case (?collections){
+                    case (?collections) {
                         let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
                         usersCollectionMap.put(user, updatedObj);
                         return (user, extCollectionCanisterId);
@@ -728,17 +718,21 @@ actor Main {
             };
             case (#err(errType)) {
                 // Handle different error types
-                let errorMessage: Text = switch (errType) {
+                let errorMessage : Text = switch (errType) {
                     case (#BadParameters) { "Bad parameters provided." };
-                    case (#NonExistentItem) { "The specified item does not exist." };
-                    case (#NotAuthorized) { "Not authorized to perform this action." };
-                    case (#Unknown(error)) { "Unknown error occurred: " # error };
+                    case (#NonExistentItem) {
+                        "The specified item does not exist.";
+                    };
+                    case (#NotAuthorized) {
+                        "Not authorized to perform this action.";
+                    };
+                    case (#Unknown(error)) {
+                        "Unknown error occurred: " # error;
+                    };
                 };
                 throw Error.reject("Failed to add canister to registry: " # errorMessage);
             };
         };
-        
-
 
     };
 
@@ -760,7 +754,7 @@ actor Main {
     //         fee = { e8s = 10_000 };
     //         memo = 0;
     //         from_subaccount = null;
-    //         created_at_time = null; 
+    //         created_at_time = null;
     //     };
     //     let transferResponse = await LedgerCanister.transfer(transferRequest);
     //     switch (transferResponse) {
@@ -799,7 +793,7 @@ actor Main {
     //         };
     //         case (#Err(error)) {
     //         // Handle transfer errors
-            
+
     //         };
     //     };
     //     // let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
@@ -815,7 +809,7 @@ actor Main {
     //     // };
     //     // await collectionCanisterActor.setMinter(user);
     //     // await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-    //     // // Updating the userCollectionMap 
+    //     // // Updating the userCollectionMap
     //     // let collections = usersCollectionMap.get(user);
     //     // let buffer = Buffer.fromArray<Principal>(allCollections);
     //     // buffer.add(extCollectionCanisterId);
@@ -833,23 +827,22 @@ actor Main {
     //     //     };
     //     // };
 
-
     // };
 
-    // Getting Collection Metadata 
-    public shared ({caller = user}) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
+    // Getting Collection Metadata
+    public shared ({ caller = user }) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
         let collections = usersCollectionMap.get(user);
-        
+
         switch (collections) {
             case (null) {
                 return null;
             };
             case (?collections) {
                 var result : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
-                
+
                 for ((timestamp, collectionCanisterId) in collections.vals()) {
                     let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
-                        getCollectionDetails: () -> async (Text, Text, Text);
+                        getCollectionDetails : () -> async (Text, Text, Text);
                     };
 
                     let details = await collectionCanister.getCollectionDetails();
@@ -862,20 +855,19 @@ actor Main {
         };
     };
 
-
-    public shared ({caller = user}) func getUserCollectionNames() : async ?[(Principal, Text)] {
+    public shared ({ caller = user }) func getUserCollectionNames() : async ?[(Principal, Text)] {
         let collections = usersCollectionMap.get(user);
-        
+
         switch (collections) {
             case (null) {
                 return null;
             };
             case (?collections) {
                 var result : List.List<(Principal, Text)> = List.nil();
-                
+
                 for ((timestamp, collectionCanisterId) in collections.vals()) {
                     let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
-                        getCollectionDetails: () -> async (Text, Text, Text);
+                        getCollectionDetails : () -> async (Text, Text, Text);
                     };
 
                     let details = await collectionCanister.getCollectionDetails();
@@ -888,14 +880,13 @@ actor Main {
         };
     };
 
-
-    public shared ({caller = user}) func getUserCollectionDetailsPaginate(
-        page: Nat, 
-        pageSize: Nat
+    public shared ({ caller = user }) func getUserCollectionDetailsPaginate(
+        page : Nat,
+        pageSize : Nat,
     ) : async {
-        data: [(Time.Time, Principal, Text, Text, Text)];
-        current_page: Nat;
-        total_pages: Nat
+        data : [(Time.Time, Principal, Text, Text, Text)];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         let collections = usersCollectionMap.get(user);
 
@@ -904,7 +895,7 @@ actor Main {
                 return {
                     data = [];
                     current_page = 0;
-                    total_pages = 0
+                    total_pages = 0;
                 };
             };
             case (?collections) {
@@ -918,19 +909,19 @@ actor Main {
                 let startIndex = page * pageSize;
                 if (startIndex >= totalCollections) {
                     return {
-                        data = []; 
+                        data = [];
                         current_page = page + 1;
-                        total_pages = totalPages
+                        total_pages = totalPages;
                     };
                 };
                 let endIndex = Nat.min(totalCollections, startIndex + pageSize);
 
                 var resultList : List.List<(Time.Time, Principal, Text, Text, Text)> = List.nil();
-                var currentIndex: Nat = 0;
+                var currentIndex : Nat = 0;
                 for ((timestamp, collectionCanisterId) in collections.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         let collectionCanister = actor (Principal.toText(collectionCanisterId)) : actor {
-                            getCollectionDetails: () -> async (Text, Text, Text);
+                            getCollectionDetails : () -> async (Text, Text, Text);
                         };
                         let details = await collectionCanister.getCollectionDetails();
                         resultList := List.push((timestamp, collectionCanisterId, details.0, details.1, details.2), resultList);
@@ -938,24 +929,22 @@ actor Main {
                     currentIndex += 1;
                 };
 
-            let res = List.toArray(List.reverse(resultList));
+                let res = List.toArray(List.reverse(resultList));
 
                 return {
                     data = res;
                     current_page = page + 1;
-                    total_pages = totalPages
+                    total_pages = totalPages;
                 };
             };
         };
     };
 
-
-
     // Getting Collections that user own(only gets canisterIds of respective collections)
-    public shared query ({caller = user}) func getUserCollections() : async ?[(Time.Time,Principal)] {
+    public shared query ({ caller = user }) func getUserCollections() : async ?[(Time.Time, Principal)] {
         return usersCollectionMap.get(user);
     };
-    
+
     // Getting all the collections ever created(only gets the canisterIds)
     public shared query func getAllCollections() : async [(Principal, [(Time.Time, Principal)])] {
         var result : [(Principal, [(Time.Time, Principal)])] = [];
@@ -965,9 +954,8 @@ actor Main {
         return result;
     };
 
-    
     // Minting  a NFT pass the collection canisterId in which you want to mint and the required details to add, this enables minting multiple tokens
-    public shared ({caller = user}) func mintExtNonFungible(
+    public shared ({ caller = user }) func mintExtNonFungible(
         _collectionCanisterId : Principal,
         name : Text,
         desc : Text,
@@ -981,13 +969,13 @@ actor Main {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
-        
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
-            ) -> async [TokenIndex]
+            ) -> async [TokenIndex];
         };
-        let metadataNonFungible : Metadata = #nonfungible{
+        let metadataNonFungible : Metadata = #nonfungible {
             name = name;
             description = desc;
             asset = asset;
@@ -995,24 +983,24 @@ actor Main {
             metadata = metadata;
         };
 
-        let receiver = AID.fromPrincipal(user,null);
-        var request : [(AccountIdentifier,Metadata)] = [];
+        let receiver = AID.fromPrincipal(user, null);
+        var request : [(AccountIdentifier, Metadata)] = [];
         var i : Nat = 0;
         while (i < amount) {
-            request := Array.append(request , [(receiver,metadataNonFungible)]);
+            request := Array.append(request, [(receiver, metadataNonFungible)]);
             i := i + 1;
-        }; 
+        };
         let extMint = await collectionCanisterActor.ext_mint(request);
-        extMint
+        extMint;
     };
-    
+
     // Minting  a Fungible token pass the collection canisterId in which you want to mint and the required details to add, this enables minting multiple tokens
-    public shared ({caller = user}) func mintExtFungible(
+    public shared ({ caller = user }) func mintExtFungible(
         _collectionCanisterId : Principal,
         name : Text,
         symbol : Text,
         decimals : Nat8,
-        metadata: ?MetadataContainer,
+        metadata : ?MetadataContainer,
         amount : Nat
 
     ) : async [TokenIndex] {
@@ -1021,44 +1009,44 @@ actor Main {
             // You can either return an error or throw an exception.
             throw Error.reject("Anonymous principals are not allowed.");
         };
-        
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
-            ) -> async [TokenIndex]
+            ) -> async [TokenIndex];
         };
-        let metadataFungible : Metadata = #fungible{
+        let metadataFungible : Metadata = #fungible {
             name = name;
             symbol = symbol;
             decimals = decimals;
             metadata = metadata;
         };
 
-        let receiver = AID.fromPrincipal(user,null);
-        var request : [(AccountIdentifier,Metadata)] = [];
+        let receiver = AID.fromPrincipal(user, null);
+        var request : [(AccountIdentifier, Metadata)] = [];
         var i : Nat = 0;
         while (i < amount) {
-            request := Array.append(request , [(receiver,metadataFungible)]);
+            request := Array.append(request, [(receiver, metadataFungible)]);
             i := i + 1;
-        }; 
+        };
         let extMint = await collectionCanisterActor.ext_mint(request);
-        extMint
+        extMint;
     };
 
     // Stores the data of token now but mints it later at the time of claiming, gives you details to be added in Link
-    public shared ({caller = user}) func storeTokendetails(
+    public shared ({ caller = user }) func storeTokendetails(
         _collectionCanisterId : Principal,
         name : Text,
         desc : Text,
         asset : Text,
         thumb : Text,
         metadata : ?MetadataContainer,
-        amount : Nat
+        amount : Nat,
     ) : async [Nat32] {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
-        let metadataNonFungible : Metadata = #nonfungible{
+        let metadataNonFungible : Metadata = #nonfungible {
             name = name;
             description = desc;
             asset = asset;
@@ -1070,57 +1058,61 @@ actor Main {
         var nextTokenIds : [Nat32] = [];
         while (i < amount) {
             try {
-                let currentTokens = switch(tokensDataToBeMinted.get(_collectionCanisterId)) {
+                let currentTokens = switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
                     case (?existingTokens) existingTokens;
                     case null [];
                 };
                 let updatedTokens = Array.append(currentTokens, [(nextTokenIndex, metadataNonFungible)]);
                 tokensDataToBeMinted.put(_collectionCanisterId, updatedTokens);
-                
+
                 nextTokenIds := Array.append(nextTokenIds, [nextTokenIndex]);
                 nextTokenIndex := nextTokenIndex + 1;
                 i := i + 1;
 
             } catch (e) {
                 throw Error.reject("Error occurred while storing token details");
-            }
+            };
         };
 
         return nextTokenIds;
     };
 
     public shared func getStoredTokens(
-        _collectionCanisterId : Principal    
+        _collectionCanisterId : Principal
     ) : async ?[(Nat32, Metadata)] {
-        tokensDataToBeMinted.get(_collectionCanisterId)
+        tokensDataToBeMinted.get(_collectionCanisterId);
     };
 
     public shared func getStoredTokensPaginate(
-        _collectionCanisterId: Principal, 
-        page: Nat, 
-        pageSize: Nat
-    ) : async { 
-        data: [(Nat32, Metadata)]; 
-        current_page: Nat; 
-        total_pages: Nat 
+        _collectionCanisterId : Principal,
+        page : Nat,
+        pageSize : Nat,
+    ) : async {
+        data : [(Nat32, Metadata)];
+        current_page : Nat;
+        total_pages : Nat;
     } {
 
         switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
             case (?tokensArray) {
                 let totalItems = tokensArray.size();
                 let totalPages = if (totalItems % pageSize == 0) {
-                    totalItems / pageSize
+                    totalItems / pageSize;
                 } else {
-                    (totalItems / pageSize) + 1
+                    (totalItems / pageSize) + 1;
                 };
 
                 let startIndex = page * pageSize;
                 if (startIndex >= totalItems) {
-                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                    return {
+                        data = [];
+                        current_page = page + 1;
+                        total_pages = totalPages;
+                    };
                 };
                 let endIndex = Nat.min(totalItems, startIndex + pageSize);
-                var resultTokens: List.List<(Nat32, Metadata)> = List.nil();
-                var currentIndex: Nat = 0;
+                var resultTokens : List.List<(Nat32, Metadata)> = List.nil();
+                var currentIndex : Nat = 0;
                 for (token in tokensArray.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultTokens := List.push(token, resultTokens);
@@ -1139,89 +1131,84 @@ actor Main {
             case null {
                 return { data = []; current_page = 0; total_pages = 0 };
             };
-        }
+        };
     };
 
-
-
-
-    
-    
     // Get Fungible token details for specific collection
     public shared ({ caller = user }) func getFungibleTokens(
         _collectionCanisterId : Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-            getAllFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            getAllFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
         };
-        let userAID = AID.fromPrincipal(user,null);
+        let userAID = AID.fromPrincipal(user, null);
         let allTokens = await collectionCanisterActor.getAllFungibleTokenData();
         let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
-            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID
-            }
+                owner == userAID;
+            },
         );
         return userTokens;
     };
 
     // Get NFT details for specific collection
     public shared ({ caller = user }) func getNonFungibleTokens(
-        _collectionCanisterId: Principal,
+        _collectionCanisterId : Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
         };
 
         let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
-        let userAID = AID.fromPrincipal(user,null);
+        let userAID = AID.fromPrincipal(user, null);
 
         // Filter tokens by owner
         let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
-            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID
-            }
+                owner == userAID;
+            },
         );
         return userTokens;
     };
     // Get NFT details for specific collection
     public shared func getNonFungibleTokensByUserPrincipal(
         user : Principal,
-        _collectionCanisterId: Principal,
+        _collectionCanisterId : Principal,
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)]
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
         };
 
         let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
-        let userAID = AID.fromPrincipal(user,null);
+        let userAID = AID.fromPrincipal(user, null);
 
         // Filter tokens by owner
         let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
-            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID
-            }
+                owner == userAID;
+            },
         );
         return userTokens;
     };
 
     // Get NFT details for specific collection
     public shared ({ caller = user }) func getNonFungibleTokensPaginate(
-        _collectionCanisterId: Principal,
-        page: Nat,
-        pageSize: Nat
+        _collectionCanisterId : Principal,
+        page : Nat,
+        pageSize : Nat,
     ) : async {
-        data: [(TokenIndex, AccountIdentifier, Metadata)];
-        current_page: Nat;
-        total_pages: Nat
+        data : [(TokenIndex, AccountIdentifier, Metadata)];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            getAllNonFungibleTokenData: () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
         };
 
         let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
@@ -1229,16 +1216,16 @@ actor Main {
         // Filter tokens by owner
         let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
-            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID
-            }
+                owner == userAID;
+            },
         );
         let totalItems = userTokens.size();
         let totalPages = if (totalItems % pageSize == 0) {
-            totalItems / pageSize
+            totalItems / pageSize;
         } else {
-            (totalItems / pageSize) + 1
+            (totalItems / pageSize) + 1;
         };
 
         let startIndex = page * pageSize;
@@ -1246,13 +1233,13 @@ actor Main {
             return {
                 data = [];
                 current_page = page + 1;
-                total_pages = totalPages
+                total_pages = totalPages;
             };
         };
         let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
-        var paginatedTokens: List.List<(TokenIndex, AccountIdentifier, Metadata)> = List.nil();
-        var currentIndex: Nat = 0;
+        var paginatedTokens : List.List<(TokenIndex, AccountIdentifier, Metadata)> = List.nil();
+        var currentIndex : Nat = 0;
         for (token in userTokens.vals()) {
             if (currentIndex >= startIndex and currentIndex < endIndex) {
                 paginatedTokens := List.push(token, paginatedTokens);
@@ -1265,13 +1252,9 @@ actor Main {
         return {
             data = paginatedTokensArray;
             current_page = page + 1;
-            total_pages = totalPages
+            total_pages = totalPages;
         };
     };
-
-
-
-
 
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
         var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
@@ -1298,12 +1281,12 @@ actor Main {
     };
 
     public shared ({ caller = user }) func getUserTokensFromAllCollectionsPaginate(
-        page: Nat, 
-        pageSize: Nat
-    ) : async { 
-        data: [(Principal, Text, Nat)]; 
-        current_page: Nat; 
-        total_pages: Nat 
+        page : Nat,
+        pageSize : Nat,
+    ) : async {
+        data : [(Principal, Text, Nat)];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
         let userClaims : ?[(Principal, Nat)] = claimedTokensMap.get(user);
@@ -1317,23 +1300,27 @@ actor Main {
 
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
-                    totalItems / pageSize
+                    totalItems / pageSize;
                 } else {
-                    (totalItems / pageSize) + 1
+                    (totalItems / pageSize) + 1;
                 };
 
                 // Calculate start and end index for pagination
                 let startIndex = page * pageSize;
                 if (startIndex >= totalItems) {
                     // If the start index exceeds total items, return empty data
-                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                    return {
+                        data = [];
+                        current_page = page + 1;
+                        total_pages = totalPages;
+                    };
                 };
 
                 let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
                 // Collect the paginated tokens
-                var resultTokens: List.List<(Principal, Text, Nat)> = List.nil();
-                var currentIndex: Nat = 0;
+                var resultTokens : List.List<(Principal, Text, Nat)> = List.nil();
+                var currentIndex : Nat = 0;
                 for ((collectionCanisterId, tokenCount) in claimedCollectionData.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
@@ -1351,14 +1338,11 @@ actor Main {
                 return {
                     data = resultArray;
                     current_page = page + 1;
-                    total_pages = totalPages
+                    total_pages = totalPages;
                 };
             };
-        }
+        };
     };
-
-
-
 
     // public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
     //     var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
@@ -1372,11 +1356,11 @@ actor Main {
     //         switch (userCollections) {
     //             case (?collections) {
     //                 // Use Array.find to check if collectionCanisterId exists in collections
-    //                 presentInUserCollections := Option.isSome(Array.find(collections, func((_ : Time.Time, principal : Principal)) : Bool { 
-    //                     principal == collectionCanisterId 
+    //                 presentInUserCollections := Option.isSome(Array.find(collections, func((_ : Time.Time, principal : Principal)) : Bool {
+    //                     principal == collectionCanisterId
     //                 }));
     //             };
-    //             case null { 
+    //             case null {
     //                 presentInUserCollections := false;
     //             };
     //         };
@@ -1385,7 +1369,7 @@ actor Main {
     //         if (not presentInUserCollections) {
     //             let collectionCanisterActor = actor (Principal.toText(collectionCanisterId)) : actor {
     //                 tokens : (aid : AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
-    //                 getCollectionDetails : () -> async (Text, Text, Text); 
+    //                 getCollectionDetails : () -> async (Text, Text, Text);
     //             };
 
     //             // Retrieve collection details
@@ -1413,17 +1397,16 @@ actor Main {
     //     return Buffer.toArray(resultArray);
     // };
 
-
-    func principalToUser(principal: Principal) : User {
-        #principal(principal)
+    func principalToUser(principal : Principal) : User {
+        #principal(principal);
     };
 
     // Token will be transfered to this Vault and gives you req details to construct a link out of it, which you can share
-    public shared  func createLink(
+    public shared func createLink(
         user : Principal,
-        _collectionCanisterId: Principal,
-        _from: Principal,
-        _tokenId: TokenIndex
+        _collectionCanisterId : Principal,
+        _from : Principal,
+        _tokenId : TokenIndex,
     ) : async Nat32 {
 
         // if (Principal.isAnonymous(user)) {
@@ -1443,7 +1426,9 @@ actor Main {
                 // Check if the tokenId already exists
                 let tokenExists = List.some<Link>(
                     linksList,
-                    func(link) { link.tokenId == _tokenId and link.claimPattern == "transfer" and link.collection == _collectionCanisterId }
+                    func(link) {
+                        link.tokenId == _tokenId and link.claimPattern == "transfer" and link.collection == _collectionCanisterId
+                    },
                 );
 
                 if (tokenExists) {
@@ -1455,7 +1440,7 @@ actor Main {
         // Prepare the new deposit and link objects
         let userAID = AID.fromPrincipal(_from, null);
         let key = generateKey(userAID, Time.now(), _tokenId);
-        let newDeposit: Deposit = {
+        let newDeposit : Deposit = {
             tokenId = _tokenId;
             sender = _from;
             collectionCanister = _collectionCanisterId;
@@ -1463,7 +1448,7 @@ actor Main {
             claimPattern = "transfer";
             status = "created";
         };
-        let newLink: Link = {
+        let newLink : Link = {
             tokenId = _tokenId;
             collection = _collectionCanisterId;
             claimPattern = "transfer";
@@ -1500,12 +1485,11 @@ actor Main {
         return key;
     };
 
-
     public shared func createLinkForNonMinted(
         user : Principal,
         _collectionCanisterId : Principal,
         _from : Principal,
-        _tokenId : Nat32
+        _tokenId : Nat32,
     ) : async Nat32 {
 
         // if (Principal.isAnonymous(user)) {
@@ -1525,7 +1509,9 @@ actor Main {
                 // Check if the tokenId already exists
                 let tokenExists = List.some<Link>(
                     linksList,
-                    func(link) { link.tokenId == _tokenId and link.claimPattern == "mint"  and link.collection == _collectionCanisterId  }
+                    func(link) {
+                        link.tokenId == _tokenId and link.claimPattern == "mint" and link.collection == _collectionCanisterId
+                    },
                 );
 
                 if (tokenExists) {
@@ -1536,20 +1522,20 @@ actor Main {
         // Check if the tokenId exists in the tokensDataToBeMinted for the given collection
         switch (tokensDataToBeMinted.get(_collectionCanisterId)) {
             case (?tokensList) {
-                var matchingToken: ?(Nat32, Metadata) = null;
+                var matchingToken : ?(Nat32, Metadata) = null;
 
                 for (token in tokensList.vals()) {
                     if (token.0 == _tokenId) {
                         matchingToken := ?token;
-                    }
+                    };
                 };
-                let userAID = AID.fromPrincipal(_from,null); 
+                let userAID = AID.fromPrincipal(_from, null);
 
                 switch (matchingToken) {
                     case (?(_, metadata)) {
                         // Create a deposit entry for the non-minted token
                         let key = generateKey(userAID, Time.now(), _tokenId);
-                        let newDeposit: Deposit = {
+                        let newDeposit : Deposit = {
                             tokenId = _tokenId;
                             sender = _from;
                             collectionCanister = _collectionCanisterId;
@@ -1557,7 +1543,7 @@ actor Main {
                             claimPattern = "mint";
                             status = "created";
                         };
-                        let newLink: Link = {
+                        let newLink : Link = {
                             tokenId = _tokenId;
                             collection = _collectionCanisterId;
                             claimPattern = "mint";
@@ -1582,7 +1568,7 @@ actor Main {
                                 userLinks.put(_from, List.toArray(updatedLinksList));
                             };
                         };
-                        depositItemsMap.put(key,newDeposit);
+                        depositItemsMap.put(key, newDeposit);
                         linksCount := linksCount + 1;
                         dailyLinksCreatedCount := dailyLinksCreatedCount + 1;
                         userLinksCount := updateUserCountArray(userLinksCount, user);
@@ -1602,22 +1588,22 @@ actor Main {
         };
     };
 
-    public shared ({caller = user}) func claim(
-        _collectionCanisterId: Principal,
-        _depositKey: Nat32
+    public shared ({ caller = user }) func claim(
+        _collectionCanisterId : Principal,
+        _depositKey : Nat32,
     ) : async Result.Result<Int, Text> {
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
-        await claimToken(user, _collectionCanisterId, _depositKey)
+        await claimToken(user, _collectionCanisterId, _depositKey);
     };
 
     func claimToken(
         user : Principal,
-        _collectionCanisterId: Principal,
-        _depositKey: Nat32
+        _collectionCanisterId : Principal,
+        _depositKey : Nat32,
     ) : async Result.Result<Int, Text> {
-        
+
         let depositItemOpt = depositItemsMap.get(_depositKey);
 
         switch (depositItemOpt) {
@@ -1626,7 +1612,7 @@ actor Main {
                 return #err("Deposit Key not found, might be claimed already..!");
             };
             case (?depositItem) {
-                if(depositItem.sender == user){
+                if (depositItem.sender == user) {
                     throw Error.reject("Sender cannot claim Link");
                     return #err("Sender cannot claim Link");
                 };
@@ -1647,7 +1633,7 @@ actor Main {
                     case (#ok(claimRes)) {
                         // Retrieve existing claims for the user
                         let userClaims : ?[(Principal, Nat)] = claimedTokensMap.get(user);
-                        
+
                         let updatedClaims : [(Principal, Nat)] = switch (userClaims) {
                             case null {
                                 // No existing claims, initialize with a new entry
@@ -1659,15 +1645,18 @@ actor Main {
 
                                 // Check if the collection canister ID is already in the list
                                 var found = false;
-                                var updatedList = List.map<(Principal, Nat), (Principal, Nat)>(claimsList, func (claim : (Principal, Nat)) : (Principal, Nat) {
-                                    if (claim.0 == _collectionCanisterId) {
-                                        found := true;
-                                        // Increment the token count for this collection
-                                        (claim.0, claim.1 + 1);
-                                    } else {
-                                        claim;
-                                    }
-                                });
+                                var updatedList = List.map<(Principal, Nat), (Principal, Nat)>(
+                                    claimsList,
+                                    func(claim : (Principal, Nat)) : (Principal, Nat) {
+                                        if (claim.0 == _collectionCanisterId) {
+                                            found := true;
+                                            // Increment the token count for this collection
+                                            (claim.0, claim.1 + 1);
+                                        } else {
+                                            claim;
+                                        };
+                                    },
+                                );
 
                                 // If not found, add a new entry for this collection
                                 if (not found) {
@@ -1692,18 +1681,18 @@ actor Main {
     };
 
     // Function to update user campaigns map based on changes in campaigns
-    func updateUserCampaignsMap(campaignId: Text, user: Principal, updatedDepositIndices: [Nat32]) : async () {
+    func updateUserCampaignsMap(campaignId : Text, user : Principal, updatedDepositIndices : [Nat32]) : async () {
         let existingUserCampaignsOpt = userCampaignsMap.get(user);
-        
+
         switch (existingUserCampaignsOpt) {
             case (?existingUserCampaigns) {
-                var updatedCampaigns: [Campaign] = [];
+                var updatedCampaigns : [Campaign] = [];
                 var campaignUpdated = false;
 
                 // Iterate through existing campaigns
                 for (existingCampaign in existingUserCampaigns.vals()) {
                     if (existingCampaign.id == campaignId) {
-                        let updatedCampaign: Campaign = {
+                        let updatedCampaign : Campaign = {
                             existingCampaign with depositIndices = updatedDepositIndices
                         };
                         updatedCampaigns := Array.append(updatedCampaigns, [updatedCampaign]);
@@ -1717,21 +1706,18 @@ actor Main {
                     userCampaignsMap.put(user, updatedCampaigns);
                 } else {
 
-                }
+                };
             };
-            case null {
-            };
+            case null {};
         };
     };
-        
-
 
     // Token will be transfered to user who claims through the shared link
     func claimLink(
-        user: Principal,
-        _collectionCanisterId: Principal,
-        _depositItem: Deposit,
-        _depositKey: Nat32
+        user : Principal,
+        _collectionCanisterId : Principal,
+        _depositItem : Deposit,
+        _depositKey : Nat32,
     ) : async Result.Result<Int, Text> {
 
         // if (Principal.isAnonymous(user)) {
@@ -1739,23 +1725,23 @@ actor Main {
         // };
 
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            ext_transfer: (
-                request: TransferRequest
+            ext_transfer : (
+                request : TransferRequest
             ) -> async TransferResponse;
         };
 
-        let depositObj: Deposit = _depositItem;
+        let depositObj : Deposit = _depositItem;
 
         if (_collectionCanisterId != depositObj.collectionCanister) {
             return #err("Collection canister ID mismatch");
         };
 
-        let userFrom: User = principalToUser(depositObj.sender);  // Sender is the original owner
-        let userTo: User = principalToUser(user);                 // Claimer is the caller
+        let userFrom : User = principalToUser(depositObj.sender); // Sender is the original owner
+        let userTo : User = principalToUser(user); // Claimer is the caller
 
         let tokenIdentifier = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, depositObj.tokenId);
-        
-        let transferRequest: TransferRequest = {
+
+        let transferRequest : TransferRequest = {
             from = userFrom;
             to = userTo;
             token = tokenIdentifier;
@@ -1774,9 +1760,12 @@ actor Main {
                 let existingLinksOpt = userLinks.get(depositObj.sender);
                 switch (existingLinksOpt) {
                     case (?links) {
-                        let updatedLinks = Array.filter(links, func(link: Link): Bool {
-                            link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
-                        });
+                        let updatedLinks = Array.filter(
+                            links,
+                            func(link : Link) : Bool {
+                                link.tokenId != depositObj.tokenId or link.claimPattern != depositObj.claimPattern;
+                            },
+                        );
                         userLinks.put(depositObj.sender, updatedLinks);
                     };
                     case null {
@@ -1788,37 +1777,42 @@ actor Main {
                     let linkIndicesOpt = campaignLinks.get(campaignId);
                     switch (linkIndicesOpt) {
                         case (?linkIndices) {
-                            let newLinks = Array.filter<Nat32>(linkIndices, func(key: Nat32): Bool {
-                                return key != _depositKey;
-                            });
+                            let newLinks = Array.filter<Nat32>(
+                                linkIndices,
+                                func(key : Nat32) : Bool {
+                                    return key != _depositKey;
+                                },
+                            );
                             campaignLinks.put(campaignId, newLinks);
                             let campaignOpt = campaigns.get(campaignId);
                             switch (campaignOpt) {
                                 case (?campaign) {
                                     // Update depositIndices in the campaign object
-                                    let updatedDepositIndices = Array.filter<Nat32>(campaign.depositIndices, func(index: Nat32): Bool {
-                                        return index != _depositKey;
-                                    });
+                                    let updatedDepositIndices = Array.filter<Nat32>(
+                                        campaign.depositIndices,
+                                        func(index : Nat32) : Bool {
+                                            return index != _depositKey;
+                                        },
+                                    );
                                     let updatedCampaign : Campaign = {
-                                            id = campaign.id;
-                                            title = campaign.title;
-                                            tokenType = campaign.tokenType;
-                                            collection = campaign.collection;
-                                            claimPattern = campaign.claimPattern;
-                                            tokenIds = campaign.tokenIds;
-                                            walletOption = campaign.walletOption;
-                                            displayWallets = campaign.displayWallets;
-                                            expirationDate = campaign.expirationDate;
-                                            createdBy = campaign.createdBy;
-                                            createdAt = campaign.createdAt;
-                                            depositIndices = updatedDepositIndices;
-                                            status = #Ongoing
-                                        };
+                                        id = campaign.id;
+                                        title = campaign.title;
+                                        tokenType = campaign.tokenType;
+                                        collection = campaign.collection;
+                                        claimPattern = campaign.claimPattern;
+                                        tokenIds = campaign.tokenIds;
+                                        walletOption = campaign.walletOption;
+                                        displayWallets = campaign.displayWallets;
+                                        expirationDate = campaign.expirationDate;
+                                        createdBy = campaign.createdBy;
+                                        createdAt = campaign.createdAt;
+                                        depositIndices = updatedDepositIndices;
+                                        status = #Ongoing;
+                                    };
 
                                     campaigns.put(campaignId, updatedCampaign);
 
                                     await updateUserCampaignsMap(campaignId, depositObj.sender, updatedDepositIndices);
-
 
                                     // If no remaining links, delete the campaign
                                     if (newLinks.size() == 0) {
@@ -1866,21 +1860,20 @@ actor Main {
         };
     };
 
-
     func mintAtClaim(
         user : Principal,
         _collectionCanisterId : Principal,
         _depositItem : Deposit,
-        _depositKey : Nat32
+        _depositKey : Nat32,
     ) : async Result.Result<Int, Text> {
 
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
-        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor{
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_mint : (
                 request : [(AccountIdentifier, Metadata)]
-            ) -> async [TokenIndex]
+            ) -> async [TokenIndex];
         };
 
         if (_collectionCanisterId != _depositItem.collectionCanister) {
@@ -1891,8 +1884,8 @@ actor Main {
         let tokensListOpt = tokensDataToBeMinted.get(_collectionCanisterId);
         switch (tokensListOpt) {
             case (?tokensList) {
-                var foundToken: ?(Nat32, Metadata) = null;
-                var remainingTokens: [(Nat32, Metadata)] = [];
+                var foundToken : ?(Nat32, Metadata) = null;
+                var remainingTokens : [(Nat32, Metadata)] = [];
 
                 for (token in tokensList.vals()) {
                     if (token.0 == _depositItem.tokenId) {
@@ -1905,7 +1898,7 @@ actor Main {
                 switch (foundToken) {
                     case (?(_, metadata)) {
                         let receiver = AID.fromPrincipal(user, null);
-                        let request: [(AccountIdentifier, Metadata)] = [(receiver, metadata)]; 
+                        let request : [(AccountIdentifier, Metadata)] = [(receiver, metadata)];
 
                         let response = await collectionCanisterActor.ext_mint(request);
 
@@ -1919,9 +1912,12 @@ actor Main {
                         let existingLinksOpt = userLinks.get(_depositItem.sender);
                         switch (existingLinksOpt) {
                             case (?links) {
-                                let updatedLinks = Array.filter(links, func(link: Link): Bool {
-                                    link.tokenId != _depositItem.tokenId or link.claimPattern != _depositItem.claimPattern;
-                                });
+                                let updatedLinks = Array.filter(
+                                    links,
+                                    func(link : Link) : Bool {
+                                        link.tokenId != _depositItem.tokenId or link.claimPattern != _depositItem.claimPattern;
+                                    },
+                                );
                                 userLinks.put(_depositItem.sender, updatedLinks);
                             };
                             case null {
@@ -1931,21 +1927,27 @@ actor Main {
                         };
 
                         for (campaignId in campaignLinks.keys()) {
-                        let linkIndicesOpt = campaignLinks.get(campaignId);
-                        switch (linkIndicesOpt) {
-                            case (?linkIndices) {
-                                let newLinks = Array.filter<Nat32>(linkIndices, func(key: Nat32): Bool {
-                                    return key != _depositKey;
-                                });
-                                campaignLinks.put(campaignId, newLinks);
-                                let campaignOpt = campaigns.get(campaignId);
-                                switch (campaignOpt) {
-                                    case (?campaign) {
-                                        // Update depositIndices in the campaign object
-                                        let updatedDepositIndices = Array.filter<Nat32>(campaign.depositIndices, func(index: Nat32): Bool {
-                                            return index != _depositKey;
-                                        });
-                                        let updatedCampaign : Campaign = {
+                            let linkIndicesOpt = campaignLinks.get(campaignId);
+                            switch (linkIndicesOpt) {
+                                case (?linkIndices) {
+                                    let newLinks = Array.filter<Nat32>(
+                                        linkIndices,
+                                        func(key : Nat32) : Bool {
+                                            return key != _depositKey;
+                                        },
+                                    );
+                                    campaignLinks.put(campaignId, newLinks);
+                                    let campaignOpt = campaigns.get(campaignId);
+                                    switch (campaignOpt) {
+                                        case (?campaign) {
+                                            // Update depositIndices in the campaign object
+                                            let updatedDepositIndices = Array.filter<Nat32>(
+                                                campaign.depositIndices,
+                                                func(index : Nat32) : Bool {
+                                                    return index != _depositKey;
+                                                },
+                                            );
+                                            let updatedCampaign : Campaign = {
                                                 id = campaign.id;
                                                 title = campaign.title;
                                                 tokenType = campaign.tokenType;
@@ -1958,30 +1960,31 @@ actor Main {
                                                 createdBy = campaign.createdBy;
                                                 createdAt = campaign.createdAt;
                                                 depositIndices = updatedDepositIndices;
-                                                status = #Ongoing
+                                                status = #Ongoing;
                                             };
 
-                                        campaigns.put(campaignId, updatedCampaign);
-                                        
-                                        await updateUserCampaignsMap(campaignId, _depositItem.sender, updatedDepositIndices);
+                                            campaigns.put(campaignId, updatedCampaign);
 
-                                        // If no remaining links, delete the campaign
-                                        if (newLinks.size() == 0) {
-                                            await completeCampaign(campaignId);
+                                            await updateUserCampaignsMap(campaignId, _depositItem.sender, updatedDepositIndices);
+
+                                            // If no remaining links, delete the campaign
+                                            if (newLinks.size() == 0) {
+                                                await completeCampaign(campaignId);
+                                            };
+                                        };
+                                        case null {
+                                            /* Handle if campaign not found */
                                         };
                                     };
-                                    case null { /* Handle if campaign not found */ };
+                                    if (newLinks.size() == 0) {
+                                        await markCampaignStatus(campaignId, #Completed);
+                                    };
                                 };
-                                if(newLinks.size()==0){
-                                    await markCampaignStatus(campaignId, #Completed);
-                                }
-                            };
-                            case null {
-                                return #err("No link created during campaign creation");
+                                case null {
+                                    return #err("No link created during campaign creation");
+                                };
                             };
                         };
-                    };
-
 
                         claimCount := claimCount + 1;
                         dailyLinksClaimedCount := dailyLinksClaimedCount + 1;
@@ -2002,24 +2005,23 @@ actor Main {
         };
     };
 
-
     // Campaign creation
-    public shared ({caller = user}) func createCampaign (
-        title: Text,
-        tokenType: Text,
+    public shared ({ caller = user }) func createCampaign(
+        title : Text,
+        tokenType : Text,
         collection : Principal,
-        claimPattern: Text,
-        tokenIds: [TokenIndex],
-        walletOption: Text,
+        claimPattern : Text,
+        tokenIds : [TokenIndex],
+        walletOption : Text,
         displayWallets : [Text],
-        expirationDate: Time.Time,
-    ) : async (Text,[Nat32]) {
+        expirationDate : Time.Time,
+    ) : async (Text, [Nat32]) {
 
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
         // };
         let campaignId = generateCampaignId(user);
-        var linkResponses: [Nat32] = [];
+        var linkResponses : [Nat32] = [];
 
         switch (?expirationDate) {
             case (?exp) await scheduleCampaignDeletion(campaignId, exp);
@@ -2028,10 +2030,10 @@ actor Main {
 
         for (tokenId in tokenIds.vals()) {
             var linkKeys : Nat32 = 0;
-            if(claimPattern == "transfer"){
-                linkKeys := await createLink(user,collection, user, tokenId);
+            if (claimPattern == "transfer") {
+                linkKeys := await createLink(user, collection, user, tokenId);
             } else if (claimPattern == "mint") {
-                linkKeys := await createLinkForNonMinted(user,collection, user, tokenId);
+                linkKeys := await createLinkForNonMinted(user, collection, user, tokenId);
             } else {
                 throw Error.reject("Invalid claimPattern: " # claimPattern);
             };
@@ -2058,9 +2060,8 @@ actor Main {
             createdBy = user;
             createdAt = Time.now();
             depositIndices = linkResponses;
-            status = #Ongoing
+            status = #Ongoing;
         };
-
 
         campaigns.put(campaignId, campaign);
 
@@ -2074,53 +2075,64 @@ actor Main {
             };
         };
 
-
         return (campaignId, linkResponses);
     };
 
-    func scheduleCampaignDeletion(campaignId : Text, expiration: Time.Time) : async () {
+    func scheduleCampaignDeletion(campaignId : Text, expiration : Time.Time) : async () {
         let now = Time.now();
         let duration = if (expiration > now) expiration - now else now - expiration;
         let natDuration = Nat64.toNat(Nat64.fromIntWrap(duration));
         if (duration > 0) {
-            let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                await completeCampaign(campaignId);
-            });
+            let id = Timer.setTimer<system>(
+                #nanoseconds natDuration,
+                func() : async () {
+                    await completeCampaign(campaignId);
+                },
+            );
             campaignTimers.put(campaignId, id);
         };
     };
 
     // internal function to take care of link expiration
-    func completeCampaign(campaignId: Text) : async () {
+    func completeCampaign(campaignId : Text) : async () {
         // Retrieve QRSetId and DispenserId from qdcMap
         var qrSetId : Text = "";
         var dispenserId : Text = "";
-        
+
         var qdcList = List.fromArray(qdcMap);
-        var updatedQdcList = List.filter<(Text, (Text, Text))>(qdcList, func(entry) : Bool {
-            if (entry.0 == campaignId) {
-                qrSetId := entry.1.0;
-                dispenserId := entry.1.1;
-                false
-            } else {
-                true
-            }
-        });
+        var updatedQdcList = List.filter<(Text, (Text, Text))>(
+            qdcList,
+            func(entry) : Bool {
+                if (entry.0 == campaignId) {
+                    qrSetId := entry.1.0;
+                    dispenserId := entry.1.1;
+                    false;
+                } else {
+                    true;
+                };
+            },
+        );
         qdcMap := List.toArray(updatedQdcList);
 
         // Remove links related to the campaign in `campaignLinks` and `userLinks`
         for ((user, links) in userLinks.entries()) {
-            let linksToKeep = Array.filter<Link>(links, func(link) {
-                let campaignOpt = campaignLinks.get(campaignId);
-                switch (campaignOpt) {
-                    case (?campaignLinkList) {
-                        Array.find<Nat32>(campaignLinkList, func(depositKey) {
-                            depositKey == link.linkKey 
-                        }) == null 
+            let linksToKeep = Array.filter<Link>(
+                links,
+                func(link) {
+                    let campaignOpt = campaignLinks.get(campaignId);
+                    switch (campaignOpt) {
+                        case (?campaignLinkList) {
+                            Array.find<Nat32>(
+                                campaignLinkList,
+                                func(depositKey) {
+                                    depositKey == link.linkKey;
+                                },
+                            ) == null;
+                        };
+                        case null { true };
                     };
-                    case null { true }; 
-                }
-            });
+                },
+            );
 
             if (Array.size(linksToKeep) > 0) {
                 userLinks.put(user, linksToKeep);
@@ -2129,25 +2141,24 @@ actor Main {
             };
         };
 
-        let linksSize = switch(campaignLinks.get(campaignId)){
-            case(?links){
-                Array.size(links)
+        let linksSize = switch (campaignLinks.get(campaignId)) {
+            case (?links) {
+                Array.size(links);
             };
-            case null{
-                0
+            case null {
+                0;
             };
         };
 
-
-       if(linksSize == 0){
-            if (qrSetId != "" ) {
+        if (linksSize == 0) {
+            if (qrSetId != "") {
                 await markQRSetStatus(qrSetId, #Completed);
             };
             if (dispenserId != "") {
                 await markDispenserStatus(dispenserId, #Completed);
             };
             await markCampaignStatus(campaignId, #Completed);
-       }else{
+        } else {
 
             let depositIndicesOpt = campaignLinks.get(campaignId);
             switch (depositIndicesOpt) {
@@ -2162,11 +2173,10 @@ actor Main {
             await markCampaignStatus(campaignId, #Expired);
             await markDispenserStatus(dispenserId, #Expired);
             await markQRSetStatus(qrSetId, #Expired);
-       };
+        };
 
         // Remove the campaign itself from `campaignLinks`
         campaignLinks.delete(campaignId);
-        
 
         // Delete the campaign itself
         // campaigns.delete(campaignId);
@@ -2220,8 +2230,7 @@ actor Main {
         // };
     };
 
-
-    public func markCampaignStatus(campaignId: Text, newStatus: Status) : async () {
+    public func markCampaignStatus(campaignId : Text, newStatus : Status) : async () {
         let campaignOpt = campaigns.get(campaignId);
         switch (campaignOpt) {
             case null {};
@@ -2233,18 +2242,20 @@ actor Main {
 
         // Update the userCampaignsMap
         for ((user, campaigns) in userCampaignsMap.entries()) {
-            let updatedCampaigns = Array.map<Campaign, Campaign>(campaigns, func(campaign) : Campaign {
-                if (campaign.id == campaignId) {
-                    return { campaign with status = newStatus }; 
-                } else {
-                    return campaign;
-                };
-            });
+            let updatedCampaigns = Array.map<Campaign, Campaign>(
+                campaigns,
+                func(campaign) : Campaign {
+                    if (campaign.id == campaignId) {
+                        return { campaign with status = newStatus };
+                    } else {
+                        return campaign;
+                    };
+                },
+            );
             userCampaignsMap.put(user, updatedCampaigns);
         };
-        
-    };
 
+    };
 
     // Get details of a specific Campaign
     public shared query func getCampaignDetails(campaignId : Text) : async ?Campaign {
@@ -2260,17 +2271,17 @@ actor Main {
     };
 
     func getUsedTokenIds(_collectionCanisterId : Principal, stored : Bool) : async [TokenIndex] {
-        var usedTokenIds: [TokenIndex] = [];
-        
+        var usedTokenIds : [TokenIndex] = [];
+
         for ((_, campaign) in campaigns.entries()) {
-            if(campaign.collection == _collectionCanisterId){
+            if (campaign.collection == _collectionCanisterId) {
                 for (depositIndex in campaign.depositIndices.vals()) {
                     let depositItem = depositItemsMap.get(depositIndex);
                     switch (depositItem) {
                         case (?item) {
-                            if(item.claimPattern == "transfer" and not stored){
+                            if (item.claimPattern == "transfer" and not stored) {
                                 usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
-                            }else if(item.claimPattern == "mint" and stored){
+                            } else if (item.claimPattern == "mint" and stored) {
                                 usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
                             };
                         };
@@ -2279,93 +2290,97 @@ actor Main {
                         };
                     };
                 };
-            }
+            };
         };
-        
+
         return usedTokenIds;
     };
 
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
-        _collectionCanisterId: Principal
+        _collectionCanisterId : Principal
     ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
         let allTokens = await getNonFungibleTokensByUserPrincipal(user, _collectionCanisterId);
         let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
         let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
             allTokens,
-            func (tokenData: (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
                 let (tokenIndex, _, _) = tokenData;
-                return Array.find<TokenIndex>(usedTokenIds, func (usedTokenId: TokenIndex) : Bool {
-                    return usedTokenId == tokenIndex;
-                }) == null;
-            }
+                return Array.find<TokenIndex>(
+                    usedTokenIds,
+                    func(usedTokenId : TokenIndex) : Bool {
+                        return usedTokenId == tokenIndex;
+                    },
+                ) == null;
+            },
         );
 
-        
         return availableTokens;
     };
 
     public shared ({ caller = user }) func getAvailableStoredTokensForCampaign(
-        _collectionCanisterId: Principal
+        _collectionCanisterId : Principal
     ) : async [(Nat32, Metadata)] {
         let allTokens = await getStoredTokens(_collectionCanisterId);
         let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, true);
-        let tokens : [(Nat32,Metadata)] = switch(allTokens){
-            case(?t){
-                t
+        let tokens : [(Nat32, Metadata)] = switch (allTokens) {
+            case (?t) {
+                t;
             };
-            case null{
-                []
-            };
+            case null { [] };
         };
         let availableTokens : [(Nat32, Metadata)] = Array.filter(
             tokens,
-            func (tokenData: (Nat32, Metadata)) : Bool {
+            func(tokenData : (Nat32, Metadata)) : Bool {
                 let (tokenIndex, _) = tokenData;
-                return Array.find<Nat32>(usedTokenIds, func (usedTokenId: Nat32) : Bool {
-                    return usedTokenId == tokenIndex;
-                }) == null;
-            }
+                return Array.find<Nat32>(
+                    usedTokenIds,
+                    func(usedTokenId : Nat32) : Bool {
+                        return usedTokenId == tokenIndex;
+                    },
+                ) == null;
+            },
         );
         return availableTokens;
     };
 
-
-
-
     public shared query ({ caller = user }) func getUserCampaignsPaginate(
-        page: Nat, 
-        pageSize: Nat
-    ) : async { 
-        data: [Campaign]; 
-        current_page: Nat; 
-        total_pages: Nat 
+        page : Nat,
+        pageSize : Nat,
+    ) : async {
+        data : [Campaign];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         // Retrieve the campaigns for the current user
         switch (userCampaignsMap.get(user)) {
             case (?campaignArray) {
                 let totalItems = campaignArray.size();
-                
+
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
-                    totalItems / pageSize
+                    totalItems / pageSize;
                 } else {
-                    (totalItems / pageSize) + 1
+                    (totalItems / pageSize) + 1;
                 };
 
                 // Calculate start and end index for pagination
                 let startIndex = page * pageSize;
                 if (startIndex >= totalItems) {
                     // If the start index exceeds total items, return empty data
-                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                    return {
+                        data = [];
+                        current_page = page + 1;
+                        total_pages = totalPages;
+                    };
                 };
 
                 let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
                 // Collect the paginated campaigns
-                var resultCampaigns: List.List<Campaign> = List.nil();
+                var resultCampaigns : List.List<Campaign> = List.nil();
                 var currentIndex : Nat = 0;
                 for (campaign in campaignArray.vals()) {
-                    if(currentIndex >= startIndex and currentIndex < endIndex){
+                    if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultCampaigns := List.push(campaign, resultCampaigns);
                     };
                     currentIndex += 1;
@@ -2376,31 +2391,29 @@ actor Main {
                 return {
                     data = resultArray;
                     current_page = page + 1;
-                    total_pages = totalPages
+                    total_pages = totalPages;
                 };
             };
-            
+
             case null {
                 return { data = []; current_page = 0; total_pages = 0 };
             };
-        }
+        };
     };
-
-
 
     // Generation of unique campaign ID
     private func generateCampaignId(user : Principal) : Text {
         // Using user ID (Principal) and current timestamp to generate a unique campaign ID
         let timestamp = Time.now();
         let userId = Principal.toText(user);
-        "Campaign-" # userId # "_" # Int.toText(timestamp)
+        "Campaign-" # userId # "_" # Int.toText(timestamp);
     };
 
     // QR Set Creation
     public shared ({ caller = user }) func createQRSet(
         title : Text,
         quantity : Nat,
-        campaignId : Text
+        campaignId : Text,
     ) : async Text {
 
         // if (Principal.isAnonymous(user)) {
@@ -2416,21 +2429,24 @@ actor Main {
             campaignId = campaignId;
             createdAt = Time.now();
             creator = user;
-            status = #Ongoing
+            status = #Ongoing;
         };
 
         // Update qdcMap with the QRSet and DispenserId
         var qdcList = List.fromArray(qdcMap);
 
         // Find the entry for the given campaignId
-        var qdcEntry = List.find(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-            return entry.0 == campaignId;
-        });
+        var qdcEntry = List.find(
+            qdcList,
+            func(entry : (Text, (Text, Text))) : Bool {
+                return entry.0 == campaignId;
+            },
+        );
 
         switch (qdcEntry) {
             case null {
                 // If no entry exists for the campaignId, create a new entry with QRSetId
-                qdcList := List.push((campaignId, (qrSetId, "")), qdcList );
+                qdcList := List.push((campaignId, (qrSetId, "")), qdcList);
             };
             case (?existingEntry) {
                 // If a QRSetId already exists for the campaign, throw an error
@@ -2439,17 +2455,19 @@ actor Main {
                     throw Error.reject("QRSet already exists for this campaignId.");
                 } else {
                     // Otherwise, update the existing entry by adding the new QRSetId
-                    qdcList := List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-                        return entry.0 != campaignId;
-                });
+                    qdcList := List.filter(
+                        qdcList,
+                        func(entry : (Text, (Text, Text))) : Bool {
+                            return entry.0 != campaignId;
+                        },
+                    );
                     qdcList := List.push((campaignId, (qrSetId, existingEntry.1.1)), qdcList);
-                }
+                };
             };
         };
 
         // Convert the list back to an array
         qdcMap := List.toArray(qdcList);
-
 
         qrSetMap.put(qrSetId, newQRSet);
 
@@ -2463,11 +2481,10 @@ actor Main {
             };
         };
 
-        qrSetId
+        qrSetId;
     };
 
-
-    public func markQRSetStatus(qrSetId: Text, newStatus: Status) : async () {
+    public func markQRSetStatus(qrSetId : Text, newStatus : Status) : async () {
         // Update the main qrSetMap
         let qrSetOpt = qrSetMap.get(qrSetId);
         switch (qrSetOpt) {
@@ -2476,75 +2493,79 @@ actor Main {
                 if (qrSet.status != #Completed) {
                     let updatedQRSet = { qrSet with status = newStatus };
                     qrSetMap.put(qrSetId, updatedQRSet);
-                }
+                };
             };
         };
 
         // Update the user-specific qrSet maps
         for ((user, qrSets) in userQRSetMap.entries()) {
-            let updatedQRSets = Array.map<QRSet, QRSet>(qrSets, func(qrSet) : QRSet {
-                if (qrSet.id == qrSetId) {
-                    return { qrSet with status = newStatus };
-                } else {
-                    return qrSet; 
-                }
-            });
+            let updatedQRSets = Array.map<QRSet, QRSet>(
+                qrSets,
+                func(qrSet) : QRSet {
+                    if (qrSet.id == qrSetId) {
+                        return { qrSet with status = newStatus };
+                    } else {
+                        return qrSet;
+                    };
+                },
+            );
             userQRSetMap.put(user, updatedQRSets);
         };
     };
-
-
-
 
     private func generateQRSetId(user : Principal) : Text {
         // Using user ID (Principal) and current timestamp to generate a unique campaign ID
         let timestamp = Time.now();
         let userId = Principal.toText(user);
-        "QR-" #userId # "_" # Int.toText(timestamp)
+        "QR-" #userId # "_" # Int.toText(timestamp);
     };
 
     // Get details of a specific QR set
     public shared query func getQRSetById(qrSetId : Text) : async ?QRSet {
-        qrSetMap.get(qrSetId)
+        qrSetMap.get(qrSetId);
     };
 
     // Get all QR sets created by a user
     public shared query ({ caller = user }) func getUserQRSets() : async ?[QRSet] {
-        userQRSetMap.get(user)
+        userQRSetMap.get(user);
     };
 
     public shared query ({ caller = user }) func getUserQRSetsPaginate(
-        page: Nat, 
-        pageSize: Nat
-    ) : async { 
-        data: [QRSet]; 
-        current_page: Nat; 
-        total_pages: Nat 
+        page : Nat,
+        pageSize : Nat,
+    ) : async {
+        data : [QRSet];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         // Retrieve the QR sets for the current user
         switch (userQRSetMap.get(user)) {
             case (?qrSetArray) {
                 let totalItems = qrSetArray.size();
-                
+
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
-                    totalItems / pageSize
+                    totalItems / pageSize;
                 } else {
-                    (totalItems / pageSize) + 1
+                    (totalItems / pageSize) + 1;
                 };
 
                 // Calculate start and end index for pagination
                 let startIndex = page * pageSize;
                 if (startIndex >= totalItems) {
                     // If the start index exceeds total items, return empty data
-                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                    return {
+                        data = [];
+                        current_page = page + 1;
+                        total_pages = totalPages;
+                    };
                 };
 
                 let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
                 // Collect the paginated QR sets
-                var resultQRSets: List.List<QRSet> = List.nil();
-                var currentIndex: Nat = 0;
+                var resultQRSets : List.List<QRSet> = List.nil();
+                var currentIndex : Nat = 0;
                 for (qrSet in qrSetArray.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultQRSets := List.push(qrSet, resultQRSets);
@@ -2557,17 +2578,16 @@ actor Main {
                 return {
                     data = resultArray;
                     current_page = page + 1;
-                    total_pages = totalPages
+                    total_pages = totalPages;
                 };
             };
-            
+
             case null {
                 // Return empty data if no QR sets are found for the user
                 return { data = []; current_page = 0; total_pages = 0 };
             };
-        }
+        };
     };
-
 
     // public shared({caller = user}) func deleteQRSet(qrSetId: Text) : async Int {
     //     // Check if the QRSet exists
@@ -2575,7 +2595,7 @@ actor Main {
     //         case (?qrSet) {
     //             // QRSet exists, proceed with deletion
     //             qrSetMap.remove(qrSetId);
-                
+
     //             // Remove QRSet from userQRSetMap
     //             let userQRSetEntries = userQRSetMap.get(user);
     //             switch (userQRSetEntries) {
@@ -2587,7 +2607,7 @@ actor Main {
     //                     // No QR sets found for the user
     //                 };
     //             };
-                
+
     //             return 0; // Indicate success
     //         };
     //         case null {
@@ -2597,12 +2617,12 @@ actor Main {
     //     }
     // };
 
-    public shared ({ caller = user }) func createDispenser (
+    public shared ({ caller = user }) func createDispenser(
         _title : Text,
         _startDate : Time.Time,
         _duration : Int,
         _campaignId : Text,
-        _whitelist : [Principal]
+        _whitelist : [Principal],
     ) : async Text {
 
         // if (Principal.isAnonymous(user)) {
@@ -2619,21 +2639,24 @@ actor Main {
             duration = _duration;
             campaignId = _campaignId;
             whitelist = _whitelist;
-            status = #Ongoing
+            status = #Ongoing;
         };
 
         // Update qdcMap with the QRSet and DispenserId
         var qdcList = List.fromArray(qdcMap);
 
         // Find the entry for the given campaignId
-        var qdcEntry = List.find(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-            return entry.0 == _campaignId;
-        });
+        var qdcEntry = List.find(
+            qdcList,
+            func(entry : (Text, (Text, Text))) : Bool {
+                return entry.0 == _campaignId;
+            },
+        );
 
         switch (qdcEntry) {
             case null {
                 // If no entry exists for the campaignId, create a new entry with DispenserId
-                qdcList := List.push((_campaignId, ("", dispenserId)), qdcList );
+                qdcList := List.push((_campaignId, ("", dispenserId)), qdcList);
             };
             case (?existingEntry) {
                 // If a DispenserId already exists for the campaign, throw an error
@@ -2642,23 +2665,23 @@ actor Main {
                     throw Error.reject("Dispenser already exists for this campaignId.");
                 } else {
                     // Otherwise, update the existing entry by adding the new DispenserId
-                    qdcList := List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-                        return entry.0 != _campaignId;
-                });
+                    qdcList := List.filter(
+                        qdcList,
+                        func(entry : (Text, (Text, Text))) : Bool {
+                            return entry.0 != _campaignId;
+                        },
+                    );
                     qdcList := List.push((_campaignId, (existingEntry.1.0, dispenserId)), qdcList);
-                }
+                };
             };
         };
 
         // Convert the list back to an array
         qdcMap := List.toArray(qdcList);
 
-
-
         dispensers.put(dispenserId, dispenser);
 
         await scheduleDispenserDeletion(dispenserId, _startDate, _duration);
-
 
         let userDispensers = userDispensersMap.get(user);
         switch (userDispensers) {
@@ -2672,7 +2695,7 @@ actor Main {
         return dispenserId;
     };
 
-    public func markDispenserStatus(dispenserId: Text, newStatus: Status) : async () {
+    public func markDispenserStatus(dispenserId : Text, newStatus : Status) : async () {
         // Update the main dispensers map
         let dispenserOpt = dispensers.get(dispenserId);
         switch (dispenserOpt) {
@@ -2681,27 +2704,29 @@ actor Main {
                 if (dispenser.status != #Completed) {
                     let updatedDispenser = { dispenser with status = newStatus };
                     dispensers.put(dispenserId, updatedDispenser);
-                }
+                };
             };
         };
 
         // Update the user-specific dispensers maps
         for ((user, dispensers) in userDispensersMap.entries()) {
-            let updatedDispensers = Array.map<Dispenser, Dispenser>(dispensers, func(dispenser) : Dispenser {
-                if (dispenser.id == dispenserId) {
-                    return { dispenser with status = newStatus }; 
-                } else {
-                    return dispenser; 
-                }
-            });
+            let updatedDispensers = Array.map<Dispenser, Dispenser>(
+                dispensers,
+                func(dispenser) : Dispenser {
+                    if (dispenser.id == dispenserId) {
+                        return { dispenser with status = newStatus };
+                    } else {
+                        return dispenser;
+                    };
+                },
+            );
             userDispensersMap.put(user, updatedDispensers);
-        }
+        };
     };
 
-
-   public shared ({ caller = user }) func dispenserClaim(
-        _dispenserId: Text
-    ): async Result.Result<Int, Text> {
+    public shared ({ caller = user }) func dispenserClaim(
+        _dispenserId : Text
+    ) : async Result.Result<Int, Text> {
 
         // if (Principal.isAnonymous(user)) {
         //     throw Error.reject("Anonymous principals are not allowed.");
@@ -2714,8 +2739,8 @@ actor Main {
             };
             case (?dispenser) {
                 // Check if user is in the whitelist
-                if(dispenser.whitelist.size() > 0){
-                    let userInWhitelist = Array.find(dispenser.whitelist, func(p: Principal): Bool { p == user });
+                if (dispenser.whitelist.size() > 0) {
+                    let userInWhitelist = Array.find(dispenser.whitelist, func(p : Principal) : Bool { p == user });
                     switch (?userInWhitelist) {
                         case null {
                             return #err("User not whitelisted");
@@ -2725,84 +2750,90 @@ actor Main {
                         };
                     };
                 };
-                        // User is whitelisted, proceed with the rest of the claim logic
-                        let campaignOpt = campaigns.get(dispenser.campaignId);
+                // User is whitelisted, proceed with the rest of the claim logic
+                let campaignOpt = campaigns.get(dispenser.campaignId);
 
-                        switch (campaignOpt) {
+                switch (campaignOpt) {
+                    case null {
+                        return #err("Campaign not found");
+                    };
+                    case (?campaign) {
+                        let remainingClaimsOpt = campaignLinks.get(dispenser.campaignId);
+
+                        switch (remainingClaimsOpt) {
                             case null {
-                                return #err("Campaign not found");
+                                return #err("No claims found for this campaign");
                             };
-                            case (?campaign) {
-                                let remainingClaimsOpt = campaignLinks.get(dispenser.campaignId);
+                            case (?remainingClaims) {
+                                if (remainingClaims.size() == 0) {
+                                    return #err("No more tokens to claim");
+                                };
 
-                                switch (remainingClaimsOpt) {
+                                // Check if user has already claimed a token from this dispenser
+                                let userClaims = userClaimedDispensers.get(user);
+                                switch (userClaims) {
                                     case null {
-                                        return #err("No claims found for this campaign");
+                                        // No previous claims, proceed with claim
                                     };
-                                    case (?remainingClaims) {
-                                        if (remainingClaims.size() == 0) {
-                                            return #err("No more tokens to claim");
+                                    case (?claims) {
+                                        let alreadyClaimed = Array.find(
+                                            claims,
+                                            func(claimedId : Text) : Bool {
+                                                claimedId == dispenser.id;
+                                            },
+                                        );
+                                        if (alreadyClaimed != null) {
+                                            return #err("User has already claimed a token from this dispenser");
                                         };
+                                    };
+                                };
 
-                                        // Check if user has already claimed a token from this dispenser
-                                        let userClaims = userClaimedDispensers.get(user);
-                                        switch (userClaims) {
+                                // Claim the token (assuming claimToken returns a Result)
+                                let claimResult = await claimToken(user, campaign.collection, remainingClaims[0]);
+                                switch (claimResult) {
+                                    case (#ok(result)) {
+                                        // Update user claims
+                                        let updatedClaims = switch (userClaims) {
                                             case null {
-                                                // No previous claims, proceed with claim
-                                            };
-                                            case (?claims) {
-                                                let alreadyClaimed = Array.find(claims, func(claimedId: Text): Bool {
-                                                    claimedId == dispenser.id
-                                                });
-                                                if (alreadyClaimed != null) {
-                                                    return #err("User has already claimed a token from this dispenser");
-                                                };
+                                                List.push<Text>(dispenser.id, List.nil<Text>());
+                                            }; // Start new List
+                                            case (?existingClaimsArray) {
+                                                let existingClaims = List.fromArray(existingClaimsArray); // Convert to List
+                                                List.push<Text>(dispenser.id, existingClaims); // Add to existing List
                                             };
                                         };
-
-                                        // Claim the token (assuming claimToken returns a Result)
-                                        let claimResult = await claimToken(user, campaign.collection, remainingClaims[0]);
-                                        switch (claimResult) {
-                                            case (#ok(result)) {
-                                                // Update user claims
-                                                let updatedClaims = switch (userClaims) {
-                                                    case null { List.push<Text>(dispenser.id, List.nil<Text>()) }; // Start new List
-                                                    case (?existingClaimsArray) {
-                                                        let existingClaims = List.fromArray(existingClaimsArray); // Convert to List
-                                                        List.push<Text>(dispenser.id, existingClaims); // Add to existing List
-                                                    };
-                                                };
-                                                let updatedClaimsArray = List.toArray(updatedClaims);
-                                                userClaimedDispensers.put(user, updatedClaimsArray);
-                                                return #ok(result);  // Return the claimed token ID
-                                            };
-                                            case (#err(err)) {
-                                                return #err(err);  // Return any error from claimToken
-                                            };
-                                        };
+                                        let updatedClaimsArray = List.toArray(updatedClaims);
+                                        userClaimedDispensers.put(user, updatedClaimsArray);
+                                        return #ok(result); // Return the claimed token ID
+                                    };
+                                    case (#err(err)) {
+                                        return #err(err); // Return any error from claimToken
                                     };
                                 };
                             };
                         };
+                    };
+                };
             };
         };
     };
 
-
-
     // Function to schedule dispenser deletion based on start time and duration
     func scheduleDispenserDeletion(dispenserId : Text, startTime : Time.Time, duration : Int) : async () {
         let now = Time.now();
-        
+
         // Calculate the expiration time
-        let expirationTime = (startTime) + (duration * 60_000_000_000);  // duration is in minutes, converting to nanoseconds
+        let expirationTime = (startTime) + (duration * 60_000_000_000); // duration is in minutes, converting to nanoseconds
         let timeRemaining = if (expirationTime > now) expirationTime - now else now - expirationTime;
         let natDuration = Nat64.toNat(Nat64.fromIntWrap(timeRemaining));
-        
+
         if (timeRemaining > 0) {
-            let id = Timer.setTimer<system>(#nanoseconds natDuration, func () : async () {
-                await markDispenserStatus(dispenserId, #Expired);
-            });
+            let id = Timer.setTimer<system>(
+                #nanoseconds natDuration,
+                func() : async () {
+                    await markDispenserStatus(dispenserId, #Expired);
+                },
+            );
             dispenserTimers.put(dispenserId, id);
         };
     };
@@ -2848,12 +2879,12 @@ actor Main {
     };
 
     public shared query ({ caller = user }) func getUserDispensersPaginate(
-        page: Nat, 
-        pageSize: Nat
-    ) : async { 
-        data: [Dispenser]; 
-        current_page: Nat; 
-        total_pages: Nat 
+        page : Nat,
+        pageSize : Nat,
+    ) : async {
+        data : [Dispenser];
+        current_page : Nat;
+        total_pages : Nat;
     } {
         // Retrieve the dispensers for the current user
         switch (userDispensersMap.get(user)) {
@@ -2862,23 +2893,27 @@ actor Main {
 
                 // Calculate total pages
                 let totalPages = if (totalItems % pageSize == 0) {
-                    totalItems / pageSize
+                    totalItems / pageSize;
                 } else {
-                    (totalItems / pageSize) + 1
+                    (totalItems / pageSize) + 1;
                 };
 
                 // Calculate start and end index for pagination
                 let startIndex = page * pageSize;
                 if (startIndex >= totalItems) {
                     // If the start index exceeds total items, return empty data
-                    return { data = []; current_page = page + 1; total_pages = totalPages };
+                    return {
+                        data = [];
+                        current_page = page + 1;
+                        total_pages = totalPages;
+                    };
                 };
 
                 let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
                 // Collect the paginated dispensers
-                var resultDispensers: List.List<Dispenser> = List.nil();
-                var currentIndex: Nat = 0;
+                var resultDispensers : List.List<Dispenser> = List.nil();
+                var currentIndex : Nat = 0;
                 for (dispenser in dispenserArray.vals()) {
                     if (currentIndex >= startIndex and currentIndex < endIndex) {
                         resultDispensers := List.push(dispenser, resultDispensers);
@@ -2891,26 +2926,24 @@ actor Main {
                 return {
                     data = resultArray;
                     current_page = page + 1;
-                    total_pages = totalPages
+                    total_pages = totalPages;
                 };
             };
-            
+
             case null {
                 // Return empty data if no dispensers are found for the user
                 return { data = []; current_page = 0; total_pages = 0 };
             };
-        }
+        };
     };
-
 
     // Generation of unique dispenser ID
     private func generateDispenserId(user : Principal) : Text {
         // Using user ID (Principal) and current timestamp to generate a unique dispenser ID
         let timestamp = Time.now();
         let userId = Principal.toText(user);
-        "Dispenser-" # userId # "_" # Int.toText(timestamp)
+        "Dispenser-" # userId # "_" # Int.toText(timestamp);
     };
-
 
     // Function to get campaign IDs where QRSet is available
     public query func getCampaignsWithQRSet() : async [Text] {
@@ -2918,16 +2951,24 @@ actor Main {
         let qdcList = List.fromArray(qdcMap);
 
         // Filter campaigns where the QRSet is present (non-empty)
-        let qrSetCampaigns = List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-            let (campaignId, (qrSet, _)) = entry;
-            return qrSet != "";  
-        });
+        let qrSetCampaigns = List.filter(
+            qdcList,
+            func(entry : (Text, (Text, Text))) : Bool {
+                let (campaignId, (qrSet, _)) = entry;
+                return qrSet != "";
+            },
+        );
 
         // Extract only the campaign IDs and return them as an array
-        return List.toArray(List.map(qrSetCampaigns, func(entry : (Text, (Text, Text))) : Text {
-            let (campaignId, _) = entry;
-            return campaignId;
-        }));
+        return List.toArray(
+            List.map(
+                qrSetCampaigns,
+                func(entry : (Text, (Text, Text))) : Text {
+                    let (campaignId, _) = entry;
+                    return campaignId;
+                },
+            )
+        );
     };
 
     // Function to get campaign IDs where Dispenser is available
@@ -2936,16 +2977,24 @@ actor Main {
         let qdcList = List.fromArray(qdcMap);
 
         // Filter campaigns where the Dispenser is present (non-empty)
-        let dispenserCampaigns = List.filter(qdcList, func(entry : (Text, (Text, Text))) : Bool {
-            let (campaignId, (_, dispenser)) = entry;
-            return dispenser != "";
-        });
+        let dispenserCampaigns = List.filter(
+            qdcList,
+            func(entry : (Text, (Text, Text))) : Bool {
+                let (campaignId, (_, dispenser)) = entry;
+                return dispenser != "";
+            },
+        );
 
         // Extract only the campaign IDs and return them as an array
-        return List.toArray(List.map(dispenserCampaigns, func(entry : (Text, (Text, Text))) : Text {
-            let (campaignId, _) = entry;
-            return campaignId;
-        }));
+        return List.toArray(
+            List.map(
+                dispenserCampaigns,
+                func(entry : (Text, (Text, Text))) : Text {
+                    let (campaignId, _) = entry;
+                    return campaignId;
+                },
+            )
+        );
     };
 
-}
+};

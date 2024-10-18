@@ -12,6 +12,7 @@ import bgmain2 from "./assets/img/mainbg2.png";
 import { MdArrowOutward } from "react-icons/md";
 import { InfinitySpin } from "react-loader-spinner";
 import Confetti from "react-confetti";
+import { createActor } from "../../declarations/extv2";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -36,6 +37,12 @@ const LinkClaiming = () => {
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
+  const [allnft, setAllNFt] = useState([]);
+  const nft = createActor(canisterId, {
+    agentOptions: { identity, verifyQuerySignatures: false },
+  });
+
+  console.log("nft", nft);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -52,8 +59,10 @@ const LinkClaiming = () => {
     const getDeposits = async () => {
       try {
         const detail = await backend.getAlldepositItemsMap();
+        const data = await nft.getAllNonFungibleTokenData();
         console.log("Deposits:", detail);
         setDeposits(detail);
+        setAllNFt(data);
       } catch (error) {
         console.log("Error fetching deposits:", error);
       } finally {
@@ -62,7 +71,6 @@ const LinkClaiming = () => {
     };
     getDeposits();
   }, [backend]);
-
   const handleClaim = async () => {
     if (!isConnected) {
       setShowModal(true);
@@ -127,16 +135,23 @@ const LinkClaiming = () => {
         transition={{ duration: 1 }}
         className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
       >
-        {/* <img
-          width="80px"
-          height="80px"
-          src={matchedDeposit?.nonfungible?.thumbnail}
-          alt="NFT Thumbnail"
-          className="w-16 h-16"
-        />
-        <h2 className="text-xl black font-bold mt-5">
-          {matchedDeposit?.nonfungible?.name}
-        </h2> */}
+        {allnft.map((nft, index) =>
+          nft[0] == matchedDeposit[1]?.tokenId ? (
+            <div className="flex flex-col justify-center items-center">
+              {" "}
+              <img
+                width="200px"
+                height="200px"
+                src={nft?.[2]?.nonfungible?.thumbnail}
+                alt="NFT Thumbnail"
+                className="flex items-center justify-center "
+              />
+              <h2 className="text-xl black font-bold mt-5">
+                {nft?.[2]?.nonfungible?.name}
+              </h2>
+            </div>
+          ) : null
+        )}
         <p className="text-xs gray mt-1">
           <p className="text-xs gray mt-1">
             {new Date(
