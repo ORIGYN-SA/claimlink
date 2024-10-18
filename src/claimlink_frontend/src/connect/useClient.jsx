@@ -35,7 +35,9 @@ export const useAuthClient = () => {
         toast.success("Delegation expired, logging out...");
         disconnect();
         //window.location.href = "/login";
-        window.location.reload;
+        setTimeout(() => {
+          window.location.reload(true); // Force page reload
+        }, 2000); // Optional delay to allow toast to show fully
       }
     }
   };
