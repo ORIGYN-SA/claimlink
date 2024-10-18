@@ -38,6 +38,7 @@ const LinkClaiming = () => {
   const canisterId = pathParts[2];
   const nftIndex = pathParts[3];
   const [allnft, setAllNFt] = useState([]);
+  const [storednft, setstorednft] = useState([]);
   const nft = createActor(canisterId, {
     agentOptions: { identity, verifyQuerySignatures: false },
   });
@@ -60,9 +61,11 @@ const LinkClaiming = () => {
       try {
         const detail = await backend.getAlldepositItemsMap();
         const data = await nft.getAllNonFungibleTokenData();
+        const stored = await backend.getStoredTokens();
         console.log("Deposits:", detail);
         setDeposits(detail);
         setAllNFt(data);
+        setstorednft(stored);
       } catch (error) {
         console.log("Error fetching deposits:", error);
       } finally {
