@@ -282,10 +282,11 @@ actor Main {
         return Cycles.balance();
     };
 
-    public shared ({ caller = user }) func resetStats() {
+    public shared ({ caller = user }) func resetStats() : async  Result.Result<Text,Text> {
         if (not Principal.isController(user)) {
-            throw Error.reject("You can't control this canister");
+            return #err("You cannot control this canister")            
         };
+        
         claimCount := 0;
         linksCount := 0;
         userClaimCount := [];
@@ -295,6 +296,8 @@ actor Main {
         dailyLinksClaimedCount := 0;
         dailyUserLinksCreatedCount := [];
         dailyUserLinksClaimedCount := [];
+
+        return #ok("Reset done")
     };
 
     // let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
@@ -2527,6 +2530,26 @@ actor Main {
             );
             userQRSetMap.put(user, updatedQRSets);
         };
+
+        var qdcList = List.fromArray(qdcMap);
+        var updatedQdcList = List.filter<(Text, (Text, Text))>(
+            qdcList,
+            func(entry): Bool {
+                let campaignId = entry.0;
+                let (currentQRSetId, dispenserId) = entry.1;
+                let updatedEntry = if (currentQRSetId == qrSetId) {
+                    (campaignId, ("", dispenserId))
+                } else {
+                    entry
+                };
+                if (updatedEntry.1.0 == "" and updatedEntry.1.1 == "") {
+                    false;
+                } else {
+                    true;
+                };
+            },
+        );
+        qdcMap := List.toArray(updatedQdcList);
     };
 
     private func generateQRSetId(user : Principal) : Text {
@@ -2738,6 +2761,26 @@ actor Main {
             );
             userDispensersMap.put(user, updatedDispensers);
         };
+
+        var qdcList = List.fromArray(qdcMap);
+        var updatedQdcList = List.filter<(Text, (Text, Text))>(
+            qdcList,
+            func(entry): Bool {
+                let campaignId = entry.0;
+                let (qrSetId, currentDispenserId) = entry.1;
+                let updatedEntry = if (currentDispenserId == dispenserId) {
+                    (campaignId, (qrSetId, ""))
+                } else {
+                    entry
+                };
+                if (updatedEntry.1.0 == "" and updatedEntry.1.1 == "") {
+                    false;
+                } else {
+                    true;
+                };
+            },
+        );
+        qdcMap := List.toArray(updatedQdcList);
     };
 
     public shared ({ caller = user }) func dispenserClaim(
@@ -2754,6 +2797,12 @@ actor Main {
                 return #err("Dispenser not found");
             };
             case (?dispenser) {
+
+                let currentTime = Time.now();
+                if (currentTime < dispenser.startDate) {
+                    return #err("Claim period has not started yet");
+                };
+
                 // Check if user is in the whitelist
                 if (dispenser.whitelist.size() > 0) {
                     let userInWhitelist = Array.find(dispenser.whitelist, func(p : Principal) : Bool { p == user });
@@ -2991,6 +3040,7 @@ actor Main {
     public query func getCampaignsWithDispenser() : async [Text] {
 
         let qdcList = List.fromArray(qdcMap);
+
 
         // Filter campaigns where the Dispenser is present (non-empty)
         let dispenserCampaigns = List.filter(
