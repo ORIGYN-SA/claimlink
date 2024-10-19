@@ -12,7 +12,7 @@ export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
   // const [delegationExpiry, setDelegationExpiry] = useState(null)
   const delegationExpiry =
-    Number(localStorage.getItem("delegationExpiry")) || 0; // Convert to number
+    Number(localStorage.getItem("delegationExpiry")) || 0;
   const {
     user,
     connect,
