@@ -57,15 +57,19 @@ const LinkClaiming = () => {
   }, [isConnected, principal]);
 
   useEffect(() => {
+    const canister = Principal.fromText(canisterId);
     const getDeposits = async () => {
       try {
         const detail = await backend.getAlldepositItemsMap();
         const data = await nft.getAllNonFungibleTokenData();
-        const stored = await backend.getStoredTokens();
-        console.log("Deposits:", detail);
+        const stored = await backend.getStoredTokens(canister);
+
         setDeposits(detail);
         setAllNFt(data);
         setstorednft(stored);
+        console.log("Deposits:", detail);
+        console.log("all nfts:", data);
+        console.log("stored:", stored);
       } catch (error) {
         console.log("Error fetching deposits:", error);
       } finally {
@@ -119,7 +123,9 @@ const LinkClaiming = () => {
     }
 
     const matchedDeposit = deposits.find(
-      (deposit) => deposit[1].collectionCanister?.toText() === canisterId
+      (deposit) =>
+        deposit[1].collectionCanister?.toText() === canisterId &&
+        deposit[0] == nftIndex
     );
     console.log("matched", matchedDeposit);
     if (!matchedDeposit) {
@@ -138,23 +144,42 @@ const LinkClaiming = () => {
         transition={{ duration: 1 }}
         className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
       >
-        {allnft.map((nft, index) =>
-          nft[0] == matchedDeposit[1]?.tokenId ? (
-            <div className="flex flex-col justify-center items-center">
-              {" "}
-              <img
-                width="200px"
-                height="200px"
-                src={nft?.[2]?.nonfungible?.thumbnail}
-                alt="NFT Thumbnail"
-                className="flex items-center justify-center "
-              />
-              <h2 className="text-xl black font-bold mt-5">
-                {nft?.[2]?.nonfungible?.name}
-              </h2>
-            </div>
-          ) : null
-        )}
+        {matchedDeposit[1].claimPattern == "transfer"
+          ? allnft.map((nft, index) =>
+              nft[0] == matchedDeposit[1]?.tokenId ? (
+                <div className="flex flex-col justify-center items-center">
+                  {" "}
+                  <img
+                    width="200px"
+                    height="200px"
+                    src={nft?.[2]?.nonfungible?.thumbnail}
+                    alt="NFT Thumbnail"
+                    className="flex items-center justify-center "
+                  />
+                  <h2 className="text-xl black font-bold mt-5">
+                    {nft?.[2]?.nonfungible?.name}
+                  </h2>
+                </div>
+              ) : null
+            )
+          : storednft[0]?.map((nft, index) =>
+              nft[0] == matchedDeposit[1]?.tokenId ? (
+                <div className="flex flex-col justify-center items-center">
+                  {" "}
+                  <img
+                    width="200px"
+                    height="200px"
+                    src={nft?.[1]?.nonfungible?.thumbnail}
+                    alt="NFT Thumbnail"
+                    className="flex items-center justify-center "
+                  />
+                  <h2 className="text-xl black font-bold mt-5">
+                    {nft?.[1]?.nonfungible?.name}
+                  </h2>
+                </div>
+              ) : null
+            )}
+
         <p className="text-xs gray mt-1">
           <p className="text-xs gray mt-1">
             {new Date(

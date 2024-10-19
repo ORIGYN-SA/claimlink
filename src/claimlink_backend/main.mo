@@ -282,15 +282,15 @@ actor Main {
         return Cycles.balance();
     };
 
-    public shared ({caller = user}) func resetStats(){
-        if(not Principal.isController(user)){
-            throw Error.reject("You can't control this canister")
+    public shared ({ caller = user }) func resetStats() {
+        if (not Principal.isController(user)) {
+            throw Error.reject("You can't control this canister");
         };
         claimCount := 0;
         linksCount := 0;
         userClaimCount := [];
         userLinksCount := [];
-        
+
         dailyLinksCreatedCount := 0;
         dailyLinksClaimedCount := 0;
         dailyUserLinksCreatedCount := [];
@@ -306,7 +306,7 @@ actor Main {
 
     // };
 
-    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
+    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -872,7 +872,7 @@ actor Main {
 
     public shared ({ caller = user }) func getUserCollectionNames() : async ?[(Principal, Text)] {
         let collections = usersCollectionMap.get(user);
-        
+
         switch (collections) {
             case (null) {
                 return null;

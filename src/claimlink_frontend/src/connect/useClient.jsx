@@ -3,13 +3,16 @@ import { useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
 import { Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { DelegationIdentity } from "@dfinity/identity";
 
 const AuthContext = createContext();
 
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const [delegationExpiry, setDelegationExpiry] = useState(null);
+  // const [delegationExpiry, setDelegationExpiry] = useState(null)
+  const delegationExpiry =
+    Number(localStorage.getItem("delegationExpiry")) || 0; // Convert to number
   const {
     user,
     connect,
@@ -20,12 +23,13 @@ export const useAuthClient = () => {
   const disconnect = () => {
     identityKitDisconnect();
     setIsConnected(false);
+    localStorage.removeItem("delegationExpiry");
   };
+  console.log("deligation", delegationExpiry);
 
   const checkDelegationExpiry = () => {
     if (delegationExpiry) {
       const currentTime = Date.now();
-
       console.log(
         "Delegation Expiry Time:",
         new Date(delegationExpiry).toLocaleString()
@@ -50,7 +54,7 @@ export const useAuthClient = () => {
         identity?._delegation?.delegations?.[0]?.delegation?.expiration
       );
       if (expiryTime) {
-        setDelegationExpiry(expiryTime / 1e6);
+        localStorage.setItem("delegationExpiry", expiryTime / 1e6);
       }
 
       // const expiryTime = Date.now() + 30 * 1000;
