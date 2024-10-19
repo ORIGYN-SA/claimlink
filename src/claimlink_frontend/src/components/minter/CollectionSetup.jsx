@@ -153,7 +153,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       }
     } catch (error) {
       console.error("Error creating collection:", error);
-      toast.error(`Error creating collection: ${error.message}`);
+      toast.error(`Somethng went wrong please try again`);
     } finally {
       setLoading(false);
     }
