@@ -67,17 +67,17 @@ const DashBoardHome = () => {
         const linksCoundToday = parseFloat(data.userLinksCoundToday) || 0;
 
         const total1 =
-          totalLinks > 0
-            ? (claimedLinks / parseInt(totalLinks - claimedLinks)) * 100
+          totalLinks >= 0
+            ? (claimedLinks / Math.abs(totalLinks - claimedLinks)) * 100
             : 0;
         const total2 =
-          totalLinks > 0
-            ? (claimsCountToday / parseInt(totalLinks - claimsCountToday)) * 100
+          totalLinks >= 0
+            ? (claimsCountToday / Math.abs(totalLinks - claimsCountToday)) * 100
             : 0;
         const total3 =
-          linksCoundToday > 0
+          linksCoundToday >= 0
             ? (claimsCountToday /
-                parseInt(linksCoundToday - claimsCountToday)) *
+                Math.abs(linksCoundToday - claimsCountToday)) *
               100
             : 0;
         setTotal(total1);

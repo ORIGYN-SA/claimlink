@@ -242,12 +242,6 @@ const LinkClaiming = () => {
           </div>
           <div className="flex justify-between gap-4">
             <h1 className="text-xl font-medium">Claim Your NFT</h1>
-            <button
-              className="bg-[#F5F4F7] p-2 rounded-md"
-              onClick={() => navigate(-1)}
-            >
-              <RxCross2 className="text-gray-800 w-5 h-5" />
-            </button>
           </div>
           {renderNftDetails()}
           {deposits.length > 0 && !loadingData ? (

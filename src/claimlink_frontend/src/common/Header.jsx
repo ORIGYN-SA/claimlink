@@ -213,7 +213,7 @@ export function MobileHeader({ htext }) {
       </div>
       <div>
         <p className="font-medium text-md">{htext}</p>
-        <p className="text-gray-500 text-sm">16.04.2024 20:55</p>
+        {/* <p className="text-gray-500 text-sm">16.04.2024 20:55</p> */}
       </div>
     </div>
   );
