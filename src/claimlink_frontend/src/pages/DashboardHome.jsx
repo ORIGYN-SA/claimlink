@@ -68,19 +68,19 @@ const DashBoardHome = () => {
 
         const total1 =
           totalLinks >= 0
-            ? isNaN((claimedLinks / Math.abs(totalLinks - claimedLinks)) * 100)
+            ? isNaN((claimedLinks / Math.abs(totalLinks + claimedLinks)) * 100)
               ? 0
-              : (claimedLinks / Math.abs(totalLinks - claimedLinks)) * 100
+              : (claimedLinks / Math.abs(totalLinks + claimedLinks)) * 100
             : 0;
 
         const total2 =
           totalLinks >= 0
             ? isNaN(
-                (claimsCountToday / Math.abs(totalLinks - claimsCountToday)) *
+                (claimsCountToday / Math.abs(totalLinks + claimsCountToday)) *
                   100
               )
               ? 0
-              : (claimsCountToday / Math.abs(totalLinks - claimsCountToday)) *
+              : (claimsCountToday / Math.abs(totalLinks + claimsCountToday)) *
                 100
             : 0;
 
@@ -88,12 +88,12 @@ const DashBoardHome = () => {
           linksCoundToday >= 0
             ? isNaN(
                 (claimsCountToday /
-                  Math.abs(linksCoundToday - claimsCountToday)) *
+                  Math.abs(linksCoundToday + claimsCountToday)) *
                   100
               )
               ? 0
               : (claimsCountToday /
-                  Math.abs(linksCoundToday - claimsCountToday)) *
+                  Math.abs(linksCoundToday + claimsCountToday)) *
                 100
             : 0;
 
