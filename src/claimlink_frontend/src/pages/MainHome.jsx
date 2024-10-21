@@ -44,6 +44,35 @@ const MainHome = () => {
   const lunch = () => {
     navigate("/login");
   };
+
+  const generateRandomNumber = () => Math.floor(Math.random() * 1000000);
+  const number1 = generateRandomNumber();
+  useEffect(() => {
+    let sessionNumber = sessionStorage.getItem("sessionNumber");
+
+    if (!sessionNumber) {
+      sessionNumber = generateRandomNumber();
+      sessionStorage.setItem("sessionNumber", sessionNumber);
+    }
+
+    const localvalue = 10;
+    console.log("Session random number:", localvalue);
+
+    const previousSessionNumber = localvalue;
+
+    const handleSessionChange = () => {
+      const currentSessionNumber = sessionStorage.getItem("sessionNumber");
+      if (currentSessionNumber !== previousSessionNumber) {
+        localStorage.removeItem("connected");
+      }
+    };
+
+    const interval = setInterval(handleSessionChange, 1000);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [number1]);
   return (
     <>
       <div className="flex flex-col bg-gray-50 ">
