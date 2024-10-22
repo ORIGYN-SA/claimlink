@@ -79,14 +79,6 @@ const UserNft2 = () => {
         <div>
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-bold text-[#2E2C34]">Collected NFT</h2>
-            <select
-              name="Filter"
-              id="filter"
-              className="border border-[#564BF1] px-2 py-1 text-[#564BF1] rounded-md outline-none text-sm"
-            >
-              <option value="new">New</option>
-              <option value="old">Old</option>
-            </select>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 2xl:grid-cols-4 gap-5 mt-5">
             {loading

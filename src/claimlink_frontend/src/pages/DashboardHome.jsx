@@ -267,7 +267,7 @@ const DashBoardHome = () => {
             />
             %
           </p>
-          <p className="text-xs text-[#6FC773] ">+{total1}</p>
+          <p className="text-xs text-[#6FC773] ">+{total1.toFixed(2)}</p>
         </div>
         <div className="bg-white p-4 rounded-md  ">
           <p className="text-xs text-[#84818A]">Claimed rate today</p>
@@ -280,7 +280,7 @@ const DashBoardHome = () => {
             />
             %
           </p>
-          <p className="text-xs text-[#6FC773] ">+{total2}</p>
+          <p className="text-xs text-[#6FC773] ">+{total2.toFixed(2)}</p>
         </div>
       </div>
       {window.innerWidth < 640 ? (
