@@ -300,90 +300,90 @@ actor Main {
         return #ok("Reset done")
     };
 
-    // let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
-    //     // account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
-    //     // transfer : shared TransferArgs -> async Result_6;
-    //     // send_dfx : shared SendArgs -> async Nat64;
-    //     // account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
-    //     icrc2_transfer_from : shared TransferFromArgs -> async Result_3;
+    let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
+        // account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
+        // transfer : shared TransferArgs -> async Result_6;
+        // send_dfx : shared SendArgs -> async Nat64;
+        // account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
+        icrc2_transfer_from : shared TransferFromArgs -> async Result_3;
 
-    // };
+    };
 
     let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
-    // public shared ({ caller = user }) func transferICP(
-    //     amount: Nat,
-    //     fee: ?Nat,
-    //     spenderSubaccount: ?Blob,
-    //     memo: ?Blob,
-    //     createdAtTime: ?Nat64
-    // ) : async Text {
+    public shared ({ caller = user }) func transferICP(
+        amount: Nat,
+        fee: ?Nat,
+        spenderSubaccount: ?Blob,
+        memo: ?Blob,
+        createdAtTime: ?Nat64
+    ) : async Text {
 
-    //     let fromAccount: Account = {
-    //         owner = user;
-    //         subaccount = null;
-    //     };
+        let fromAccount: Account = {
+            owner = user;
+            subaccount = null;
+        };
 
-    //     let toAccount: Account = {
-    //         owner = Principal.fromActor(Main);
-    //         subaccount = null;
-    //     };
+        let toAccount: Account = {
+            owner = Principal.fromActor(Main);
+            subaccount = null;
+        };
 
-    //     let transferArgs: TransferFromArgs = {
-    //         to = toAccount;
-    //         fee = fee;
-    //         spender_subaccount = spenderSubaccount;
-    //         from = fromAccount;
-    //         memo = memo;
-    //         created_at_time = createdAtTime;
-    //         amount = amount;
-    //     };
+        let transferArgs: TransferFromArgs = {
+            to = toAccount;
+            fee = fee;
+            spender_subaccount = spenderSubaccount;
+            from = fromAccount;
+            memo = memo;
+            created_at_time = createdAtTime;
+            amount = amount;
+        };
 
-    //     let transferResult: Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
+        let transferResult: Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
 
-    //     switch (transferResult) {
-    //         case (#Ok(nat)) {
-    //             return "Transfer successful: " # Nat.toText(nat);
-    //         };
-    //         case (#Err(error)) {
-    //             return handleTransferError(error);
-    //         };
-    //     };
-    // };
+        switch (transferResult) {
+            case (#Ok(nat)) {
+                return "Transfer successful: " # Nat.toText(nat);
+            };
+            case (#Err(error)) {
+                return handleTransferError(error);
+            };
+        };
+    };
 
-    // func handleTransferError(error: TransferFromError) : Text {
-    //     switch (error) {
-    //         case (#GenericError(record)) {
-    //             return "Generic error: " # record.message # " (code: " # Nat.toText(record.error_code) # ")";
-    //         };
-    //         case (#InsufficientAllowance(record)) {
-    //             return "Insufficient allowance: " # Nat.toText(record.allowance);
-    //         };
-    //         case (#BadBurn(record)) {
-    //             return "Bad burn amount, minimum required: " # Nat.toText(record.min_burn_amount);
-    //         };
-    //         case (#Duplicate(record)) {
-    //             return "Duplicate transaction of: " # Nat.toText(record.duplicate_of);
-    //         };
-    //         case (#BadFee(record)) {
-    //             return "Bad fee, expected fee: " # Nat.toText(record.expected_fee);
-    //         };
-    //         case (#CreatedInFuture(record)) {
-    //             return "Transaction created in the future. Ledger time: " # Nat.toText(Nat64.toNat(record.ledger_time));
-    //         };
-    //         case (#TooOld) {
-    //             return "Transaction is too old.";
-    //         };
-    //         case (#InsufficientFunds(record)) {
-    //             return "Insufficient funds. Available balance: " # Nat.toText(record.balance);
-    //         };
-    //         case (#TemporarilyUnavailable) {
-    //             return "The system is temporarily unavailable. Please try again later.";
-    //         };
-    //     }
-    // };
+    func handleTransferError(error: TransferFromError) : Text {
+        switch (error) {
+            case (#GenericError(record)) {
+                return "Generic error: " # record.message # " (code: " # Nat.toText(record.error_code) # ")";
+            };
+            case (#InsufficientAllowance(record)) {
+                return "Insufficient allowance: " # Nat.toText(record.allowance);
+            };
+            case (#BadBurn(record)) {
+                return "Bad burn amount, minimum required: " # Nat.toText(record.min_burn_amount);
+            };
+            case (#Duplicate(record)) {
+                return "Duplicate transaction of: " # Nat.toText(record.duplicate_of);
+            };
+            case (#BadFee(record)) {
+                return "Bad fee, expected fee: " # Nat.toText(record.expected_fee);
+            };
+            case (#CreatedInFuture(record)) {
+                return "Transaction created in the future. Ledger time: " # Nat.toText(Nat64.toNat(record.ledger_time));
+            };
+            case (#TooOld) {
+                return "Transaction is too old.";
+            };
+            case (#InsufficientFunds(record)) {
+                return "Insufficient funds. Available balance: " # Nat.toText(record.balance);
+            };
+            case (#TemporarilyUnavailable) {
+                return "The system is temporarily unavailable. Please try again later.";
+            };
+        }
+    };
 
     // public shared ({caller = user}) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
 
