@@ -23,6 +23,7 @@
       "main": "src/claimlink_backend/registry.mo",
       "type": "motoko"
     }
+    
   },
   "defaults": {
     "build": {

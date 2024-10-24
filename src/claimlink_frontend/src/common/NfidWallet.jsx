@@ -9,7 +9,7 @@ import {
 
 export default function Nfidlogin() {
   const { user, disconnect } = useIdentityKit();
-
+  console.log("fdfgfdg", useIdentityKit());
   const logoutHandler = () => {
     disconnect();
     toast.success("Logged out successfully.");

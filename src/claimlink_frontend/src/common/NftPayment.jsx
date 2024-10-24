@@ -1,24 +1,33 @@
 import React, { useState } from "react";
 import { RxCross2 } from "react-icons/rx";
-import MainButton from "./Buttons";
 import { toast } from "react-hot-toast";
 import { Button } from "@headlessui/react";
+import { Principal } from "@dfinity/principal";
+import { AccountIdentifier } from "@dfinity/ledger-icp";
+import { fromHexString } from "@dfinity/candid";
+import { Actor } from "@dfinity/agent";
+import { idlFactory } from "./Ledger.did";
+import plug from "../assets/img/plug.png";
+import nfid from "../assets/img/nfid.png";
+import { useAgent } from "@nfid/identitykit/react"; // Adjust the hook import if needed
+
 const coffeeAmount = 100_000; // 0.04 ICP in e8s
-// ICP=
-// 1,000,000,000,000 cycles per ICP
-// 100,000,000 cycles
-// ​
-//  =0.0001 ICP
+
 const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
   const [message, setMessage] = useState("Make Payment");
-  const [disabled, setDisabled] = useState(false);
-  const [paymentStatus, setPaymentStatus] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loadingPlug, setLoadingPlug] = useState(false);
+  const [loadingNfid, setLoadingNfid] = useState(false);
+  const signerId = localStorage.getItem("signerId");
 
-  const handlePayment = async (e) => {
-    e.target.disabled = true;
-    setLoading(true);
+  const authenticatedAgent = useAgent();
+  const actor = Actor.createActor(idlFactory, {
+    agent: authenticatedAgent,
+    canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+  });
 
+  // Handle Plug Payment
+  const handlePayment = async () => {
+    setLoadingPlug(true);
     try {
       const hasAllowed = await window.ic?.plug?.requestConnect();
       if (hasAllowed) {
@@ -35,9 +44,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
 
         if (transfer?.height && typeof transfer.height.height === "number") {
           setMessage(`Transferred ${coffeeAmount} e8s`);
-          setPaymentStatus("Payment successful");
           toast.success("Payment successful!");
-
           handlecreate();
           toggleModal();
         } else if (transfer.height === null || transfer.height === undefined) {
@@ -56,11 +63,48 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
       setMessage("Payment failed due to an error");
       toast.error("An error occurred during the payment process");
     } finally {
-      setLoading(false);
-      setTimeout(() => {
-        e.target.disabled = false;
-        setMessage("Make Payment");
-      }, 5000);
+      setLoadingPlug(false);
+    }
+  };
+
+  // Handle NFID Payment
+  const handleNFidPayment = async () => {
+    setLoadingNfid(true);
+
+    const address = AccountIdentifier.fromPrincipal({
+      principal: Principal.fromText(
+        "3ubze-5mo3v-w6xnt-ktk36-guxla-xsdcr-527zc-5cflh-v2fgp-ses7x-gqe"
+      ),
+    }).toHex();
+
+    const transferArgs = {
+      to: fromHexString(address),
+      fee: { e8s: BigInt(10000) },
+      memo: BigInt(0),
+      from_subaccount: [],
+      created_at_time: [],
+      amount: { e8s: BigInt(10000) },
+    };
+
+    try {
+      const response = await actor.transfer(transferArgs);
+      console.log("Transfer Response:", response);
+
+      if (response && response.Ok) {
+        toast.success("Payment successful!");
+        handlecreate();
+        toggleModal();
+      } else if (response.Err.InsufficientFunds.balance.e8s == 0) {
+        setPaymentStatus(`Payment failed: ${response.Err}`);
+        toast.error("Insufficient Funds");
+      } else {
+        toast.error("Payment failed: Undefined response.");
+      }
+    } catch (error) {
+      console.error("Transfer Error:", error);
+      toast.error("An error occurred during the payment process");
+    } finally {
+      setLoadingNfid(false);
     }
   };
 
@@ -77,16 +121,28 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
         </div>
 
         <div className="flex justify-between items-center">
-          <div className=" flex  items-center mt-4 rounded-md  px-4 py-2">
+          <div className="flex items-center mt-4 rounded-md px-4 py-2">
             <p className="font-bold">Price: 0.001 ICP</p>
           </div>
-          <Button
-            className="border  bg-[#5542F6] text-white  flex font-semibold gap-2 px-4 py-2 rounded-md mt-4 "
-            onClick={handlePayment}
-            disabled={disabled || loading}
-          >
-            {loading ? "Processing..." : message}
-          </Button>
+          {signerId === "NFIDW" ? (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={handleNFidPayment}
+              disabled={loadingNfid}
+            >
+              <img src={nfid} alt="NFID" className="w-20 h-8" />
+              {loadingNfid ? "Processing..." : message}
+            </Button>
+          ) : (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={handlePayment}
+              disabled={loadingPlug}
+            >
+              <img src={plug} alt="Plug" className="w-8 h-8" />
+              {loadingPlug ? "Processing..." : message}
+            </Button>
+          )}
         </div>
       </div>
     </div>

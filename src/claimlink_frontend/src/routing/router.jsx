@@ -35,6 +35,7 @@ import UserNft2 from "../pages/UserNft2";
 import NotFound from "../pages/NotFound";
 import TechnicalHelp from "../common/TechnicalHelp";
 import Nfidlogin from "../common/NfidWallet";
+import NfidPAyment from "../common/NfidPAyment";
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -54,10 +55,10 @@ const approutes = createBrowserRouter([
     path: "/login",
     element: <LoginPage />,
   },
-  {
-    path: "/nfid",
-    element: <Nfidlogin />,
-  },
+  // {
+  //   path: "/nfid",
+  //   element: <NfidPAyment />,
+  // },
   {
     path: "/claim-link",
     element: (

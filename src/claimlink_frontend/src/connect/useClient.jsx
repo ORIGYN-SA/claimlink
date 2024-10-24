@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useIdentityKit } from "@nfid/identitykit/react";
+import { useAgent, useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
 import { Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -20,6 +20,8 @@ export const useAuthClient = () => {
     identity,
     icpBalance,
   } = useIdentityKit();
+  const authenticatedAgent = useAgent();
+
   const disconnect = () => {
     identityKitDisconnect();
     setIsConnected(false);

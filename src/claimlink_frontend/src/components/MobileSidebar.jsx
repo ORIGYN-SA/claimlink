@@ -33,7 +33,7 @@ const MobileSidebar = ({ setSidebarOpen, isSidebarOpen }) => {
   }, [isConnected, principal]);
 
   const menuItems = [
-    { path: "/", label: "Dashboard", icon: MdDashboard },
+    { path: "/dashboard", label: "Dashboard", icon: MdDashboard },
     { path: "/claim-link", label: "Claim links", icon: AiOutlineLink },
     { path: "/dispensers", label: "Dispensers", icon: RiStackFill },
     { path: "/qr-manager", label: "QR manager", icon: MdQrCode },

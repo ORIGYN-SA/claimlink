@@ -36,11 +36,11 @@ const LoginPage = () => {
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
       {isConnected ? <Navigate to="/dashboard" replace /> : null}
-      <p className="text-2xl w-full px-3 absolute top-6 tracking-wide h-[88px] text-[#2E2C34] font-quicksand gap-1 flex">
+      <p className="text-2xl w-full px-3 absolute top-6 tracking-wide   h-[88px] text-[#2E2C34] font-quicksand gap-1 flex">
         claimlink
         <MdArrowOutward className="bg-[#3B00B9] rounded text-white mt-1" />
       </p>
-      <div className="bg-white p-8 rounded-xl shadow-lg sm:w-[28%] mt-24">
+      <div className="bg-white p-8 rounded-xl shadow-lg  mt-24 ">
         <div
           className="flex justify-center mb-6 cursor-pointer"
           onClick={() => navigate("/")}
