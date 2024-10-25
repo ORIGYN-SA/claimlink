@@ -16,7 +16,7 @@ const WalletModal2 = ({ isOpen, onClose }) => {
   if (!isOpen) return null; // Don't render if modal is closed
 
   return (
-    <div className="fixed inset-0 z-30 bg-gray-500 bg-opacity-75 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 bg-gray-500 bg-opacity-75 flex items-center justify-center">
       <div className="bg-white rounded p-4 w-96">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold">Select</h2>

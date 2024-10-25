@@ -189,6 +189,17 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
             <label className="inline-flex items-center">
               <input
                 type="radio"
+                name="wallet"
+                disabled={loading}
+                checked={formData.walletOptions.plugWallet}
+                onChange={() => handleWalletOptionChange("nfid")}
+                className="form-radio"
+              />
+              <span className="ml-2">NFID</span>
+            </label>
+            <label className="inline-flex items-center">
+              <input
+                type="radio"
                 disabled={loading}
                 name="wallet"
                 checked={formData.walletOptions.other}
@@ -244,6 +255,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
                 onChange={([date]) => {
                   setFormData({ ...formData, expirationDate: date });
                 }}
+                disabled={loading}
                 className="  px-2 py-2 outline-none border border-gray-200 sm:w-[73%] w-full rounded-md"
               />
             </div>

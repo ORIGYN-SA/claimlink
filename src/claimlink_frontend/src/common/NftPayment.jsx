@@ -11,10 +11,10 @@ import plug from "../assets/img/plug.png";
 import nfid from "../assets/img/nfid.png";
 import { useAgent } from "@nfid/identitykit/react"; // Adjust the hook import if needed
 
-const coffeeAmount = 100_000; // 0.04 ICP in e8s
+const coffeeAmount = 0.0001 * 100000000; // 0.04 ICP in e8s
 
 const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
-  const [message, setMessage] = useState("Make Payment");
+  const [message, setMessage] = useState("Pay Now");
   const [loadingPlug, setLoadingPlug] = useState(false);
   const [loadingNfid, setLoadingNfid] = useState(false);
   const signerId = localStorage.getItem("signerId");
@@ -73,7 +73,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
 
     const address = AccountIdentifier.fromPrincipal({
       principal: Principal.fromText(
-        "3ubze-5mo3v-w6xnt-ktk36-guxla-xsdcr-527zc-5cflh-v2fgp-ses7x-gqe"
+        "oavgn-aq63y-4ppgd-ws735-bqrrn-xdhtc-m3azu-6qga7-i4phr-c7nie-wqe"
       ),
     }).toHex();
 
@@ -83,7 +83,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
       memo: BigInt(0),
       from_subaccount: [],
       created_at_time: [],
-      amount: { e8s: BigInt(10000) },
+      amount: { e8s: BigInt(coffeeAmount) },
     };
 
     try {
@@ -122,7 +122,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
 
         <div className="flex justify-between items-center">
           <div className="flex items-center mt-4 rounded-md px-4 py-2">
-            <p className="font-bold">Price: 0.001 ICP</p>
+            <p className="font-bold">Price: {coffeeAmount / 100000000} ICP</p>
           </div>
           {signerId === "NFIDW" ? (
             <Button

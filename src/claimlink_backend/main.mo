@@ -282,11 +282,11 @@ actor Main {
         return Cycles.balance();
     };
 
-    public shared ({ caller = user }) func resetStats() : async  Result.Result<Text,Text> {
+    public shared ({ caller = user }) func resetStats() : async Result.Result<Text, Text> {
         if (not Principal.isController(user)) {
-            return #err("You cannot control this canister")            
+            return #err("You cannot control this canister");
         };
-        
+
         claimCount := 0;
         linksCount := 0;
         userClaimCount := [];
@@ -297,7 +297,7 @@ actor Main {
         dailyUserLinksCreatedCount := [];
         dailyUserLinksClaimedCount := [];
 
-        return #ok("Reset done")
+        return #ok("Reset done");
     };
 
     let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
@@ -309,29 +309,29 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
+    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
     public shared ({ caller = user }) func transferICP(
-        amount: Nat,
-        fee: ?Nat,
-        spenderSubaccount: ?Blob,
-        memo: ?Blob,
-        createdAtTime: ?Nat64
+        amount : Nat,
+        fee : ?Nat,
+        spenderSubaccount : ?Blob,
+        memo : ?Blob,
+        createdAtTime : ?Nat64,
     ) : async Text {
 
-        let fromAccount: Account = {
+        let fromAccount : Account = {
             owner = user;
             subaccount = null;
         };
 
-        let toAccount: Account = {
+        let toAccount : Account = {
             owner = Principal.fromActor(Main);
             subaccount = null;
         };
 
-        let transferArgs: TransferFromArgs = {
+        let transferArgs : TransferFromArgs = {
             to = toAccount;
             fee = fee;
             spender_subaccount = spenderSubaccount;
@@ -341,7 +341,7 @@ actor Main {
             amount = amount;
         };
 
-        let transferResult: Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
+        let transferResult : Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
 
         switch (transferResult) {
             case (#Ok(nat)) {
@@ -353,7 +353,7 @@ actor Main {
         };
     };
 
-    func handleTransferError(error: TransferFromError) : Text {
+    func handleTransferError(error : TransferFromError) : Text {
         switch (error) {
             case (#GenericError(record)) {
                 return "Generic error: " # record.message # " (code: " # Nat.toText(record.error_code) # ")";
@@ -382,7 +382,7 @@ actor Main {
             case (#TemporarilyUnavailable) {
                 return "The system is temporarily unavailable. Please try again later.";
             };
-        }
+        };
     };
 
     // public shared ({caller = user}) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
@@ -2534,13 +2534,13 @@ actor Main {
         var qdcList = List.fromArray(qdcMap);
         var updatedQdcList = List.filter<(Text, (Text, Text))>(
             qdcList,
-            func(entry): Bool {
+            func(entry) : Bool {
                 let campaignId = entry.0;
                 let (currentQRSetId, dispenserId) = entry.1;
                 let updatedEntry = if (currentQRSetId == qrSetId) {
-                    (campaignId, ("", dispenserId))
+                    (campaignId, ("", dispenserId));
                 } else {
-                    entry
+                    entry;
                 };
                 if (updatedEntry.1.0 == "" and updatedEntry.1.1 == "") {
                     false;
@@ -2765,13 +2765,13 @@ actor Main {
         var qdcList = List.fromArray(qdcMap);
         var updatedQdcList = List.filter<(Text, (Text, Text))>(
             qdcList,
-            func(entry): Bool {
+            func(entry) : Bool {
                 let campaignId = entry.0;
                 let (qrSetId, currentDispenserId) = entry.1;
                 let updatedEntry = if (currentDispenserId == dispenserId) {
-                    (campaignId, (qrSetId, ""))
+                    (campaignId, (qrSetId, ""));
                 } else {
-                    entry
+                    entry;
                 };
                 if (updatedEntry.1.0 == "" and updatedEntry.1.1 == "") {
                     false;
@@ -3041,7 +3041,6 @@ actor Main {
 
         let qdcList = List.fromArray(qdcMap);
 
-
         // Filter campaigns where the Dispenser is present (non-empty)
         let dispenserCampaigns = List.filter(
             qdcList,
@@ -3063,8 +3062,7 @@ actor Main {
         );
     };
 
-
-     public type Icrc28TrustedOriginsResponse = {
+    public type Icrc28TrustedOriginsResponse = {
         trusted_origins : [Text];
     };
 

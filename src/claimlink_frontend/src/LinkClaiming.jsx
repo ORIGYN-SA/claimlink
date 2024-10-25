@@ -94,8 +94,8 @@ const LinkClaiming = () => {
         setCelebrate(true);
         setTimeout(() => {
           setCelebrate(false);
-          navigate("/");
-        }, 9000);
+          navigate("/collected-nft");
+        }, 6000);
       } else {
         toast.error("Failed to claim the NFT.");
       }
@@ -110,13 +110,13 @@ const LinkClaiming = () => {
   const renderNftDetails = () => {
     if (loadingData) {
       return (
-        <div className="my-auto flex justify-center items-start mt-16 text-3xl text-gray-300 animate-pulse">
+        <div className="my-auto flex justify-center items-center mt-[150px] text-3xl text-gray-300 animate-pulse">
           <InfinitySpin
             visible={true}
             width="200"
             color="#564BF1"
             ariaLabel="infinity-spin-loading"
-            className="flex justify-center "
+            className="flex justify-center items-center"
           />
         </div>
       );
@@ -130,8 +130,10 @@ const LinkClaiming = () => {
     console.log("matched", matchedDeposit);
     if (!matchedDeposit) {
       return (
-        <div className="my-auto mt-16 text-xl text-center text-red-500">
-          No matching NFT found.
+        <div className="my-auto mt-16 text-xl z-40 text-center text-red-500">
+          No NFT found <br />
+          or
+          <br /> NFT alrady claimed
         </div>
       );
     }
@@ -142,7 +144,7 @@ const LinkClaiming = () => {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1 }}
-        className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
+        className="bg-white px-2 py-4 mt-8 z-40 rounded-xl cursor-pointer"
       >
         {matchedDeposit[1].claimPattern == "transfer"
           ? allnft.map((nft, index) =>
@@ -212,18 +214,18 @@ const LinkClaiming = () => {
   };
 
   return (
-    <div className="flex mt-10 w-full justify-center bg-transparent">
+    <div className="flex  w-full bg-white justify-center overflow-hidden bg-transparent">
       <div
         className="absolute inset-0 bg-black opacity-10 z-0"
         style={{
-          backgroundColor: "rgba(0, 0, 0, 0.1)",
+          backgroundColor: "rgba(0, 0, 0, 0.0)",
         }}
       ></div>
-      <div className="h-screen overflow-hidden z-10">
+      <div className="h-screen hidden  md:flex overflow-hidden z-10">
         <img
           src={bgmain1}
           alt=""
-          className="transition-transform duration-300  z-20 h-[90vh] transform hover:scale-105 ease-in"
+          className="transition-transform duration-300 w-[300px]  z-20 h-[90vh] transform hover:scale-105 ease-in"
         />
       </div>
       <motion.div
@@ -233,19 +235,33 @@ const LinkClaiming = () => {
           opacity: 1,
           transition: { ease: "easeInOut", duration: 0.4 },
         }}
-        className="filter-card  rounded-xl w-full"
+        className="filter-card  rounded-xl w-full "
       >
-        <div className="flex flex-col w-[400px] justify-center mx-auto">
-          <div className="text-4xl mb-8 font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+        {" "}
+        <div className="flex flex-col items-center md:w-[400px] justify-center mx-auto border  h-screen md:h-full animated-border">
+          <div className="text-4xl mb-8 font-quicksand py-1 z-40 tracking-wide text-[#2E2C34] flex items-center ">
             claimlink
             <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
           </div>
-          <div className="flex justify-between gap-4">
-            <h1 className="text-xl font-medium">Claim Your NFT</h1>
-          </div>
+          {isConnected ? (
+            <div className="flex justify-center items-center gap-4 flex-col z-40">
+              <h1 className="text-xl text-center font-medium   px-2  py-1">
+                NFT is claiming on UserId : -{" "}
+                <p className="text-xs line-clamp-1 px-2">
+                  {principal?.toText()}
+                </p>
+              </h1>
+            </div>
+          ) : (
+            <div className="flex justify-center items-center gap-4 flex-col z-40">
+              <h1 className="text-xl text-center font-medium line-clamp-2  px-2  py-1">
+                Claim your NFT
+              </h1>
+            </div>
+          )}
           {renderNftDetails()}
           {deposits.length > 0 && !loadingData ? (
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex z-40 justify-center">
               <button
                 onClick={handleClaim}
                 disabled={loading}
@@ -259,7 +275,7 @@ const LinkClaiming = () => {
           ) : null}
         </div>
       </motion.div>
-      <div className="h-screen overflow-hidden z-10">
+      <div className="h-screen hidden  md:flex overflow-hidden w-[300px] z-10">
         <img
           src={bgmain2}
           alt=""
@@ -268,7 +284,7 @@ const LinkClaiming = () => {
       </div>
       <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
       {celebrate ? (
-        <Confetti className="z-20" width={width} height={height} />
+        <Confetti className="z-50" width={width} height={height} />
       ) : null}
     </div>
   );

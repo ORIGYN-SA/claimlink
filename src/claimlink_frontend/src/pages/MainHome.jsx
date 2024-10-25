@@ -78,7 +78,7 @@ const MainHome = () => {
       <div className="flex flex-col bg-gray-50 ">
         {window.innerWidth < 640 ? (
           <>
-            <header className="md:hidden w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
+            <header className=" w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
               <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
                 claimlink
                 <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
@@ -215,7 +215,7 @@ const Home = () => {
   return (
     <>
       <div
-        className="flex h-[90vh] justify-between w-full relative"
+        className="flex h-[90vh] bg-white justify-between w-full relative"
         style={{
           top: "0px",
         }}
@@ -223,17 +223,17 @@ const Home = () => {
         <div
           className="absolute inset-0 bg-black opacity-10 z-0"
           style={{
-            backgroundColor: "rgba(0, 0, 0, 0.1)",
+            backgroundColor: "rgba(0, 0, 0, 0.0)",
           }}
         ></div>
-        <div className=" h-screen   hidden md:block overflow-hidden z-10">
+        <div className=" h-screen w-[300px]  hidden md:block overflow-hidden z-10">
           <img
             src={bgmain1}
             alt=""
             className="transition-transform duration-300  h-[90vh] transform hover:scale-105 ease-in"
           />
         </div>
-        <div className="relative md:w-3/5 w-full  flex items-center px-6 justify-center z-10">
+        <div className="relative md:w-3/5 w-full bg-white flex items-center  justify-center z-10">
           <div className="w-full text-center">
             <h1 className="text-4xl lg:text-6xl font-semibold p-6">
               Send tokens to anyone through a claim link
@@ -271,7 +271,7 @@ const Home = () => {
           <img
             src={bgmain2}
             alt=""
-            className="transition-transform  h-[90vh] duration-300 transform hover:scale-105 ease-in"
+            className="transition-transform w-[300px] h-[90vh] duration-300 transform hover:scale-105 ease-in"
           />
         </div>
       </div>

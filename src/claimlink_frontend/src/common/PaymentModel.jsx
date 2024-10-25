@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RxCross2 } from "react-icons/rx";
 import MainButton from "./Buttons";
 import { toast } from "react-hot-toast";
@@ -13,7 +13,7 @@ import plug from "../assets/img/plug.png";
 import nfid from "../assets/img/nfid.png";
 import { useAuth } from "../connect/useClient";
 
-const coffeeAmount = 100_000; // 0.04 ICP in e8s
+const coffeeAmount = 0.0001 * 100000000;
 
 const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
   const [message, setMessage] = useState("Pay Now");
@@ -28,8 +28,10 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
     connectWallet,
     disconnect,
     isConnected,
+    balance,
     backend,
   } = useAuth();
+
   const handlePlugPayment = async (e) => {
     e.target.disabled = true;
     setLoadingPlug(true);
@@ -87,7 +89,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
 
   const address = AccountIdentifier.fromPrincipal({
     principal: Principal.fromText(
-      "3ubze-5mo3v-w6xnt-ktk36-guxla-xsdcr-527zc-5cflh-v2fgp-ses7x-gqe"
+      "oavgn-aq63y-4ppgd-ws735-bqrrn-xdhtc-m3azu-6qga7-i4phr-c7nie-wqe"
     ),
   }).toHex();
   const transferArgs = {
@@ -96,7 +98,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
     memo: BigInt(0),
     from_subaccount: [],
     created_at_time: [],
-    amount: { e8s: BigInt(10000) },
+    amount: { e8s: BigInt(coffeeAmount) },
   };
 
   const handleNFidPayment = async () => {
@@ -146,7 +148,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
 
         <div className="flex justify-between items-center">
           <div className="flex items-center mt-4 rounded-md px-4 py-2">
-            <p className="font-bold">Price: 0.001 ICP</p>
+            <p className="font-bold">Price: {coffeeAmount / 100000000} ICP</p>
           </div>
           {signerId === "NFIDW" ? (
             <Button
@@ -161,7 +163,9 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
             <Button
               className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
               onClick={handlePlugPayment}
-              disabled={disabled || loadingPlug}
+              disabled={
+                disabled || loadingPlug || message == "Insufficient Funds"
+              }
             >
               <img src={plug} alt="Plug" className="w-8 h-8" />
               {loadingPlug ? "Processing..." : message}
