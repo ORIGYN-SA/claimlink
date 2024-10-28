@@ -53,7 +53,7 @@ const StepperComponent = ({
                       />
                     </svg>
                   ) : (
-                    <span className="font-semibold text-sm text-white">
+                    <span className="font-semibold text-sm text-black/40">
                       {step.id}
                     </span>
                   )}

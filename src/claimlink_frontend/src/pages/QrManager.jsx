@@ -105,7 +105,7 @@ const NewCampaignCard = () => {
       initial={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.9 }}
-      className=" hidden sm:block w-full min-h-screen"
+      className=" hidden sm:block w-full mt-5 min-h-screen"
     >
       <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-[244px] bg-[#dad6f797]  text-center">
         <div className="bg-white p-2 m-2 rounded-md">

@@ -62,7 +62,7 @@ const approutes = createBrowserRouter([
   {
     path: "/claim-link",
     element: (
-      <Dashboard stepper={false} headerText={" Campaign"} menubar={false}>
+      <Dashboard stepper={false} headerText={" Campaign"} menubar={true}>
         <Dashboardcontainer />
       </Dashboard>
     ),
@@ -78,7 +78,7 @@ const approutes = createBrowserRouter([
   {
     path: "/dispensers",
     element: (
-      <Dashboard headerText={"Dispensers"} menubar={false}>
+      <Dashboard headerText={"Dispensers"} menubar={true}>
         <Dispensers />
       </Dashboard>
     ),
@@ -86,7 +86,7 @@ const approutes = createBrowserRouter([
   {
     path: "/collected-nft",
     element: (
-      <Dashboard headerText={"Collected Nft"} menubar={false}>
+      <Dashboard headerText={"Collected Nft"} menubar={true}>
         <UsersNft />
       </Dashboard>
     ),
@@ -102,7 +102,7 @@ const approutes = createBrowserRouter([
   {
     path: "/contact-us",
     element: (
-      <Dashboard headerText={"Contact"} menubar={false}>
+      <Dashboard headerText={"Contact"} menubar={true}>
         <ContactUs />
       </Dashboard>
     ),

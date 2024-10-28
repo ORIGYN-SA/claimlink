@@ -64,7 +64,7 @@ const DashboardContainer = () => {
       <ScrollToTop />
       <div className="min-h-screen p-4 bg-gray-100">
         {/* Header Section */}
-        <div className="bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-6 m-2"></div>
+        {/* <div className="bg-[#5542F6] hidden sm:block rounded-xl h-24 mb-6 m-2"></div> */}
         <div className="flex  sm:flex-row items-center justify-between w-full p-2 mb-6">
           <p className="text-2xl font-bold text-gray-800">Campaigns</p>
           <div className="flex items-center  sm:mt-0">

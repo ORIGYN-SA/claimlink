@@ -304,7 +304,7 @@
 .animated-border {
   border: 4px solid transparent;
   background-image: linear-gradient(rgb(255, 255, 255), white),
-    linear-gradient(120deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+    linear-gradient(90deg, #0011ff, #0011ff59, #0011ff, #0011ff44);
   background-origin: border-box;
   background-clip: content-box, border-box;
   background-size: 200% 100%;

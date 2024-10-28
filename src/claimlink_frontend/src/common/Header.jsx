@@ -11,6 +11,8 @@ import { IoCopyOutline } from "react-icons/io5";
 import toast from "react-hot-toast";
 import logo from "../assets/img/logoicp.png";
 import { ConnectWallet } from "@nfid/identitykit/react";
+import { RiMenu2Fill } from "react-icons/ri";
+import { CiWallet } from "react-icons/ci";
 export const Header = ({ htext, menubar, toggleSidebar }) => {
   const modalRef = useRef(null);
   const dropdownRef = useRef(null);
@@ -106,7 +108,10 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
   return (
     <>
       {menubar ? (
-        <RxHamburgerMenu onClick={toggleSidebar} className="cursor-pointer" />
+        <RiMenu2Fill
+          onClick={toggleSidebar}
+          className="cursor-pointer w-6 h-6"
+        />
       ) : (
         <div className="flex gap-4 items-center">
           <div
@@ -127,11 +132,14 @@ export const Header = ({ htext, menubar, toggleSidebar }) => {
         className="flex items-center space-x-4 font-semibold justify-end"
       >
         {!isConnected ? (
-          <div className="border border-gray-200 px-4 py-2 animate-pulse"></div>
+          <div className="border border-gray-200 px-4 py-3 animate-pulse"></div>
         ) : (
-          <div className="rounded-md px-2 py-1 flex items-center gap-2 border border-gray-200 bg-[#5442f60d] ">
-            <p className="text-xl text-[#5542F6] font-medium">ICP</p>
-            <p className="text-xl font-medium">{balance?.toFixed(4)}</p>
+          <div className="rounded-full px-2 py-1 flex items-center gap-2 border border-gray-200 bg-[#5442f60d] ">
+            <p className="flex items-center  gap-2 text-lg text-[#5542F6] font-medium">
+              <CiWallet size={24} className="text-[#5542F6]  font-semibold" />{" "}
+              ICP
+            </p>
+            <p className="text-lg font-medium">{balance?.toFixed(4)}</p>
           </div>
         )}{" "}
         <span

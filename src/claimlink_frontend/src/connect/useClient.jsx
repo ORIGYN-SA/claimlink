@@ -10,6 +10,8 @@ const AuthContext = createContext();
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 export const useAuthClient = () => {
   const [isConnected, setIsConnected] = useState(false);
+  const signerId = localStorage.getItem("signerId");
+  const [wallet, setWallet] = useState("");
   // const [delegationExpiry, setDelegationExpiry] = useState(null)
   const delegationExpiry =
     Number(localStorage.getItem("delegationExpiry")) || 0;
@@ -65,17 +67,26 @@ export const useAuthClient = () => {
       //   setDelegationExpiry(expiryTime);
       // }
 
+      if (signerId === "Plug") {
+        setWallet("plug");
+      } else if (signerId === "NFIDW") {
+        setWallet("nfidw");
+      } else {
+        setWallet("sometingwrong");
+      }
+
       const interval = setInterval(checkDelegationExpiry, 1000);
 
       return () => clearInterval(interval);
     } else {
       setIsConnected(false);
     }
-  }, [user, delegationExpiry]);
+  }, [user, delegationExpiry, connect]);
 
   return {
     isConnected,
     delegationExpiry,
+    wallet,
     login: connect,
     logout: disconnect,
     balance: icpBalance,

@@ -17,6 +17,7 @@ import { PiTelegramLogoThin } from "react-icons/pi";
 import { CiTwitter } from "react-icons/ci";
 import { SlSocialInstagram } from "react-icons/sl";
 import { useAuth } from "../connect/useClient";
+import CommonModal from "../common/CommonModel";
 
 const MainHome = () => {
   const location = useLocation();
@@ -211,7 +212,12 @@ const Home = () => {
   const lunch = () => {
     navigate("/login");
   };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const toggleModal = (e) => {
+    e.preventDefault();
+    setIsModalOpen(!isModalOpen);
+  };
   return (
     <>
       <div
@@ -249,7 +255,7 @@ const Home = () => {
               >
                 Launch App
               </button>
-              {isConnected ? (
+              {/* {isConnected ? (
                 <Link
                   to={"/contact-us"}
                   className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
@@ -263,11 +269,31 @@ const Home = () => {
                 >
                   Contact us
                 </Link>
+              )} */}
+              <button
+                onClick={toggleModal}
+                className="bg-transparent border border-gray-300 py-3 px-6 text-base text-black rounded-md"
+              >
+                Contact us
+              </button>
+              {isModalOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 bg-[#7979792e] z-50"
+                    onClick={toggleModal}
+                  ></div>
+                  <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <CommonModal
+                      toggleModal={toggleModal}
+                      title="Transfer NFT"
+                    />
+                  </div>
+                </>
               )}
             </div>
           </div>
         </div>
-        <div className="  hidden md:block h-screen overflow-hidden  z-10 ">
+        <div className="  hidden md:block h-screen overflow-hidden  ">
           <img
             src={bgmain2}
             alt=""

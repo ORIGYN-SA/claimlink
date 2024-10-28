@@ -1,68 +1,36 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
 import { RxCross2 } from "react-icons/rx";
-import { useAuth } from "../connect/useClient";
-import { Principal } from "@dfinity/principal";
-import MainButton from "./Buttons";
 
-const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
-  const navigate = useNavigate();
-  const { identity, backend, principal } = useAuth();
-  const url = process.env.PROD
-    ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
-    : "http://localhost:3000";
+const CommonModal = ({ toggleModal }) => {
+  const [result, setResult] = React.useState("");
 
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [quantity, setQuantity] = useState(0);
+  const onSubmit = async (event) => {
+    event.preventDefault();
+    setResult("Sending...");
+    const formData = new FormData(event.target);
 
-  const validateForm = () => {
-    if (quantity <= 0 || quantity > maxquntity) {
-      toast.error(`Quantity must be between 1 and ${maxquntity}`);
-      return false;
-    }
-    return true;
-  };
+    formData.append("access_key", "7cfe2cb9-e3be-40ba-9695-62066d4df2b9");
 
-  const handleCreate = async (e) => {
-    e.preventDefault();
-    console.log("Starting to create link...");
-    setLoading(true);
+    const response = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      body: formData,
+    });
 
-    if (!backend) {
-      toast.error("Backend actor not initialized");
-      return;
-    }
+    const data = await response.json();
 
-    // if (!validateForm()) {
-    //   return;
-    // }
-
-    try {
-      console.log("Principal:", principal.toText());
-      const canister = Principal.fromText(canisterid);
-      const index = await backend?.createLink(canister, principal, nftid);
-
-      if (index != -1 && index !== undefined) {
-        const claimLink = `${url}/linkclaiming/${canisterid}/${index}`;
-        console.log("Link created successfully:", claimLink);
-        toast.success("Link created successfully!");
-      } else {
-        console.log("Failed to create link, no response received");
-        toast.error("Failed to create link");
-      }
-    } catch (error) {
-      console.error("Error creating link:", error);
-      toast.error("Error creating link");
-    } finally {
-      setLoading(false);
+    if (data.success) {
+      setResult("Form Submitted Successfully");
+      event.target.reset();
+      toggleModal;
+    } else {
+      console.log("Error", data);
+      setResult(data.message);
     }
   };
 
   return (
-    <div className="h-screen w-screen top-0 bottom-0 left-0 right-0 flex items-center justify-center bg-transparent">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{
@@ -70,57 +38,83 @@ const CommonModal = ({ toggleModal, canisterid, maxquntity, nftid }) => {
           opacity: 1,
           transition: { ease: "easeInOut", duration: 0.4 },
         }}
-        className="filter-card px-6 py-2 bg-white rounded-xl w-[400px] h-[150px]"
+        className="bg-white rounded-xl w-[90%] max-w-lg p-6 shadow-lg"
       >
-        <div className="flex flex-col mt-2">
-          <div className="flex justify-between gap-4">
-            <h1 className="text-2xl font-medium">Create claim links</h1>
-            <button
-              className="bg-[#F5F4F7] p-2 rounded-md"
-              onClick={toggleModal}
-              disabled={loading}
-            >
-              <RxCross2 className="text-gray-800 w-5 h-5" />
-            </button>
-          </div>
-          {/* <p className="text-gray-500 text-sm mt-2">
-            How many claim links do you want to create?
-          </p> */}
-
-          <div className="mt-4">
-            <form onSubmit={handleCreate} className="flex flex-col">
-              {/* <label htmlFor="quantity" className="text-lg my-2">
-                Quantity
-              </label> */}
-              {/* <input
-                type="number"
-                name="quantity"
-                id="quantity"
-                className="bg-[#F5F4F7] py-2 px-4 rounded-md border border-gray-200 outline-none"
-                placeholder="e.g., 10"
-                value={quantity}
-                onChange={(e) => setQuantity(Number(e.target.value))}
-                min="1"
-                max={maxquntity}
-              />
-              {error && <p className="text-red-500 mt-2">{error}</p>} */}
-              <div className="flex justify-end items-end pt-1 gap-4">
-                <MainButton
-                  text={"create"}
-                  onClick={handleCreate}
-                  loading={loading}
-                />
-                {/* <button
-                  type="submit"
-                  className={`button px-4 py-2 rounded-md text-white bg-[#564BF1]`}
-                  disabled={loading}
-                >
-                  {loading ? "Creating..." : "Create"}
-                </button> */}
-              </div>
-            </form>
-          </div>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-semibold text-gray-800">Contact us</h1>
+          <button
+            onClick={toggleModal}
+            className="p-2 rounded-full bg-gray-100 hover:bg-gray-200"
+          >
+            <RxCross2 className="text-gray-800 w-5 h-5" />
+          </button>
         </div>
+
+        <form onSubmit={onSubmit} className="mt-6 space-y-4">
+          <div className="flex flex-col">
+            <label
+              htmlFor="name"
+              className="mb-1 text-base text-start font-semibold text-gray-700"
+            >
+              Name
+            </label>
+            <input
+              type="text"
+              name="name"
+              required
+              className="w-full bg-gray-50 px-4 py-2 border-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500 border-gray-200"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label
+              htmlFor="email"
+              className="mb-1 text-base text-start font-semibold text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              type="email"
+              name="email"
+              required
+              className="w-full bg-gray-50 px-4 py-2 border-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500 border-gray-200"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label
+              htmlFor="message"
+              className="mb-1 text-base text-start font-semibold text-gray-700"
+            >
+              Message
+            </label>
+            <textarea
+              name="message"
+              rows="4"
+              required
+              className="w-full bg-gray-50 px-4 py-2 border-2 rounded-md outline-none focus:ring-2 focus:ring-blue-500 border-gray-200"
+            ></textarea>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full py-2 bg-[#564BF1] text-white rounded-md hover:bg-blue-700 transition-colors"
+          >
+            Submit
+          </button>
+        </form>
+
+        {result && (
+          <div className="mt-4">
+            <span
+              className={`text-sm font-semibold ${
+                result.includes("Success") ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              {result}
+            </span>
+          </div>
+        )}
       </motion.div>
     </div>
   );

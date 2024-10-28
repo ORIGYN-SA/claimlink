@@ -14,14 +14,13 @@ import nfid from "../assets/img/nfid.png";
 import { useAuth } from "../connect/useClient";
 
 const coffeeAmount = 0.0001 * 100000000;
-
 const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
   const [message, setMessage] = useState("Pay Now");
   const [disabled, setDisabled] = useState(false);
   const [loadingPlug, setLoadingPlug] = useState(false);
   const [loadingNfid, setLoadingNfid] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("");
-  const signerId = localStorage.getItem("signerId");
+  const [InsufficientFunds, setInsufficientFunds] = useState(false);
   const {
     identity,
     principal,
@@ -29,9 +28,15 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
     disconnect,
     isConnected,
     balance,
+    wallet,
     backend,
   } = useAuth();
-
+  console.log("balance", balance, coffeeAmount / 100000000);
+  useEffect(() => {
+    if (balance < coffeeAmount / 100000000) {
+      setInsufficientFunds(true);
+    }
+  }, [balance]);
   const handlePlugPayment = async (e) => {
     e.target.disabled = true;
     setLoadingPlug(true);
@@ -150,7 +155,55 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
           <div className="flex items-center mt-4 rounded-md px-4 py-2">
             <p className="font-bold">Price: {coffeeAmount / 100000000} ICP</p>
           </div>
-          {signerId === "NFIDW" ? (
+          {InsufficientFunds ? (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={() => {
+                toast.error("Insufficient Funds");
+              }}
+              disabled={disabled || loadingNfid}
+            >
+              Make Payment
+            </Button>
+          ) : wallet === "nfidw" ? (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={handleNFidPayment}
+              disabled={disabled || loadingNfid}
+            >
+              <img src={nfid} alt="NFID" className="w-20 h-8" />
+              {loadingNfid ? "Processing..." : message}
+            </Button>
+          ) : wallet === "plug" ? (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={handlePlugPayment}
+              disabled={disabled || loadingPlug}
+            >
+              <img src={plug} alt="Plug" className="w-8 h-8" />
+              {loadingPlug ? "Processing..." : message}
+            </Button>
+          ) : wallet === "sometingwrong" ? (
+            <Button
+              className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
+              onClick={() => {
+                toast.error(" please reConnect wallet");
+              }}
+            >
+              Make Payment
+            </Button>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default PaymentModel;
+
+{
+  /* 
+signerId === "NFIDW" ? (
             <Button
               className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
               onClick={handleNFidPayment}
@@ -163,18 +216,10 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
             <Button
               className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
               onClick={handlePlugPayment}
-              disabled={
-                disabled || loadingPlug || message == "Insufficient Funds"
-              }
+              disabled={disabled || loadingPlug}
             >
               <img src={plug} alt="Plug" className="w-8 h-8" />
               {loadingPlug ? "Processing..." : message}
             </Button>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default PaymentModel;
+          )} */
+}
