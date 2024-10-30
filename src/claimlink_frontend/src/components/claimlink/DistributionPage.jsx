@@ -46,7 +46,7 @@ const DistributionPage = ({
           console.log(nftData, "available tokens");
           setNftOptions(
             nftData.map((nft) => ({
-              value: nft[1].toString(),
+              value: nft[0],
               label: nft[2],
             }))
           );
@@ -57,7 +57,7 @@ const DistributionPage = ({
           console.log(tokenData);
           setTokenOptions(
             tokenData.map((token) => ({
-              value: token[0].toString(),
+              value: token[0],
               label: token[1],
             }))
           );
