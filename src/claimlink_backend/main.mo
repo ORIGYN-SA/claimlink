@@ -309,7 +309,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
+    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -446,13 +446,13 @@ actor Main {
         return depositItemsMap.get(key);
     };
 
-    public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
-        var result : [(Nat32, Deposit)] = [];
-        for ((key, value) in depositItemsMap.entries()) {
-            result := Array.append([(key, value)], result);
-        };
-        return result;
-    };
+    // public shared query func getAlldepositItemsMap() : async [(Nat32, Deposit)] {
+    //     var result : [(Nat32, Deposit)] = [];
+    //     for ((key, value) in depositItemsMap.entries()) {
+    //         result := Array.append([(key, value)], result);
+    //     };
+    //     return result;
+    // };
 
     system func preupgrade() {
         stableuserCollectionMap := Iter.toArray(usersCollectionMap.entries());
@@ -1175,72 +1175,192 @@ actor Main {
     // Get NFT details for specific collection
     public shared ({ caller = user }) func getNonFungibleTokens(
         _collectionCanisterId : Principal
-    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+    ) : async {
+        data : [(TokenIndex, AccountIdentifier, Metadata)];
+    } {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
         };
 
-        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
         let userAID = AID.fromPrincipal(user, null);
 
-        // Filter tokens by owner
-        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
-            allTokens,
-            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
-                let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID;
-            },
-        );
-        return userTokens;
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return {
+                data = [];
+            };
+        };
+
+        var nonFungibleTokens : [(TokenIndex, AccountIdentifier, Metadata)] = [];
+
+        for (tokenIndex in tokenIndices.vals()) {
+            let tokenId = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+            let metadataResult = await collectionCanisterActor.tokenMetadata(tokenId);
+            switch metadataResult {
+                case (#ok(metadata)) {
+                    // Only include non-fungible tokens
+                    switch (metadata) {
+                        case (#nonfungible(_)) {
+                            nonFungibleTokens := Array.append(nonFungibleTokens, [(tokenIndex, userAID, metadata)]);
+                        };
+                        case (#fungible(_)) {
+                            // Skip fungible tokens
+                        };
+                    };
+                };
+                case (#err(_)) {
+                    // Optionally handle metadata fetch errors for specific tokens
+                };
+            };
+        };
+
+        return {
+            data = nonFungibleTokens;
+        };
     };
+
     // Get NFT details for specific collection
     public shared func getNonFungibleTokensByUserPrincipal(
         user : Principal,
         _collectionCanisterId : Principal,
-    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
+    ) : async {
+        data : [(TokenIndex, AccountIdentifier, Metadata)];
+    } {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
         };
 
-        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
         let userAID = AID.fromPrincipal(user, null);
 
-        // Filter tokens by owner
-        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
-            allTokens,
-            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
-                let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID;
-            },
-        );
-        return userTokens;
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return {
+                data = [];
+            };
+        };
+
+        var nonFungibleTokens : [(TokenIndex, AccountIdentifier, Metadata)] = [];
+
+        for (tokenIndex in tokenIndices.vals()) {
+            let tokenId = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+            let metadataResult = await collectionCanisterActor.tokenMetadata(tokenId);
+            switch metadataResult {
+                case (#ok(metadata)) {
+                    // Only include non-fungible tokens
+                    switch (metadata) {
+                        case (#nonfungible(_)) {
+                            nonFungibleTokens := Array.append(nonFungibleTokens, [(tokenIndex, userAID, metadata)]);
+                        };
+                        case (#fungible(_)) {
+                            // Skip fungible tokens
+                        };
+                    };
+                };
+                case (#err(_)) {
+                    // Optionally handle metadata fetch errors for specific tokens
+                };
+            };
+        };
+
+        return {
+            data = nonFungibleTokens;
+        };
     };
 
     // Get NFT details for specific collection
+    // public shared ({ caller = user }) func getNonFungibleTokensPaginate(
+    //     _collectionCanisterId : Principal,
+    //     page : Nat,
+    //     pageSize : Nat,
+    // ) : async {
+    //     data : [(TokenIndex, AccountIdentifier, Metadata)];
+    //     current_page : Nat;
+    //     total_pages : Nat;
+    // } {
+    //     let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+    //         getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+    //     };
+
+    //     let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
+    //     let userAID = AID.fromPrincipal(user, null);
+    //     // Filter tokens by owner
+    //     let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
+    //         allTokens,
+    //         func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
+    //             let (tokenIndex, owner, metadata) = tokenData;
+    //             owner == userAID;
+    //         },
+    //     );
+    //     let totalItems = userTokens.size();
+    //     let totalPages = if (totalItems % pageSize == 0) {
+    //         totalItems / pageSize;
+    //     } else {
+    //         (totalItems / pageSize) + 1;
+    //     };
+
+    //     let startIndex = page * pageSize;
+    //     if (startIndex >= totalItems) {
+    //         return {
+    //             data = [];
+    //             current_page = page + 1;
+    //             total_pages = totalPages;
+    //         };
+    //     };
+    //     let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+    //     var paginatedTokens : List.List<(TokenIndex, AccountIdentifier, Metadata)> = List.nil();
+    //     var currentIndex : Nat = 0;
+    //     for (token in userTokens.vals()) {
+    //         if (currentIndex >= startIndex and currentIndex < endIndex) {
+    //             paginatedTokens := List.push(token, paginatedTokens);
+    //         };
+    //         currentIndex += 1;
+    //     };
+
+    //     let paginatedTokensArray = List.toArray(List.reverse(paginatedTokens));
+
+    //     return {
+    //         data = paginatedTokensArray;
+    //         current_page = page + 1;
+    //         total_pages = totalPages;
+    //     };
+    // };
+
     public shared ({ caller = user }) func getNonFungibleTokensPaginate(
         _collectionCanisterId : Principal,
         page : Nat,
-        pageSize : Nat,
+        pageSize : Nat
     ) : async {
         data : [(TokenIndex, AccountIdentifier, Metadata)];
         current_page : Nat;
         total_pages : Nat;
     } {
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
-            getAllNonFungibleTokenData : () -> async [(TokenIndex, AccountIdentifier, Metadata)];
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
         };
 
-        let allTokens = await collectionCanisterActor.getAllNonFungibleTokenData();
         let userAID = AID.fromPrincipal(user, null);
-        // Filter tokens by owner
-        let userTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
-            allTokens,
-            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
-                let (tokenIndex, owner, metadata) = tokenData;
-                owner == userAID;
-            },
-        );
-        let totalItems = userTokens.size();
+
+        // Get the list of token indices for the user
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return {
+                data = [];
+                current_page = page + 1;
+                total_pages = 0;
+            };
+        };
+
+        let totalItems = tokenIndices.size();
         let totalPages = if (totalItems % pageSize == 0) {
             totalItems / pageSize;
         } else {
@@ -1255,25 +1375,45 @@ actor Main {
                 total_pages = totalPages;
             };
         };
+
         let endIndex = Nat.min(totalItems, startIndex + pageSize);
 
-        var paginatedTokens : List.List<(TokenIndex, AccountIdentifier, Metadata)> = List.nil();
+        var paginatedTokens : [(TokenIndex, AccountIdentifier, Metadata)] = [];
         var currentIndex : Nat = 0;
-        for (token in userTokens.vals()) {
+
+        // Iterate over token indices and fetch metadata for the paginated range
+        for (tokenIndex in tokenIndices.vals()) {
             if (currentIndex >= startIndex and currentIndex < endIndex) {
-                paginatedTokens := List.push(token, paginatedTokens);
+                let tokenId = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+                let metadataResult = await collectionCanisterActor.tokenMetadata(tokenId);
+                switch metadataResult {
+                    case (#ok(metadata)) {
+                        // Only include non-fungible tokens
+                        switch (metadata) {
+                            case (#nonfungible(_)) {
+                                paginatedTokens := Array.append(paginatedTokens, [(tokenIndex, userAID, metadata)]);
+                            };
+                            case (#fungible(_)) {
+                                // Skip fungible tokens
+                            };
+                        };
+                    };
+                    case (#err(_)) {
+                        // Optionally handle metadata fetch errors for specific tokens
+                    };
+                };
             };
             currentIndex += 1;
         };
 
-        let paginatedTokensArray = List.toArray(List.reverse(paginatedTokens));
-
         return {
-            data = paginatedTokensArray;
+            data = paginatedTokens;
             current_page = page + 1;
             total_pages = totalPages;
         };
     };
+
+
 
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
         var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
@@ -2317,39 +2457,76 @@ actor Main {
 
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
         _collectionCanisterId : Principal
-    ) : async [(TokenIndex, AccountIdentifier, Metadata)] {
-        let allTokens = await getNonFungibleTokensByUserPrincipal(user, _collectionCanisterId);
-        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
-        let availableTokens : [(TokenIndex, AccountIdentifier, Metadata)] = Array.filter(
-            allTokens,
-            func(tokenData : (TokenIndex, AccountIdentifier, Metadata)) : Bool {
-                let (tokenIndex, _, _) = tokenData;
-                return Array.find<TokenIndex>(
-                    usedTokenIds,
-                    func(usedTokenId : TokenIndex) : Bool {
-                        return usedTokenId == tokenIndex;
-                    },
-                ) == null;
-            },
-        );
+    ) : async [(TokenIndex, AccountIdentifier, Text)] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+        };
 
-        return availableTokens;
+        let userAID = AID.fromPrincipal(user, null);
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return [];
+        };
+
+        var availableTokenNames : [(TokenIndex, AccountIdentifier, Text)] = [];
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
+
+        for (tokenIndex in tokenIndices.vals()) {
+            if (Array.find<TokenIndex>(usedTokenIds, func(id) { id == tokenIndex }) == null) {
+                let tokenId = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+                let metadataResult = await collectionCanisterActor.tokenMetadata(tokenId);
+                switch metadataResult {
+                    case (#ok(metadata)) {
+                        switch (metadata) {
+                            case (#nonfungible(data)) {
+                                // Only store and return the name field from Metadata
+                                let name = data.name;
+                                availableTokenNames := Array.append(availableTokenNames, [(tokenIndex, userAID, name)]);
+                            };
+                            case (#fungible(_)) {
+                                // Skip fungible tokens
+                            };
+                        };
+                    };
+                    case (#err(_)) {
+                        // Optionally handle metadata fetch errors for specific tokens
+                    };
+                };
+            }
+        };
+
+        return availableTokenNames;
     };
+
 
     public shared ({ caller = user }) func getAvailableStoredTokensForCampaign(
         _collectionCanisterId : Principal
-    ) : async [(Nat32, Metadata)] {
-        let allTokens = await getStoredTokens(_collectionCanisterId);
+    ) : async [(Nat32, Text)] {
+        // Retrieve all tokens data for the collection canister
+        let allTokens = tokensDataToBeMinted.get(_collectionCanisterId);
         let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, true);
-        let tokens : [(Nat32, Metadata)] = switch (allTokens) {
+
+        let tokens : [(Nat32, Text)] = switch (allTokens) {
             case (?t) {
-                t;
+                Array.map<(Nat32, Metadata), (Nat32, Text)>(t, func (tokenData : (Nat32, Metadata)) : (Nat32, Text) {
+                    let (tokenIndex, metadata) = tokenData;
+                    let name = switch(metadata) {
+                        case (#nonfungible(details)) details.name;
+                        case (#fungible(details)) details.name;
+                    };
+                    (tokenIndex, name)
+                });
             };
             case null { [] };
         };
-        let availableTokens : [(Nat32, Metadata)] = Array.filter(
+
+        // Filter out used tokens
+        let availableTokens : [(Nat32, Text)] = Array.filter(
             tokens,
-            func(tokenData : (Nat32, Metadata)) : Bool {
+            func(tokenData : (Nat32, Text)) : Bool {
                 let (tokenIndex, _) = tokenData;
                 return Array.find<Nat32>(
                     usedTokenIds,
@@ -2359,8 +2536,11 @@ actor Main {
                 ) == null;
             },
         );
+
         return availableTokens;
     };
+
+
 
     public shared query ({ caller = user }) func getUserCampaignsPaginate(
         page : Nat,

@@ -2215,6 +2215,14 @@ actor class EXTNFT(init_owner : Principal) = this {
       case (#err e) return #err(e);
     };
   };
+  public query func tokenMetadata(token : TokenIdentifier) : async Result.Result<Metadata, CommonError> {
+    switch (_ext_internalMetadata(token)) {
+      case (#ok a) {
+        #ok(a);
+      };
+      case (#err e) return #err(e);
+    };
+  };
   public query func details(token : TokenIdentifier) : async Result.Result<(AccountIdentifier, ?Listing), CommonError> {
     if (ExtCore.TokenIdentifier.isPrincipal(token, Principal.fromActor(this)) == false) {
       return #err(#InvalidToken(token));
