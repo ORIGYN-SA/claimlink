@@ -82,7 +82,20 @@ const QrManager = () => {
           </div> */}
 
           {data?.map((data, index) => (
-            <div key={index} className="w-full  p-2 ">
+            <Link
+              to={
+                Object.keys(data?.status || {})[0] === "Expired" ||
+                Object.keys(data?.status || {})[0] === "Completed"
+                  ? "#" // Disable link
+                  : `/claim-link/${data.campaignId}`
+              }
+              className={`w-full p-2 ${
+                Object.keys(data?.status || {})[0] === "Expired" ||
+                Object.keys(data?.status || {})[0] === "Completed"
+                  ? "opacity-50 pointer-events-none" // Add fade and disable interaction
+                  : "opacity-100"
+              } transition-opacity duration-300`}
+            >
               <motion.div
                 key={index}
                 initial={{ opacity: 0, scale: 0 }}
@@ -91,7 +104,7 @@ const QrManager = () => {
               >
                 <InfoCard data={data} />
               </motion.div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

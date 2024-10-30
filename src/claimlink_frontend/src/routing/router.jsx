@@ -15,6 +15,7 @@ import AddToken from "../components/minter/AddToken";
 import AddTokenHome from "../components/minter/AddTokenHome";
 import Launch from "../components/claimlink/Launch";
 import TestCampaign from "../components/claimlink/TestCampaign";
+import TestCampaign2 from "../components/qrManager/TestCampaign2";
 import QrManager from "../pages/QrManager";
 import QrSetup from "../components/qrManager/QrSetup";
 import QRSetForm from "../components/qrManager/NewQrSet";
@@ -36,6 +37,7 @@ import NotFound from "../pages/NotFound";
 import TechnicalHelp from "../common/TechnicalHelp";
 import Nfidlogin from "../common/NfidWallet";
 import NfidPAyment from "../common/NfidPAyment";
+
 const approutes = createBrowserRouter([
   {
     path: "/",
@@ -178,6 +180,14 @@ const approutes = createBrowserRouter([
     element: (
       <Dashboard>
         <QrManager />
+      </Dashboard>
+    ),
+  },
+  {
+    path: "/qr-manager/:id",
+    element: (
+      <Dashboard>
+        <TestCampaign2 />
       </Dashboard>
     ),
   },

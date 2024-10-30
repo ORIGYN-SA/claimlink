@@ -101,7 +101,7 @@ const LinkClaiming = () => {
     const canister = Principal.fromText(canisterId);
     const getDeposits = async () => {
       try {
-        const detail = await backend.getAlldepositItemsMap();
+        const detail = await backend.getDepositItems();
         const data = await nft.getAllNonFungibleTokenData();
         const stored = await backend.getStoredTokens(canister);
 

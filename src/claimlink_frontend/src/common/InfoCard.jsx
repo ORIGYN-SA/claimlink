@@ -29,7 +29,6 @@ const InfoCard = ({ data }) => {
         <div className="flex items-center justify-between mb-4">
           <div className="px-4">
             <h2 className="text-lg font-semibold">{data?.title}</h2>
-            <p className="text-sm text-gray-500">December 5, 13:54</p>
           </div>
           <div>
             <button className="p-2 rounded-full hover:bg-gray-200">
@@ -40,7 +39,17 @@ const InfoCard = ({ data }) => {
         <div className="grid grid-cols-2 gap-0">
           <div className="flex flex-col border p-4 border-l-0  border-gray-300">
             <span className="text-sm text-gray-500">Status</span>
-            <span className="font-semibold text-Green-500">Uploaded</span>
+            <p
+              className={`text-xs font-bold mt-2 ${
+                Object.keys(data?.status || {})[0] === "Expired"
+                  ? "text-red-600" // For expired
+                  : Object.keys(data?.status || {})[0] === "Ongoing"
+                  ? "text-blue-600" // For complete
+                  : "text-green-600" // Default for ongoing
+              }`}
+            >
+              {Object.keys(data?.status || {})[0]}{" "}
+            </p>
           </div>
           <div className="flex flex-col border p-4  border-r-0 border-gray-300">
             <span className="text-sm text-gray-500">Additional</span>
@@ -72,7 +81,17 @@ const InfoCard = ({ data }) => {
         <div className="space-y-2 text-xs">
           <div className="flex justify-between">
             <span className="text-gray-500">Status</span>
-            <span className="text-green-500 font-semibold">Uploaded</span>
+            <p
+              className={`text-xs font-bold  ${
+                Object.keys(data?.status || {})[0] === "Expired"
+                  ? "text-red-600" // For expired
+                  : Object.keys(data?.status || {})[0] === "Ongoing"
+                  ? "text-blue-600" // For complete
+                  : "text-green-600" // Default for ongoing
+              }`}
+            >
+              {Object.keys(data?.status || {})[0]}{" "}
+            </p>
           </div>
           <div className="flex justify-between gap-7">
             <span className="text-gray-500">Additional</span>

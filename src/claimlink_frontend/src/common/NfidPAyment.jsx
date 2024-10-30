@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../connect/useClient";
-import { createActor } from "../../../declarations/icp_ledger_canister";
+
 import { Principal } from "@dfinity/principal";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
 import { fromHexString } from "@dfinity/candid";

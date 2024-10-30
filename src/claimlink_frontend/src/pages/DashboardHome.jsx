@@ -46,7 +46,6 @@ const DashBoardHome = () => {
   };
 
   useEffect(() => {
-    setLoading1(true);
     const loadData = async () => {
       try {
         const data = await backend?.dashboardDetails();
@@ -106,7 +105,6 @@ const DashBoardHome = () => {
         console.error("Data loading error:", error);
         setError(error);
       } finally {
-        setLoading1(false);
       }
     };
 
@@ -116,12 +114,12 @@ const DashBoardHome = () => {
   }, [backend]);
 
   useEffect(() => {
-    setLoading1(true);
     const loadData = async () => {
       try {
-        const data = await backend?.getUserCollectionDetails();
-        setMinter(data[0]);
-        console.log("collection is", data[0]);
+        setLoading1(true);
+        const data = await backend?.getUserCollectionDetailsPaginate(0, 5);
+        setMinter(data.data);
+        console.log("collection is", data.data);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -138,9 +136,9 @@ const DashBoardHome = () => {
     setLoading2(true);
     const loadData = async () => {
       try {
-        const data = await backend?.getUserDispensers();
-        setDispenser(data[0]);
-        console.log("dispenser is", data[0]);
+        const data = await backend?.getUserDispensersPaginate(0, 5);
+        setDispenser(data.data);
+        console.log("dispenser is", data.data);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -157,9 +155,9 @@ const DashBoardHome = () => {
     setLoading3(true);
     const loadData = async () => {
       try {
-        const data = await backend?.getUserCampaigns();
-        setcampgain(data[0]);
-        console.log("claimlink is", data[0]);
+        const data = await backend?.getUserCampaignsPaginate(0, 5);
+        setcampgain(data.data);
+        console.log("claimlink is", data.data);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -176,9 +174,9 @@ const DashBoardHome = () => {
     setLoading4(true);
     const loadData = async () => {
       try {
-        const data = await backend?.getUserQRSets();
-        setQrcodes(data[0]);
-        console.log("qr is", data[0]);
+        const data = await backend?.getUserQRSetsPaginate(0, 5);
+        setQrcodes(data.data);
+        console.log("qr is", data.data);
       } catch (error) {
         console.error("Data loading error:", error);
         setError(error);
@@ -765,7 +763,7 @@ const DashBoardHome = () => {
       ) : (
         <>
           <div className="mt-6 flex justify-between gap-4">
-            {loading1 ? (
+            {loading3 ? (
               <div className="  flex mx-auto justify-center items-center    rounded-md ">
                 <InfinitySpin
                   visible={true}
@@ -1057,11 +1055,17 @@ const DashBoardHome = () => {
                         </p>
                       </div>
                       <div>
-                        <button
-                          className={`text-[#3B00B9]  p-1   text-sm ${
-                            index % 2 == 0 ? "bg-[#6FC773]" : "bg-[#F95657]"
-                          } bg-[#564BF1] rounded-md`}
-                        ></button>
+                        <p
+                          className={`text-xs font-bold mt-2 ${
+                            Object.keys(data?.status || {})[0] === "Expired"
+                              ? "text-red-600" // For expired
+                              : Object.keys(data?.status || {})[0] === "Ongoing"
+                              ? "text-blue-600" // For complete
+                              : "text-green-600" // Default for ongoing
+                          }`}
+                        >
+                          {Object.keys(data?.status || {})[0]}{" "}
+                        </p>
                       </div>
                       <div className="">
                         <p className="text-xs text-[#2E2C34] font-semibold">
@@ -1113,7 +1117,7 @@ const DashBoardHome = () => {
                 </motion.div>
               </div>
             )}
-            {loading2 ? (
+            {loading1 ? (
               <div className="  flex mx-auto justify-center items-center   rounded-md ">
                 <InfinitySpin
                   visible={true}
