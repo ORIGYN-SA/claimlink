@@ -212,11 +212,9 @@ const AddToken = () => {
     }
 
     // Validate decimals (must be between 0 and 18 for fungible tokens)
-    if (
-      tokenType === "fungible" &&
-      (formData.decimals < 0 || formData.decimals > 18)
-    ) {
-      newErrors.decimals = "Decimals must be between 0 and 18.";
+    if (formData.decimals < 0 || formData.decimals > 50) {
+      newErrors.decimals = "Decimals must be between 0 and 50.";
+      toast.error("Copies should be greater than 0 and less than 50");
     }
 
     // Validate asset (required)

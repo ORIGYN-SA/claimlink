@@ -46,18 +46,19 @@ const DistributionPage = ({
           console.log(nftData, "available tokens");
           setNftOptions(
             nftData.map((nft) => ({
-              value: nft[0].toString(),
-              label: nft[2].nonfungible.name,
+              value: nft[1].toString(),
+              label: nft[2],
             }))
           );
         } else if (formData.pattern === "mint") {
           const tokenData = await backend.getAvailableStoredTokensForCampaign(
             id
           );
+          console.log(tokenData);
           setTokenOptions(
             tokenData.map((token) => ({
               value: token[0].toString(),
-              label: token[1].nonfungible.name,
+              label: token[1],
             }))
           );
         }
