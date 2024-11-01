@@ -309,7 +309,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
+    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -1335,7 +1335,7 @@ actor Main {
     public shared ({ caller = user }) func getNonFungibleTokensPaginate(
         _collectionCanisterId : Principal,
         page : Nat,
-        pageSize : Nat
+        pageSize : Nat,
     ) : async {
         data : [(TokenIndex, AccountIdentifier, Metadata)];
         current_page : Nat;
@@ -1412,8 +1412,6 @@ actor Main {
             total_pages = totalPages;
         };
     };
-
-
 
     public shared ({ caller = user }) func getUserTokensFromAllCollections() : async [(Principal, Text, Nat)] {
         var resultArray = Buffer.Buffer<(Principal, Text, Nat)>(0);
@@ -2495,12 +2493,11 @@ actor Main {
                         // Optionally handle metadata fetch errors for specific tokens
                     };
                 };
-            }
+            };
         };
 
         return availableTokenNames;
     };
-
 
     public shared ({ caller = user }) func getAvailableStoredTokensForCampaign(
         _collectionCanisterId : Principal
@@ -2511,14 +2508,17 @@ actor Main {
 
         let tokens : [(Nat32, Text)] = switch (allTokens) {
             case (?t) {
-                Array.map<(Nat32, Metadata), (Nat32, Text)>(t, func (tokenData : (Nat32, Metadata)) : (Nat32, Text) {
-                    let (tokenIndex, metadata) = tokenData;
-                    let name = switch(metadata) {
-                        case (#nonfungible(details)) details.name;
-                        case (#fungible(details)) details.name;
-                    };
-                    (tokenIndex, name)
-                });
+                Array.map<(Nat32, Metadata), (Nat32, Text)>(
+                    t,
+                    func(tokenData : (Nat32, Metadata)) : (Nat32, Text) {
+                        let (tokenIndex, metadata) = tokenData;
+                        let name = switch (metadata) {
+                            case (#nonfungible(details)) details.name;
+                            case (#fungible(details)) details.name;
+                        };
+                        (tokenIndex, name);
+                    },
+                );
             };
             case null { [] };
         };
@@ -2539,8 +2539,6 @@ actor Main {
 
         return availableTokens;
     };
-
-
 
     public shared query ({ caller = user }) func getUserCampaignsPaginate(
         page : Nat,

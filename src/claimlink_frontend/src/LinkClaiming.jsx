@@ -101,7 +101,7 @@ const LinkClaiming = () => {
     const canister = Principal.fromText(canisterId);
     const getDeposits = async () => {
       try {
-        const detail = await backend.getDepositItems();
+        const detail = await backend.getDepositItem(Number(nftIndex));
         const data = await nft.getAllNonFungibleTokenData();
         const stored = await backend.getStoredTokens(canister);
 
@@ -132,6 +132,9 @@ const LinkClaiming = () => {
       console.log("Response of claim:", res);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
+        setTimeout(() => {
+          toast.success("Redirecting to Your NFT page!");
+        }, 3000);
         setCelebrate(true);
         setTimeout(() => {
           setCelebrate(false);
@@ -169,13 +172,7 @@ const LinkClaiming = () => {
       );
     }
 
-    const matchedDeposit = deposits.find(
-      (deposit) =>
-        deposit[1].collectionCanister?.toText() === canisterId &&
-        deposit[0] == nftIndex
-    );
-    console.log("matched", matchedDeposit);
-    if (!matchedDeposit) {
+    if (deposits?.length == 0) {
       return (
         <div className="my-auto mt-16 text-xl z-40 text-center text-red-500">
           No NFT found <br />
@@ -187,15 +184,14 @@ const LinkClaiming = () => {
 
     return (
       <motion.div
-        key={matchedDeposit[1]?.tokenId}
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1 }}
-        className="bg-white px-2 py-4 mt-8 z-40 rounded-xl cursor-pointer"
+        className="bg-white px-2 py-2 mt-8 z-40 rounded-xl cursor-pointer"
       >
-        {matchedDeposit[1].claimPattern == "transfer"
+        {deposits[0]?.claimPattern == "transfer"
           ? allnft.map((nft, index) =>
-              nft[0] == matchedDeposit[1]?.tokenId ? (
+              nft[0] == deposits[0]?.tokenId ? (
                 <div className="flex flex-col justify-center items-center">
                   {" "}
                   <img
@@ -212,7 +208,7 @@ const LinkClaiming = () => {
               ) : null
             )
           : storednft[0]?.map((nft, index) =>
-              nft[0] == matchedDeposit[1]?.tokenId ? (
+              nft[0] == deposits[0]?.tokenId ? (
                 <div className="flex flex-col justify-center items-center">
                   {" "}
                   <img
@@ -231,28 +227,22 @@ const LinkClaiming = () => {
 
         <p className="text-xs gray mt-1">
           <p className="text-xs gray mt-1">
-            {new Date(
-              Number(matchedDeposit[1]?.timestamp) / 1e6
-            ).toLocaleString()}
+            {new Date(Number(deposits[0]?.timestamp) / 1e6).toLocaleString()}
           </p>
         </p>
         <div className="border border-gray-200 my-4 w-full"></div>
         <div className="w-full">
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Token ID</p>
-            <p className="text-xs font-semibold">
-              {matchedDeposit[1]?.tokenId}
-            </p>
+            <p className="text-xs font-semibold">{deposits[0]?.tokenId}</p>
           </div>
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Claim Pattern</p>
-            <p className="text-xs font-semibold">
-              {matchedDeposit[1]?.claimPattern}
-            </p>
+            <p className="text-xs font-semibold">{deposits[0]?.claimPattern}</p>
           </div>
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Status</p>
-            <p className="text-xs font-semibold">{matchedDeposit[1]?.status}</p>
+            <p className="text-xs font-semibold">{deposits[0]?.status}</p>
           </div>
         </div>
         <div className="border border-gray-200 my-4"></div>
@@ -362,7 +352,7 @@ const LinkClaiming = () => {
           className="transition-transform h-[90vh] z-20 duration-300 transform hover:scale-105 ease-in"
         />
       </div> */}
-      <div className="md:flex  hidden relative  mx-10 items-center mt-4 font-semibold justify-end">
+      <div className="md:flex  hidden relative   items-center mt-4 font-semibold justify-end">
         <span
           className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
           onClick={handleDropdownClick}
