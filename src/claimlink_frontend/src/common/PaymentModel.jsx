@@ -341,7 +341,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
       from_subaccount: [],
       spender: {
         owner: Principal.fromText(
-          "6b7ga-ia4aq-ykkwc-sfkzw-xjhvi-gzf64-zrxnv-bgddn-6o2u4-mpfyt-yqe"
+          "xjhju-3aaaa-aaaak-akv5q-cai"
         ),
         subaccount: [],
       },
