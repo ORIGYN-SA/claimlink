@@ -314,8 +314,14 @@ import { useAuth } from "../connect/useClient";
 import { Actor } from "@dfinity/agent";
 import { idlFactory } from "../connect/token-icp-ladger";
 
-const coffeeAmount = 0.0001;
-const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
+// const coffeeAmount = 0.0001;
+const PaymentModel = ({
+  img,
+  toggleModal,
+  name,
+  handlecreate,
+  coffeeAmount,
+}) => {
   const [message, setMessage] = useState("Pay Now");
   const [loading, setLoading] = useState(false);
   const [insufficientFunds, setInsufficientFunds] = useState(false);
@@ -340,9 +346,7 @@ const PaymentModel = ({ img, toggleModal, name, handlecreate }) => {
     const transferArgs = {
       from_subaccount: [],
       spender: {
-        owner: Principal.fromText(
-          "xjhju-3aaaa-aaaak-akv5q-cai"
-        ),
+        owner: Principal.fromText("xjhju-3aaaa-aaaak-akv5q-cai"),
         subaccount: [],
       },
       amount: BigInt(coffeeAmount * 10 ** 8 + 100000),

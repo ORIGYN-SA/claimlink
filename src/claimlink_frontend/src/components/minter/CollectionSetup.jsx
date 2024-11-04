@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../connect/useClient";
 import { TailSpin } from "react-loader-spinner";
 import PaymentModel from "../../common/PaymentModel";
+const coffeeAmount = 0.0001 * 100000000; // 0.04 ICP in e8s
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
   const navigate = useNavigate();
@@ -139,7 +140,8 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       const res = await backend.createExtCollection(
         formData.title,
         formData.symbol,
-        formData.img
+        formData.img,
+        coffeeAmount
       );
 
       if (res) {
@@ -309,6 +311,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
                 toggleModal={toggleModal}
                 name={formData.title}
                 handlecreate={handleCreate}
+                coffeeAmount={coffeeAmount}
               />
             ) : null}
           </div>

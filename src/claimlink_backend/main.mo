@@ -278,9 +278,9 @@ actor Main {
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal, nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
     // Payment recepient
-    private stable var recepient : Principal = Principal.fromText("7yywi-leri6-n33rr-vskr6-yb4nd-dvj6j-xg2b4-reiw6-dljs7-slclz-2ae"); 
+    private stable var recepient : Principal = Principal.fromText("7yywi-leri6-n33rr-vskr6-yb4nd-dvj6j-xg2b4-reiw6-dljs7-slclz-2ae");
 
-    public shared ({caller}) func getRecepient() : async Result.Result<Principal, Text> {
+    public shared ({ caller }) func getRecepient() : async Result.Result<Principal, Text> {
         if (not Principal.isController(caller)) {
             throw Error.reject("You cannot control this canister");
             return #err("You cannot control this canister");
@@ -288,7 +288,7 @@ actor Main {
         return #ok(recepient);
     };
 
-    public shared ({caller}) func setRecepient(recepientPrincipal : Principal) : async Result.Result<Principal, Text> {
+    public shared ({ caller }) func setRecepient(recepientPrincipal : Principal) : async Result.Result<Principal, Text> {
         if (not Principal.isController(caller)) {
             throw Error.reject("You cannot control this canister");
             return #err("You cannot control this canister");
@@ -320,12 +320,12 @@ actor Main {
         return #ok("Reset done");
     };
 
-    public shared({caller}) func sendCyclesToCollection(collectionCanister : Principal, amount : Nat) : async Result.Result<Text, Text> {
+    public shared ({ caller }) func sendCyclesToCollection(collectionCanister : Principal, amount : Nat) : async Result.Result<Text, Text> {
         if (not Principal.isController(caller)) {
             throw Error.reject("You cannot control this canister");
             return #err("You cannot control this canister");
         };
-        
+
         if (Cycles.balance() < amount) {
             return #err("Insufficient cycles balance in backend canister.");
         };
@@ -335,13 +335,12 @@ actor Main {
         if (accepted != amount) {
             return #err("Failed to transfer the specified amount of cycles.");
         };
-        let collectionActor = actor(Principal.toText(collectionCanister)) : actor {
+        let collectionActor = actor (Principal.toText(collectionCanister)) : actor {
             acceptCycles : () -> async ();
         };
         await collectionActor.acceptCycles();
         return #ok("Cycles successfully transferred to collection canister.");
     };
-
 
     let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
         account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
@@ -352,69 +351,69 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
+    let RegistryCanister = actor "b77ix-eeaaa-aaaaa-qaada-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
-        // public shared ({ caller = user }) func transferICP(
-        //     amount : Nat,
-        //     fee : ?Nat,
-        //     spenderSubaccount : ?Blob,
-        //     memo : ?Blob,
-        //     createdAtTime : ?Nat64,
-        //     _title : Text,
-        //     _symbol : Text,
-        //     _metadata : Text
-        // ) : async Text {
+    // public shared ({ caller = user }) func transferICP(
+    //     amount : Nat,
+    //     fee : ?Nat,
+    //     spenderSubaccount : ?Blob,
+    //     memo : ?Blob,
+    //     createdAtTime : ?Nat64,
+    //     _title : Text,
+    //     _symbol : Text,
+    //     _metadata : Text
+    // ) : async Text {
 
-        //     let fromAccount : Account = {
-        //         owner = user;
-        //         subaccount = null;
-        //     };
+    //     let fromAccount : Account = {
+    //         owner = user;
+    //         subaccount = null;
+    //     };
 
-        //     let toAccount : Account = {
-        //         owner = Principal.fromActor(Main);
-        //         subaccount = null;
-        //     };
-        //     // let balanceCheck = Principal.toLedgerAccount(user, null);
-        //     // let balanceResult = await LedgerCanister.account_balance({account = balanceCheck});
+    //     let toAccount : Account = {
+    //         owner = Principal.fromActor(Main);
+    //         subaccount = null;
+    //     };
+    //     // let balanceCheck = Principal.toLedgerAccount(user, null);
+    //     // let balanceResult = await LedgerCanister.account_balance({account = balanceCheck});
 
-        //     // // Print debug information
-        //     // Debug.print(
-        //     //     "Transferring "
-        //     //     # debug_show (amount)
-        //     //     # " tokens to principal "
-        //     //     # debug_show (toAccount)
-        //     //     # " from account "
-        //     //     # debug_show (fromAccount)
-        //     //     # " caller principal "
-        //     //     # debug_show (user)
-        //     //     # " balance "
-        //     //     # debug_show (balanceResult)
-        //     // );
+    //     // // Print debug information
+    //     // Debug.print(
+    //     //     "Transferring "
+    //     //     # debug_show (amount)
+    //     //     # " tokens to principal "
+    //     //     # debug_show (toAccount)
+    //     //     # " from account "
+    //     //     # debug_show (fromAccount)
+    //     //     # " caller principal "
+    //     //     # debug_show (user)
+    //     //     # " balance "
+    //     //     # debug_show (balanceResult)
+    //     // );
 
-        //     let transferArgs : TransferFromArgs = {
-        //         to = toAccount;
-        //         fee = fee;
-        //         spender_subaccount = spenderSubaccount;
-        //         from = fromAccount;
-        //         memo = memo;
-        //         created_at_time = createdAtTime;
-        //         amount = amount;
-        //     };
+    //     let transferArgs : TransferFromArgs = {
+    //         to = toAccount;
+    //         fee = fee;
+    //         spender_subaccount = spenderSubaccount;
+    //         from = fromAccount;
+    //         memo = memo;
+    //         created_at_time = createdAtTime;
+    //         amount = amount;
+    //     };
 
-        //     let transferResult : Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
+    //     let transferResult : Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
 
-        //     switch (transferResult) {
-        //         case (#Ok(nat)) {
-        //             let (userPrincipal, collectionPrincipal) = await createExtCollection(_title, _symbol, _metadata);
-        //             return "Transfer and collection creation successful. Collection Principal: " # Principal.toText(collectionPrincipal);
-        //         };
-        //         case (#Err(error)) {
-        //             return handleTransferError(error);
-        //         };
-        //     };
-        // };
+    //     switch (transferResult) {
+    //         case (#Ok(nat)) {
+    //             let (userPrincipal, collectionPrincipal) = await createExtCollection(_title, _symbol, _metadata);
+    //             return "Transfer and collection creation successful. Collection Principal: " # Principal.toText(collectionPrincipal);
+    //         };
+    //         case (#Err(error)) {
+    //             return handleTransferError(error);
+    //         };
+    //     };
+    // };
 
     func handleTransferError(error : TransferFromError) : Text {
         switch (error) {
@@ -448,7 +447,6 @@ actor Main {
         };
     };
 
-    
     public shared query func getDepositItem(key : Nat32) : async ?Deposit {
         return depositItemsMap.get(key);
     };
@@ -788,13 +786,13 @@ actor Main {
             throw Error.reject("Insufficient balance to create collection. Please ensure you have enough ICP.");
         };
         let transferArgs : TransferFromArgs = {
-                to = toAccount;
-                fee = null;
-                spender_subaccount = null;
-                from = fromAccount;
-                memo = null;
-                created_at_time = null;
-                amount = amount;
+            to = toAccount;
+            fee = null;
+            spender_subaccount = null;
+            from = fromAccount;
+            memo = null;
+            created_at_time = null;
+            amount = amount;
         };
         let transferResponse = await LedgerCanister.icrc2_transfer_from(transferArgs);
         switch (transferResponse) {
@@ -868,15 +866,12 @@ actor Main {
                 };
             };
             case (#Err(error)) {
-                throw Error.reject(debug_show("Transfer Error", error));
+                throw Error.reject(debug_show ("Transfer Error", error));
                 return #err(handleTransferError(error));
             };
         };
 
     };
-
-    
-
 
     // Getting Collection Metadata
     public shared ({ caller = user }) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
