@@ -29,6 +29,7 @@ const LinkClaiming = () => {
     connectWallet,
     logout,
     disconnect,
+    login,
     isConnected,
   } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
@@ -121,7 +122,7 @@ const LinkClaiming = () => {
   }, [backend]);
   const handleClaim = async () => {
     if (!isConnected) {
-      setShowModal(true);
+      login();
       return;
     }
 
