@@ -349,7 +349,7 @@ const PaymentModel = ({
         owner: Principal.fromText("xjhju-3aaaa-aaaak-akv5q-cai"),
         subaccount: [],
       },
-      amount: BigInt(coffeeAmount * 10 ** 8 + 100000),
+      amount: BigInt(coffeeAmount * 10 ** 8 + 10000),
       fee: [],
       memo: [],
       created_at_time: [],
