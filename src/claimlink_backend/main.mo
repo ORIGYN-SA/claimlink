@@ -705,6 +705,10 @@ actor Main {
         if (Principal.isAnonymous(user)) {
             throw Error.reject("Anonymous principals are not allowed.");
         };
+        let availablecycles : Nat = await availableCycles(); 
+        if(availablecycles < 500_000_000_000 ){
+            throw Error.reject("Canister doesnt have enough cycles");
+        };
         let fromAccount : Account = {
             owner = user;
             subaccount = null;
