@@ -1072,6 +1072,24 @@ actor Main {
         tokensDataToBeMinted.get(_collectionCanisterId);
     };
 
+    public shared func getStoredTokenByTokenIndex(
+        _collectionCanisterId : Principal,
+        tokenIndex : Nat32
+    ) : async ?Metadata {
+        let storedTokens = tokensDataToBeMinted.get(_collectionCanisterId);
+        switch (storedTokens) {
+            case (?tokens) {
+                switch (Array.find(tokens, func (token: (Nat32, Metadata)) : Bool {
+                    token.0 == tokenIndex
+                })) {
+                    case (?(_, metadata)) ?metadata;
+                    case null null;
+                };
+            };
+            case null null;
+        };
+    };
+
     public shared func getStoredTokensPaginate(
         _collectionCanisterId : Principal,
         page : Nat,
