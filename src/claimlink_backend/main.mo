@@ -277,6 +277,25 @@ actor Main {
     // Stores details about the tokens coming into this vault
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal, nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
+    // Payment recepient
+    private stable var recepient : Principal = Principal.fromText("7yywi-leri6-n33rr-vskr6-yb4nd-dvj6j-xg2b4-reiw6-dljs7-slclz-2ae");
+
+    public shared ({ caller }) func getRecepient() : async Result.Result<Principal, Text> {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+            return #err("You cannot control this canister");
+        };
+        return #ok(recepient);
+    };
+
+    public shared ({ caller }) func setRecepient(recepientPrincipal : Principal) : async Result.Result<Principal, Text> {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+            return #err("You cannot control this canister");
+        };
+        recepient := recepientPrincipal;
+        return #ok(recepient);
+    };
 
     public query func availableCycles() : async Nat {
         return Cycles.balance();
@@ -284,6 +303,7 @@ actor Main {
 
     public shared ({ caller = user }) func resetStats() : async Result.Result<Text, Text> {
         if (not Principal.isController(user)) {
+            throw Error.reject("You cannot control this canister");
             return #err("You cannot control this canister");
         };
 
@@ -300,8 +320,30 @@ actor Main {
         return #ok("Reset done");
     };
 
+    public shared ({ caller }) func sendCyclesToCollection(collectionCanister : Principal, amount : Nat) : async Result.Result<Text, Text> {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+            return #err("You cannot control this canister");
+        };
+
+        if (Cycles.balance() < amount) {
+            return #err("Insufficient cycles balance in backend canister.");
+        };
+
+        let accepted = Cycles.add<system>(amount);
+
+        if (accepted != amount) {
+            return #err("Failed to transfer the specified amount of cycles.");
+        };
+        let collectionActor = actor (Principal.toText(collectionCanister)) : actor {
+            acceptCycles : () -> async ();
+        };
+        await collectionActor.acceptCycles();
+        return #ok("Cycles successfully transferred to collection canister.");
+    };
+
     let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
-        // account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
+        account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
         // transfer : shared TransferArgs -> async Result_6;
         // send_dfx : shared SendArgs -> async Nat64;
         // account_balance_dfx : shared query AccountBalanceArgs -> async Tokens;
@@ -309,50 +351,11 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "br5f7-7uaaa-aaaaa-qaaca-cai" : actor {
+    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
-    public shared ({ caller = user }) func transferICP(
-        amount : Nat,
-        fee : ?Nat,
-        spenderSubaccount : ?Blob,
-        memo : ?Blob,
-        createdAtTime : ?Nat64,
-    ) : async Text {
-
-        let fromAccount : Account = {
-            owner = user;
-            subaccount = null;
-        };
-
-        let toAccount : Account = {
-            owner = Principal.fromActor(Main);
-            subaccount = null;
-        };
-
-        let transferArgs : TransferFromArgs = {
-            to = toAccount;
-            fee = fee;
-            spender_subaccount = spenderSubaccount;
-            from = fromAccount;
-            memo = memo;
-            created_at_time = createdAtTime;
-            amount = amount;
-        };
-
-        let transferResult : Result_3 = await LedgerCanister.icrc2_transfer_from(transferArgs);
-
-        switch (transferResult) {
-            case (#Ok(nat)) {
-                return "Transfer successful: " # Nat.toText(nat);
-            };
-            case (#Err(error)) {
-                return handleTransferError(error);
-            };
-        };
-    };
-
+   
     func handleTransferError(error : TransferFromError) : Text {
         switch (error) {
             case (#GenericError(record)) {
@@ -384,63 +387,6 @@ actor Main {
             };
         };
     };
-
-    // public shared ({caller = user}) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
-
-    //     let fromAccount = Principal.toLedgerAccount(user, null);
-    //     let balanceResult = await IcpLedger.account_balance({account = fromAccount});
-
-    //     // Print debug information
-    //     Debug.print(
-    //         "Transferring "
-    //         # debug_show (args.amount)
-    //         # " tokens to principal "
-    //         # debug_show (args.toPrincipal)
-    //         # " from account "
-    //         # debug_show (fromAccount)
-    //         # " caller principal "
-    //         # debug_show (user)
-    //         # " balance "
-    //         # debug_show (balanceResult)
-    //     );
-
-    //     // Check if the balance is sufficient
-    //     // switch balanceResult.e8s {
-    //     //     case (balance) {
-    //     //         if (balance < args.amount.e8s + 10_000) { // +10_000 for the transaction fee
-    //     //             return #err("Insufficient funds: balance = " # debug_show(balance));
-    //     //         };
-    //     //     };
-    //     // };
-
-    //     // Prepare transfer arguments
-    //     let transferArgs : IcpLedger.TransferArgs = {
-    //         memo = 0;
-    //         amount = args.amount;
-    //         fee = { e8s = 10_000 };
-    //         from_subaccount = null;  // Specify the subaccount (optional, null means default subaccount)
-    //         to = Principal.toLedgerAccount(args.toPrincipal, args.toSubaccount);  // Convert to principal's ledger account
-    //         created_at_time = null;  // Optional: Set to null to use the current time
-    //     };
-
-    //     // Attempt the transfer
-    //     try {
-    //         let transferResult = await IcpLedger.transfer(transferArgs);
-
-    //         // Check if the transfer was successful
-    //         switch (transferResult) {
-    //             case (#Err(transferError)) {
-    //                 return #err("Couldn't transfer funds:\n" # debug_show(transferError));
-    //             };
-    //             case (#Ok(blockIndex)) {
-    //                 return #ok(blockIndex);
-    //             };
-    //         };
-    //     } catch (error : Error) {
-    //         // Handle any other errors that may occur during the transfer
-    //         return #err("Reject message: " # Error.message(error));
-    //     };
-    // };
 
     public shared query func getDepositItem(key : Nat32) : async ?Deposit {
         return depositItemsMap.get(key);
@@ -627,9 +573,9 @@ actor Main {
     // };
 
     public shared ({ caller = user }) func addCollectionToUserMap(collection_id : Principal) : async Text {
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let userCollections = usersCollectionMap.get(user);
         let currentTime = Time.now();
         switch (userCollections) {
@@ -658,9 +604,9 @@ actor Main {
     };
 
     public shared ({ caller = user }) func removeCollectionFromUserMap(collection_id : Principal) : async Text {
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let userCollections = usersCollectionMap.get(user);
         switch (userCollections) {
             case null {
@@ -682,120 +628,45 @@ actor Main {
         };
     };
 
-    // Collection creation
-    public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
-        Cycles.add<system>(500_000_000_000);
-        let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
-        let extCollectionCanisterId = await extToken.getCanisterId();
-        let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
-            ext_setCollectionMetadata : (
-                name : Text,
-                symbol : Text,
-                metadata : Text,
-            ) -> async ();
-            setMinter : (minter : Principal) -> async ();
-            ext_admin : () -> async Principal;
-        };
-        await collectionCanisterActor.setMinter(user);
-        await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-        // Updating the userCollectionMap
-        let collections = usersCollectionMap.get(user);
-        let buffer = Buffer.fromArray<Principal>(allCollections);
-        buffer.add(extCollectionCanisterId);
-        allCollections := Buffer.toArray(buffer);
-        let canisterMetadata : CanisterMetadata = {
-            name = _title;
-            description = _symbol; // Assuming metadata holds the description
-            thumbnail = _metadata; // Set a thumbnail if you have one
-            frontend = null; // Set frontend if applicable
-            principal_id = extCollectionCanisterId;
-            submitter = user; // The user creating the collection
-            last_updated_by = user;
-            last_updated_at = Time.now();
-            details = []; // You can add more details if needed
-        };
-
-        let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
-        switch (addResult) {
-            case (#ok(())) {
-                switch (collections) {
-                    case null {
-                        let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-                        usersCollectionMap.put(user, updatedCollections);
-                        return (user, extCollectionCanisterId);
-                    };
-                    case (?collections) {
-                        let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
-                        usersCollectionMap.put(user, updatedObj);
-                        return (user, extCollectionCanisterId);
-                    };
-                };
-            };
-            case (#err(errType)) {
-                // Handle different error types
-                let errorMessage : Text = switch (errType) {
-                    case (#BadParameters) { "Bad parameters provided." };
-                    case (#NonExistentItem) {
-                        "The specified item does not exist.";
-                    };
-                    case (#NotAuthorized) {
-                        "Not authorized to perform this action.";
-                    };
-                    case (#Unknown(error)) {
-                        "Unknown error occurred: " # error;
-                    };
-                };
-                throw Error.reject("Failed to add canister to registry: " # errorMessage);
-            };
-        };
-
-    };
-
-    // Collection creation
-    // public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
+    // // Collection creation
+    // private shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text) : async (Principal, Principal) {
     //     // if (Principal.isAnonymous(user)) {
     //     //     throw Error.reject("Anonymous principals are not allowed.");
     //     // };
-    //     let collectionCreationFee : Nat64 = 100_000_000; // Example: 1 ICP = 100_000_000 e8s
-    //     let userAccount : AccountIdentifier = AID.fromPrincipal(user,null);
-    //     let platformAccount : AccountIdentifier = AID.fromPrincipal(user,null);
-    //     let balanceResult = await LedgerCanister.account_balance_dfx({ account = userAccount });
-    //     if (balanceResult.e8s < collectionCreationFee) {
-    //         throw Error.reject("Insufficient balance to create collection. Please ensure you have enough ICP.");
+    //     Cycles.add<system>(500_000_000_000);
+    //     let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
+    //     let extCollectionCanisterId = await extToken.getCanisterId();
+    //     let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
+    //         ext_setCollectionMetadata : (
+    //             name : Text,
+    //             symbol : Text,
+    //             metadata : Text,
+    //         ) -> async ();
+    //         setMinter : (minter : Principal) -> async ();
+    //         ext_admin : () -> async Principal;
     //     };
-    //     let transferRequest: TransferArgs = {
-    //         to = platformAccount;
-    //         amount = { e8s = collectionCreationFee };
-    //         fee = { e8s = 10_000 };
-    //         memo = 0;
-    //         from_subaccount = null;
-    //         created_at_time = null;
+    //     await collectionCanisterActor.setMinter(user);
+    //     await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
+    //     // Updating the userCollectionMap
+    //     let collections = usersCollectionMap.get(user);
+    //     let buffer = Buffer.fromArray<Principal>(allCollections);
+    //     buffer.add(extCollectionCanisterId);
+    //     allCollections := Buffer.toArray(buffer);
+    //     let canisterMetadata : CanisterMetadata = {
+    //         name = _title;
+    //         description = _symbol; // Assuming metadata holds the description
+    //         thumbnail = _metadata; // Set a thumbnail if you have one
+    //         frontend = null; // Set frontend if applicable
+    //         principal_id = extCollectionCanisterId;
+    //         submitter = user; // The user creating the collection
+    //         last_updated_by = user;
+    //         last_updated_at = Time.now();
+    //         details = []; // You can add more details if needed
     //     };
-    //     let transferResponse = await LedgerCanister.transfer(transferRequest);
-    //     switch (transferResponse) {
-    //         case (#Ok(nat)) {
-    //             // Step 3: If transfer succeeds, proceed with collection creation
-    //             Cycles.add<system>(500_000_000_000);
-    //             let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
-    //             let extCollectionCanisterId = await extToken.getCanisterId();
-    //             let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
-    //                 ext_setCollectionMetadata : (name: Text, symbol: Text, metadata: Text) -> async ();
-    //                 setMinter: (minter: Principal) -> async ();
-    //                 ext_admin: () -> async Principal;
-    //             };
 
-    //             // Set the user as the minter and set metadata for the collection
-    //             await collectionCanisterActor.setMinter(user);
-    //             await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-
-    //             // Step 4: Update userCollectionMap and return the result
-    //             let collections = usersCollectionMap.get(user);
-    //             let buffer = Buffer.fromArray<Principal>(allCollections);
-    //             buffer.add(extCollectionCanisterId);
-    //             allCollections := Buffer.toArray(buffer);
+    //     let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
+    //     switch (addResult) {
+    //         case (#ok(())) {
     //             switch (collections) {
     //                 case null {
     //                     let updatedCollections = [(Time.now(), extCollectionCanisterId)];
@@ -803,49 +674,145 @@ actor Main {
     //                     return (user, extCollectionCanisterId);
     //                 };
     //                 case (?collections) {
-    //                     let updatedObj = List.push((Time.now(), extCollectionCanisterId), List.fromArray(collections));
-    //                     usersCollectionMap.put(user, List.toArray(updatedObj));
+    //                     let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
+    //                     usersCollectionMap.put(user, updatedObj);
     //                     return (user, extCollectionCanisterId);
     //                 };
     //             };
     //         };
-    //         case (#Err(error)) {
-    //         // Handle transfer errors
-
+    //         case (#err(errType)) {
+    //             // Handle different error types
+    //             let errorMessage : Text = switch (errType) {
+    //                 case (#BadParameters) { "Bad parameters provided." };
+    //                 case (#NonExistentItem) {
+    //                     "The specified item does not exist.";
+    //                 };
+    //                 case (#NotAuthorized) {
+    //                     "Not authorized to perform this action.";
+    //                 };
+    //                 case (#Unknown(error)) {
+    //                     "Unknown error occurred: " # error;
+    //                 };
+    //             };
+    //             throw Error.reject("Failed to add canister to registry: " # errorMessage);
     //         };
     //     };
-    //     // let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
-    //     // let extCollectionCanisterId = await extToken.getCanisterId();
-    //     // let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
-    //     //     ext_setCollectionMetadata : (
-    //     //         name : Text,
-    //     //         symbol : Text,
-    //     //         metadata : Text
-    //     //     ) -> async ();
-    //     //     setMinter : ( minter : Principal)-> async();
-    //     //     ext_admin : () -> async Principal
-    //     // };
-    //     // await collectionCanisterActor.setMinter(user);
-    //     // await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
-    //     // // Updating the userCollectionMap
-    //     // let collections = usersCollectionMap.get(user);
-    //     // let buffer = Buffer.fromArray<Principal>(allCollections);
-    //     // buffer.add(extCollectionCanisterId);
-    //     // allCollections := Buffer.toArray(buffer);
-    //     // switch(collections){
-    //     //     case null {
-    //     //         let updatedCollections = [(Time.now(), extCollectionCanisterId)];
-    //     //         usersCollectionMap.put(user,updatedCollections);
-    //     //         return (user, extCollectionCanisterId);
-    //     //     };
-    //     //     case (?collections){
-    //     //         let updatedObj = List.push((Time.now(), extCollectionCanisterId),List.fromArray(collections));
-    //     //         usersCollectionMap.put(user,List.toArray(updatedObj));
-    //     //         return (user, extCollectionCanisterId);
-    //     //     };
-    //     // };
 
     // };
+
+    // Collection creation
+    public shared ({ caller = user }) func createExtCollection(_title : Text, _symbol : Text, _metadata : Text, amount : Nat) : async Result.Result<(Principal, Principal), Text> {
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
+        let fromAccount : Account = {
+            owner = user;
+            subaccount = null;
+        };
+
+        let toAccount : Account = {
+            owner = recepient;
+            subaccount = null;
+        };
+        let balanceCheck = Principal.toLedgerAccount(user, null);
+        let balanceResult = await LedgerCanister.account_balance({
+            account = balanceCheck;
+        });
+        Debug.print(
+            "Transferring "
+            # " balance "
+            # debug_show (balanceResult)
+        );
+        if (Nat64.toNat(balanceResult.e8s) < amount) {
+            throw Error.reject("Insufficient balance to create collection. Please ensure you have enough ICP.");
+        };
+        let transferArgs : TransferFromArgs = {
+            to = toAccount;
+            fee = null;
+            spender_subaccount = null;
+            from = fromAccount;
+            memo = null;
+            created_at_time = null;
+            amount = amount;
+        };
+        let transferResponse = await LedgerCanister.icrc2_transfer_from(transferArgs);
+        switch (transferResponse) {
+            case (#Ok(nat)) {
+                if (Principal.isAnonymous(user)) {
+                    throw Error.reject("Anonymous principals are not allowed.");
+                };
+                Cycles.add<system>(500_000_000_000);
+                let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
+                let extCollectionCanisterId = await extToken.getCanisterId();
+                let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
+                    ext_setCollectionMetadata : (
+                        name : Text,
+                        symbol : Text,
+                        metadata : Text,
+                    ) -> async ();
+                    setMinter : (minter : Principal) -> async ();
+                    ext_admin : () -> async Principal;
+                };
+                await collectionCanisterActor.setMinter(user);
+                await collectionCanisterActor.ext_setCollectionMetadata(_title, _symbol, _metadata);
+                // Updating the userCollectionMap
+                let collections = usersCollectionMap.get(user);
+                let buffer = Buffer.fromArray<Principal>(allCollections);
+                buffer.add(extCollectionCanisterId);
+                allCollections := Buffer.toArray(buffer);
+                let canisterMetadata : CanisterMetadata = {
+                    name = _title;
+                    description = _symbol;
+                    thumbnail = _metadata;
+                    frontend = null;
+                    principal_id = extCollectionCanisterId;
+                    submitter = user;
+                    last_updated_by = user;
+                    last_updated_at = Time.now();
+                    details = [];
+                };
+
+                let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
+                switch (addResult) {
+                    case (#ok(())) {
+                        switch (collections) {
+                            case null {
+                                let updatedCollections = [(Time.now(), extCollectionCanisterId)];
+                                usersCollectionMap.put(user, updatedCollections);
+                                return #ok(user, extCollectionCanisterId);
+                            };
+                            case (?collections) {
+                                let updatedObj = Array.append(collections, [(Time.now(), extCollectionCanisterId)]);
+                                usersCollectionMap.put(user, updatedObj);
+                                return #ok(user, extCollectionCanisterId);
+                            };
+                        };
+                    };
+                    case (#err(errType)) {
+                        // Handle different error types
+                        let errorMessage : Text = switch (errType) {
+                            case (#BadParameters) { "Bad parameters provided." };
+                            case (#NonExistentItem) {
+                                "The specified item does not exist.";
+                            };
+                            case (#NotAuthorized) {
+                                "Not authorized to perform this action.";
+                            };
+                            case (#Unknown(error)) {
+                                "Unknown error occurred: " # error;
+                            };
+                        };
+                        throw Error.reject("Failed to add canister to registry: " # errorMessage);
+                    };
+                };
+            };
+            case (#Err(error)) {
+                throw Error.reject(debug_show ("Transfer Error", error));
+                return #err(handleTransferError(error));
+            };
+        };
+
+    };
 
     // Getting Collection Metadata
     public shared ({ caller = user }) func getUserCollectionDetails() : async ?[(Time.Time, Principal, Text, Text, Text)] {
@@ -985,9 +952,9 @@ actor Main {
 
     ) : async [TokenIndex] {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
 
         let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
             ext_mint : (
@@ -1025,7 +992,6 @@ actor Main {
     ) : async [TokenIndex] {
 
         if (Principal.isAnonymous(user)) {
-            // You can either return an error or throw an exception.
             throw Error.reject("Anonymous principals are not allowed.");
         };
 
@@ -1062,9 +1028,9 @@ actor Main {
         metadata : ?MetadataContainer,
         amount : Nat,
     ) : async [Nat32] {
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let metadataNonFungible : Metadata = #nonfungible {
             name = name;
             description = desc;
@@ -1566,9 +1532,9 @@ actor Main {
         _tokenId : TokenIndex,
     ) : async Nat32 {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         // Check if the link (tokenId) already exists in userLinks for this user
         let existingLinks = userLinks.get(_from);
 
@@ -1649,9 +1615,9 @@ actor Main {
         _tokenId : Nat32,
     ) : async Nat32 {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
 
         let existingLinks = userLinks.get(_from);
 
@@ -1749,9 +1715,9 @@ actor Main {
         _collectionCanisterId : Principal,
         _depositKey : Nat32,
     ) : async Result.Result<Int, Text> {
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         await claimToken(user, _collectionCanisterId, _depositKey);
     };
 
@@ -2174,9 +2140,9 @@ actor Main {
         expirationDate : Time.Time,
     ) : async (Text, [Nat32]) {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let campaignId = generateCampaignId(user);
         var linkResponses : [Nat32] = [];
 
@@ -2613,9 +2579,9 @@ actor Main {
         campaignId : Text,
     ) : async Text {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
 
         let qrSetId = generateQRSetId(user);
 
@@ -2842,9 +2808,9 @@ actor Main {
         _whitelist : [Principal],
     ) : async Text {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let dispenserId = generateDispenserId(user);
 
         let dispenser : Dispenser = {
@@ -2965,9 +2931,9 @@ actor Main {
         _dispenserId : Text
     ) : async Result.Result<Int, Text> {
 
-        // if (Principal.isAnonymous(user)) {
-        //     throw Error.reject("Anonymous principals are not allowed.");
-        // };
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
         let dispenserOpt = dispensers.get(_dispenserId);
 
         switch (dispenserOpt) {

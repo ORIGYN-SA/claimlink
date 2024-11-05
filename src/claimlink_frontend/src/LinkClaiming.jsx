@@ -335,7 +335,7 @@ const LinkClaiming = () => {
             </div>
           )}
           {renderNftDetails()}
-          {deposits.length > 0 && !loadingData ? (
+          {deposits?.length > 0 && !loadingData ? (
             <div className="mt-4 flex z-40 justify-center">
               <button
                 onClick={handleClaim}
