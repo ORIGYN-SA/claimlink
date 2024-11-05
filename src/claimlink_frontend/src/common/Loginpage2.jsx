@@ -76,7 +76,7 @@ const LoginPage2 = () => {
               Connect wallet
             </span>
           </label>
-          <label className="flex items-center space-x-3">
+          <label className="flex items-center justify-center space-x-3">
             <div className="w-6 h-6">
               <Checkbox
                 checked={true}
@@ -101,7 +101,7 @@ const LoginPage2 = () => {
               Sign message to login to the dashboard
             </span>
           </label>
-          <label className="flex items-center space-x-3">
+          <label className="flex items-center justify-center space-x-3">
             <div className="w-6 h-6">
               <Checkbox
                 checked={true}

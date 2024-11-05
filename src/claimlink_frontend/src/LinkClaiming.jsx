@@ -29,6 +29,7 @@ const LinkClaiming = () => {
     connectWallet,
     logout,
     disconnect,
+    login,
     isConnected,
   } = useAuth();
   const [showLogout, setShowLogout] = useState(false);
@@ -121,7 +122,7 @@ const LinkClaiming = () => {
   }, [backend]);
   const handleClaim = async () => {
     if (!isConnected) {
-      setShowModal(true);
+      login();
       return;
     }
 
@@ -133,7 +134,7 @@ const LinkClaiming = () => {
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
         setTimeout(() => {
-          toast.success("Redirecting to Your NFT page!");
+          toast.success("Redirecting to Collected NFT page!");
         }, 3000);
         setCelebrate(true);
         setTimeout(() => {
@@ -177,7 +178,7 @@ const LinkClaiming = () => {
         <div className="my-auto mt-16 text-xl z-40 text-center text-red-500">
           No NFT found <br />
           or
-          <br /> NFT alrady claimed
+          <br /> NFT already claimed
         </div>
       );
     }
@@ -187,7 +188,7 @@ const LinkClaiming = () => {
         initial={{ opacity: 0, scale: 0 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 1 }}
-        className="bg-white px-2 py-2 mt-8 z-40 rounded-xl cursor-pointer"
+        className="bg-white px-2 py-2 mt-8 z-40  rounded-xl cursor-pointer"
       >
         {deposits[0]?.claimPattern == "transfer"
           ? allnft.map((nft, index) =>
@@ -226,7 +227,7 @@ const LinkClaiming = () => {
             )}
 
         <p className="text-xs gray mt-1">
-          <p className="text-xs gray mt-1">
+          <p className="text-xs gray mt-1 flex items-center justify-center">
             {new Date(Number(deposits[0]?.timestamp) / 1e6).toLocaleString()}
           </p>
         </p>
@@ -238,11 +239,15 @@ const LinkClaiming = () => {
           </div>
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Claim Pattern</p>
-            <p className="text-xs font-semibold">{deposits[0]?.claimPattern}</p>
+            <p className="text-xs font-semibold capitalize">
+              {deposits[0]?.claimPattern}
+            </p>
           </div>
           <div className="flex justify-between mt-2">
             <p className="text-xs gray">Status</p>
-            <p className="text-xs font-semibold">{deposits[0]?.status}</p>
+            <p className="text-xs font-semibold capitalize">
+              {deposits[0]?.status}
+            </p>
           </div>
         </div>
         <div className="border border-gray-200 my-4"></div>

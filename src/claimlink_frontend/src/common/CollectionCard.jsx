@@ -70,7 +70,9 @@ const CollectionCard = ({ data }) => {
           }}
         />
       </div>
-      <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 ">{data[2]}</h2>
+      <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 capitalize ">
+        {data[2]}
+      </h2>
       <div className="border border-gray-300 my-4 w-full"></div>
       <div className="mt-2 w-full">
         <div className="flex justify-between">

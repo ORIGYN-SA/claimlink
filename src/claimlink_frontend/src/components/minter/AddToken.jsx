@@ -374,11 +374,11 @@ const AddToken = () => {
   };
 
   console.log(operation);
-  const toggleModal = () => {
-    if (validateForm()) {
-      setIsModalOpen(!isModalOpen);
-    }
-  };
+  // const toggleModal = () => {
+  //   if (validateForm()) {
+  //     setIsModalOpen(!isModalOpen);
+  //   }
+  // };
   return (
     <motion.div
       initial={{ scale: 1, opacity: 0 }}
@@ -645,7 +645,7 @@ const AddToken = () => {
             </>
           </form>
           <div className="flex gap-4 mt-6">
-            <MainButton text={"Submit"} onClick={toggleModal} />
+            <MainButton text={"Submit"} onClick={handleSubmit} />
             {isModalOpen && (
               <NftPayment
                 loading={loading}

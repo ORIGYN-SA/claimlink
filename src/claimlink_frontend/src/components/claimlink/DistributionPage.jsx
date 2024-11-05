@@ -204,7 +204,7 @@ const DistributionPage = ({
         </p>
 
         <div className="flex gap-4">
-          <BackButton text="back" type="button" onClick={handleBack} />
+          <BackButton text="Back" type="button" onClick={handleBack} />
           <MainButton text="Continue" type="submit" />
         </div>
       </form>

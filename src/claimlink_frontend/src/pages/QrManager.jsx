@@ -87,7 +87,7 @@ const QrManager = () => {
                 Object.keys(data?.status || {})[0] === "Expired" ||
                 Object.keys(data?.status || {})[0] === "Completed"
                   ? "#" // Disable link
-                  : `/claim-link/${data.campaignId}`
+                  : `/qr-manager/${data.campaignId}`
               }
               className={`w-full p-2 ${
                 Object.keys(data?.status || {})[0] === "Expired" ||

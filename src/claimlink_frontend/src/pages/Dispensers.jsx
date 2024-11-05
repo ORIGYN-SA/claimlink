@@ -344,7 +344,7 @@ const Dispensers = () => {
                 <div className="w-12 h-12 rounded-md bg-white flex items-center justify-center mx-auto mb-4">
                   <TfiPlus className="text-[#564BF1] w-5 h-5 font-semibold" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#5542F6] mb-2">
+                <h2 className="text-lg font-semibold flex items-center justify-center text-[#5542F6] mb-2">
                   Create New Dispenser
                 </h2>
                 <p className="text-[#5542F6] text-xs px-4 text-center">

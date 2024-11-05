@@ -76,8 +76,8 @@ const LoginPage = () => {
               Connect wallet
             </span>
           </label>
-          <label className="flex items-center space-x-3">
-            <div className="w-6 h-6">
+          <label className="flex items-center justify-center space-x-3">
+            <div className="w-6 h-6 mt-3">
               <Checkbox
                 checked={true}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
@@ -102,7 +102,7 @@ const LoginPage = () => {
             </span>
           </label>
           <label className="flex items-center space-x-3">
-            <div className="w-6 h-6">
+            <div className="w-6 h-6 mt-3">
               <Checkbox
                 checked={true}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"

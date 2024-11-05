@@ -77,7 +77,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
                 !dispenserCampaignIds.has(camp.id) &&
                 Object.keys(camp?.status || {})[0] === "Ongoing" // Filter for ongoing campaigns
             )
-            .map((camp) => ({
+            .map((camp) =>   ({
               value: camp.id,
               label: `${camp.title}`,
               collection: camp.collection.toText(),

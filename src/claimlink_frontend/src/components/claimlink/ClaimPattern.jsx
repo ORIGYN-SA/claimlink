@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { BsArrowLeft } from "react-icons/bs";
 import Summary from "./Summary";
 import { motion } from "framer-motion";
@@ -7,20 +7,6 @@ import { CiImageOn, CiWallet } from "react-icons/ci";
 
 const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
-
-  // useEffect(() => {
-  //   if (formData.contract === "tokens") {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       pattern: "transfer",
-  //     }));
-  //   } else if (formData.contract === "nfts") {
-  //     setFormData((prevData) => ({
-  //       ...prevData,
-  //       pattern: "mint",
-  //     }));
-  //   }
-  // }, [formData.contract, setFormData]);
 
   const validate = () => {
     let tempErrors = {};
@@ -73,12 +59,13 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
 
             <div className="sm:w-[75%] w-full space-y-3 mt-8">
               <div className="sm:flex sm:gap-4 space-y-4 sm:space-y-0">
+                {/* Transfer Pattern */}
                 <div
                   className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                     formData.pattern === "transfer"
                       ? "bg-[#5542F6]"
                       : "bg-white"
-                  }  `}
+                  }`}
                   onClick={() =>
                     setFormData({ ...formData, pattern: "transfer" })
                   }
@@ -109,12 +96,23 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                       Transfer should be preminted and will be transferred to
                       user at claim
                     </p>
+                    <p
+                      className={`text-xs mt-2 italic ${
+                        formData.pattern === "transfer"
+                          ? "text-gray-200"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      * It will work for the minted tokens.
+                    </p>
                   </div>
                 </div>
+
+                {/* Mint Pattern */}
                 <div
                   className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
                     formData.pattern === "mint" ? "bg-[#5542F6]" : "bg-white"
-                  } `}
+                  }`}
                   onClick={() => setFormData({ ...formData, pattern: "mint" })}
                 >
                   <CiWallet
@@ -142,15 +140,26 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                     >
                       Tokens will be minted to user address at claim
                     </p>
+                    <p
+                      className={`text-xs mt-2 italic ${
+                        formData.pattern === "mint"
+                          ? "text-gray-200"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      * It will work for mint-at-claim tokens.
+                    </p>
                   </div>
                 </div>
               </div>
+
               {errors.pattern && (
                 <p className="text-red-500 text-sm">{errors.pattern}</p>
               )}
             </div>
+
             <div className="mt-6 flex space-x-3">
-              <BackButton text="back" type="button" onClick={handleBack} />
+              <BackButton text="Back" type="button" onClick={handleBack} />
               <MainButton text="Continue" type="submit" />
             </div>
           </div>

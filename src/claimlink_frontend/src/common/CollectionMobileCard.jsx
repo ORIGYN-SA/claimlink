@@ -55,7 +55,7 @@ const CollectionMobileCard = ({ collection }) => {
               className="rounded-lg"
             />
             <div>
-              <h2 className="md:text-lg text-sm font-semibold text-[#2E2C34]">
+              <h2 className="md:text-lg text-sm font-semibold text-[#2E2C34] capitalize">
                 {collection[2]}
               </h2>
               <p className="text-[#84818A] md:text-sm text-xs"></p>

@@ -24,9 +24,9 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.walletOptions.plugWallet && !formData.walletOptions.other) {
-      newErrors.walletOptions = "Please select at least one wallet option.";
-    }
+    // if (!formData.walletOptions.plugWallet && !formData.walletOptions.other) {
+    //   newErrors.walletOptions = "Please select at least one wallet option.";
+    // }
 
     if (formData.enabled && !formData.expirationDate) {
       newErrors.expirationDate = "Please select an expiration date.";
@@ -111,7 +111,7 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         collectionPrincipal,
         formData.pattern,
         tokenIds,
-        formData.walletOption,
+        "other",
         selectedWalletOptions,
         expirationTime
       );
@@ -169,8 +169,8 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       className="flex justify-between"
     >
       <div className="p-4 sm:w-[70%] w-full space-y-6">
-        <h1 className="text-3xl font-semibold">Wallet Option</h1>
-        <div>
+        {/* <h1 className="text-3xl font-semibold">Wallet Option</h1> */}
+        {/* <div>
           <p className="font-semibold text-sm text-gray-400 my-4">
             Select the wallet that will be highlighted as "recommended"
           </p>
@@ -212,9 +212,9 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
           {errors.walletOptions && (
             <p className="text-red-500 text-sm mt-1">{errors.walletOptions}</p>
           )}
-        </div>
+        </div> */}
 
-        <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div>
+        {/* <div className="bg-gray-400 sm:w-[75%] my-8 border border-gray-300/2"></div> */}
 
         <div>
           <div className="flex items-center justify-between sm:w-[75%]">
@@ -282,12 +282,12 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         <div className="flex gap-5 items-center">
           <BackButton
             onClick={handleBack}
-            text={"back"}
+            text={"Back"}
             loading={loading}
           ></BackButton>
           <MainButton
             onClick={handleCreate}
-            text={"submit"}
+            text={"Submit"}
             loading={loading}
           ></MainButton>
         </div>

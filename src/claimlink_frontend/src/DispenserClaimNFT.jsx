@@ -23,7 +23,9 @@ const LinkClaiming = () => {
     backend,
     principal,
     connectWallet,
+    logout,
     disconnect,
+    login,
     isConnected,
   } = useAuth();
   const [deposits, setDeposits] = useState([]);
@@ -104,7 +106,7 @@ const LinkClaiming = () => {
 
   const handleClaim = async () => {
     if (!isConnected) {
-      setShowModal(true);
+      login();
       return;
     }
 
@@ -116,9 +118,10 @@ const LinkClaiming = () => {
         toast.success("NFT claimed successfully!");
         setCelebrate(true);
         setTimeout(() => {
+          toast.success("Redirecting to the Collected NFT page");
+          navigate("/collected-nft");
           setCelebrate(false);
-          navigate("/");
-        }, 9000);
+        }, 3000);
       } else if (res.err) {
         toast.error(`${res.err}`);
       } else {

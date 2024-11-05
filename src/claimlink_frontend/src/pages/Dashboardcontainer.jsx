@@ -210,7 +210,9 @@ const CampaignCard = ({ campaign }) => {
                   />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold">{campaign?.title}</h2>
+                  <h2 className="text-lg font-semibold capitalize">
+                    {campaign?.title}
+                  </h2>
 
                   <p
                     className={`text-xs font-bold mt-2 ${
@@ -270,7 +272,9 @@ const CampaignCard = ({ campaign }) => {
             </div>
             <div className="flex flex-col items-start border-b-0 border p-2  border-r-0   border-gray-300">
               <span className="text-sm text-gray-500">Claim pattern</span>
-              <span className="font-medium">{campaign?.claimPattern}</span>
+              <span className="font-medium capitalize">
+                {campaign?.claimPattern}
+              </span>
             </div>
           </div>
         </div>
@@ -306,7 +310,9 @@ const CampaignCard = ({ campaign }) => {
         </div>
         <div className="px-6 py-4">
           <div className="flex justify-between">
-            <div className="font-semibold text-lg mb-2">{campaign?.title}</div>
+            <div className="font-semibold text-lg mb-2 capitalize">
+              {campaign?.title}
+            </div>
             <p
               className={`text-xs font-bold mt-2 ${
                 Object.keys(campaign?.status || {})[0] === "Expired"
@@ -357,7 +363,9 @@ const CampaignCard = ({ campaign }) => {
             </div>
             <div className="flex justify-between py-1">
               <span className="text-gray-500">Claim pattern</span>
-              <span className="font-semibold">{campaign?.claimPattern}</span>
+              <span className="font-semibold capitalize">
+                {campaign?.claimPattern}
+              </span>
             </div>
           </div>
         </div>
