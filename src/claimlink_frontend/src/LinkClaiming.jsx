@@ -97,31 +97,37 @@ const LinkClaiming = () => {
     e.preventDefault();
     logout();
   };
-  const to32bits = num => {
+  const to32bits = (num) => {
     let b = new ArrayBuffer(4);
     new DataView(b).setUint32(0, num);
     return Array.from(new Uint8Array(b));
-  }
+  };
 
   const computeTokenIdentifier = (principal, index) => {
-      const padding = Buffer("\x0Atid");
-      const array = new Uint8Array([
-          ...padding,
-          ...principal,
-          ...to32bits(index)
-      ])
+    const padding = Buffer("\x0Atid");
+    const array = new Uint8Array([
+      ...padding,
+      ...principal,
+      ...to32bits(index),
+    ]);
 
-      return Principal.fromUint8Array(array).toText();
-  }
+    return Principal.fromUint8Array(array).toText();
+  };
 
   useEffect(() => {
     const canister = Principal.fromText(canisterId);
     const getDeposits = async () => {
       try {
         const detail = await backend.getDepositItem(Number(nftIndex));
-        const tokenIdentifier = computeTokenIdentifier(detail[0].collectionCanister._arr, detail[0].tokenId);
+        const tokenIdentifier = computeTokenIdentifier(
+          detail[0].collectionCanister._arr,
+          detail[0].tokenId
+        );
         const data = await nft.tokenMetadata(tokenIdentifier);
-        const stored = await backend.getStoredTokenByTokenIndex(canister, detail[0].tokenId);
+        const stored = await backend.getStoredTokenByTokenIndex(
+          canister,
+          detail[0].tokenId
+        );
         setDeposits(detail);
         setAllNFt(data.ok.nonfungible);
         setstorednft(stored[0].nonfungible);
@@ -206,39 +212,33 @@ const LinkClaiming = () => {
         transition={{ duration: 1 }}
         className="bg-white px-2 py-2 mt-8 z-40  rounded-xl cursor-pointer"
       >
-        {deposits[0]?.claimPattern == "transfer"
-          ? allnft ? (
-                <div className="flex flex-col justify-center items-center">
-                  {" "}
-                  <img
-                    width="200px"
-                    height="200px"
-                    src={allnft?.thumbnail}
-                    alt="NFT Thumbnail"
-                    className="flex items-center justify-center "
-                  />
-                  <h2 className="text-xl black font-bold mt-5">
-                    {allnft?.name}
-                  </h2>
-                </div>
-              ) : null
-            
-          : storednft ? (
-                <div className="flex flex-col justify-center items-center">
-                  {" "}
-                  <img
-                    width="200px"
-                    height="200px"
-                    src={storednft?.thumbnail}
-                    alt="NFT Thumbnail"
-                    className="flex items-center justify-center "
-                  />
-                  <h2 className="text-xl black font-bold mt-5">
-                    {storednft?.name}
-                  </h2>
-                </div>
-              ) : null
-            }
+        {deposits[0]?.claimPattern == "transfer" ? (
+          allnft ? (
+            <div className="flex flex-col justify-center items-center">
+              {" "}
+              <img
+                width="200px"
+                height="200px"
+                src={allnft?.thumbnail}
+                alt="NFT Thumbnail"
+                className="flex items-center justify-center "
+              />
+              <h2 className="text-xl black font-bold mt-5">{allnft?.name}</h2>
+            </div>
+          ) : null
+        ) : storednft ? (
+          <div className="flex flex-col justify-center items-center">
+            {" "}
+            <img
+              width="200px"
+              height="200px"
+              src={storednft?.thumbnail}
+              alt="NFT Thumbnail"
+              className="flex items-center justify-center "
+            />
+            <h2 className="text-xl black font-bold mt-5">{storednft?.name}</h2>
+          </div>
+        ) : null}
 
         <p className="text-xs gray mt-1">
           <p className="text-xs gray mt-1 flex items-center justify-center">
@@ -316,6 +316,7 @@ const LinkClaiming = () => {
               isConnected={isConnected}
               logout={logout}
               setShowModal={setShowModal}
+              login={login}
             />
           )}
         </div>
@@ -444,6 +445,7 @@ const MobileHeader = ({
   setSidebarOpen,
   logout,
   setShowModal,
+  login,
 }) => {
   useEffect(() => {
     setIsVisible(true);
@@ -488,7 +490,7 @@ const MobileHeader = ({
           </p>
           <button
             className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2"
-            onClick={isConnected ? logout : () => setShowModal(true)}
+            onClick={isConnected ? logout : () => login()}
           >
             <IoLogOutOutline />
             {isConnected ? "Logout" : "Login"}

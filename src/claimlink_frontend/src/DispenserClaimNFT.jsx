@@ -1,20 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "./connect/useClient";
 import { RxCross2 } from "react-icons/rx";
+import { RxAvatar, RxHamburgerMenu } from "react-icons/rx";
 import { useLocation } from "react-router-dom";
 import { Principal } from "@dfinity/principal";
 import WalletModal2 from "./common/WalletModel2";
+import { MdArrowOutward, MdOutlineArrowDropDown } from "react-icons/md";
+import { ConnectWallet } from "@nfid/identitykit/react";
 
 import bgmain1 from "./assets/img/mainbg1.png";
 import bgmain2 from "./assets/img/mainbg2.png";
-import { MdArrowOutward } from "react-icons/md";
+
 import { InfinitySpin } from "react-loader-spinner";
 import QRCode from "react-qr-code"; // QR code library
 import { saveAs } from "file-saver"; // For downloading the QR code
 import Confetti from "react-confetti";
+import { SlRefresh } from "react-icons/sl";
+import { IoMdLogOut } from "react-icons/io";
+import { IoLogOutOutline } from "react-icons/io5";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -28,6 +34,8 @@ const LinkClaiming = () => {
     login,
     isConnected,
   } = useAuth();
+  const [showLogout, setShowLogout] = useState(false);
+  const dropdownRef = useRef(null);
   const [deposits, setDeposits] = useState([]);
   const width = window.innerWidth || 300;
   const height = window.innerHeight || 200;
@@ -39,6 +47,7 @@ const LinkClaiming = () => {
   const location = useLocation();
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
   const nftIndex = pathParts[3];
   const currentUrl = window.location.href; // Get the current page URL
   const [dispenser, setDispenser] = useState(null);
@@ -56,6 +65,26 @@ const LinkClaiming = () => {
       setPrincipalText("connect wallet");
     }
   }, [isConnected, principal]);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const handleDropdownClick = (e) => {
+    e.preventDefault();
+    setShowLogout((prev) => !prev);
+  };
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+    logout();
+  };
+  const toggleSidebar = () => {
+    setSidebarOpen((prev) => !prev);
+  };
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const loadData = async () => {
@@ -151,82 +180,55 @@ const LinkClaiming = () => {
     };
     img.src = "data:image/svg+xml;base64," + btoa(svgData);
   };
-
-  const renderNftDetails = () => {
-    if (loadingData) {
-      return (
-        <div className="my-auto flex justify-center items-start mt-16 text-3xl text-gray-300 animate-pulse">
-          <InfinitySpin
-            visible={true}
-            width="200"
-            color="#564BF1"
-            ariaLabel="infinity-spin-loading"
-            className="flex justify-center "
-          />
-        </div>
-      );
+  const limitCharacters = (text, charLimit) => {
+    if (text.length > charLimit) {
+      return text.slice(0, charLimit) + "...";
     }
-
-    const matchedDeposit = deposits?.find(
-      (deposit) => deposit[1].collectionCanister?.toText() === canisterId
-    );
-    console.log("matched", matchedDeposit);
-    if (!matchedDeposit) {
-      return <div className="my-auto mt-16 text-xl text-red-500"></div>;
-    }
-
-    return (
-      <motion.div
-        key={matchedDeposit[1]?.tokenId}
-        initial={{ opacity: 0, scale: 0 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 1 }}
-        className="bg-white px-4 py-4 mt-8 rounded-xl cursor-pointer"
-      >
-        <p className="text-xs gray mt-1">
-          {new Date(
-            Number(matchedDeposit[1]?.timestamp) / 1e6
-          ).toLocaleString()}
-        </p>
-        <div className="border border-gray-200 my-4 w-full"></div>
-        <div className="w-full">
-          <div className="flex justify-between mt-2">
-            <p className="text-xs gray">Token ID</p>
-            <p className="text-xs font-semibold">
-              {matchedDeposit[1]?.tokenId}
-            </p>
-          </div>
-          <div className="flex justify-between mt-2">
-            <p className="text-xs gray">Claim Pattern</p>
-            <p className="text-xs font-semibold">
-              {matchedDeposit[1]?.claimPattern}
-            </p>
-          </div>
-          <div className="flex justify-between mt-2">
-            <p className="text-xs gray">Status</p>
-            <p className="text-xs font-semibold">{matchedDeposit[1]?.status}</p>
-          </div>
-        </div>
-        <div className="border border-gray-200 my-4"></div>
-      </motion.div>
-    );
+    return text;
   };
 
   return (
-    <div className="flex mt-10 w-full justify-center bg-transparent">
-      <div
-        className="absolute inset-0 bg-black opacity-10 z-0"
-        style={{
-          backgroundColor: "rgba(0, 0, 0, 0.1)",
-        }}
-      ></div>
-      <div className="h-screen overflow-hidden z-10">
-        <img
-          src={bgmain1}
-          alt=""
-          className="transition-transform duration-300  h-[90vh] transform hover:scale-105 ease-in"
-        />
-      </div>
+    <div className="md:flex  mx-auto bg-white items-start    min-h-screen  overflow-hidden bg-transparent md:w-5/6   ">
+      {isMobile ? (
+        <div className="flex flex-col bg-gray-50 h-full">
+          <header className="w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
+            <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+              claimlink
+              <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
+            </div>
+            {isSidebarOpen ? (
+              <button
+                onClick={toggleSidebar}
+                className="text-xl bg-[#3B00B9] p-2 rounded-md"
+              >
+                <RxCross2 className="text-white " />{" "}
+              </button>
+            ) : (
+              <button
+                onClick={toggleSidebar}
+                className="text-xl px-2 py-2 bg-gray-300 rounded-md"
+              >
+                <RxHamburgerMenu />
+              </button>
+            )}
+          </header>
+          {isSidebarOpen && (
+            <MobileHeader
+              setSidebarOpen={toggleSidebar}
+              isSidebarOpen={isSidebarOpen}
+              principals={principalText}
+              isConnected={isConnected}
+              logout={logout}
+              setShowModal={setShowModal}
+              login={login}
+            />
+          )}
+        </div>
+      ) : null}
+      <div className="text-4xl hidden  mt-2 font-quicksand py-1 z-40 tracking-wide text-[#2E2C34]  md:flex items-center justify-center md:justify-normal">
+        claimlink
+        <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
+      </div>{" "}
       <motion.div
         initial={{ scale: 0, opacity: 0 }}
         animate={{
@@ -234,78 +236,188 @@ const LinkClaiming = () => {
           opacity: 1,
           transition: { ease: "easeInOut", duration: 0.4 },
         }}
-        className="filter-card rounded-xl w-full"
+        className="filter-card  rounded-xl w-full "
       >
-        <div className="flex flex-col w-[400px] justify-center mx-auto">
-          <div className="text-4xl mb-8 font-quicksand tracking-wide text-[#2E2C34] flex items-center">
-            claimlink
-            <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
-          </div>
-          <div className="flex justify-between gap-4">
-            <h1 className="text-xl font-medium">Claim Your NFT</h1>
-          </div>
-          <div className="text-center text-xl mt-10">
-            Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
-          </div>
-          {renderNftDetails()}
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={handleClaim}
-              disabled={loading}
-              className={`button px-4 z-20 py-2 rounded-md text-white ${
-                loading ? "bg-gray-500" : "bg-[#564BF1]"
-              }`}
-            >
-              {loading ? "Claiming..." : "Claim NFT"}
-            </button>
-          </div>
+        {" "}
+        <div className="flex flex-col items-center md:w-[400px] justify-center mx-auto md:mt-20     md:h-full  h-screen">
+          <div>
+            <div className="text-center text-xl mt-10">
+              Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
+            </div>
 
-          {/* QR Code Button */}
-          <div className="mt-4 flex justify-center">
-            <button
-              onClick={() => setShowQRModal(true)}
-              className="bg-[#564BF1] px-4 py-2 z-20 rounded-md text-white"
-            >
-              Show QR Code
-            </button>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* QR Code Modal */}
-      {showQRModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-8 rounded-lg">
-            <button
-              onClick={() => setShowQRModal(false)}
-              className="bg-[#F5F4F7] p-2 rounded-md mb-4"
-            >
-              <RxCross2 className="text-gray-800 w-5 h-5" />
-            </button>
-            <QRCode id="qr-code" value={currentUrl} size={256} />
             <div className="mt-4 flex justify-center">
               <button
-                onClick={downloadQRCode}
-                className="bg-[#564BF1] px-4 py-2 rounded-md text-white"
+                onClick={handleClaim}
+                disabled={loading}
+                className={`button px-4 z-20 py-2 rounded-md text-white ${
+                  loading ? "bg-gray-500" : "bg-[#564BF1]"
+                }`}
               >
-                Download QR Code
+                {loading ? "Claiming..." : "Claim NFT"}
+              </button>
+            </div>
+
+            {/* QR Code Button */}
+            <div className="mt-4 flex justify-center">
+              <button
+                onClick={() => setShowQRModal(true)}
+                className="bg-[#564BF1] px-4 py-2 z-20 rounded-md text-white"
+              >
+                Show QR Code
               </button>
             </div>
           </div>
+          {showQRModal && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+              <div className="bg-white p-8 rounded-lg">
+                <button
+                  onClick={() => setShowQRModal(false)}
+                  className="bg-[#F5F4F7] p-2 rounded-md mb-4"
+                >
+                  <RxCross2 className="text-gray-800 w-5 h-5" />
+                </button>
+                <QRCode id="qr-code" value={currentUrl} size={256} />
+                <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={downloadQRCode}
+                    className="bg-[#564BF1] px-4 py-2 rounded-md text-white"
+                  >
+                    Download QR Code
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
-      )}
-
-      <div className="h-screen overflow-hidden z-10">
+      </motion.div>
+      {/* <div className="h-screen hidden  md:flex overflow-hidden w-[300px] z-10">
         <img
           src={bgmain2}
           alt=""
-          className="transition-transform h-[90vh] duration-300 transform hover:scale-105 ease-in"
+          className="transition-transform h-[90vh] z-20 duration-300 transform hover:scale-105 ease-in"
         />
+      </div> */}
+      <div className="md:flex  hidden relative   items-center mt-4 font-semibold justify-end">
+        <span
+          className="flex items-center justify-center text-[#2E2C34] font-Manrope rounded-3xl bg-gray-200 px-3 py-2 cursor-pointer"
+          onClick={handleDropdownClick}
+        >
+          <RxAvatar size={24} className="text-[#5542F6] mr-2" />
+          <p className="w-40 truncate font-bold flex items-center overflow-hidden whitespace-nowrap">
+            {limitCharacters(principalText, 17)}
+          </p>
+          <MdOutlineArrowDropDown size={24} className="text-gray-500" />
+        </span>
+        {showLogout && (
+          <div
+            ref={dropdownRef}
+            className="absolute  top-10 right-2 mt-2 bg-gray-200 z-50 p-2 rounded"
+          >
+            {isConnected ? (
+              <div className="flex flex-col gap-2 z-10">
+                <button
+                  className="font-xs text-[#2E2C34] flex items-center gap-1 font-semibold px-3 py-2 w-36 hover:bg-gray-50 border border-gray-50"
+                  onClick={() => {
+                    window.location.reload();
+                  }}
+                >
+                  <SlRefresh />
+                  Refresh
+                </button>
+
+                <button
+                  className="font-xs flex items-center gap-1 text-[#2E2C34] hover:bg-gray-50 border border-gray-50 rounded font-semibold px-3 py-2 w-36"
+                  onClick={handleLogout}
+                >
+                  <IoMdLogOut />
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <ConnectWallet
+                connectButtonComponent={ConnectBtn}
+                className="rounded-full bg-black"
+              />
+            )}
+          </div>
+        )}
       </div>
       <WalletModal2 isOpen={showModal} onClose={() => setShowModal(false)} />
       {celebrate ? (
-        <Confetti className="z-20" width={width} height={height} />
+        <Confetti className="z-50" width={width} height={height} />
       ) : null}
+    </div>
+  );
+};
+const ConnectBtn = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    className="font-xs flex items-center gap-1 text-[#2E2C34] hover:bg-gray-50 border border-gray-50 rounded font-semibold px-3 py-2 w-36"
+  >
+    Sign in
+  </button>
+);
+
+const MobileHeader = ({
+  isConnected,
+  toggleSidebar,
+  principals,
+  handleLogin,
+  isSidebarOpen,
+  setSidebarOpen,
+  logout,
+  setShowModal,
+  login,
+}) => {
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+  const [isVisible, setIsVisible] = useState(false);
+  return (
+    <div
+      className={`fixed top-0   left-0 w-screen h-screen bg-[#ffffff] z-50 flex flex-col  transition-transform duration-500 ${
+        isVisible ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      <header className="w-full bg-[#FBFAFC] h-[88px] border-b border-gray-300 p-6 flex justify-between items-center">
+        <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+          claimlink
+          <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
+        </div>
+        {isSidebarOpen ? (
+          <button
+            onClick={setSidebarOpen}
+            className="text-xl bg-[#3B00B9] p-2 rounded-md"
+          >
+            <RxCross2 className="text-white " />{" "}
+          </button>
+        ) : (
+          <button
+            onClick={setSidebarOpen}
+            className="text-xl px-2 py-2 bg-gray-300 rounded-md"
+          >
+            <RxHamburgerMenu />
+          </button>
+        )}
+      </header>
+
+      <div className="px-6 py-2 mb-6">
+        <p className="text-sm text-gray-500">Wallet</p>
+        <div className="flex justify-between items-center">
+          <p className="text-2xl text-gray-900 font-medium w-44 truncate ">
+            {principals}
+          </p>
+          <button
+            className="border px-4 py-1 text-[#F95657] border-[#F95657] flex items-center gap-2"
+            onClick={isConnected ? logout : () => login()}
+          >
+            <IoLogOutOutline />
+            {isConnected ? "Logout" : "Login"}
+          </button>
+        </div>
+      </div>
+      <div className="border-t mb-6 border-gray-300"></div>
+      <div className="px-4 flex flex-col space-y-4"></div>
     </div>
   );
 };
