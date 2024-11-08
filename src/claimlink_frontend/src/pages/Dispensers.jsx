@@ -48,8 +48,8 @@ const Dispensers = () => {
   // Fetch user campaigns
   const fetchUserCampaigns = async () => {
     try {
-      const res = await backend.getUserCampaigns();
-      setCampaigns(res); // Assuming res is an array of campaigns
+      const res = await backend.getUserCampaignsPaginate(0, 2);
+      setCampaigns(res.data); // Assuming res is an array of campaigns
       console.log("Campaigns:", res);
     } catch (error) {
       console.error("Error fetching campaigns:", error);
