@@ -14,33 +14,32 @@ import { useAuth } from "../connect/useClient";
 import ScrollToTop from "../common/ScroolToTop";
 
 const QrManager = () => {
-  const dispatch = useDispatch();
-  const qrData = useSelector((state) => state.qrManager.data);
-  const qrStatus = useSelector((state) => state.qrManager.status);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const [data, setData] = useState();
   const { backend } = useAuth();
-
-  const getData = async () => {
+  const itemsPerPage = 7;
+  const getData = async (pageNumber = 1) => {
     try {
-      const res = await backend.getUserQRSets();
-      console.log(res[0]);
-      setData(res[0]);
+      const start = pageNumber - 1;
+      const res = await backend.getUserQRSetsPaginate(start, itemsPerPage);
+      console.log(res.data);
+      setTotalPages(parseInt(res.total_pages));
+
+      setData(res.data);
     } catch (error) {
       console.log("Error while getting data", error);
     }
   };
 
   useEffect(() => {
-    getData();
-  }, [backend]);
+    getData(page);
+  }, [backend, page]);
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber); // Update the page number when user clicks on a page button
+  };
 
-  useEffect(() => {
-    if (qrStatus === "idle") {
-      dispatch(fetchQrData());
-    }
-  }, [qrStatus, dispatch]);
-  const value = "ritesh";
   return (
     <>
       {" "}
@@ -107,6 +106,50 @@ const QrManager = () => {
             </Link>
           ))}
         </div>
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6 items-center space-x-2">
+            {/* Prev button */}
+            <button
+              className={`px-3 py-1 rounded ${
+                page === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+            >
+              Prev
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (pageNum) => (
+                <button
+                  key={pageNum}
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === pageNum ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            )}
+
+            {/* Next button */}
+            <button
+              className={`px-3 py-1 rounded ${
+                page === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
@@ -118,7 +161,7 @@ const NewCampaignCard = () => {
       initial={{ scale: 1, opacity: 1 }}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.9 }}
-      className=" hidden sm:block w-full mt-5 min-h-screen"
+      className=" hidden sm:block w-full mt-5  "
     >
       <div className=" m-2 mb-2 flex flex-col items-center justify-center rounded-lg h-[244px] bg-[#dad6f797]  text-center">
         <div className="bg-white p-2 m-2 rounded-md">

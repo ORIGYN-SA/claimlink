@@ -19,6 +19,8 @@ const Dispensers = () => {
   const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(true);
   const [isLoadingDispensers, setIsLoadingDispensers] = useState(true);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   const { backend } = useAuth();
 
@@ -57,11 +59,15 @@ const Dispensers = () => {
     }
   };
 
+  const itemsPerPage = 7;
   // Fetch user dispensers
-  const fetchUserDispensers = async () => {
+  const fetchUserDispensers = async (pageNumber = 1) => {
     try {
-      const res = await backend.getUserDispensers();
-      setDispensers(res); // Assuming res is an array of dispensers
+      setIsLoadingDispensers(true);
+      const start = pageNumber - 1;
+      const res = await backend.getUserDispensersPaginate(start, itemsPerPage);
+      setDispensers(res.data); // Assuming res is an array of dispensers
+      setTotalPages(parseInt(res.total_pages));
       console.log("Dispensers:", res);
     } catch (error) {
       console.error("Error fetching dispensers:", error);
@@ -87,7 +93,7 @@ const Dispensers = () => {
   useEffect(() => {
     const loadDispensers = async () => {
       if (campaigns.length > 0) {
-        await fetchUserDispensers();
+        await fetchUserDispensers(page);
       } else {
         setIsLoadingDispensers(false); // No dispensers to load
       }
@@ -95,7 +101,11 @@ const Dispensers = () => {
 
     loadDispensers();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [campaigns]);
+  }, [campaigns, page]);
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber); // Update the page number when user clicks on a page button
+  };
 
   // Fetch campaign details after dispensers are loaded
   useEffect(() => {
@@ -232,7 +242,7 @@ const Dispensers = () => {
               </div>
             </div>
             <div className="sm:hidden ">
-              {dispensers[0]?.map((data, index) => (
+              {dispensers?.map((data, index) => (
                 <motion.div
                   key={index}
                   // onClick={dispenserDetail}
@@ -330,6 +340,8 @@ const Dispensers = () => {
                   </Link>
                 </motion.div>
               ))}
+
+              {/* Next button */}
             </div>
 
             {/* Dispensers Grid  laptop view*/}
@@ -355,7 +367,7 @@ const Dispensers = () => {
               </motion.div>
 
               {/* Existing Dispensers */}
-              {dispensers[0]?.map((dispenser) => (
+              {dispensers?.map((dispenser) => (
                 <motion.div
                   key={dispenser.id}
                   initial={{ opacity: 0, scale: 0 }}
@@ -458,6 +470,52 @@ const Dispensers = () => {
                 </motion.div>
               ))}
             </div>
+            {totalPages > 1 && (
+              <div className="flex justify-center mt-6 items-center space-x-2">
+                {/* Prev button */}
+                <button
+                  className={`px-3 py-1 rounded ${
+                    page === 1
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                >
+                  Prev
+                </button>
+
+                {/* Page number buttons */}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (pageNum) => (
+                    <button
+                      key={pageNum}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === pageNum
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => handlePageChange(pageNum)}
+                    >
+                      {pageNum}
+                    </button>
+                  )
+                )}
+
+                {/* Next button */}
+                <button
+                  className={`px-3 py-1 rounded ${
+                    page === totalPages
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page === totalPages}
+                >
+                  Next
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -17,18 +17,33 @@ const DashboardContainer = () => {
   const [isLoadingCampaigns, setIsLoadingCampaigns] = useState(true);
   const [isLoadingCollections, setIsLoadingCollections] = useState(true);
   const { backend } = useAuth();
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Fetch user campaigns
-  const getCampaigns = async () => {
+  const itemsPerPage = 7;
+  const getCampaigns = async (pageNumber = 1) => {
     try {
-      const res = await backend.getUserCampaigns();
-      setCampaigns(res[0]); // Assuming res is an array of campaigns
+      setIsLoadingCampaigns(true);
+      const start = pageNumber - 1;
+      const res = await backend.getUserCampaignsPaginate(start, itemsPerPage);
+      setCampaigns(res.data); // Assuming res is an array of campaigns
+      setTotalPages(parseInt(res.total_pages));
       console.log(res, "campaigns");
     } catch (error) {
       console.error("Error in getting campaigns:", error);
     } finally {
       setIsLoadingCampaigns(false);
     }
+  };
+  useEffect(() => {
+    if (backend) {
+      getCampaigns(page); // Load the data for the initial page
+    }
+  }, [backend, page]);
+
+  const handlePageChange = (pageNumber) => {
+    setPage(pageNumber); // Update the page number when user clicks on a page button
   };
 
   // Fetch user collections
@@ -125,6 +140,50 @@ const DashboardContainer = () => {
                 </motion.div>
               </div>
             ))}
+          </div>
+        )}
+        {totalPages > 1 && (
+          <div className="flex justify-center mt-6 items-center space-x-2">
+            {/* Prev button */}
+            <button
+              className={`px-3 py-1 rounded ${
+                page === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}
+            >
+              Prev
+            </button>
+
+            {/* Page number buttons */}
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+              (pageNum) => (
+                <button
+                  key={pageNum}
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === pageNum ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              )
+            )}
+
+            {/* Next button */}
+            <button
+              className={`px-3 py-1 rounded ${
+                page === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}
+            >
+              Next
+            </button>
           </div>
         )}
       </div>
