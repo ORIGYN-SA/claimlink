@@ -144,7 +144,7 @@ const LinkClaiming = () => {
   }, [backend]);
   const handleClaim = async () => {
     if (!isConnected) {
-      login();
+      setShowModal(true);
       return;
     }
 
