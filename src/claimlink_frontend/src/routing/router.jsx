@@ -37,6 +37,8 @@ import NotFound from "../pages/NotFound";
 import TechnicalHelp from "../common/TechnicalHelp";
 import Nfidlogin from "../common/NfidWallet";
 import NfidPAyment from "../common/NfidPAyment";
+import TermCondition from "../common/TermCondition";
+import Privacy from "../common/Privacy";
 
 const approutes = createBrowserRouter([
   {
@@ -262,6 +264,14 @@ const approutes = createBrowserRouter([
   {
     path: "dispensers/:id",
     element: <DispenserClaimNFT />,
+  },
+  {
+    path: "/term-of-service",
+    element: <TermCondition />,
+  },
+  {
+    path: "/privacy-policy",
+    element: <Privacy />,
   },
 ]);
 

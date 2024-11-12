@@ -18,6 +18,7 @@ import { CiTwitter } from "react-icons/ci";
 import { SlSocialInstagram } from "react-icons/sl";
 import { useAuth } from "../connect/useClient";
 import CommonModal from "../common/CommonModel";
+import Footer from "../common/Footer";
 
 const MainHome = () => {
   const location = useLocation();
@@ -301,7 +302,7 @@ const Home = () => {
           />
         </div>
       </div>
-
+      <Footer />
       {/* <div className="bg-white p-6">
         <h4 className="text-center text-xl text-black">TRUSTED BY</h4>
         <div className="overflow-hidden relative">
