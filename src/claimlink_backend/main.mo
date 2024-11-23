@@ -355,7 +355,6 @@ actor Main {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
-   
     func handleTransferError(error : TransferFromError) : Text {
         switch (error) {
             case (#GenericError(record)) {
@@ -705,8 +704,8 @@ actor Main {
         if (Principal.isAnonymous(user)) {
             throw Error.reject("Anonymous principals are not allowed.");
         };
-        let availablecycles : Nat = await availableCycles(); 
-        if(availablecycles < 500_000_000_000 ){
+        let availablecycles : Nat = await availableCycles();
+        if (availablecycles < 1_000_000_000_000) {
             throw Error.reject("Canister doesnt have enough cycles");
         };
         let fromAccount : Account = {
@@ -745,7 +744,7 @@ actor Main {
                 if (Principal.isAnonymous(user)) {
                     throw Error.reject("Anonymous principals are not allowed.");
                 };
-                Cycles.add<system>(500_000_000_000);
+                Cycles.add<system>(1_000_000_000_000);
                 let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
                 let extCollectionCanisterId = await extToken.getCanisterId();
                 let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
@@ -1074,14 +1073,19 @@ actor Main {
 
     public shared func getStoredTokenByTokenIndex(
         _collectionCanisterId : Principal,
-        tokenIndex : Nat32
+        tokenIndex : Nat32,
     ) : async ?Metadata {
         let storedTokens = tokensDataToBeMinted.get(_collectionCanisterId);
         switch (storedTokens) {
             case (?tokens) {
-                switch (Array.find(tokens, func (token: (Nat32, Metadata)) : Bool {
-                    token.0 == tokenIndex
-                })) {
+                switch (
+                    Array.find(
+                        tokens,
+                        func(token : (Nat32, Metadata)) : Bool {
+                            token.0 == tokenIndex;
+                        },
+                    )
+                ) {
                     case (?(_, metadata)) ?metadata;
                     case null null;
                 };
