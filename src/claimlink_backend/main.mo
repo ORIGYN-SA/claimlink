@@ -351,7 +351,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
+    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -705,7 +705,7 @@ actor Main {
             throw Error.reject("Anonymous principals are not allowed.");
         };
         let availablecycles : Nat = await availableCycles();
-        if (availablecycles < 1_000_000_000_000) {
+        if (availablecycles < 900_000_000_000) {
             throw Error.reject("Canister doesnt have enough cycles");
         };
         let fromAccount : Account = {
@@ -744,7 +744,7 @@ actor Main {
                 if (Principal.isAnonymous(user)) {
                     throw Error.reject("Anonymous principals are not allowed.");
                 };
-                Cycles.add<system>(1_000_000_000_000);
+                Cycles.add<system>(900_000_000_000);
                 let extToken = await ExtTokenClass.EXTNFT(Principal.fromActor(Main));
                 let extCollectionCanisterId = await extToken.getCanisterId();
                 let collectionCanisterActor = actor (Principal.toText(extCollectionCanisterId)) : actor {
@@ -3238,7 +3238,7 @@ actor Main {
 
     // Equivalent to the function that returns the record type
     public func icrc28_trusted_origins() : async Icrc28TrustedOriginsResponse {
-        let trusted_origins = ["https://x4ayz-2iaaa-aaaak-akv6a-cai.icp0.io", "http://localhost:3000", "http://bd3sg-teaaa-aaaaa-qaaba-cai.localhost:4943", "http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai", "http://127.0.0.1:4943"];
+        let trusted_origins = ["https://x4ayz-2iaaa-aaaak-akv6a-cai.icp0.io", "http://localhost:3000", "http://bd3sg-teaaa-aaaaa-qaaba-cai.localhost:4943", "http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai", "http://127.0.0.1:4943", "https://claimlink.xyz"];
 
         return {
             trusted_origins = trusted_origins;
