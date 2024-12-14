@@ -3,6 +3,7 @@ import {
   BsFacebook,
   BsInstagram,
   BsLinkedin,
+  BsTelegram,
   BsTwitterX,
 } from "react-icons/bs";
 import { motion, useScroll, useTransform } from "framer-motion";
@@ -31,26 +32,28 @@ const Footer = () => {
                   claimlink
                   <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
                 </div>{" "}
-                <span className="text-slate-600 flex flex-col items-start gap-1">
+                {/* <span className="text-slate-600 flex flex-col items-start gap-1">
                   <Link to="/about">About Us</Link>
-                </span>
+                </span> */}
               </div>
             </div>
             <div className="flex mt-auto flex-col gap-2">
               <p className="font-semibold text-slate-600">Social Media</p>
               <div className="flex gap-2">
-                <Link className="p-3 rounded-full bg-[#3B00B9]">
+                <a
+                  href="https://x.com/claimlinkxyz"
+                  target="_blank"
+                  className="p-3 rounded-full bg-[#3B00B9]"
+                >
                   <BsTwitterX size={20} color="white" />
-                </Link>
-                <Link className="p-3 rounded-full bg-[#3B00B9]">
-                  <BsFacebook size={20} color="white" />
-                </Link>
-                <Link className="p-3 rounded-full bg-[#3B00B9]">
-                  <BsLinkedin size={20} color="white" />
-                </Link>
-                <Link className="p-3 rounded-full bg-[#3B00B9]">
-                  <BsInstagram size={20} color="white" />
-                </Link>
+                </a>
+                <a
+                  href="https://t.me/claimlinkXYZ"
+                  target="_blank"
+                  className="p-3 rounded-full bg-[#3B00B9]"
+                >
+                  <BsTelegram size={20} color="white" />
+                </a>
               </div>
             </div>
           </div>

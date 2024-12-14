@@ -278,7 +278,7 @@ actor Main {
     private var depositItemsMap = TrieMap.TrieMap<Nat32, Deposit>(Nat32.equal, nat32Hash);
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
     // Payment recepient
-    private stable var recepient : Principal = Principal.fromText("7yywi-leri6-n33rr-vskr6-yb4nd-dvj6j-xg2b4-reiw6-dljs7-slclz-2ae");
+    private stable var recepient : Principal = Principal.fromText("inerd-ot3e5-6uk35-zmytr-l64da-5r2jk-eqo6e-yds5d-nank5-z7vah-uqe");
 
     public shared ({ caller }) func getRecepient() : async Result.Result<Principal, Text> {
         if (not Principal.isController(caller)) {

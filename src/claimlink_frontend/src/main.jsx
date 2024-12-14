@@ -19,6 +19,13 @@ import {
   Stoic,
 } from "@nfid/identitykit";
 import "@nfid/identitykit/react/styles.css";
+import ReactGA from "react-ga4";
+
+ReactGA.initialize("G-MFY35FRYXL", {
+  gaOptions: {
+    anonymizeIp: true,
+  },
+});
 
 const signers = [NFIDW, Plug];
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;

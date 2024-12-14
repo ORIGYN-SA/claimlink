@@ -22,62 +22,40 @@ const TermCondition = () => {
         Back
       </button>
 
-      <h1 className="text-2xl font-bold mb-4">Terms and Conditions</h1>
-
-      <p className="mb-4">
-        Welcome to ClaimLink! These terms and conditions outline the rules and
-        regulations for the use of our platform. By accessing this website, we
-        assume you accept these terms and conditions. Do not continue to use
-        ClaimLink if you do not agree to take all of the terms and conditions
-        stated on this page.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">1. License</h2>
-      <p className="mb-4">
-        Unless otherwise stated, ClaimLink and/or its licensors own the
-        intellectual property rights for all material on ClaimLink. You may
-        access this from ClaimLink for your personal use subject to restrictions
-        set in these terms and conditions.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">
-        2. User Responsibilities
-      </h2>
-      <p className="mb-4">
-        By using ClaimLink, you agree to be responsible for ensuring the
-        authenticity of the information provided. You must not use ClaimLink in
-        any way that is unlawful or harms the platform or its users.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">
-        3. NFT Claims and Usage
-      </h2>
-      <p className="mb-4">
-        ClaimLink allows users to claim NFTs through unique links. You agree to
-        use these links responsibly and acknowledge that ClaimLink is not liable
-        for lost or unclaimed NFTs due to misuse.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">
-        4. Limitation of Liability
-      </h2>
-      <p className="mb-4">
-        In no event shall ClaimLink be liable for any direct, indirect,
-        incidental, or consequential damages arising out of or in any way
-        connected with the use of or inability to use the platform.
-      </p>
-
-      <h2 className="text-xl font-semibold mt-6 mb-2">5. Changes to Terms</h2>
-      <p className="mb-4">
-        ClaimLink reserves the right to revise these terms and conditions at any
-        time. By using this platform, you are expected to review these terms
-        regularly.
-      </p>
-
-      <p className="mt-6">
-        By using ClaimLink, you hereby consent to these terms and agree to abide
-        by them.
-      </p>
+      Terms of Service
+Last Updated: December 13, 2024
+Welcome to ClaimLink (“we,” “us,” “our,” or the “Platform”), a decentralized application (“dApp”) built on the Internet Computer Protocol (“ICP”) designed to simplify the creation, minting, and distribution of non-fungible tokens (“NFTs”) and tokens. These Terms of Service (“Terms”) govern your access to and use of ClaimLink, including all features, functionalities, content, and services offered.
+By accessing or using ClaimLink, you acknowledge that you have read, understood, and agree to be bound by these Terms. If you do not agree, you must not use or access the Platform.
+1. Eligibility and User Responsibilities
+1.1 Eligibility: You must be at least the age of majority in your jurisdiction and have the legal capacity to enter into these Terms.
+1.2 Wallet Integration: To use ClaimLink’s features, you may be required to connect a compatible ICP wallet (e.g., Plug, NFID). You are responsible for safeguarding your wallet credentials and any associated private keys.
+1.3 User Conduct: You agree not to engage in any fraudulent, abusive, or unlawful activity while using the Platform. You must not interfere with or disrupt the operation, security, or performance of the Platform or other users’ experience.
+2. Services and Features
+2.1 NFT Creation and Campaign Management: ClaimLink enables users to create NFT collections under the EXT token standard, mint NFTs, and set up campaigns with claimable links, QR codes, or dispenser tools.
+2.2 Dispenser and Bulk Distribution: The Platform provides a dispenser feature for bulk NFT distribution. The manner, timing, and quantity of distributions are at your discretion, subject to these Terms.
+2.3 Gas-Free Claims: ClaimLink leverages ICP’s reverse gas model. However, certain operations (e.g., NFT minting) may require the payment of cycles or fees. You are responsible for any applicable costs.
+3. Intellectual Property
+3.1 Ownership: All original content, including but not limited to text, images, logos, and design elements, created by ClaimLink remains our property or that of our licensors. Users retain ownership of any NFTs they create, subject to underlying intellectual property rights in the NFT’s content.
+3.2 License to Use: We grant you a limited, non-exclusive, non-transferable, revocable license to access and use ClaimLink solely for its intended purposes.
+4. User-Generated Content and NFTs
+4.1 Responsibility for Content: You are solely responsible for the NFTs you mint, the metadata you attach, and the campaigns you create. ClaimLink is not liable for any infringement or violation of intellectual property rights or other third-party rights associated with your NFTs or campaigns.
+4.2 Compliance: You must ensure that the NFTs, token distributions, and campaigns you create comply with applicable laws, regulations, and third-party rights.
+5. Disclaimers and Warranties
+5.1 As-Is Service: ClaimLink is provided “as is” and “as available” without warranties of any kind, express or implied. We do not warrant that the Platform will be error-free, uninterrupted, or free of harmful components.
+5.2 Third-Party Integrations: Your interactions with third-party wallets, services, or applications (e.g., Plug, NFID) are solely between you and those third parties. ClaimLink is not responsible for any third-party actions, data security, or terms.
+6. Limitation of Liability
+6.1 No Liability for Losses: To the maximum extent permitted by law, ClaimLink and its affiliates shall not be liable for any direct, indirect, incidental, consequential, or special damages arising out of or related to your use of or inability to use the Platform. This includes, but is not limited to, losses related to digital assets, NFTs, or tokens.
+6.2 Indemnification: You agree to indemnify and hold harmless ClaimLink, its affiliates, and its representatives from any claims, damages, or liabilities arising from your use of the Platform, violation of these Terms, or infringement of any third-party rights.
+7. Termination
+7.1 Right to Terminate: We reserve the right to suspend or terminate your access to ClaimLink at any time and for any reason, including breach of these Terms.
+7.2 Survival: Provisions related to intellectual property, disclaimers, limitation of liability, and indemnification survive termination.
+8. Governing Law and Dispute Resolution
+8.1 Governing Law: These Terms shall be governed and construed in accordance with the laws of Singapore, without regard to its conflict of law principles.
+8.2 Dispute Resolution: Any dispute arising out of or related to these Terms shall be resolved through binding arbitration in Singapore, except where prohibited by law.
+9. Changes to These Terms
+9.1 Modifications: We may revise these Terms at any time by posting the updated version on our website or Platform. Your continued use of ClaimLink after any changes constitute your acceptance of the revised Terms.
+10. Contact Information
+If you have any questions or concerns regarding these Terms, please submit a form https://claimlink.xyz/contact-us.
 
       {/* Back to Top Button */}
       <button
