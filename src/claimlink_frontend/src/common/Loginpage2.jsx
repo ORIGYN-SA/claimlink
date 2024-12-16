@@ -47,9 +47,7 @@ const LoginPage2 = () => {
         >
           <FaArrowLeft className="text-[#5542F6] text-xl" />
         </div>
-        <h1 className="text-2xl font-bold text-center mb-6">
-          Welcome to Claimlink
-        </h1>
+        <h1 className="text-2xl font-bold text-center mb-6">Welcome to</h1>
         <div className="flex flex-col space-y-4">
           <label className="flex items-center space-x-3">
             <div className="w-6 h-6 mt-3">
