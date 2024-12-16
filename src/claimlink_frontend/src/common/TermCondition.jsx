@@ -143,6 +143,177 @@ const TermCondition = () => {
           </div>
         </section>
 
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            4. User-Generated Content and NFTs
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">4.1 Responsibility for Content</h3>
+            <p>
+              You are solely responsible for the NFTs you mint, the metadata you
+              attach, and the campaigns you create. ClaimLink is not liable for
+              any infringement or violation of intellectual property rights or
+              other third-party rights associated with your NFTs or campaigns.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium">4.2 Compliance</h3>
+            <p>
+              You must ensure that the NFTs, token distributions, and campaigns
+              you create comply with applicable laws, regulations, and
+              third-party rights.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            4. User-Generated Content and NFTs
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">4.1 Responsibility for Content</h3>
+            <p>
+              You are solely responsible for the NFTs you mint, the metadata you
+              attach, and the campaigns you create. ClaimLink is not liable for
+              any infringement or violation of intellectual property rights or
+              other third-party rights associated with your NFTs or campaigns.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium">4.2 Compliance</h3>
+            <p>
+              You must ensure that the NFTs, token distributions, and campaigns
+              you create comply with applicable laws, regulations, and
+              third-party rights.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            5. Disclaimers and Warranties{" "}
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">5.1 As-Is Service</h3>
+            <p>
+              ClaimLink is provided “as is” and “as available” without
+              warranties of any kind, express or implied. We do not warrant that
+              the Platform will be error-free, uninterrupted, or free of harmful
+              components.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium">5.2 Third-Party Integrations</h3>
+            <p>
+              Your interactions with third-party wallets, services, or
+              applications (e.g., Plug, NFID) are solely between you and those
+              third parties. ClaimLink is not responsible for any third-party
+              actions, data security, or terms.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            6. Limitation of Liability
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">6.1 No Liability for Losses</h3>
+            <p>
+              To the maximum extent permitted by law, ClaimLink and its
+              affiliates shall not be liable for any direct, indirect,
+              incidental, consequential, or special damages arising out of or
+              related to your use of or inability to use the Platform. This
+              includes, but is not limited to, losses related to digital assets,
+              NFTs, or tokens.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium">6.2 Indemnification</h3>
+            <p>
+              You agree to indemnify and hold harmless ClaimLink, its
+              affiliates, and its representatives from any claims, damages, or
+              liabilities arising from your use of the Platform, violation of
+              these Terms, or infringement of any third-party rights.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">7. Termination </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">7.1 Right to Terminate</h3>
+            <p>
+              We reserve the right to suspend or terminate your access to
+              ClaimLink at any time and for any reason, including breach of
+              these Terms.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium">7.2 Survival:</h3>
+            <p>
+              Provisions related to intellectual property, disclaimers,
+              limitation of liability, and indemnification survive termination.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            8. Governing Law and Dispute Resolution{" "}
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium">8.1 Governing Law</h3>
+            <p>
+              These Terms shall be governed and construed in accordance with the
+              laws of Singapore, without regard to its conflict of law
+              principles.
+            </p>
+          </div>
+
+          <div className="mb-4">
+            <h3 className="font-medium"> 8.2 Dispute Resolution</h3>
+            <p>
+              Any dispute arising out of or related to these Terms shall be
+              resolved through binding arbitration in Singapore, except where
+              prohibited by law.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            9. Changes to These Terms
+          </h2>
+
+          <div className="mb-4">
+            <h3 className="font-medium"> 9.1 Modifications</h3>
+            <p>
+              We may revise these Terms at any time by posting the updated
+              version on our website or Platform. Your continued use of
+              ClaimLink after any changes constitute your acceptance of the
+              revised Terms.
+            </p>
+          </div>
+        </section>
+        <section className="mb-6">
+          <h2 className="text-xl font-semibold mb-2">
+            10. Contact Information
+          </h2>
+
+          <div className="mb-4">
+            <p>
+              If you have any questions or concerns regarding these Terms,
+              please submit a form https://claimlink.xyz/contact-us.
+            </p>
+          </div>
+        </section>
+
         <footer className="mt-8 border-t border-gray-200 pt-4 text-center text-sm">
           <p>
             &copy; {new Date().getFullYear()} ClaimLink. All rights reserved.
