@@ -22,9 +22,21 @@ const LoginPage = () => {
       await login();
       if (isConnected) {
         toast.success("Connected successfully.");
+
+        // Track the 'connect_wallet' event in GA4
+        window.gtag("event", "connect_wallet", {
+          event_category: "User Authentication",
+          event_label: "Wallet Connected Successfully",
+        });
       }
     } catch (error) {
       toast.error(`Login failed: ${error.message}`);
+
+      // Track the 'connect_wallet_failed' event
+      window.gtag("event", "connect_wallet_failed", {
+        event_category: "User Authentication",
+        event_label: error.message,
+      });
     }
   };
 
@@ -36,11 +48,11 @@ const LoginPage = () => {
   return (
     <div className="flex flex-col justify-center items-center h-screen bg-gray-100">
       {isConnected ? <Navigate to="/dashboard" replace /> : null}
-      <p className="text-2xl w-full px-3 absolute top-6 tracking-wide   h-[88px] text-[#2E2C34] font-quicksand gap-1 flex">
+      <p className="text-2xl w-full px-3 absolute top-6 tracking-wide h-[88px] text-[#2E2C34] font-quicksand gap-1 flex">
         claimlink
         <MdArrowOutward className="bg-[#3B00B9] rounded text-white mt-1" />
       </p>
-      <div className="bg-white p-8 rounded-xl shadow-lg  mt-24 ">
+      <div className="bg-white p-8 rounded-xl shadow-lg mt-24">
         <div
           className="flex justify-center mb-6 cursor-pointer"
           onClick={() => navigate("/")}
@@ -55,7 +67,6 @@ const LoginPage = () => {
                 checked={true}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
               >
-                {/* Checkmark icon */}
                 <svg
                   className="stroke-white opacity-0 group-data-[checked]:opacity-100"
                   viewBox="0 0 14 14"
@@ -80,7 +91,6 @@ const LoginPage = () => {
                 checked={true}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
               >
-                {/* Checkmark icon */}
                 <svg
                   className="stroke-white opacity-0 group-data-[checked]:opacity-100"
                   viewBox="0 0 14 14"
@@ -105,7 +115,6 @@ const LoginPage = () => {
                 checked={true}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-[#5542F6]"
               >
-                {/* Checkmark icon */}
                 <svg
                   className="stroke-white opacity-0 group-data-[checked]:opacity-100"
                   viewBox="0 0 14 14"
@@ -146,7 +155,13 @@ const LoginPage = () => {
 
 const ConnectBtn = ({ onClick }) => (
   <button
-    onClick={onClick}
+    onClick={() => {
+      window.gtag("event", "connect_wallet", {
+        event_category: "User Authentication",
+        event_label: "Connect Wallet Button Clicked",
+      });
+      onClick();
+    }}
     className="w-full mt-6 bg-[#5542F6] text-white py-4 font-semibold rounded-xl transition duration-200"
   >
     Sign in

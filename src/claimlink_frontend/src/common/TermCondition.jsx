@@ -9,7 +9,7 @@ const TermCondition = () => {
   };
 
   const handleBackToTop = () => {
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Smooth scroll to the top of the page
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (

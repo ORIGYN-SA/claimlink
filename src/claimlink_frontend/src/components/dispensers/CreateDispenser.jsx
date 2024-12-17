@@ -7,6 +7,7 @@ import Papa from "papaparse";
 import MainButton, { BackButton } from "../../common/Buttons";
 import { useAuth } from "../../connect/useClient";
 import { useNavigate } from "react-router-dom";
+import { trackEvent } from "../../common/trackEvent";
 
 const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
@@ -77,7 +78,7 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
                 !dispenserCampaignIds.has(camp.id) &&
                 Object.keys(camp?.status || {})[0] === "Ongoing" // Filter for ongoing campaigns
             )
-            .map((camp) =>   ({
+            .map((camp) => ({
               value: camp.id,
               label: `${camp.title}`,
               collection: camp.collection.toText(),
@@ -142,6 +143,13 @@ const CreateDispenser = ({ handleNext, handleBack, formData, setFormData }) => {
 
       if (result) {
         toast.success("Dispenser created successfully!");
+        trackEvent("Dispenser_created ", {
+          event_category: "Dispenser created",
+          event_label: title,
+          campaignid: selectedOption.value,
+          duration: duration,
+          timestemp: timestampNanos,
+        });
         const dispenserLink = `${url}/dispensers/${result}/${collection}`;
         console.log("Dispenser Link created successfully:", dispenserLink);
         navigate("/dispensers");

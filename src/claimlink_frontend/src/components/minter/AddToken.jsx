@@ -15,6 +15,7 @@ import MainButton from "../../common/Buttons";
 import PaymentModel from "../../common/PaymentModel";
 import NftPayment from "../../common/NftPayment";
 import { TailSpin } from "react-loader-spinner";
+import { trackEvent } from "../../common/trackEvent";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(null);
@@ -281,6 +282,15 @@ const AddToken = () => {
         if (res) {
           console.log("Non-fungible token created successfully:", res);
           toast.success("Successfully created!");
+          trackEvent("NFT_Minted", {
+            event_category: "NFT",
+            event_label: formData.name,
+            name: formData.name,
+            description: formData.description,
+            tokenType: "non-fungible",
+            collectionName: idd,
+          });
+
           navigate(-1);
         } else {
           console.log("Failed to create token, no response received");
@@ -308,6 +318,14 @@ const AddToken = () => {
             if (res) {
               console.log("Non-fungible token stored successfully:", res);
               toast.success("Successfully stored!!");
+              trackEvent("NFT_Stored", {
+                event_category: "NFT Stored",
+                event_label: formData.name,
+                name: formData.name,
+                description: formData.description,
+                tokenType: "non-fungible",
+                collectionName: idd,
+              });
               navigate(-1);
             } else {
               console.log(

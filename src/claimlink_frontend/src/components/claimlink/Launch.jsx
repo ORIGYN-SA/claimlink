@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import Flatpickr from "react-flatpickr";
 import "flatpickr/dist/themes/material_blue.css";
+import { trackEvent } from "../../common/trackEvent";
 const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -123,6 +124,14 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
         }
         console.log("Campaign created successfully:", res);
         toast.success("Campaign created successfully!");
+        trackEvent("Campaign_created ", {
+          event_category: "Campaign_created",
+          event_label: formData.title,
+          tokenids: tokenIds,
+          pattern: formData.pattern,
+          tokenType: formData.tokenType,
+          collectionId: collectionPrincipal,
+        });
         navigate("/claim-link");
         handleNext();
       } else {

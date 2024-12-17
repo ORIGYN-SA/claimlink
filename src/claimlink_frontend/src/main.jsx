@@ -26,7 +26,9 @@ ReactGA.initialize("G-MFY35FRYXL", {
     anonymizeIp: true,
   },
 });
-
+useEffect(() => {
+  ReactGA.send("pageview");
+}, []);
 const signers = [NFIDW, Plug];
 const canisterID = process.env.CANISTER_ID_CLAIMLINK_BACKEND;
 ReactDOM.createRoot(document.getElementById("root")).render(
@@ -36,6 +38,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     authType={IdentityKitAuthType.DELEGATION}
     signerClientOptions={{
       targets: [canisterID],
+      maxTimeToLive: BigInt(7 * 24 * 60 * 60 * 1000 * 1000 * 1000), // 1 week in nanoseconds
+      idleOptions: {
+        idleTimeout: 4 * 60 * 60 * 1000, // 4 hours in milliseconds
+        disableIdle: false, // Enable logout on idle timeout
+      },
+      keyType: "Ed25519", // Use Ed25519 key type for compatibility
+      allowInternetIdentityPinAuthentication: true, // Enable PIN authentication
     }}
   >
     <React.StrictMode>

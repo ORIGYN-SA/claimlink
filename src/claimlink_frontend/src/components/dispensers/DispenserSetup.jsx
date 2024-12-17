@@ -10,6 +10,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
   const today = new Date();
   const maxDate = new Date();
   maxDate.setDate(today.getDate() + 30);
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -21,20 +22,10 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
       newErrors.startDate = "Start date is required.";
     }
 
-    if (formData.startHour === "") {
-      newErrors.startHour = "Start hour is required.";
-    }
-
-    if (formData.startMinute === "") {
-      newErrors.startMinute = "Start minute is required.";
-    }
-
     if (!formData.duration) {
       newErrors.duration = "Duration is required.";
     } else if (formData.duration <= 0) {
       newErrors.duration = "Duration must be a positive number.";
-    } else {
-      formData.duration = Math.abs(formData.duration); // Ensure duration is positive during validation
     }
 
     setErrors(newErrors);
@@ -47,7 +38,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
 
     setFormData({
       ...formData,
-      [name]: name === "duration" ? Math.abs(value) : value, // Ensure duration is always positive
+      [name]: value,
     });
 
     // Clear specific error when there is valid input
@@ -60,6 +51,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
   };
 
   const handleSubmit = (e) => {
+    console.log("object", formData.duration);
     e.preventDefault();
     if (validateForm()) {
       handleNext();
@@ -152,12 +144,6 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             {errors.startDate && (
               <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>
             )}
-            {errors.startHour && (
-              <p className="text-red-500 text-sm mt-1">{errors.startHour}</p>
-            )}
-            {errors.startMinute && (
-              <p className="text-red-500 text-sm mt-1">{errors.startMinute}</p>
-            )}
           </div>
 
           {/* Duration Input */}
@@ -165,21 +151,72 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             <label htmlFor="duration" className="text-lg font-semibold py-3">
               Duration
             </label>
-            <input
-              type="number"
-              name="duration"
-              id="duration"
-              className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
-              placeholder="Duration in minutes"
-              value={formData.duration}
-              onChange={handleChange}
-            />
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                name="duration"
+                id="duration"
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md flex-1"
+                placeholder={`Duration in ${
+                  formData.durationType === "days" ? "days" : "minutes"
+                }`}
+                value={
+                  formData.durationType === "days"
+                    ? Math.floor(formData.duration / (24 * 60))
+                    : formData.duration
+                }
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const convertedValue =
+                    formData.durationType === "days" ? value * 24 * 60 : value;
+                  setFormData({
+                    ...formData,
+                    duration: convertedValue,
+                  });
+                }}
+              />
+              <select
+                name="durationType"
+                value={formData.durationType}
+                onChange={(e) => {
+                  const durationType = e.target.value;
+                  let convertedDuration = formData.duration;
+
+                  if (
+                    durationType === "minutes" &&
+                    formData.durationType === "days"
+                  ) {
+                    convertedDuration = formData.duration * 24 * 60;
+                  } else if (
+                    durationType === "days" &&
+                    formData.durationType === "minutes"
+                  ) {
+                    convertedDuration = Math.floor(
+                      formData.duration / (24 * 60)
+                    );
+                  }
+
+                  setFormData({
+                    ...formData,
+                    durationType: durationType,
+                    duration: convertedDuration,
+                  });
+                }}
+                className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md"
+              >
+                <option value="minutes">Minutes</option>
+                <option value="days">Days</option>
+              </select>
+            </div>
+
             <div className="flex items-center gap-4 mt-2">
               <TbInfoHexagon className="text-[#564BF1]" />
               <p className="text-sm text-gray-500">
-                Enter the duration of the event in minutes.
+                Enter the duration of the event in your preferred unit. It will
+                be automatically converted to minutes if necessary.
               </p>
             </div>
+
             {errors.duration && (
               <p className="text-red-500 text-sm mt-1">{errors.duration}</p>
             )}

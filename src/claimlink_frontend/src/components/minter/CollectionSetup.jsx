@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 import { useAuth } from "../../connect/useClient";
 import { TailSpin } from "react-loader-spinner";
 import PaymentModel from "../../common/PaymentModel";
+import { trackEvent } from "../../common/trackEvent";
 const coffeeAmount = 0.0001; // 0.04 ICP in e8s
 
 const CollectionSetup = ({ handleNext, handleBack }) => {
@@ -141,12 +142,19 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
         formData.title,
         formData.symbol,
         formData.img,
-        coffeeAmount * 10**8
+        coffeeAmount * 10 ** 8
       );
 
       if (res) {
         console.log("Collection created successfully:", res);
         toast.success("Collection created successfully!");
+        trackEvent("Collection_Created", {
+          event_category: "NFT Collection",
+          event_label: formData.title,
+          title: formData.title,
+          symbol: formData.symbol,
+        });
+
         navigate(-1);
         handleNext();
       } else {
