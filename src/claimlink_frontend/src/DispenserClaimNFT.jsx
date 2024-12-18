@@ -21,6 +21,7 @@ import Confetti from "react-confetti";
 import { SlRefresh } from "react-icons/sl";
 import { IoMdLogOut } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
+import { BsCopy } from "react-icons/bs";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -49,7 +50,8 @@ const LinkClaiming = () => {
   const canisterId = pathParts[2];
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const nftIndex = pathParts[3];
-  const currentUrl = window.location.href; // Get the current page URL
+  const currentUrl = window.location.href;
+  console.log("url", currentUrl); // Get the current page URL
   const [dispenser, setDispenser] = useState(null);
   const [campaign, setCampaign] = useState([]);
   const [celebrate, setCelebrate] = useState(false);
@@ -186,7 +188,38 @@ const LinkClaiming = () => {
     }
     return text;
   };
-
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!"); // Alert to confirm the action
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      toast.error("Failed to copy link.");
+    }
+    document.body.removeChild(textarea);
+  };
+  const handleCopy = (text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to copy using Clipboard API, using fallback",
+            err
+          );
+          fallbackCopy(text); // Use fallback if Clipboard API fails
+        });
+    } else {
+      fallbackCopy(text); // Use fallback if Clipboard API is not available
+    }
+  };
   return (
     <div className="md:flex  mx-auto bg-white items-start    min-h-screen  overflow-hidden bg-transparent md:w-5/6   ">
       {isMobile ? (
@@ -258,13 +291,22 @@ const LinkClaiming = () => {
             </div>
 
             {/* QR Code Button */}
-            <div className="mt-4 flex justify-center">
+            <div className="mt-4 flex gap-4 justify-center">
               <button
                 onClick={() => setShowQRModal(true)}
                 className="bg-[#564BF1] px-4 py-2 z-20 rounded-md text-white"
               >
                 Show QR Code
               </button>
+              <p
+                className="border flex items-center gap-2 px-4 py-2 z-20 rounded-md text-[#564BF1]"
+                onClick={() => {
+                  handleCopy(currentUrl);
+                }}
+              >
+                <BsCopy className="text-[#564BF1] w-4 h-4" />
+                Copy Link
+              </p>
             </div>
           </div>
           {showQRModal && (

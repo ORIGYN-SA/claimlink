@@ -8,6 +8,8 @@ import { TfiPlus } from "react-icons/tfi";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../connect/useClient";
 import ScrollToTop from "../common/ScroolToTop";
+import { BsCopy } from "react-icons/bs";
+import toast from "react-hot-toast";
 
 const Dispensers = () => {
   const navigate = useNavigate();
@@ -187,7 +189,38 @@ const Dispensers = () => {
 
     return formattedDate;
   };
-
+  const fallbackCopy = (text) => {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!"); // Alert to confirm the action
+    } catch (err) {
+      console.error("Fallback: Oops, unable to copy", err);
+      toast.error("Failed to copy link.");
+    }
+    document.body.removeChild(textarea);
+  };
+  const handleCopy = (text) => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
+        })
+        .catch((err) => {
+          console.error(
+            "Failed to copy using Clipboard API, using fallback",
+            err
+          );
+          fallbackCopy(text); // Use fallback if Clipboard API fails
+        });
+    } else {
+      fallbackCopy(text); // Use fallback if Clipboard API is not available
+    }
+  };
   return (
     <>
       <ScrollToTop />
@@ -380,93 +413,77 @@ const Dispensers = () => {
                       : ""
                   }`}
                 >
-                  <Link
-                    to={
-                      Object.keys(dispenser?.status || {})[0] === "Expired" ||
-                      Object.keys(dispenser?.status || {})[0] === "Completed"
-                        ? "#" // Disable link
-                        : `/dispensers/${dispenser?.id}`
-                    }
-                  >
-                    <div className="flex justify-start  space-x-4">
-                      <img
-                        src="https://via.placeholder.com/100"
-                        alt="Campaign"
-                        className="w-12 h-12 object-cover rounded-md"
-                        style={{
-                          border: "2px solid white",
-                          zIndex: 3,
-                        }}
-                      />
-                      <img
-                        src="https://via.placeholder.com/100"
-                        alt="Campaign"
-                        className="w-12 h-12 object-cover rounded-md"
-                        style={{
-                          border: "2px solid white",
-                          zIndex: 2,
-                          marginLeft: -24,
-                        }}
-                      />
-                      <img
-                        src="https://via.placeholder.com/100"
-                        alt="Campaign"
-                        className="w-12 h-12 object-cover rounded-md"
-                        style={{
-                          border: "2px solid white",
-                          zIndex: 1,
-                          marginLeft: -24,
-                        }}
-                      />
+                  {/* Dispenser Title and Date */}
+                  <h2 className="text-lg font-semibold text-[#2E2C34] mt-3">
+                    {dispenser.title}
+                  </h2>
+                  <p className="text-xs text-[#84818A] mt-1">
+                    {convertNanosecondsToDate(dispenser.createdAt)}
+                  </p>
+                  {/* Divider */}
+                  <div className="border border-gray-300 my-4 w-full"></div>
+                  {/* Dispenser Details */}
+                  <div className="w-full">
+                    <div className="flex justify-between">
+                      <p className="text-xs text-[#84818A]">Status</p>
+                      <p
+                        className={`text-xs font-bold mt-2 ${
+                          Object.keys(dispenser?.status || {})[0] === "Expired"
+                            ? "text-red-600" // For expired
+                            : Object.keys(dispenser?.status || {})[0] ===
+                              "Ongoing"
+                            ? "text-blue-600" // For complete
+                            : "text-green-600" // Default for ongoing
+                        }`}
+                      >
+                        {Object.keys(dispenser?.status || {})[0]}{" "}
+                      </p>
                     </div>
-                    {/* Dispenser Title and Date */}
-                    <h2 className="text-lg font-semibold text-[#2E2C34] mt-3">
-                      {dispenser.title}
-                    </h2>
-                    <p className="text-xs text-[#84818A] mt-1">
-                      {convertNanosecondsToDate(dispenser.createdAt)}
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A]">Start Date</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold truncate">
+                        {formatDate(dispenser.startDate)}
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A]">Duration</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">
+                        {String(dispenser.duration)} Min
+                      </p>
+                    </div>
+                    <div className="flex justify-between mt-2">
+                      <p className="text-xs text-[#84818A]">Links</p>
+                      <p className="text-[#2E2C34] text-xs font-semibold">
+                        {campaignDetails[dispenser.campaignId]?.depositIndices
+                          .length ?? "1"}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="border border-gray-300 my-4 w-full"></div>
+                  <div className="flex mt-2 justify-between space-x-4">
+                    <p
+                      className="text-[#564BF1] text-sm underline gap-2 truncate flex items-center cursor-pointer"
+                      onClick={() => {
+                        handleCopy(
+                          `https://claimlink.xyz/dispensers/${dispenser?.id}`
+                        );
+                      }}
+                    >
+                      <BsCopy className="text-[#564BF1] w-4 h-4" />
+                      Copy Link
                     </p>
-                    {/* Divider */}
-                    <div className="border border-gray-300 my-4 w-full"></div>
-                    {/* Dispenser Details */}
-                    <div className="w-full">
-                      <div className="flex justify-between">
-                        <p className="text-xs text-[#84818A]">Status</p>
-                        <p
-                          className={`text-xs font-bold mt-2 ${
-                            Object.keys(dispenser?.status || {})[0] ===
-                            "Expired"
-                              ? "text-red-600" // For expired
-                              : Object.keys(dispenser?.status || {})[0] ===
-                                "Ongoing"
-                              ? "text-blue-600" // For complete
-                              : "text-green-600" // Default for ongoing
-                          }`}
-                        >
-                          {Object.keys(dispenser?.status || {})[0]}{" "}
-                        </p>
-                      </div>
-                      <div className="flex justify-between mt-2">
-                        <p className="text-xs text-[#84818A]">Start Date</p>
-                        <p className="text-[#2E2C34] text-xs font-semibold truncate">
-                          {formatDate(dispenser.startDate)}
-                        </p>
-                      </div>
-                      <div className="flex justify-between mt-2">
-                        <p className="text-xs text-[#84818A]">Duration</p>
-                        <p className="text-[#2E2C34] text-xs font-semibold">
-                          {String(dispenser.duration)} Min
-                        </p>
-                      </div>
-                      <div className="flex justify-between mt-2">
-                        <p className="text-xs text-[#84818A]">Links</p>
-                        <p className="text-[#2E2C34] text-xs font-semibold">
-                          {campaignDetails[dispenser.campaignId]?.depositIndices
-                            .length ?? "1"}
-                        </p>
-                      </div>
-                    </div>
-                  </Link>
+                    <Link
+                      className="text-[#564BF1] text-sm underline gap-2 truncate flex items-center cursor-pointer"
+                      to={
+                        Object.keys(dispenser?.status || {})[0] === "Expired" ||
+                        Object.keys(dispenser?.status || {})[0] === "Completed"
+                          ? "#" // Disable link
+                          : `/dispensers/${dispenser?.id}`
+                      }
+                    >
+                      view details
+                    </Link>
+                  </div>
                 </motion.div>
               ))}
             </div>

@@ -351,7 +351,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "rnj74-naaaa-aaaak-ao2rq-cai" : actor {
+    let RegistryCanister = actor "bw4dl-smaaa-aaaaa-qaacq-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 

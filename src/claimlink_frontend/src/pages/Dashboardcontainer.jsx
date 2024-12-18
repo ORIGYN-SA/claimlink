@@ -10,6 +10,7 @@ import { TfiPlus } from "react-icons/tfi";
 import { useAuth } from "../connect/useClient";
 import Breadcrumb from "../components/Breadcrumb"; // Ensure this component exists
 import ScrollToTop from "../common/ScroolToTop";
+import { MdArrowOutward } from "react-icons/md";
 
 const DashboardContainer = () => {
   const [campaigns, setCampaigns] = useState([]);
@@ -355,16 +356,8 @@ const CampaignCard = ({ campaign }) => {
         {/* Link content here */}
 
         <div className="relative h-12 mt-6 px-6">
-          <div className="flex justify-start  space-x-4">
-            <img
-              src="https://via.placeholder.com/100"
-              alt="Campaign"
-              className="w-12 h-12 object-cover rounded-md"
-              style={{
-                border: "2px solid white",
-                zIndex: 3,
-              }}
-            />
+          <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+            <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
           </div>
         </div>
         <div className="px-6 py-4">

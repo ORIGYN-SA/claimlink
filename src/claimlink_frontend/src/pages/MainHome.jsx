@@ -5,11 +5,7 @@ import { MdArrowOutward, MdDashboard, MdQrCode, MdMoney } from "react-icons/md";
 import { RiStackFill } from "react-icons/ri";
 import { IoLogOutOutline } from "react-icons/io5";
 import { RxCross2, RxHamburgerMenu } from "react-icons/rx";
-import test from "../assets/img/test5.png";
-import bg1 from "../assets/img/bg1.jpeg";
-import bg2 from "../assets/img/bg3.gif";
-import bg3 from "../assets/img/bg3.gif";
-import bg5 from "../assets/img/test8.gif";
+
 import bgmain1 from "../assets/img/mainbg1.png";
 import bgmain2 from "../assets/img/mainbg2.png";
 import { GoArrowRight } from "react-icons/go";

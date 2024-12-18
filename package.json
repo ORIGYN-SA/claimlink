@@ -49,6 +49,7 @@
     "react-confetti": "^6.1.0",
     "react-countdown": "^2.3.6",
     "react-countup": "^6.5.3",
+    "react-device-detect": "^2.2.3",
     "react-dropzone": "^14.2.3",
     "react-flatpickr": "^3.10.13",
     "react-ga4": "^2.1.0",

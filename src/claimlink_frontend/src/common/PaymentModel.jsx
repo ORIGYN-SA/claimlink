@@ -327,12 +327,25 @@ const PaymentModel = ({
   const [insufficientFunds, setInsufficientFunds] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState("");
   const authenticatedAgent = useAgent();
-  const { balance, wallet } = useAuth();
+  const { balance, wallet, backend } = useAuth();
+  const [cycles, setCycles] = useState(null);
+  const [insufficientCylces, setinsufficientCylces] = useState(false);
 
   useEffect(() => {
     if (balance < coffeeAmount / 100000000) {
       setInsufficientFunds(true);
     }
+    const fetchcycles = async () => {
+      try {
+        const data = await backend.availableCycles();
+        setCycles(data);
+        setinsufficientCylces(Number(data) < 800_510_000_000 ? true : false);
+        console.log("cylces available", data, insufficientCylces);
+      } catch (error) {
+        console.log("eror in cycles", error);
+      }
+    };
+    fetchcycles();
   }, [balance]);
 
   const handlePayment = async (e) => {
@@ -399,8 +412,8 @@ const PaymentModel = ({
           <Button
             className="border border-[#5442f6e7] text-black items-center flex font-semibold gap-1 px-2 py-2 rounded-md mt-4"
             onClick={
-              insufficientFunds
-                ? () => toast.error("Insufficient Funds")
+              insufficientFunds || insufficientCylces
+                ? () => toast.error("Insufficient Funds/cycles")
                 : handlePayment
             }
             disabled={loading}

@@ -2,6 +2,7 @@ import React from "react";
 import toast from "react-hot-toast";
 import { BsCopy } from "react-icons/bs";
 import { BsDownload } from "react-icons/bs";
+import { trackEvent } from "./trackEvent";
 
 const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   console.log(campaignDetails, "campaign details ");
@@ -42,7 +43,12 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
       navigator.clipboard
         .writeText(text)
         .then(() => {
-          toast.success("Link copied to clipboard!"); // Optional: Alert to confirm the action
+          toast.success("Link copied to clipboard!");
+          trackEvent("claimlink_copied ", {
+            event_category: "engagement",
+            event_label: text,
+            method: "fallback",
+          }); // Optional: Alert to confirm the action
         })
         .catch((err) => {
           console.error(

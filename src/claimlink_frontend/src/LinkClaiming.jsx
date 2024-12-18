@@ -19,6 +19,7 @@ import { ConnectWallet } from "@nfid/identitykit/react";
 import { SlRefresh } from "react-icons/sl";
 import { IoMdLogOut } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
+import { trackEvent } from "./common/trackEvent";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -155,6 +156,13 @@ const LinkClaiming = () => {
       console.log("Response of claim:", res);
       if (res.ok == 0) {
         toast.success("NFT claimed successfully!");
+        trackEvent("nft_claimed", {
+          event_category: "engagement",
+          event_label: `NFT Index: ${nftIndex}`, // Optional: Include the NFT index
+          canister_id: canisterId, // Optional: Include the canister ID
+          campaign_id: campaignDetails?.collection?.toText() || "unknown", // Associate claim with a campaign
+          timestamp: new Date().toISOString(),
+        });
         setTimeout(() => {
           toast.success("Redirecting to Collected NFT page!");
         }, 3000);
