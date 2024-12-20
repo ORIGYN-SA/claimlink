@@ -131,7 +131,7 @@ const Minter = () => {
                               zIndex: 3,
                             }}
                           />
-                          <img
+                          {/* <img
                             src="https://via.placeholder.com/100"
                             alt="Campaign"
                             className="w-12 h-12 object-cover rounded-md"
@@ -140,8 +140,8 @@ const Minter = () => {
                               zIndex: 2,
                               marginLeft: -24,
                             }}
-                          />
-                          <img
+                          /> */}
+                          {/* <img
                             src="https://via.placeholder.com/100"
                             alt="Campaign"
                             className="w-12 h-12 object-cover rounded-md"
@@ -150,7 +150,7 @@ const Minter = () => {
                               zIndex: 1,
                               marginLeft: -24,
                             }}
-                          />
+                          /> */}
                         </div>
                         <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 animate-pulse w-20 h-8 bg-gray-200"></h2>
                         <p className=" animate-pulse  w-20 h-4  rounded-sm bg-gray-200 mt-2"></p>
@@ -267,7 +267,7 @@ const Minter = () => {
                             zIndex: 3,
                           }}
                         />
-                        <img
+                        {/* <img
                           src="https://via.placeholder.com/100"
                           alt="Campaign"
                           className="w-12 h-12 object-cover rounded-md"
@@ -276,8 +276,8 @@ const Minter = () => {
                             zIndex: 2,
                             marginLeft: -24,
                           }}
-                        />
-                        <img
+                        /> */}
+                        {/* <img
                           src="https://via.placeholder.com/100"
                           alt="Campaign"
                           className="w-12 h-12 object-cover rounded-md"
@@ -286,7 +286,7 @@ const Minter = () => {
                             zIndex: 1,
                             marginLeft: -24,
                           }}
-                        />
+                        /> */}
                       </div>
                       <h2 className="text-lg  font-semibold text-[#2E2C34] mt-3 animate-pulse w-20 h-8 bg-gray-200"></h2>
                       <p className=" animate-pulse  w-20 h-4  rounded-sm bg-gray-200 mt-2"></p>

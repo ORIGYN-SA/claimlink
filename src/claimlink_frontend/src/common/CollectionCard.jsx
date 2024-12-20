@@ -49,7 +49,7 @@ const CollectionCard = ({ data }) => {
             zIndex: 3,
           }}
         />
-        <img
+        {/* <img
           src="https://via.placeholder.com/100"
           alt="Campaign"
           className="w-12 h-12 object-cover rounded-md"
@@ -68,7 +68,7 @@ const CollectionCard = ({ data }) => {
             zIndex: 1,
             marginLeft: -24,
           }}
-        />
+        /> */}
       </div>
       <h2 className="text-lg font-semibold text-[#2E2C34] mt-3 capitalize ">
         {data[2]}

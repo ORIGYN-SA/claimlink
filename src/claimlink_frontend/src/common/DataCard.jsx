@@ -85,11 +85,11 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
     <>
       <div className="max-w-sm sm:hidden rounded overflow-hidden shadow-lg p-4">
         <div className="flex items-center space-x-4 border-b border-gray-300">
-          <img
+          {/* <img
             className="w-12 h-12 rounded"
             src="https://via.placeholder.com/50"
             alt="Avatar"
-          />
+          /> */}
           <div className="">
             <span className="text-gray-800 flex items-center  font-semibold  text-lg gap-2">
               {campaignDetails?.createdBy?.toText()}
@@ -125,11 +125,11 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
         <div className="flex text-sm items-center justify-between p-4 w-full bg-white rounded space-x-4">
           <div className="flex items-center space-x-2">
             <span className="font-bold">{keys + 1}</span>
-            <img
+            {/* <img
               src="https://via.placeholder.com/50"
               alt="Item"
               className="w-10 h-10 rounded-md"
-            />
+            /> */}
             <span className="text-gray-800 flex items-center w-[88px]  pl-12  truncate font-semibold gap-2">
               {campaignDetails?.createdBy?.toText()}
             </span>

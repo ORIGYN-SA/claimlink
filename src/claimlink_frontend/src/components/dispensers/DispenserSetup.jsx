@@ -153,7 +153,7 @@ const DispenserSetup = ({ handleNext, formData, setFormData }) => {
             </label>
             <div className="flex items-center gap-2">
               <input
-                type="number"
+                type="text"
                 name="duration"
                 id="duration"
                 className="bg-white px-2 py-2 outline-none border border-gray-200 rounded-md flex-1"

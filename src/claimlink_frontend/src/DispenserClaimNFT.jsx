@@ -22,6 +22,7 @@ import { SlRefresh } from "react-icons/sl";
 import { IoMdLogOut } from "react-icons/io";
 import { IoLogOutOutline } from "react-icons/io5";
 import { BsCopy } from "react-icons/bs";
+import { createActor } from "../../declarations/extv2";
 
 const LinkClaiming = () => {
   const navigate = useNavigate();
@@ -55,6 +56,21 @@ const LinkClaiming = () => {
   const [dispenser, setDispenser] = useState(null);
   const [campaign, setCampaign] = useState([]);
   const [celebrate, setCelebrate] = useState(false);
+  const [collectionid, setCollectionId] = useState(null);
+  const [collcetionimg, setCollectionImg] = useState(null);
+  console.log("canider", canisterId);
+
+  const computeTokenIdentifier = (principal, index) => {
+    const padding = Buffer("\x0Atid");
+    const array = new Uint8Array([
+      ...padding,
+      ...principal,
+      ...to32bits(index),
+    ]);
+
+    return Principal.fromUint8Array(array).toText();
+  };
+
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);
@@ -93,35 +109,52 @@ const LinkClaiming = () => {
       try {
         // Fetch dispenser data
         const dispenserData = await backend?.getDispenserDetails(canisterId);
-        if (dispenserData) {
+        if (dispenserData && Array.isArray(dispenserData)) {
           setDispenser(dispenserData);
           console.log("Dispenser data:", dispenserData);
 
           // Check if campaignId exists and is valid
-          if (dispenserData) {
-            console.log(
-              "Loading campaign data for campaignId:",
-              dispenserData?.[0]?.campaignId
-            );
+          const campaignId = dispenserData[0]?.campaignId;
+          if (campaignId) {
+            console.log("Loading campaign data for campaignId:", campaignId);
 
             // Fetch campaign data using the campaignId
-            const campdata = await backend?.getCampaignDetails(
-              dispenserData?.[0]?.campaignId
-            );
-            if (campdata) {
+            const campdata = await backend?.getCampaignDetails(campaignId);
+            if (campdata && Array.isArray(campdata)) {
               setCampaign(campdata);
-              console.log("Campaign data:", campdata);
+              const collectionId = campdata[0]?.collection?.toText();
+              setCollectionId(collectionId); // Update collectionId state
+              console.log("Campaign data:", campdata, collectionId);
+
+              if (collectionId) {
+                const nft = createActor(collectionId, {
+                  agentOptions: { identity, verifyQuerySignatures: false },
+                });
+
+                // Function to fetch image data
+                const fetchimg = async () => {
+                  try {
+                    const data = await nft.getCollectionDetails();
+                    setCollectionImg(data);
+                    console.log("img data", data);
+                  } catch (error) {
+                    console.error("Error in fetching collection image:", error);
+                  }
+                };
+
+                await fetchimg(); // Wait for image data to be fetched
+              }
             } else {
               console.error(
                 "No campaign data found for campaignId:",
-                dispenserData.campaignId
+                campaignId
               );
             }
           } else {
             console.warn("No campaignId found in dispenser data");
           }
         } else {
-          console.error("Dispenser data is null or undefined");
+          console.error("Dispenser data is null, undefined, or not an array");
         }
       } catch (error) {
         console.error("Error loading data:", error);
@@ -130,10 +163,11 @@ const LinkClaiming = () => {
       }
     };
 
+    // Only call loadData if backend and canisterId are available
     if (backend && canisterId) {
       loadData();
     }
-  }, [backend, canisterId]);
+  }, [backend, canisterId]); // Removed collectionid from dependencies to prevent unnecessary reruns
 
   const handleClaim = async () => {
     if (!isConnected) {
@@ -277,7 +311,18 @@ const LinkClaiming = () => {
             <div className="text-center text-xl mt-10">
               Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
             </div>
-
+            {collcetionimg ? (
+              <div className="flex flex-col justify-center items-center">
+                {" "}
+                <img
+                  width="200px"
+                  height="200px"
+                  src={collcetionimg[2]}
+                  alt="NFT Thumbnail"
+                  className="flex items-center justify-center "
+                />
+              </div>
+            ) : null}
             <div className="mt-4 flex justify-center">
               <button
                 onClick={handleClaim}
@@ -299,7 +344,7 @@ const LinkClaiming = () => {
                 Show QR Code
               </button>
               <p
-                className="border flex items-center gap-2 px-4 py-2 z-20 rounded-md text-[#564BF1]"
+                className="border flex items-center gap-2 px-4 py-2 z-20 cursor-pointer rounded-md text-[#564BF1]"
                 onClick={() => {
                   handleCopy(currentUrl);
                 }}

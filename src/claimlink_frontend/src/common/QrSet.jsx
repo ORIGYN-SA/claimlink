@@ -68,73 +68,74 @@ const QRSet = ({ campaignId, loading }) => {
   };
 
   return (
-    <div className="w-80 bg-white border-l border-gray-300 hidden sm:block p-4">
-      <div>
-        <h2 className="text-lg font-semibold my-4">New QR set</h2>
-        <div className="text-sm flex justify-between">
-          <p className="text-gray-500">status</p>
-          {loading ? (
-            <p className="text-green-500 font-semibold">Links uploaded</p>
-          ) : (
-            <p className="text-red-500 font-semibold">Links not uploaded</p>
-          )}
-        </div>
-      </div>
-      <div className="mt-2 flex justify-between">
-        <p className="text-sm text-gray-500">Start date</p>
-        <p className="text-sm font-semibold">{date}</p>
-      </div>
-      {/* <div className="mt-2 text-sm flex justify-between">
-        <p className="text-gray-500">Quantity</p>
-        <button className="mt-1 font-semibold">10</button>
-      </div>
-      <button className="w-full mt-4 flex items-center justify-center gap-2 rounded p-2 py-3 text-[#5542F6] text-semibold bg-[#e3e1fd97]">
-        <LuPencilLine />
-        Change quantity
-      </button> */}
-      <div className="border border-gray-100 my-6"></div>
-      <div className="mt-4">
-        <p className="font-semibold mb-4">Apply additional status</p>
-        <select className="mt-1 block w-full border-2 border-gray-100 rounded-md p-2">
-          <option>Not sent to printer</option>
-          <option>Sent to printer</option>
-        </select>
-      </div>
-      <div className="border border-gray-100 my-6"></div>
-      <div className="mt-4">
-        <p className="font-semibold">Download QRs</p>
-        {/* <input
-          type="text"
-          placeholder="inches, max 5"
-          className="mt-1 block w-full mb-2 border-2 border-gray-100 rounded-md p-2"
-        /> */}
-      </div>
-      {loading && (
-        <div ref={qrCodeRef} className="w-full items-center justify-center">
-          <QRCode
-            size={256}
-            style={{
-              height: "auto",
-              maxWidth: "50%",
-              width: "50%",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            value={url2}
-            viewBox={`0 0 256 256`}
-          />
-        </div>
-      )}
-      <div className="mt-4 flex flex-col space-y-2">
-        <button
-          className="bg-[#5542F6] text-white gap-2 rounded p-2 py-4 text-sm flex items-center justify-center"
-          onClick={downloadQR}
-        >
-          <IoQrCodeOutline />
-          Download QRs
-        </button>
-      </div>
-    </div>
+    <></>
+    // <div className="w-80 bg-white border-l border-gray-300 hidden sm:block p-4">
+    //   <div>
+    //     <h2 className="text-lg font-semibold my-4">New QR set</h2>
+    //     <div className="text-sm flex justify-between">
+    //       <p className="text-gray-500">status</p>
+    //       {loading ? (
+    //         <p className="text-green-500 font-semibold">Links uploaded</p>
+    //       ) : (
+    //         <p className="text-red-500 font-semibold">Links not uploaded</p>
+    //       )}
+    //     </div>
+    //   </div>
+    //   <div className="mt-2 flex justify-between">
+    //     <p className="text-sm text-gray-500">Start date</p>
+    //     <p className="text-sm font-semibold">{date}</p>
+    //   </div>
+    //   {/* <div className="mt-2 text-sm flex justify-between">
+    //     <p className="text-gray-500">Quantity</p>
+    //     <button className="mt-1 font-semibold">10</button>
+    //   </div>
+    //   <button className="w-full mt-4 flex items-center justify-center gap-2 rounded p-2 py-3 text-[#5542F6] text-semibold bg-[#e3e1fd97]">
+    //     <LuPencilLine />
+    //     Change quantity
+    //   </button> */}
+    //   <div className="border border-gray-100 my-6"></div>
+    //   {/* <div className="mt-4">
+    //     <p className="font-semibold mb-4">Apply additional status</p>
+    //     <select className="mt-1 block w-full border-2 border-gray-100 rounded-md p-2">
+    //       <option>Not sent to printer</option>
+    //       <option>Sent to printer</option>
+    //     </select>
+    //   </div> */}
+    //   <div className="border border-gray-100 my-6"></div>
+    //   <div className="mt-4">
+    //     <p className="font-semibold">Download QRs</p>
+    //     {/* <input
+    //       type="text"
+    //       placeholder="inches, max 5"
+    //       className="mt-1 block w-full mb-2 border-2 border-gray-100 rounded-md p-2"
+    //     /> */}
+    //   </div>
+    //   {loading && (
+    //     <div ref={qrCodeRef} className="w-full items-center justify-center">
+    //       <QRCode
+    //         size={256}
+    //         style={{
+    //           height: "auto",
+    //           maxWidth: "50%",
+    //           width: "50%",
+    //           alignItems: "center",
+    //           justifyContent: "center",
+    //         }}
+    //         value={url2}
+    //         viewBox={`0 0 256 256`}
+    //       />
+    //     </div>
+    //   )}
+    //   <div className="mt-4 flex flex-col space-y-2">
+    //     <button
+    //       className="bg-[#5542F6] text-white gap-2 rounded p-2 py-4 text-sm flex items-center justify-center"
+    //       onClick={downloadQR}
+    //     >
+    //       <IoQrCodeOutline />
+    //       Download QRs
+    //     </button>
+    //   </div>
+    // </div>
   );
 };
 
