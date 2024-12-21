@@ -17,7 +17,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
   const { backend, principal } = useAuth();
   const liveUrl =
     process.env.REACT_APP_LIVE_URL || import.meta.env.VITE_LIVE_URL;
-  console.log("Live URL:", liveUrl);
   const navigate = useNavigate();
   const url = process.env.PROD
     ? `https://${process.env.CANISTER_ID_CLAIMLINK_BACKEND}.icp0.io`
@@ -58,8 +57,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    console.log(formData.expirationDate, "expiry date");
-    console.log("Starting campaign creation");
 
     if (!backend) {
       toast.error("Backend actor not initialized");
@@ -71,9 +68,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
     }
     setLoading(true);
     try {
-      console.log("Form data:", formData);
-      console.log("Principal:", principal.toText());
-
       const collectionPrincipal = Principal.fromText(formData.collection);
 
       const tokenIds = formData.tokenIds.map((token) => {
@@ -103,8 +97,6 @@ const Launch = ({ handleNext, handleBack, formData, setFormData }) => {
       if (isNaN(expirationTime)) {
         throw new Error("Invalid expiration time");
       }
-
-      console.log("Expiration time:", expirationTime);
 
       const res = await backend?.createCampaign(
         formData.title,

@@ -52,12 +52,6 @@ const DashBoardHome = () => {
         setDasboard(data);
 
         // Log values to debug
-        console.log(
-          "claimedlinks:",
-          data.claimedLinks,
-          "totalLinks:",
-          data.totalLinks
-        );
 
         // Ensure both values are numbers and handle division by zero
         const claimedLinks = parseFloat(data.userClaimCount) || 0;
@@ -360,7 +354,6 @@ const DashBoardHome = () => {
                           </div>
                         </div>
                       </div>
-                  
                     </motion.div>
                   ))}
                 </div>

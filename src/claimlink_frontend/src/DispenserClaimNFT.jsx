@@ -52,13 +52,11 @@ const LinkClaiming = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const nftIndex = pathParts[3];
   const currentUrl = window.location.href;
-  console.log("url", currentUrl); // Get the current page URL
   const [dispenser, setDispenser] = useState(null);
   const [campaign, setCampaign] = useState([]);
   const [celebrate, setCelebrate] = useState(false);
   const [collectionid, setCollectionId] = useState(null);
   const [collcetionimg, setCollectionImg] = useState(null);
-  console.log("canider", canisterId);
 
   const computeTokenIdentifier = (principal, index) => {
     const padding = Buffer("\x0Atid");

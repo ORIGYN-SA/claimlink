@@ -26,7 +26,6 @@ const AddToken = () => {
   const [loading2, setLoading2] = useState(false);
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log("id", id);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   // useEffect(() => {
@@ -163,8 +162,6 @@ const AddToken = () => {
       };
 
       const compressedFile = await imageCompression(file, options);
-      console.log(file);
-      console.log(compressedFile);
       const logoBlob2 = await imageToFileBlob(compressedFile);
       const logoBlob = await imageToFileBlob(file);
       setFormData((prevFormData) => ({
@@ -173,12 +170,10 @@ const AddToken = () => {
         thumbnail: logoBlob2,
       }));
       setImage(URL.createObjectURL(file));
-      console.log("Blob for logo:", logoBlob);
     } catch (error) {
       console.error("Error converting image to blob:", error);
     }
   };
-  console.log(tokenType);
 
   const validateForm = () => {
     const newErrors = {};
@@ -241,13 +236,9 @@ const AddToken = () => {
       return;
     }
 
-    console.log(backend);
     setLoading(true);
 
     try {
-      console.log("Form data:", formData);
-      console.log("Principal:", principal.toText());
-
       // Format metadata.data as required by backend
       const metadata = {
         blob: formData.metadata.blob ? formData.metadata.blob : null,
@@ -261,8 +252,6 @@ const AddToken = () => {
         ],
         json: formData.metadata.json ? formData.metadata.json : null,
       };
-
-      console.log("Formatted metadata:", metadata); // Debugging log to check metadata structure
 
       let idd = Principal.fromText(id);
 

@@ -16,8 +16,6 @@ const CollectionCard = ({ data }) => {
       const res = await backend.getNonFungibleTokensPaginate(data[1], 0, 1);
       const res1 = await backend.getStoredTokensPaginate(data[1], 0, 1);
       setCopy(parseInt(res.total_pages) + parseInt(res1.total_pages));
-
-      console.log(res);
     } catch (error) {
       console.log("Error getting nfts length ", error);
     } finally {

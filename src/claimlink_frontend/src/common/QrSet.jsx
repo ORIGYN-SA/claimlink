@@ -35,7 +35,6 @@ const QRSet = ({ campaignId, loading }) => {
   const url2 = `${url}/linkclaiming/${campaignDetails?.collection?.toText()}/${parseInt(
     campaignDetails?.depositIndices
   )}`;
-  console.log(url2);
 
   useEffect(() => {
     getCampaign();

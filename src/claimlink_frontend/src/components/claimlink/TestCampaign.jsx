@@ -28,7 +28,6 @@ const TestCampaign = () => {
   useEffect(() => {
     campaignDetails();
   }, [backend]);
-  console.log(details?.depositIndices, "Details");
 
   const pageVariants = {
     initial: {

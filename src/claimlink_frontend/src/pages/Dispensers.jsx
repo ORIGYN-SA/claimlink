@@ -409,7 +409,7 @@ const Dispensers = () => {
                   className={`p-4 sm:block hidden bg-white cursor-pointer rounded-lg overflow-hidden ${
                     Object.keys(dispenser?.status || {})[0] === "Expired" ||
                     Object.keys(dispenser?.status || {})[0] === "Completed"
-                      ? "pointer-events-none opacity-50" // Disable link and add opacity
+                      ? "pointer-events-none opacity-70 bg-gray-300" // Disable link and add opacity
                       : ""
                   }`}
                 >
@@ -503,20 +503,89 @@ const Dispensers = () => {
                 </button>
 
                 {/* Page number buttons */}
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                  (pageNum) => (
+                {totalPages <= 5 ? (
+                  // Show all page numbers if totalPages <= 5
+                  Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (pageNum) => (
+                      <button
+                        key={pageNum}
+                        className={`mx-1 px-3 py-1 rounded ${
+                          page === pageNum
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(pageNum)}
+                      >
+                        {pageNum}
+                      </button>
+                    )
+                  )
+                ) : (
+                  <>
+                    {/* First page */}
                     <button
-                      key={pageNum}
+                      onClick={() => handlePageChange(1)}
                       className={`mx-1 px-3 py-1 rounded ${
-                        page === pageNum
+                        page === 1 ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                      }`}
+                    >
+                      1
+                    </button>
+
+                    {/* Ellipsis if there are skipped pages */}
+                    {page > 3 && <span className="mx-1">...</span>}
+
+                    {/* Pages near the current page */}
+                    {page > 2 && page < totalPages - 1 && (
+                      <>
+                        <button
+                          onClick={() => handlePageChange(page - 1)}
+                          className={`mx-1 px-3 py-1 rounded ${
+                            page === page - 1
+                              ? "bg-[#564BF1] text-white"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {page - 1}
+                        </button>
+                        <button
+                          onClick={() => handlePageChange(page)}
+                          className={`mx-1 px-3 py-1 rounded ${
+                            page === page
+                              ? "bg-[#564BF1] text-white"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                        <button
+                          onClick={() => handlePageChange(page + 1)}
+                          className={`mx-1 px-3 py-1 rounded ${
+                            page === page + 1
+                              ? "bg-[#564BF1] text-white"
+                              : "bg-gray-200"
+                          }`}
+                        >
+                          {page + 1}
+                        </button>
+                      </>
+                    )}
+
+                    {/* Ellipsis if there are more pages ahead */}
+                    {page < totalPages - 2 && <span className="mx-1">...</span>}
+
+                    {/* Last page */}
+                    <button
+                      onClick={() => handlePageChange(totalPages)}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === totalPages
                           ? "bg-[#564BF1] text-white"
                           : "bg-gray-200"
                       }`}
-                      onClick={() => handlePageChange(pageNum)}
                     >
-                      {pageNum}
+                      {totalPages}
                     </button>
-                  )
+                  </>
                 )}
 
                 {/* Next button */}

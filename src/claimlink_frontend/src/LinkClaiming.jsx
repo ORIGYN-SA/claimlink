@@ -76,7 +76,6 @@ const LinkClaiming = () => {
     }
   };
 
-  console.log("nft", nft);
   useEffect(() => {
     console.log("Canister ID:", canisterId);
     console.log("NFT Index:", nftIndex);

@@ -122,18 +122,89 @@ const QrManager = () => {
             </button>
 
             {/* Page number buttons */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (pageNum) => (
-                <button
-                  key={pageNum}
-                  className={`mx-1 px-3 py-1 rounded ${
-                    page === pageNum ? "bg-[#564BF1] text-white" : "bg-gray-200"
-                  }`}
-                  onClick={() => handlePageChange(pageNum)}
-                >
-                  {pageNum}
-                </button>
+            {totalPages <= 5 ? (
+              // Show all page numbers if totalPages is less than or equal to 5
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => (
+                  <button
+                    key={pageNum}
+                    className={`mx-1 px-3 py-1 rounded ${
+                      page === pageNum
+                        ? "bg-[#564BF1] text-white"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                )
               )
+            ) : (
+              <>
+                {/* First page */}
+                <button
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === 1 ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(1)}
+                >
+                  1
+                </button>
+
+                {/* Ellipsis if there are many pages */}
+                {page > 3 && <span className="mx-1">...</span>}
+
+                {/* Pages near the current page */}
+                {page > 2 && page < totalPages - 1 && (
+                  <>
+                    <button
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page - 1
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => handlePageChange(page - 1)}
+                    >
+                      {page - 1}
+                    </button>
+                    <button
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => handlePageChange(page)}
+                    >
+                      {page}
+                    </button>
+                    <button
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page + 1
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                      onClick={() => handlePageChange(page + 1)}
+                    >
+                      {page + 1}
+                    </button>
+                  </>
+                )}
+
+                {/* Ellipsis if there are more pages ahead */}
+                {page < totalPages - 2 && <span className="mx-1">...</span>}
+
+                {/* Last page */}
+                <button
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === totalPages
+                      ? "bg-[#564BF1] text-white"
+                      : "bg-gray-200"
+                  }`}
+                  onClick={() => handlePageChange(totalPages)}
+                >
+                  {totalPages}
+                </button>
+              </>
             )}
 
             {/* Next button */}

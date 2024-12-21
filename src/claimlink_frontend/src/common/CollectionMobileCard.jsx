@@ -21,8 +21,6 @@ const CollectionMobileCard = ({ collection }) => {
       );
       const res1 = await backend.getStoredTokensPaginate(collection[1], 0, 1);
       setCopy(parseInt(res.total_pages) + parseInt(res1.total_pages));
-
-      console.log(res);
     } catch (error) {
       console.log("Error getting nfts length ", error);
     } finally {

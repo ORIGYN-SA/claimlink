@@ -54,7 +54,6 @@ const MainHome = () => {
     }
 
     const localvalue = 10;
-    console.log("Session random number:", localvalue);
 
     const previousSessionNumber = localvalue;
 

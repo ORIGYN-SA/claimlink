@@ -17,7 +17,6 @@ const StepContent = ({ currentStep, handleNext, handleBack }) => {
   const [name, setName] = useState();
   const [quantity, setQuantity] = useState(1);
   const [campaignId, setCampaignId] = useState();
-  console.log(name, quantity);
 
   switch (currentStep) {
     case 1:

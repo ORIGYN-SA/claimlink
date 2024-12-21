@@ -88,7 +88,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
         ...prevErrors,
         img: "", // Clear image error
       }));
-      console.log("Blob for logo:", logoBlob);
     } catch (error) {
       console.error("Error converting image to blob:", error);
     }
@@ -124,10 +123,8 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     setFormErrors(errors);
     return formIsValid;
   };
-  console.log(backend, "backend");
 
   const handleCreate = async (e) => {
-    console.log("Starting collection creation");
     if (!backend) {
       toast.error("Backend actor not initialized");
       return;
@@ -136,8 +133,6 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     setLoading(true);
 
     try {
-      console.log("Form data:", formData);
-
       const res = await backend.createExtCollection(
         formData.title,
         formData.symbol,

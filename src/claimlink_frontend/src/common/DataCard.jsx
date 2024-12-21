@@ -5,9 +5,6 @@ import { BsDownload } from "react-icons/bs";
 import { trackEvent } from "./trackEvent";
 
 const DataCard = ({ campaignDetails, depositIndex, keys }) => {
-  console.log(campaignDetails, "campaign details ");
-  console.log(depositIndex);
-
   const PROD = true;
 
   // Define the base URL depending on the environment
@@ -19,7 +16,6 @@ const DataCard = ({ campaignDetails, depositIndex, keys }) => {
   const url2 = `${url}/linkclaiming/${campaignDetails?.collection?.toText()}/${parseInt(
     depositIndex
   )}`;
-  console.log(url2);
 
   // Fallback function to handle copying if Clipboard API is blocked
   const fallbackCopy = (text) => {

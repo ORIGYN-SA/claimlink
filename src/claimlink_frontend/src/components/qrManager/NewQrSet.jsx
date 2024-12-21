@@ -18,7 +18,6 @@ const QRSetForm = ({ name, quantity = 1 }) => {
   const getCampaignId = async () => {
     try {
       const res = await backend.getUserCampaigns();
-      console.log(res, "campaign");
 
       // Filter campaigns with "Ongoing" status and map their title and ID
       const ongoingCampaigns = res[0]

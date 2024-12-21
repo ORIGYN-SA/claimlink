@@ -159,18 +159,89 @@ const DashboardContainer = () => {
             </button>
 
             {/* Page number buttons */}
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-              (pageNum) => (
-                <button
-                  key={pageNum}
-                  className={`mx-1 px-3 py-1 rounded ${
-                    page === pageNum ? "bg-[#564BF1] text-white" : "bg-gray-200"
-                  }`}
-                  onClick={() => handlePageChange(pageNum)}
-                >
-                  {pageNum}
-                </button>
+            {totalPages <= 5 ? (
+              // Show all page numbers if totalPages is 5 or fewer
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                (pageNum) => (
+                  <button
+                    key={pageNum}
+                    className={`mx-1 px-3 py-1 rounded ${
+                      page === pageNum
+                        ? "bg-[#564BF1] text-white"
+                        : "bg-gray-200"
+                    }`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                )
               )
+            ) : (
+              <>
+                {/* First page */}
+                <button
+                  onClick={() => handlePageChange(1)}
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === 1 ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                  }`}
+                >
+                  1
+                </button>
+
+                {/* Ellipsis if there are skipped pages */}
+                {page > 3 && <span className="mx-1">...</span>}
+
+                {/* Pages near the current page */}
+                {page > 2 && page < totalPages - 1 && (
+                  <>
+                    <button
+                      onClick={() => handlePageChange(page - 1)}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page - 1
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                    >
+                      {page - 1}
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(page)}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                    <button
+                      onClick={() => handlePageChange(page + 1)}
+                      className={`mx-1 px-3 py-1 rounded ${
+                        page === page + 1
+                          ? "bg-[#564BF1] text-white"
+                          : "bg-gray-200"
+                      }`}
+                    >
+                      {page + 1}
+                    </button>
+                  </>
+                )}
+
+                {/* Ellipsis if there are more pages ahead */}
+                {page < totalPages - 2 && <span className="mx-1">...</span>}
+
+                {/* Last page */}
+                <button
+                  onClick={() => handlePageChange(totalPages)}
+                  className={`mx-1 px-3 py-1 rounded ${
+                    page === totalPages
+                      ? "bg-[#564BF1] text-white"
+                      : "bg-gray-200"
+                  }`}
+                >
+                  {totalPages}
+                </button>
+              </>
             )}
 
             {/* Next button */}
@@ -248,26 +319,8 @@ const CampaignCard = ({ campaign }) => {
           <div className="flex items-center justify-between mb-4">
             <div className=" flex gap-2 items-center  justify-between w-full ">
               <div className="flex gap-2">
-                <div className="flex justify-start  space-x-4">
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 3,
-                    }}
-                  />
-                  <img
-                    src="https://via.placeholder.com/100"
-                    alt="Campaign"
-                    className="w-12 h-12 object-cover rounded-md"
-                    style={{
-                      border: "2px solid white",
-                      zIndex: 2,
-                      marginLeft: -24,
-                    }}
-                  />
+                <div className="text-4xl font-quicksand tracking-wide text-[#2E2C34] flex items-center">
+                  <MdArrowOutward className="bg-[#3B00B9] rounded text-white ml-2" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold capitalize">

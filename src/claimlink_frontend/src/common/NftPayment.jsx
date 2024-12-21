@@ -30,7 +30,6 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
     wallet,
     backend,
   } = useAuth();
-  console.log("balance", balance, coffeeAmount / 100000000);
   useEffect(() => {
     if (balance < coffeeAmount / 100000000) {
       setInsufficientFunds(true);
@@ -79,7 +78,6 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
       console.error("Payment error:", error);
       setMessage("Payment failed due to an error");
       toast.error("An error occurred during the payment process");
-      
     } finally {
       setLoadingPlug(false);
     }

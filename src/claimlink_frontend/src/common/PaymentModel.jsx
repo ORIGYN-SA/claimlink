@@ -355,7 +355,6 @@ const PaymentModel = ({
       agent: authenticatedAgent,
       canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
     });
-    console.log("actor", actor);
     const transferArgs = {
       from_subaccount: [],
       spender: {

@@ -38,7 +38,6 @@ const DistributionPage = ({
           return;
         }
 
-        console.log("clid:", clid);
         const id = Principal.fromText(clid);
 
         if (formData.pattern === "transfer") {

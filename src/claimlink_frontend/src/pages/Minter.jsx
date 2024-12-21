@@ -26,8 +26,7 @@ const Minter = () => {
   const createContract = () => {
     navigate("/minter/new-contract");
   };
-  console.log("auth", useIdentityKit());
-  console.log("auth22", balance);
+
   const openmynft = () => {
     navigate(`/minter/${collections[0][0][0].toText()}/token-home`);
   };
@@ -194,20 +193,91 @@ const Minter = () => {
                   </button>
 
                   {/* Page number buttons */}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (pageNum) => (
+                  {totalPages <= 5 ? (
+                    // Show all page numbers if totalPages is less than or equal to 5
+                    Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (pageNum) => (
+                        <button
+                          key={pageNum}
+                          className={`mx-1 px-3 py-1 rounded ${
+                            page === pageNum
+                              ? "bg-[#564BF1] text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    )
+                  ) : (
+                    <>
+                      {/* First page */}
                       <button
-                        key={pageNum}
                         className={`mx-1 px-3 py-1 rounded ${
-                          page === pageNum
+                          page === 1 ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(1)}
+                      >
+                        1
+                      </button>
+
+                      {/* Ellipsis if there are many pages */}
+                      {page > 3 && <span className="mx-1">...</span>}
+
+                      {/* Pages near the current page */}
+                      {page > 2 && page < totalPages - 1 && (
+                        <>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page - 1
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page - 1)}
+                          >
+                            {page - 1}
+                          </button>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page)}
+                          >
+                            {page}
+                          </button>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page + 1
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page + 1)}
+                          >
+                            {page + 1}
+                          </button>
+                        </>
+                      )}
+
+                      {/* Ellipsis if the total pages are large */}
+                      {page < totalPages - 2 && (
+                        <span className="mx-1">...</span>
+                      )}
+
+                      {/* Last page */}
+                      <button
+                        className={`mx-1 px-3 py-1 rounded ${
+                          page === totalPages
                             ? "bg-[#564BF1] text-white"
                             : "bg-gray-200"
                         }`}
-                        onClick={() => handlePageChange(pageNum)}
+                        onClick={() => handlePageChange(totalPages)}
                       >
-                        {pageNum}
+                        {totalPages}
                       </button>
-                    )
+                    </>
                   )}
 
                   {/* Next button */}
@@ -308,7 +378,7 @@ const Minter = () => {
                     </div>
                   ))
                 : collections?.map((data, index) => (
-                    <CollectionCard data={data} />
+                    <CollectionCard key={index} data={data} />
                   ))}
             </div>
             <div className="flex justify-center mt-6">
@@ -329,20 +399,91 @@ const Minter = () => {
                   </button>
 
                   {/* Page number buttons */}
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (pageNum) => (
+                  {totalPages <= 5 ? (
+                    // Show all page numbers if totalPages is less than or equal to 5
+                    Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                      (pageNum) => (
+                        <button
+                          key={pageNum}
+                          className={`mx-1 px-3 py-1 rounded ${
+                            page === pageNum
+                              ? "bg-[#564BF1] text-white"
+                              : "bg-gray-200"
+                          }`}
+                          onClick={() => handlePageChange(pageNum)}
+                        >
+                          {pageNum}
+                        </button>
+                      )
+                    )
+                  ) : (
+                    <>
+                      {/* First page */}
                       <button
-                        key={pageNum}
                         className={`mx-1 px-3 py-1 rounded ${
-                          page === pageNum
+                          page === 1 ? "bg-[#564BF1] text-white" : "bg-gray-200"
+                        }`}
+                        onClick={() => handlePageChange(1)}
+                      >
+                        1
+                      </button>
+
+                      {/* Ellipsis if there are many pages */}
+                      {page > 3 && <span className="mx-1">...</span>}
+
+                      {/* Pages near the current page */}
+                      {page > 2 && page < totalPages - 1 && (
+                        <>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page - 1
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page - 1)}
+                          >
+                            {page - 1}
+                          </button>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page)}
+                          >
+                            {page}
+                          </button>
+                          <button
+                            className={`mx-1 px-3 py-1 rounded ${
+                              page === page + 1
+                                ? "bg-[#564BF1] text-white"
+                                : "bg-gray-200"
+                            }`}
+                            onClick={() => handlePageChange(page + 1)}
+                          >
+                            {page + 1}
+                          </button>
+                        </>
+                      )}
+
+                      {/* Ellipsis if the total pages are large */}
+                      {page < totalPages - 2 && (
+                        <span className="mx-1">...</span>
+                      )}
+
+                      {/* Last page */}
+                      <button
+                        className={`mx-1 px-3 py-1 rounded ${
+                          page === totalPages
                             ? "bg-[#564BF1] text-white"
                             : "bg-gray-200"
                         }`}
-                        onClick={() => handlePageChange(pageNum)}
+                        onClick={() => handlePageChange(totalPages)}
                       >
-                        {pageNum}
+                        {totalPages}
                       </button>
-                    )
+                    </>
                   )}
 
                   {/* Next button */}

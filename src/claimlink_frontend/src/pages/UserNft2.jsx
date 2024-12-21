@@ -143,6 +143,7 @@ const UserNft2 = () => {
           {/* Conditional Pagination Controls */}
           {totalPages > 1 && (
             <div className="flex justify-center items-center mt-6 space-x-3">
+              {/* Prev button */}
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
@@ -153,20 +154,95 @@ const UserNft2 = () => {
                 Prev
               </button>
 
-              {Array.from({ length: totalPages }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handlePageClick(index + 1)}
-                  className={`px-3 py-1 rounded ${
-                    currentPage === index + 1
-                      ? "bg-[#564BF1] text-white"
-                      : "bg-gray-300"
-                  }`}
-                >
-                  {index + 1}
-                </button>
-              ))}
+              {/* Page number buttons */}
+              {totalPages <= 5 ? (
+                // If there are 5 or fewer pages, show all pages
+                Array.from({ length: totalPages }).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePageClick(index + 1)}
+                    className={`px-3 py-1 rounded ${
+                      currentPage === index + 1
+                        ? "bg-[#564BF1] text-white"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    {index + 1}
+                  </button>
+                ))
+              ) : (
+                <>
+                  {/* First page */}
+                  <button
+                    onClick={() => handlePageClick(1)}
+                    className={`px-3 py-1 rounded ${
+                      currentPage === 1
+                        ? "bg-[#564BF1] text-white"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    1
+                  </button>
 
+                  {/* Ellipsis if there are skipped pages */}
+                  {currentPage > 3 && <span className="px-3">...</span>}
+
+                  {/* Pages near the current page */}
+                  {currentPage > 2 && currentPage < totalPages - 1 && (
+                    <>
+                      <button
+                        onClick={() => handlePageClick(currentPage - 1)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === currentPage - 1
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-300"
+                        }`}
+                      >
+                        {currentPage - 1}
+                      </button>
+                      <button
+                        onClick={() => handlePageClick(currentPage)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === currentPage
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-300"
+                        }`}
+                      >
+                        {currentPage}
+                      </button>
+                      <button
+                        onClick={() => handlePageClick(currentPage + 1)}
+                        className={`px-3 py-1 rounded ${
+                          currentPage === currentPage + 1
+                            ? "bg-[#564BF1] text-white"
+                            : "bg-gray-300"
+                        }`}
+                      >
+                        {currentPage + 1}
+                      </button>
+                    </>
+                  )}
+
+                  {/* Ellipsis if there are skipped pages */}
+                  {currentPage < totalPages - 2 && (
+                    <span className="px-3">...</span>
+                  )}
+
+                  {/* Last page */}
+                  <button
+                    onClick={() => handlePageClick(totalPages)}
+                    className={`px-3 py-1 rounded ${
+                      currentPage === totalPages
+                        ? "bg-[#564BF1] text-white"
+                        : "bg-gray-300"
+                    }`}
+                  >
+                    {totalPages}
+                  </button>
+                </>
+              )}
+
+              {/* Next button */}
               <button
                 onClick={handleNextPage}
                 disabled={currentPage === totalPages}
