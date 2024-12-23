@@ -2422,9 +2422,34 @@ actor Main {
     func getUsedTokenIds(_collectionCanisterId : Principal, stored : Bool) : async [TokenIndex] {
         var usedTokenIds : [TokenIndex] = [];
 
-        for ((_, campaign) in campaigns.entries()) {
-            if (campaign.collection == _collectionCanisterId) {
-                for (depositIndex in campaign.depositIndices.vals()) {
+        // for ((_, campaign) in campaigns.entries()) {
+        //     if (campaign.collection == _collectionCanisterId) {
+        //         for (depositIndex in campaign.depositIndices.vals()) {
+        //             let depositItem = depositItemsMap
+        //                 case (?item) {.get(depositIndex);
+        //             switch (depositItem) {
+        //                     if (item.claimPattern == "transfer" and not stored) {
+        //                         usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+        //                     } else if (item.claimPattern == "mint" and stored) {
+        //                         usedTokenIds := Array.append(usedTokenIds, [item.tokenId]);
+        //                     };
+        //                 };
+        //                 case null {
+        //                     // Handle the case where the deposit index does not exist in depositItems
+        //                 };
+        //             };
+        //         };
+        //     };
+        // };
+
+        let new_map = TrieMap.mapFilter<Text, Campaign,Campaign>(
+            campaigns,
+            Text.equal,
+            Text.hash,
+            func (_, val) = if (val.collection == _collectionCanisterId) {?val} else {null}
+        );
+        for ((_, value) in new_map.entries()){
+            for (depositIndex in value.depositIndices.vals()) {
                     let depositItem = depositItemsMap.get(depositIndex);
                     switch (depositItem) {
                         case (?item) {
@@ -2439,11 +2464,10 @@ actor Main {
                         };
                     };
                 };
-            };
         };
-
         return usedTokenIds;
     };
+
 
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
         _collectionCanisterId : Principal
@@ -2489,6 +2513,87 @@ actor Main {
         };
 
         return availableTokenNames;
+    };
+
+    public shared ({ caller = user }) func getAvailableTokensForCampaignPaginate(
+        _collectionCanisterId : Principal,
+        page : Nat,
+        pageSize : Nat
+    ) : async {
+        data : [(TokenIndex, AccountIdentifier, Text)];
+        current_page : Nat;
+        total_pages : Nat;
+    } {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+        };
+
+        let userAID = AID.fromPrincipal(user, null);
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return { data = []; current_page = 0; total_pages = 0 };
+        };
+
+        var availableTokenNames : [(TokenIndex, AccountIdentifier, Text)] = [];
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
+
+        // Filter out tokens already used
+        for (tokenIndex in tokenIndices.vals()) {
+            if (Array.find<TokenIndex>(usedTokenIds, func(id) { id == tokenIndex }) == null) {
+                let tokenId = ExtCore.TokenIdentifier.fromPrincipal(_collectionCanisterId, tokenIndex);
+                let metadataResult = await collectionCanisterActor.tokenMetadata(tokenId);
+                switch metadataResult {
+                    case (#ok(metadata)) {
+                        switch (metadata) {
+                            case (#nonfungible(data)) {
+                                // Only store and return the name field from Metadata
+                                let name = data.name;
+                                availableTokenNames := Array.append(availableTokenNames, [(tokenIndex, userAID, name)]);
+                            };
+                            case (#fungible(_)) {
+                                // Skip fungible tokens
+                            };
+                        };
+                    };
+                    case (#err(_)) {
+                        // Optionally handle metadata fetch errors for specific tokens
+                    };
+                };
+            };
+        };
+
+        let totalItems = availableTokenNames.size();
+        let totalPages = if (totalItems % pageSize == 0) {
+            totalItems / pageSize;
+        } else {
+            (totalItems / pageSize) + 1;
+        };
+
+        let startIndex = page * pageSize;
+        if (startIndex >= totalItems) {
+            return { data = []; current_page = page + 1; total_pages = totalPages };
+        };
+
+        let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+        // Collect the paginated tokens
+        var resultTokens : [(TokenIndex, AccountIdentifier, Text)] = [];
+        var currentIndex : Nat = 0;
+        for (token in availableTokenNames.vals()) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+                resultTokens := Array.append(resultTokens, [token]);
+            };
+            currentIndex += 1;
+        };
+
+        return {
+            data = resultTokens;
+            current_page = page + 1;
+            total_pages = totalPages;
+        };
     };
 
     public shared ({ caller = user }) func getAvailableStoredTokensForCampaign(
