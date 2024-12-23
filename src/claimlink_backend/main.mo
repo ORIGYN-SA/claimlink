@@ -351,7 +351,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "bw4dl-smaaa-aaaaa-qaacq-cai" : actor {
+    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -2468,6 +2468,21 @@ actor Main {
         return usedTokenIds;
     };
 
+    public shared ({caller = user}) func getTokens(_collectionCanisterId : Principal) : async [TokenIndex] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+            tokenMetadata : (TokenIdentifier) -> async Result.Result<Metadata, CommonError>;
+        };
+        let userAID = AID.fromPrincipal(user, null);
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return [];
+        };
+        return tokenIndices;
+  };
+
 
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
         _collectionCanisterId : Principal
@@ -2636,6 +2651,74 @@ actor Main {
 
         return availableTokens;
     };
+
+    public shared ({ caller = user }) func getAvailableStoredTokensForCampaignPaginate(
+        _collectionCanisterId : Principal,
+        page : Nat,
+        pageSize : Nat
+    ) : async {
+        data : [(Nat32, Text)];
+        current_page : Nat;
+        total_pages : Nat;
+    } {
+        // Retrieve all tokens data for the collection canister
+        let allTokens = tokensDataToBeMinted.get(_collectionCanisterId);
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, true);
+
+        let tokens : [(Nat32, Text)] = switch (allTokens) {
+            case (?t) {
+                Array.map<(Nat32, Metadata), (Nat32, Text)>(t, func(tokenData : (Nat32, Metadata)) : (Nat32, Text) {
+                    let (tokenIndex, metadata) = tokenData;
+                    let name = switch (metadata) {
+                        case (#nonfungible(details)) details.name;
+                        case (#fungible(details)) details.name;
+                    };
+                    (tokenIndex, name);
+                });
+            };
+            case null { [] };
+        };
+
+        // Filter out used tokens
+        let availableTokens : [(Nat32, Text)] = Array.filter(tokens, func(tokenData : (Nat32, Text)) : Bool {
+            let (tokenIndex, _) = tokenData;
+            return Array.find<Nat32>(usedTokenIds, func(usedTokenId : Nat32) : Bool {
+                return usedTokenId == tokenIndex;
+            }) == null;
+        });
+
+        // Pagination logic
+        let totalItems = availableTokens.size();
+        let totalPages = if (totalItems % pageSize == 0) {
+            totalItems / pageSize;
+        } else {
+            (totalItems / pageSize) + 1;
+        };
+
+        let startIndex = page * pageSize;
+        if (startIndex >= totalItems) {
+            return { data = []; current_page = page + 1; total_pages = totalPages };
+        };
+
+        let endIndex = Nat.min(totalItems, startIndex + pageSize);
+
+        // Collect the paginated tokens
+        var resultTokens : [(Nat32, Text)] = [];
+        var currentIndex : Nat = 0;
+        for (token in availableTokens.vals()) {
+            if (currentIndex >= startIndex and currentIndex < endIndex) {
+                resultTokens := Array.append(resultTokens, [token]);
+            };
+            currentIndex += 1;
+        };
+
+        return {
+            data = resultTokens;
+            current_page = page + 1;
+            total_pages = totalPages;
+        };
+    };
+
 
     public shared query ({ caller = user }) func getUserCampaignsPaginate(
         page : Nat,
