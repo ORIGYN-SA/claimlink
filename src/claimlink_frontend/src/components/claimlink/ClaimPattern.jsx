@@ -61,7 +61,7 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
               <div className="sm:flex sm:gap-4 space-y-4 sm:space-y-0">
                 {/* Transfer Pattern */}
                 <div
-                  className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
+                  className={`sm:w-[50%] w-full rounded-md border-2 border-gray-100 p-4 cursor-pointer ${
                     formData.pattern === "transfer"
                       ? "bg-[#5542F6]"
                       : "bg-white"
@@ -80,7 +80,7 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                   />
                   <div>
                     <p
-                      className={`font-semibold mt-10 ${
+                      className={`font-semibold mt-4 ${
                         formData.pattern === "transfer" ? "text-white" : ""
                       }`}
                     >
@@ -103,14 +103,14 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                           : "text-gray-500"
                       }`}
                     >
-                      * It will work for the minted tokens.
+                      Note- * It will work for the minted tokens.
                     </p>
                   </div>
                 </div>
 
                 {/* Mint Pattern */}
                 <div
-                  className={`sm:w-[50%] w-full rounded-md h-48 border-2 border-gray-100 p-4 cursor-pointer ${
+                  className={`sm:w-[50%] w-full rounded-md  border-2 border-gray-100 p-4 cursor-pointer ${
                     formData.pattern === "mint" ? "bg-[#5542F6]" : "bg-white"
                   }`}
                   onClick={() => setFormData({ ...formData, pattern: "mint" })}
@@ -125,7 +125,7 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                   />
                   <div>
                     <p
-                      className={`font-semibold mt-10 ${
+                      className={`font-semibold mt-4 ${
                         formData.pattern === "mint" ? "text-white" : ""
                       }`}
                     >
@@ -147,7 +147,7 @@ const ClaimPattern = ({ handleNext, handleBack, formData, setFormData }) => {
                           : "text-gray-500"
                       }`}
                     >
-                      * It will work for mint-at-claim tokens.
+                      Note- * It will work for mint-at-claim tokens.
                     </p>
                   </div>
                 </div>

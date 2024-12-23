@@ -29,10 +29,16 @@ const Dashboard = ({
   const { backend, principal, connectWallet, disconnect, isConnected } =
     useAuth();
   useEffect(() => {
-    if (!isConnected && !principal) {
-      navigate("/login");
-    }
-  }, [isConnected]);
+    const timer = setTimeout(() => {
+      if (!isConnected && !principal) {
+        navigate("/login");
+      }
+    }, 3000);
+
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [isConnected, principal, navigate]);
   const handleLogin = async () => {
     const userObject = await PlugLogin(whitelist);
     console.log(userObject);
