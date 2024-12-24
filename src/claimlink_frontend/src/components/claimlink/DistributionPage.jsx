@@ -18,6 +18,7 @@ const DistributionPage = ({
   const { backend } = useAuth();
   const [nftOptions, setNftOptions] = useState([]);
   const [tokenOptions, setTokenOptions] = useState([]);
+  const [alltokens, setalltokens] = useState([]);
   const [clid, setClid] = useState();
   const [type, setType] = useState();
   const [loading, setLoading] = useState(false); // Add loading state
@@ -41,6 +42,10 @@ const DistributionPage = ({
         const id = Principal.fromText(clid);
 
         if (formData.pattern === "transfer") {
+          const alltokenIds = await backend.getTokens(
+            id
+          );
+          console.log(alltokenIds);
           const nftData = await backend.getAvailableTokensForCampaign(id);
           console.log(nftData, "available tokens");
           setNftOptions(
@@ -50,9 +55,16 @@ const DistributionPage = ({
             }))
           );
         } else if (formData.pattern === "mint") {
+
+          const alltokenIds = await backend.getTokens(
+            id
+          );
+          console.log(alltokenIds);
+          
           const tokenData = await backend.getAvailableStoredTokensForCampaign(
             id
           );
+
           console.log(tokenData);
           setTokenOptions(
             tokenData.map((token) => ({
@@ -81,7 +93,7 @@ const DistributionPage = ({
       const allNfts =
         formData.pattern === "transfer"
           ? nftOptions.map((nft) => nft.value)
-          : tokenOptions.map((token) => token.value);
+          : tokenOptions.map((token) => alltokens);
 
       setFormData({
         ...formData,
