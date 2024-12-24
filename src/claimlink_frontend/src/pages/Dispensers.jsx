@@ -403,13 +403,10 @@ const Dispensers = () => {
               {dispensers?.map((dispenser) => (
                 <motion.div
                   key={dispenser.id}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ duration: 1 }}
-                  className={`p-4 sm:block hidden bg-white cursor-pointer rounded-lg overflow-hidden ${
+                  className={`p-4 sm:block hidden bg-white  cursor-pointer rounded-lg overflow-hidden ${
                     Object.keys(dispenser?.status || {})[0] === "Expired" ||
                     Object.keys(dispenser?.status || {})[0] === "Completed"
-                      ? "pointer-events-none opacity-70 bg-gray-300" // Disable link and add opacity
+                      ? "pointer-events-none opacity-70 bg-gray-100" // Disable link and add opacity
                       : ""
                   }`}
                 >
