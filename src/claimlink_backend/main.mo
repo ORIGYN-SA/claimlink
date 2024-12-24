@@ -2481,7 +2481,31 @@ actor Main {
             case (#err(_)) return [];
         };
         return tokenIndices;
-  };
+    };
+
+
+    public shared ({caller = user}) func getAllTokens(_collectionCanisterId : Principal) : async [TokenIndex] {
+        let collectionCanisterActor = actor (Principal.toText(_collectionCanisterId)) : actor {
+            tokens : (AccountIdentifier) -> async Result.Result<[TokenIndex], CommonError>;
+        };
+        let userAID = AID.fromPrincipal(user, null);
+        let tokenIndicesResult = await collectionCanisterActor.tokens(userAID);
+
+        let tokenIndices = switch tokenIndicesResult {
+            case (#ok(indices)) indices;
+            case (#err(_)) return [];
+        };
+
+        var availableTokenNames : [TokenIndex] = [];
+        let usedTokenIds = await getUsedTokenIds(_collectionCanisterId, false);
+
+        for (tokenIndex in tokenIndices.vals()) {
+            if (Array.find<TokenIndex>(usedTokenIds, func(id) { id == tokenIndex }) == null) {
+                    availableTokenNames := Array.append(availableTokenNames, [tokenIndex]);
+                };
+        };
+        return availableTokenNames;
+    };
 
 
     public shared ({ caller = user }) func getAvailableTokensForCampaign(
