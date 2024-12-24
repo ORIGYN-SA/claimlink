@@ -12,59 +12,96 @@ const DistributionPage = ({
   formData,
   setFormData,
 }) => {
-  const [claimType, setClaimType] = useState("");
+  const [claimType, setClaimType] = useState("selectAll");
   const [sponsorGas, setSponsorGas] = useState(false);
   const [errors, setErrors] = useState({});
   const { backend } = useAuth();
   const [nftOptions, setNftOptions] = useState([]);
   const [tokenOptions, setTokenOptions] = useState([]);
-  const [alltokens, setalltokens] = useState([]);
+  const [allTokens, setAllTokens] = useState([]);
   const [clid, setClid] = useState();
-  const [type, setType] = useState();
-  const [loading, setLoading] = useState(false); // Add loading state
-
+  const [loading, setLoading] = useState(false);
+  const [selectManualLoading, setSelectManualLoading] = useState(false);
+  const [selectAllLoading, setSelectAllLoading] = useState(false);
+  const [isselected, setIsSelected] = useState(false);
   useEffect(() => {
     if (formData.collection) {
       setClid(formData.collection);
       console.log("coll", formData.collection);
     }
-  }, [formData.contract, setFormData]);
+  }, [formData.collection, setFormData]);
 
   useEffect(() => {
-    const loadData = async () => {
+    const loadAllTokens = async () => {
       try {
-        setLoading(true); // Start loader
+        setLoading(true);
         if (!clid) {
           console.error("clid is undefined or empty");
           return;
         }
 
         const id = Principal.fromText(clid);
+        const allTokenIds = await backend.getTokens(id);
+        console.log(allTokenIds);
+        setAllTokens(allTokenIds);
+      } catch (error) {
+        console.error("Error loading tokens:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (backend && formData.contract && clid) {
+      loadAllTokens();
+    }
+  }, [backend, formData.contract, clid]);
+
+  const handleClaimTypeChange = async (type) => {
+    setClaimType(type);
+    setIsSelected(true);
+    if (type === "selectAll") {
+      setSelectAllLoading(true);
+      try {
+        const allNfts =
+          formData.pattern === "transfer"
+            ? allTokens.map((nft) => nft[0])
+            : allTokens.map((token) => token[0]);
+
+        setFormData({
+          ...formData,
+          tokenIds: allNfts,
+        });
+      } catch (error) {
+        console.error("Error selecting all tokens:", error);
+      } finally {
+        setSelectAllLoading(false);
+      }
+    } else if (type === "selectManual") {
+      setFormData({
+        ...formData,
+        tokenIds: [],
+      });
+      setSelectManualLoading(true);
+      try {
+        const id = Principal.fromText(clid);
 
         if (formData.pattern === "transfer") {
-          const alltokenIds = await backend.getTokens(
-            id
+          const nftData = await backend.getAvailableTokensForCampaignPaginate(
+            id,
+            1,
+            100
           );
-          console.log(alltokenIds);
-          const nftData = await backend.getAvailableTokensForCampaign(id);
           console.log(nftData, "available tokens");
           setNftOptions(
-            nftData.map((nft) => ({
+            nftData?.data.map((nft) => ({
               value: nft[0],
               label: nft[2],
             }))
           );
         } else if (formData.pattern === "mint") {
-
-          const alltokenIds = await backend.getTokens(
-            id
-          );
-          console.log(alltokenIds);
-          
           const tokenData = await backend.getAvailableStoredTokensForCampaign(
             id
           );
-
           console.log(tokenData);
           setTokenOptions(
             tokenData.map((token) => ({
@@ -74,36 +111,14 @@ const DistributionPage = ({
           );
         }
       } catch (error) {
-        console.error("Error loading tokens:", error);
+        console.error("Error loading tokens for manual selection:", error);
       } finally {
-        setLoading(false); // Stop loader
+        setSelectManualLoading(false); // Stop manual select loading
       }
-    };
-
-    if (backend && formData.contract && clid) {
-      loadData();
-    }
-  }, [backend, formData.contract, clid]);
-
-  const handleClaimTypeChange = (type) => {
-    setClaimType(type);
-
-    // "Select All" functionality
-    if (type === "selectAll") {
-      const allNfts =
-        formData.pattern === "transfer"
-          ? nftOptions.map((nft) => nft.value)
-          : tokenOptions.map((token) => alltokens);
-
-      setFormData({
-        ...formData,
-        tokenIds: allNfts, // Store all token IDs in the form data
-      });
     }
   };
 
   const handleSelectChange = (selectedOptions) => {
-    // Store selected token IDs in an array
     setFormData({
       ...formData,
       tokenIds: selectedOptions
@@ -168,50 +183,64 @@ const DistributionPage = ({
               type="button"
               className="px-4 sm:px-3 py-1 sm:text-sm text-xs border bg-[#5542F6] text-white rounded-lg"
               onClick={() => handleClaimTypeChange("selectAll")}
+              disabled={selectAllLoading}
             >
-              Select all
+              {selectAllLoading ? "Loading..." : "Select All"}
+            </button>
+            <button
+              type="button"
+              className="px-4 sm:px-3 py-1 sm:text-sm text-xs border bg-[#F6A554] text-white rounded-lg"
+              onClick={() => handleClaimTypeChange("selectManual")}
+              disabled={selectManualLoading}
+            >
+              {selectManualLoading ? "Loading..." : "Select Manual"}
             </button>
           </div>
         </div>
 
-        <div className="sm:w-[75%] w-full space-y-3">
-          <p className="text-gray-900 font-semibold">Tokens</p>
-          <div className="relative">
-            {/* Show the select box with a loader inside if loading */}
-            <Select
-              value={formData.tokenIds?.map((id) =>
-                (formData.pattern === "transfer"
-                  ? nftOptions
-                  : tokenOptions
-                ).find((option) => option.value === id)
+        {isselected && (
+          <div className="sm:w-[75%] w-full space-y-3">
+            <p className="text-gray-900 font-semibold">Tokens</p>
+            <div className="relative">
+              <Select
+                value={formData.tokenIds?.map((id) =>
+                  (formData.pattern === "transfer"
+                    ? nftOptions
+                    : tokenOptions
+                  ).find((option) => option.value === id)
+                )}
+                onChange={handleSelectChange}
+                options={
+                  formData.pattern === "transfer" ? nftOptions : tokenOptions
+                }
+                isMulti
+                placeholder="Select Tokens"
+                className={`${
+                  errors.tokenIds ? "border-red-500" : ""
+                } relative z-10`}
+                isDisabled={loading || selectManualLoading}
+              />
+              {loading && (
+                <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-50 z-20">
+                  <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+                </div>
               )}
-              onChange={handleSelectChange}
-              options={
-                formData.pattern === "transfer" ? nftOptions : tokenOptions
-              }
-              isMulti
-              placeholder="Select Tokens"
-              className={`${
-                errors.tokenIds ? "border-red-500" : ""
-              } relative z-10`}
-              isDisabled={loading} // Disable the select if loading
-            />
-
-            {/* Loader displayed when data is being fetched */}
-            {loading && (
-              <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-50 z-20">
-                <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
-              </div>
+            </div>
+            {claimType === "selectAll" && (
+              <p className="text-base font-black">
+                All token Selected by default :{" "}
+                <span className="text-green-500">{allTokens.length}</span>
+              </p>
+            )}
+            {errors.tokenIds && (
+              <p className="text-red-500 text-sm mt-2">{errors.tokenIds}</p>
             )}
           </div>
-          {errors.tokenIds && (
-            <p className="text-red-500 text-sm mt-2">{errors.tokenIds}</p>
-          )}
-        </div>
+        )}
 
         <p className="mb-6 text-sm text-gray-500 sm:w-[75%] w-full mt-4">
           If you have a big set of different tokens to distribute, you could
-          also provide the information by a JSON file
+          also provide the information by a JSON file.
         </p>
 
         <div className="flex gap-4">
@@ -220,7 +249,7 @@ const DistributionPage = ({
         </div>
       </form>
 
-      <div className="hidden sm:block  h-full bg-white">
+      <div className="hidden sm:block h-full bg-white">
         <Summary formData={formData} />
       </div>
     </motion.div>
