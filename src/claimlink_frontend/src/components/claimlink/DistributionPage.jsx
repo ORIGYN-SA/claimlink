@@ -99,9 +99,12 @@ const DistributionPage = ({
             }))
           );
         } else if (formData.pattern === "mint") {
-          const tokenData = await backend.getAvailableStoredTokensForCampaign(
-            id
-          );
+          const tokenData =
+            await backend.getAvailableStoredTokensForCampaignPaginate(
+              id,
+              1,
+              100
+            );
           console.log(tokenData);
           setTokenOptions(
             tokenData.map((token) => ({
@@ -113,7 +116,7 @@ const DistributionPage = ({
       } catch (error) {
         console.error("Error loading tokens for manual selection:", error);
       } finally {
-        setSelectManualLoading(false); // Stop manual select loading
+        setSelectManualLoading(false);
       }
     }
   };
