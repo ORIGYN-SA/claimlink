@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Select from "react-select";
 import MainButton, { BackButton } from "../../common/Buttons";
 import Summary from "./Summary";
 import { useAuth } from "../../connect/useClient";
@@ -13,37 +12,27 @@ const DistributionPage = ({
   setFormData,
 }) => {
   const [claimType, setClaimType] = useState("selectAll");
-  const [sponsorGas, setSponsorGas] = useState(false);
   const [errors, setErrors] = useState({});
   const { backend } = useAuth();
   const [nftOptions, setNftOptions] = useState([]);
-  const [tokenOptions, setTokenOptions] = useState([]);
   const [allTokens, setAllTokens] = useState([]);
-  const [clid, setClid] = useState();
+  const [selectedTokens, setSelectedTokens] = useState([]);
+  const [clid, setClid] = useState(formData.collection || null);
   const [loading, setLoading] = useState(false);
-  const [selectManualLoading, setSelectManualLoading] = useState(false);
-  const [selectAllLoading, setSelectAllLoading] = useState(false);
-  const [isselected, setIsSelected] = useState(false);
-  useEffect(() => {
-    if (formData.collection) {
-      setClid(formData.collection);
-      console.log("coll", formData.collection);
-    }
-  }, [formData.collection, setFormData]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
+  const itemsPerPage = 12; // Number of items per page
 
   useEffect(() => {
     const loadAllTokens = async () => {
       try {
         setLoading(true);
-        if (!clid) {
-          console.error("clid is undefined or empty");
-          return;
-        }
-
+        if (!clid) return;
         const id = Principal.fromText(clid);
-        const allTokenIds = await backend.getTokens(id);
-        console.log(allTokenIds);
+        const allTokenIds = await backend.getAllTokens(id);
         setAllTokens(allTokenIds);
+        setSelectedTokens(allTokenIds.map((token) => token));
       } catch (error) {
         console.error("Error loading tokens:", error);
       } finally {
@@ -51,91 +40,92 @@ const DistributionPage = ({
       }
     };
 
-    if (backend && formData.contract && clid) {
+    if (backend && clid) {
       loadAllTokens();
     }
-  }, [backend, formData.contract, clid]);
+  }, [backend, clid]);
 
-  const handleClaimTypeChange = async (type) => {
-    setClaimType(type);
-    setIsSelected(true);
-    if (type === "selectAll") {
-      setSelectAllLoading(true);
+  useEffect(() => {
+    const loadPaginatedTokens = async () => {
       try {
-        const allNfts =
-          formData.pattern === "transfer"
-            ? allTokens.map((nft) => nft[0])
-            : allTokens.map((token) => token[0]);
-
-        setFormData({
-          ...formData,
-          tokenIds: allNfts,
-        });
-      } catch (error) {
-        console.error("Error selecting all tokens:", error);
-      } finally {
-        setSelectAllLoading(false);
-      }
-    } else if (type === "selectManual") {
-      setFormData({
-        ...formData,
-        tokenIds: [],
-      });
-      setSelectManualLoading(true);
-      try {
+        setLoading(true);
+        if (!clid) return;
         const id = Principal.fromText(clid);
-
         if (formData.pattern === "transfer") {
           const nftData = await backend.getAvailableTokensForCampaignPaginate(
             id,
-            1,
-            100
+            page,
+            itemsPerPage
           );
-          console.log(nftData, "available tokens");
+
           setNftOptions(
             nftData?.data.map((nft) => ({
-              value: nft[0],
+              id: nft[0],
               label: nft[2],
             }))
           );
         } else if (formData.pattern === "mint") {
-          const tokenData =
+          const nftData =
             await backend.getAvailableStoredTokensForCampaignPaginate(
               id,
-              1,
-              100
+              page,
+              itemsPerPage
             );
-          console.log(tokenData);
-          setTokenOptions(
-            tokenData.map((token) => ({
-              value: token[0],
-              label: token[1],
+          console.log("object,", nftData);
+          setNftOptions(
+            nftData?.data.map((nft) => ({
+              id: nft[0],
+              label: nft[1],
             }))
           );
         }
+
+        setTotalPages(parseInt(nftData.total_pages));
       } catch (error) {
-        console.error("Error loading tokens for manual selection:", error);
+        console.error("Error loading paginated tokens:", error);
       } finally {
-        setSelectManualLoading(false);
+        setLoading(false);
       }
+    };
+
+    if (claimType === "selectManual" && clid) {
+      loadPaginatedTokens();
+    }
+  }, [backend, clid, claimType, page]);
+
+  const handleClaimTypeChange = (type) => {
+    setClaimType(type);
+    if (type === "selectAll") {
+      setSelectedTokens(allTokens.map((token) => token[0]));
+      setFormData({
+        ...formData,
+        tokenIds: allTokens.map((token) => token[0]),
+      });
+    } else if (type === "selectManual") {
+      setSelectedTokens([]);
+      setFormData({ ...formData, tokenIds: [] });
     }
   };
 
-  const handleSelectChange = (selectedOptions) => {
-    setFormData({
-      ...formData,
-      tokenIds: selectedOptions
-        ? selectedOptions.map((option) => option.value)
-        : [],
-    });
+  const toggleTokenSelection = (tokenId) => {
+    setSelectedTokens((prev) =>
+      prev.includes(tokenId)
+        ? prev.filter((id) => id !== tokenId)
+        : [...prev, tokenId]
+    );
+  };
+
+  const selectAllInPage = () => {
+    const tokensInPage = nftOptions.map((nft) => nft.id);
+    setSelectedTokens((prev) => [...new Set([...prev, ...tokensInPage])]);
   };
 
   const validate = () => {
-    let tempErrors = {};
-    tempErrors.tokenIds =
-      formData.tokenIds && formData.tokenIds.length > 0
+    const tempErrors = {
+      tokenIds: selectedTokens.length
         ? ""
-        : "Token IDs are required.";
+        : "You must select at least one token.",
+    };
     setErrors(tempErrors);
     return Object.values(tempErrors).every((x) => x === "");
   };
@@ -143,116 +133,134 @@ const DistributionPage = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     if (validate()) {
+      setFormData({ ...formData, tokenIds: selectedTokens });
       handleNext();
     }
   };
 
-  const pageVariants = {
-    initial: { opacity: 0, x: "-100vw" },
-    in: { opacity: 1, x: 0 },
-    out: { opacity: 0, x: "100vw" },
-  };
-
-  const pageTransition = {
-    type: "tween",
-    ease: "anticipate",
-    duration: 0.8,
-  };
-
   return (
     <motion.div
-      initial="initial"
-      animate="in"
-      exit="out"
-      variants={pageVariants}
-      transition={pageTransition}
+      initial={{ opacity: 0, x: "-100vw" }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: "100vw" }}
+      transition={{ type: "tween", ease: "anticipate", duration: 0.8 }}
       className="flex justify-between"
     >
       <form onSubmit={handleSubmit} className="p-8 sm:w-[70%] w-full">
-        <h2 className="text-2xl text-gray-900 font-semibold mb-4">
-          Distribution
-        </h2>
-        <p className="text-gray-500 text-sm mt-4 mb-8">
+        <h2 className="text-2xl font-semibold mb-4">Distribution</h2>
+        <p className="text-sm text-gray-500 mb-8">
           Choose the desired claim pattern and proceed with the appropriate
-          transaction to enable it
+          transaction.
         </p>
 
-        <div className="mb-4 sm:flex justify-between sm:w-[75%] w-full">
-          <h3 className="sm:text-lg font-semibold mb-2">
-            Add token IDs to distribute
-          </h3>
-          <div className="flex sm:justify-between gap-4">
+        <div className="mb-4 sm:flex justify-between sm:w-[75%]">
+          <h3 className="font-semibold mb-2">Add token IDs to distribute</h3>
+          <div className="flex gap-4">
             <button
               type="button"
-              className="px-4 sm:px-3 py-1 sm:text-sm text-xs border bg-[#5542F6] text-white rounded-lg"
+              className="px-4 py-1 bg-blue-500 text-white rounded-lg"
               onClick={() => handleClaimTypeChange("selectAll")}
-              disabled={selectAllLoading}
             >
-              {selectAllLoading ? "Loading..." : "Select All"}
+              Select All
             </button>
+
             <button
               type="button"
-              className="px-4 sm:px-3 py-1 sm:text-sm text-xs border bg-[#F6A554] text-white rounded-lg"
+              className="px-4 py-1 bg-orange-500 text-white rounded-lg"
               onClick={() => handleClaimTypeChange("selectManual")}
-              disabled={selectManualLoading}
             >
-              {selectManualLoading ? "Loading..." : "Select Manual"}
+              Select Manual
             </button>
           </div>
         </div>
+        {formData.pattern == "transfer"
+          ? claimType === "selectAll" &&
+            (loading ? (
+              <div className="border text-gray-500 text-lg font-semibold  p-4 border-gray-400 rounded-lg">
+                Loading...{" "}
+              </div>
+            ) : (
+              <div className="border text-gray-500 text-lg font-semibold  p-4 border-gray-400 rounded-lg">
+                All token is selected in Collection :{" "}
+                <span className="text-blue-400">{selectedTokens.length}</span>
+              </div>
+            ))
+          : claimType === "selectAll" && (
+              <div className="border text-gray-500 text-lg font-semibold  p-4 border-gray-400 rounded-lg">
+                Please Select manually for mint*
+              </div>
+            )}
 
-        {isselected && (
-          <div className="sm:w-[75%] w-full space-y-3">
-            <p className="text-gray-900 font-semibold">Tokens</p>
-            <div className="relative">
-              <Select
-                value={formData.tokenIds?.map((id) =>
-                  (formData.pattern === "transfer"
-                    ? nftOptions
-                    : tokenOptions
-                  ).find((option) => option.value === id)
-                )}
-                onChange={handleSelectChange}
-                options={
-                  formData.pattern === "transfer" ? nftOptions : tokenOptions
-                }
-                isMulti
-                placeholder="Select Tokens"
-                className={`${
-                  errors.tokenIds ? "border-red-500" : ""
-                } relative z-10`}
-                isDisabled={loading || selectManualLoading}
-              />
-              {loading && (
-                <div className="absolute inset-0 flex justify-center items-center bg-white bg-opacity-50 z-20">
-                  <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-8 w-8"></div>
+        {claimType === "selectManual" && (
+          <div className="border p-4 border-gray-400 rounded-lg">
+            <div className="flex justify-between mb-2">
+              <h3 className="text-lg font-semibold">Tokens</h3>
+              <button
+                type="button"
+                onClick={selectAllInPage}
+                className="text-blue-500 underline"
+              >
+                Select all in page
+              </button>
+            </div>
+            <div className="grid grid-cols-4 gap-4 max-h-60 overflow-y-auto p-2">
+              {loading ? (
+                <div className="flex items-center justify-center w-full h-full">
+                  <p>Loading...</p>
+                </div>
+              ) : nftOptions.length > 0 ? (
+                nftOptions.map((nft, index) => (
+                  <div key={index} className="flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedTokens.includes(nft.id)}
+                      onChange={() => toggleTokenSelection(nft.id)}
+                      id={`token-${nft.id}`}
+                    />
+                    <label htmlFor={`token-${nft.id}`} className="ml-2">
+                      {nft.label}
+                    </label>
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center w-full h-full">
+                  <p>No NFTs available.</p>
                 </div>
               )}
             </div>
-            {claimType === "selectAll" && (
-              <p className="text-base font-black">
-                All token Selected by default :{" "}
-                <span className="text-green-500">{allTokens.length}</span>
-              </p>
-            )}
-            {errors.tokenIds && (
-              <p className="text-red-500 text-sm mt-2">{errors.tokenIds}</p>
-            )}
+
+            <div className="flex justify-between mt-4">
+              <button
+                type="button"
+                onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                disabled={page === 1}
+              >
+                {"< Previous"}
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setPage((prev) => Math.min(prev + 1, totalPages))
+                }
+                disabled={page === totalPages}
+              >
+                {"Next >"}
+              </button>
+            </div>
           </div>
         )}
 
-        <p className="mb-6 text-sm text-gray-500 sm:w-[75%] w-full mt-4">
-          If you have a big set of different tokens to distribute, you could
-          also provide the information by a JSON file.
-        </p>
+        {errors.tokenIds && (
+          <p className="text-red-500 text-sm mt-2">{errors.tokenIds}</p>
+        )}
 
-        <div className="flex gap-4">
-          <BackButton text="Back" type="button" onClick={handleBack} />
+        <div className="flex gap-4 mt-6">
+          <BackButton text="Back" onClick={handleBack} />
           <MainButton text="Continue" type="submit" />
         </div>
       </form>
 
-      <div className="hidden sm:block h-full bg-white">
+      <div className="hidden sm:block bg-white">
         <Summary formData={formData} />
       </div>
     </motion.div>
