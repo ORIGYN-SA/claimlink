@@ -29,15 +29,10 @@ export const useAuthClient = () => {
     setIsConnected(false);
     localStorage.removeItem("delegationExpiry");
   };
-  console.log("deligation", delegationExpiry);
 
   const checkDelegationExpiry = () => {
     if (delegationExpiry) {
       const currentTime = Date.now();
-      console.log(
-        "Delegation Expiry Time:",
-        new Date(delegationExpiry).toLocaleString()
-      );
 
       if (currentTime >= delegationExpiry) {
         toast.success("Delegation expired, logging out...");

@@ -19,10 +19,10 @@ const DistributionPage = ({
   const [selectedTokens, setSelectedTokens] = useState([]);
   const [clid, setClid] = useState(formData.collection || null);
   const [loading, setLoading] = useState(false);
-  const [page, setPage] = useState(1);
+  const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
-  const itemsPerPage = 12; // Number of items per page
+  const itemsPerPage = 12;
 
   useEffect(() => {
     const loadAllTokens = async () => {
@@ -31,6 +31,8 @@ const DistributionPage = ({
         if (!clid) return;
         const id = Principal.fromText(clid);
         const allTokenIds = await backend.getAllTokens(id);
+        console.log("selected tokan", allTokenIds);
+
         setAllTokens(allTokenIds);
         setSelectedTokens(allTokenIds.map((token) => token));
       } catch (error) {
@@ -44,7 +46,6 @@ const DistributionPage = ({
       loadAllTokens();
     }
   }, [backend, clid]);
-
   useEffect(() => {
     const loadPaginatedTokens = async () => {
       try {
@@ -64,6 +65,7 @@ const DistributionPage = ({
               label: nft[2],
             }))
           );
+          setTotalPages(parseInt(nftData.total_pages));
         } else if (formData.pattern === "mint") {
           const nftData =
             await backend.getAvailableStoredTokensForCampaignPaginate(
@@ -78,9 +80,8 @@ const DistributionPage = ({
               label: nft[1],
             }))
           );
+          setTotalPages(parseInt(nftData.total_pages));
         }
-
-        setTotalPages(parseInt(nftData.total_pages));
       } catch (error) {
         console.error("Error loading paginated tokens:", error);
       } finally {
@@ -158,7 +159,11 @@ const DistributionPage = ({
           <div className="flex gap-4">
             <button
               type="button"
-              className="px-4 py-1 bg-blue-500 text-white rounded-lg"
+              className={`px-4 py-1 border ${
+                claimType === "selectAll"
+                  ? "bg-blue-500 text-white"
+                  : " bg-white text-black"
+              }    rounded-lg`}
               onClick={() => handleClaimTypeChange("selectAll")}
             >
               Select All
@@ -166,7 +171,11 @@ const DistributionPage = ({
 
             <button
               type="button"
-              className="px-4 py-1 bg-orange-500 text-white rounded-lg"
+              className={`px-4 py-1 border ${
+                claimType === "selectAll"
+                  ? "bg-white text-black"
+                  : "bg-blue-500 text-white"
+              }    rounded-lg`}
               onClick={() => handleClaimTypeChange("selectManual")}
             >
               Select Manual
@@ -176,7 +185,7 @@ const DistributionPage = ({
         {formData.pattern == "transfer"
           ? claimType === "selectAll" &&
             (loading ? (
-              <div className="border text-gray-500 text-lg font-semibold  p-4 border-gray-400 rounded-lg">
+              <div className="border txxt-xl animate-pulse text-gray-500 text-lg font-semibold  p-4 border-gray-400 rounded-lg">
                 Loading...{" "}
               </div>
             ) : (
@@ -194,7 +203,12 @@ const DistributionPage = ({
         {claimType === "selectManual" && (
           <div className="border p-4 border-gray-400 rounded-lg">
             <div className="flex justify-between mb-2">
-              <h3 className="text-lg font-semibold">Tokens</h3>
+              <h3 className="text-lg font-semibold">
+                Tokens{" "}
+                <span className="text-xs">
+                  (Select up to 12 NFTs at a time. Click "Next" for more.)
+                </span>
+              </h3>
               <button
                 type="button"
                 onClick={selectAllInPage}
@@ -203,37 +217,44 @@ const DistributionPage = ({
                 Select all in page
               </button>
             </div>
-            <div className="grid grid-cols-4 gap-4 max-h-60 overflow-y-auto p-2">
-              {loading ? (
-                <div className="flex items-center justify-center w-full h-full">
-                  <p>Loading...</p>
-                </div>
-              ) : nftOptions.length > 0 ? (
-                nftOptions.map((nft, index) => (
-                  <div key={index} className="flex items-center justify-center">
+
+            {loading ? (
+              <div className="flex text-xl animate-pulse p-4 items-center justify-center w-full h-full">
+                <p>Loading...</p>
+              </div>
+            ) : nftOptions.length > 0 ? (
+              <div className="grid grid-cols-4 gap-4 max-h-60 overflow-y-auto p-2">
+                {nftOptions.map((nft, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center border border-blue-300 rounded px-2 py-1 justify-center"
+                  >
                     <input
                       type="checkbox"
                       checked={selectedTokens.includes(nft.id)}
                       onChange={() => toggleTokenSelection(nft.id)}
                       id={`token-${nft.id}`}
                     />
-                    <label htmlFor={`token-${nft.id}`} className="ml-2">
+                    <label
+                      htmlFor={`token-${nft.id}`}
+                      className="ml-2 line-clamp-1"
+                    >
                       {nft.label}
                     </label>
                   </div>
-                ))
-              ) : (
-                <div className="flex items-center justify-center w-full h-full">
-                  <p>No NFTs available.</p>
-                </div>
-              )}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center p-4 text-xl justify-center w-full h-full">
+                <p>No NFTs available.</p>
+              </div>
+            )}
 
             <div className="flex justify-between mt-4">
               <button
                 type="button"
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                disabled={page === 1}
+                disabled={page === 0}
               >
                 {"< Previous"}
               </button>
