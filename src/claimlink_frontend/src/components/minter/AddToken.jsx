@@ -16,6 +16,7 @@ import PaymentModel from "../../common/PaymentModel";
 import NftPayment from "../../common/NftPayment";
 import { TailSpin } from "react-loader-spinner";
 import { trackEvent } from "../../common/trackEvent";
+import UploadImage from "./UploadImage";
 
 const AddToken = () => {
   const [showCopies, setShowCopies] = useState(null);
@@ -27,6 +28,7 @@ const AddToken = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [imgUploaded, setImgUploaded] = useState(false);
 
   // useEffect(() => {
   //   if (formData.contract === "tokens") {
@@ -56,7 +58,7 @@ const AddToken = () => {
     name: "",
     symbol: "",
     thumbnail: "",
-    asset: "",
+    img: "",
     metadata: {
       blob: "",
       data: [{ key: "", value: "" }],
@@ -72,10 +74,10 @@ const AddToken = () => {
   }, [formData.name]);
 
   useEffect(() => {
-    if (formData.asset.trim()) {
-      setErrors(errors.asset == "");
+    if (formData.img.trim()) {
+      setErrors(errors.img == "");
     }
-  }, [formData.asset]); // State to hold validation errors
+  }, [formData.img]); // State to hold validation errors
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -118,8 +120,6 @@ const AddToken = () => {
       },
     }));
   };
-
-  const [image, setImage] = useState(formData.asset);
 
   const imageToFileBlob = (imageFile) => {
     return new Promise((resolve, reject) => {
@@ -216,9 +216,9 @@ const AddToken = () => {
     }
 
     // Validate asset (required)
-    if (!formData.asset) {
-      newErrors.asset = "Image is required.";
-    }
+    // if (!formData.img) {
+    //   newErrors.img = "Image is required.";
+    // }
 
     // Validate metadata (optional, but key-value pairs must be valid if present)
 
@@ -235,7 +235,10 @@ const AddToken = () => {
       console.log("form", errors);
       return;
     }
-
+    if (imgUploaded == false) {
+      toast.error("Please Upload Img");
+      return;
+    }
     setLoading(true);
 
     try {
@@ -262,8 +265,8 @@ const AddToken = () => {
           idd,
           formData.name,
           formData.description,
-          formData.asset,
-          formData.thumbnail,
+          formData.img,
+          (formData.thumbnail = formData.img),
           metadata.data, // Pass the entire metadata array here
           parseInt(formData.decimals)
         );
@@ -298,8 +301,8 @@ const AddToken = () => {
               idd,
               formData.name,
               formData.description,
-              formData.asset,
-              formData.thumbnail,
+              formData.img,
+              (formData.thumbnail = formData.img),
               metadata.data, // Pass the entire metadata array here
               parseInt(formData.decimals)
             );
@@ -377,27 +380,33 @@ const AddToken = () => {
         <div>
           <form>
             {tokenType == "nonfungible" && (
-              <div className="mt-2 flex flex-col ">
-                <label className="text-md font-semibold py-3 ">
-                  Upload a file
-                  <span className="text-gray-400 text-sm mb-3 font-normal ">
-                    (PNG . Max 200KB)
-                  </span>
-                </label>
-                <div className="flex gap-4 flex-col md:flex-row">
-                  {image && (
-                    <img
-                      className="rounded-xl md:w-22 md:h-24 w-28"
-                      src={image}
-                      alt="Selected Thumbnail"
-                    />
-                  )}
-                  <StyledDropzone onDrop={handleProfileChange} />
-                </div>
-                {errors.asset && (
-                  <p className="text-red-500 text-sm">{errors.asset}</p>
-                )}
-              </div>
+              <UploadImage
+                formData={formData}
+                setFormData={setFormData}
+                imgUploaded={imgUploaded}
+                setImgUploaded={setImgUploaded}
+              />
+              // <div className="mt-2 flex flex-col ">
+              //   <label className="text-md font-semibold py-3 ">
+              //     Upload a file
+              //     <span className="text-gray-400 text-sm mb-3 font-normal ">
+              //       (PNG . Max 200KB)
+              //     </span>
+              //   </label>
+              //   <div className="flex gap-4 flex-col md:flex-row">
+              //     {image && (
+              //       <img
+              //         className="rounded-xl md:w-22 md:h-24 w-28"
+              //         src={image}
+              //         alt="Selected Thumbnail"
+              //       />
+              //     )}
+              //     <StyledDropzone onDrop={handleProfileChange} />
+              //   </div>
+              //   {errors.asset && (
+              //     <p className="text-red-500 text-sm">{errors.asset}</p>
+              //   )}
+              // </div>
             )}
 
             <div className="flex flex-col mt-4">
