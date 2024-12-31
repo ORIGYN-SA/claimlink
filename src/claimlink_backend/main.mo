@@ -541,6 +541,9 @@ actor Main {
     };
 
     public shared ({ caller = user }) func dashboardDetails() : async DashboardStats {
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
 
         let campaigns = userCampaignsMap.get(user);
         let qrSets = userQRSetMap.get(user);
