@@ -50,30 +50,14 @@ const LinkClaiming = () => {
   const pathParts = location.pathname.split("/");
   const canisterId = pathParts[2];
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const nftIndex = pathParts[3];
   const currentUrl = window.location.href;
   const [dispenser, setDispenser] = useState(null);
   const [campaign, setCampaign] = useState([]);
   const [celebrate, setCelebrate] = useState(false);
   const [collectionid, setCollectionId] = useState(null);
   const [collcetionimg, setCollectionImg] = useState(null);
-
-  const computeTokenIdentifier = (principal, index) => {
-    const padding = Buffer("\x0Atid");
-    const array = new Uint8Array([
-      ...padding,
-      ...principal,
-      ...to32bits(index),
-    ]);
-
-    return Principal.fromUint8Array(array).toText();
-  };
-
-  useEffect(() => {
-    console.log("Canister ID:", canisterId);
-    console.log("NFT Index:", nftIndex);
-  }, [canisterId, nftIndex]);
-
+  const [allnft, setAllNFt] = useState([]);
+  const [storednft, setstorednft] = useState([]);
   useEffect(() => {
     if (isConnected && principal) {
       setPrincipalText(principal.toText());
@@ -102,16 +86,38 @@ const LinkClaiming = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const to32bits = (num) => {
+    let b = new ArrayBuffer(4);
+    new DataView(b).setUint32(0, num);
+    return Array.from(new Uint8Array(b));
+  };
+  const computeTokenIdentifier = (principal, index) => {
+    const padding = Buffer("\x0Atid");
+    const array = new Uint8Array([
+      ...padding,
+      ...principal,
+      ...to32bits(index),
+    ]);
+
+    return Principal.fromUint8Array(array).toText();
+  };
   useEffect(() => {
     const loadData = async () => {
       try {
         // Fetch dispenser data
+        setLoadingData(true);
+
         const dispenserData = await backend?.getDispenserDetails(canisterId);
+        if (
+          dispenserData[0].status &&
+          dispenserData[0].status.Expired === null
+        ) {
+          return toast.error("Dispenser expired");
+        }
         if (dispenserData && Array.isArray(dispenserData)) {
           setDispenser(dispenserData);
           console.log("Dispenser data:", dispenserData);
 
-          // Check if campaignId exists and is valid
           const campaignId = dispenserData[0]?.campaignId;
           if (campaignId) {
             console.log("Loading campaign data for campaignId:", campaignId);
@@ -121,26 +127,42 @@ const LinkClaiming = () => {
             if (campdata && Array.isArray(campdata)) {
               setCampaign(campdata);
               const collectionId = campdata[0]?.collection?.toText();
-              setCollectionId(collectionId); // Update collectionId state
-              console.log("Campaign data:", campdata, collectionId);
+              const canister = Principal.fromText(collectionId);
+              const nftIndex = campdata[0].depositIndices[0];
+              setCollectionId(collectionId);
 
               if (collectionId) {
                 const nft = createActor(collectionId, {
                   agentOptions: { identity, verifyQuerySignatures: false },
                 });
 
-                // Function to fetch image data
-                const fetchimg = async () => {
+                const getDeposits = async () => {
                   try {
-                    const data = await nft.getCollectionDetails();
-                    setCollectionImg(data);
-                    console.log("img data", data);
+                    const detail = await backend.getDepositItem(
+                      Number(nftIndex)
+                    );
+                    const tokenIdentifier = computeTokenIdentifier(
+                      detail[0]?.collectionCanister._arr,
+                      detail[0]?.tokenId
+                    );
+                    const data = await nft.tokenMetadata(tokenIdentifier);
+
+                    const stored = await backend.getStoredTokenByTokenIndex(
+                      canister,
+                      detail[0].tokenId
+                    );
+                    setDeposits(detail);
+                    setAllNFt(data?.ok?.nonfungible);
+                    setstorednft(stored[0]?.nonfungible);
+                    console.log("Deposits:", detail);
+                    console.log("all nfts:", data.ok.nonfungible);
+                    console.log("stored:", stored[0].nonfungible);
                   } catch (error) {
-                    console.error("Error in fetching collection image:", error);
+                    console.log("Error fetching deposits:", error);
                   }
                 };
 
-                await fetchimg(); // Wait for image data to be fetched
+                await getDeposits();
               }
             } else {
               console.error(
@@ -158,10 +180,10 @@ const LinkClaiming = () => {
         console.error("Error loading data:", error);
       } finally {
         setLoading(false);
+        setLoadingData(false);
       }
     };
 
-    // Only call loadData if backend and canisterId are available
     if (backend && canisterId) {
       loadData();
     }
@@ -252,6 +274,7 @@ const LinkClaiming = () => {
       fallbackCopy(text); // Use fallback if Clipboard API is not available
     }
   };
+
   return (
     <div className="md:flex  mx-auto bg-white items-start    min-h-screen  overflow-hidden bg-transparent md:w-5/6   ">
       {isMobile ? (
@@ -303,77 +326,107 @@ const LinkClaiming = () => {
         }}
         className="filter-card  rounded-xl w-full "
       >
-        {" "}
-        <div className="flex flex-col items-center md:w-[400px] justify-center mx-auto md:mt-20     md:h-full  h-screen">
-          <div>
-            <div className="text-center text-xl mt-10">
-              Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
-            </div>
-            {collcetionimg ? (
-              <div className="flex flex-col justify-center items-center">
-                {" "}
-                <img
-                  width="200px"
-                  height="200px"
-                  src={collcetionimg[2]}
-                  alt="NFT Thumbnail"
-                  className="flex items-center justify-center "
-                />
-              </div>
-            ) : null}
-            <div className="mt-4 flex justify-center">
-              <button
-                onClick={handleClaim}
-                disabled={loading}
-                className={`button px-4 z-20 py-2 rounded-md text-white ${
-                  loading ? "bg-gray-500" : "bg-[#564BF1]"
-                }`}
-              >
-                {loading ? "Claiming..." : "Claim NFT"}
-              </button>
-            </div>
-
-            {/* QR Code Button */}
-            <div className="mt-4 flex gap-4 justify-center">
-              <button
-                onClick={() => setShowQRModal(true)}
-                className="bg-[#564BF1] px-4 py-2 z-20 rounded-md text-white"
-              >
-                Show QR Code
-              </button>
-              <p
-                className="border flex items-center gap-2 px-4 py-2 z-20 cursor-pointer rounded-md text-[#564BF1]"
-                onClick={() => {
-                  handleCopy(currentUrl);
-                }}
-              >
-                <BsCopy className="text-[#564BF1] w-4 h-4" />
-                Copy Link
-              </p>
-            </div>
+        {loadingData ? (
+          <div className="my-auto flex justify-center items-center mt-[150px] text-3xl text-gray-300 animate-pulse">
+            <InfinitySpin
+              visible={true}
+              width="200"
+              color="#564BF1"
+              ariaLabel="infinity-spin-loading"
+              className="flex justify-center items-center"
+            />
           </div>
-          {showQRModal && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-              <div className="bg-white p-8 rounded-lg">
+        ) : (
+          <div className="flex flex-col items-center md:w-[400px] justify-center mx-auto md:mt-20     md:h-full  h-screen">
+            <div>
+              <div className="text-center text-xl my-5">
+                Total NFT's Left : {campaign?.[0]?.depositIndices?.length}
+              </div>
+              {deposits[0]?.claimPattern == "transfer" ? (
+                allnft ? (
+                  <div className="flex flex-col justify-center items-center">
+                    {" "}
+                    <img
+                      width="200px"
+                      height="200px"
+                      src={allnft?.thumbnail}
+                      alt="NFT Thumbnail"
+                      className="flex items-center justify-center "
+                    />
+                    <h2 className="text-xl black font-bold mt-5">
+                      {allnft?.name}
+                    </h2>
+                  </div>
+                ) : null
+              ) : storednft ? (
+                <div className="flex flex-col justify-center items-center">
+                  {" "}
+                  <img
+                    width="200px"
+                    height="200px"
+                    src={storednft?.thumbnail}
+                    alt="NFT Thumbnail"
+                    className="flex items-center justify-center "
+                  />
+                  <h2 className="text-xl black font-bold mt-5">
+                    {storednft?.name}
+                  </h2>
+                </div>
+              ) : null}
+              <div className="mt-4 flex justify-center">
                 <button
-                  onClick={() => setShowQRModal(false)}
-                  className="bg-[#F5F4F7] p-2 rounded-md mb-4"
+                  onClick={handleClaim}
+                  disabled={loading}
+                  className={`button px-4 z-20 py-2 rounded-md text-white ${
+                    loading ? "bg-gray-500" : "bg-[#564BF1]"
+                  }`}
                 >
-                  <RxCross2 className="text-gray-800 w-5 h-5" />
+                  {loading ? "Claiming..." : "Claim NFT"}
                 </button>
-                <QRCode id="qr-code" value={currentUrl} size={256} />
-                <div className="mt-4 flex justify-center">
+              </div>
+
+              {/* QR Code Button */}
+              <div className="mt-4 flex gap-4 justify-center">
+                <button
+                  onClick={() => setShowQRModal(true)}
+                  className="bg-[#564BF1] px-4 py-2 z-20 rounded-md text-white"
+                >
+                  Show QR Code
+                </button>
+                <p
+                  className="border flex items-center gap-2 px-4 py-2 z-20 cursor-pointer rounded-md text-[#564BF1]"
+                  onClick={() => {
+                    handleCopy(currentUrl);
+                  }}
+                >
+                  <BsCopy className="text-[#564BF1] w-4 h-4" />
+                  Copy Link
+                </p>
+              </div>
+            </div>
+            {showQRModal && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                <div className="bg-white p-8 rounded-lg">
                   <button
-                    onClick={downloadQRCode}
-                    className="bg-[#564BF1] px-4 py-2 rounded-md text-white"
+                    onClick={() => setShowQRModal(false)}
+                    className="bg-[#F5F4F7] p-2 rounded-md mb-4"
                   >
-                    Download QR Code
+                    <RxCross2 className="text-gray-800 w-5 h-5" />
                   </button>
+                  <QRCode id="qr-code" value={currentUrl} size={256} />
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={downloadQRCode}
+                      className="bg-[#564BF1] px-4 py-2 rounded-md text-white"
+                    >
+                      Download QR Code
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        )}
       </motion.div>
       {/* <div className="h-screen hidden  md:flex overflow-hidden w-[300px] z-10">
         <img
