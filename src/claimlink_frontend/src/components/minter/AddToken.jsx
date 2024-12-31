@@ -211,8 +211,8 @@ const AddToken = () => {
     }
 
     // Validate decimals (must be between 0 and 18 for fungible tokens)
-    if (formData.decimals < 0 || formData.decimals > 50) {
-      newErrors.decimals = "Decimals must be between 0 and 50.";
+    if (formData.decimals < 0) {
+      newErrors.decimals = "Decimals must be grater 0 ";
     }
 
     // Validate asset (required)

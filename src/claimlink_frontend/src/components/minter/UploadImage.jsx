@@ -23,9 +23,9 @@ const UploadImage = ({
   });
 
   const validateImage = (file) => {
-    const maxSizeInBytes = 1024 * 1024 * 0.2;
+    const maxSizeInBytes = 1024 * 1024 * 1;
     if (file.size > maxSizeInBytes) {
-      toast.error("Image size should not exceed 200KB.");
+      toast.error("Image size should not exceed 1MB.");
       return false;
     }
     if (!file.type.startsWith("image/")) {
@@ -155,7 +155,7 @@ const UploadImage = ({
           <img
             src={image}
             alt="Preview"
-            className="w-full h-auto rounded-lg border-2 border-dashed border-gray-300"
+            className="w-48 h-auto rounded-lg border-2 border-dashed border-gray-300"
           />
         </div>
       )}
