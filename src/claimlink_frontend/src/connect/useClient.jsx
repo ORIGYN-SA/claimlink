@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAgent, useIdentityKit } from "@nfid/identitykit/react";
+import { useIdentityKit } from "@nfid/identitykit/react";
 import { createActor } from "../../../declarations/claimlink_backend";
 import { Navigate, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
@@ -22,7 +22,6 @@ export const useAuthClient = () => {
     identity,
     icpBalance,
   } = useIdentityKit();
-  const authenticatedAgent = useAgent();
 
   const disconnect = () => {
     identityKitDisconnect();
@@ -87,7 +86,11 @@ export const useAuthClient = () => {
     balance: icpBalance,
     principal: user?.principal,
     backend: createActor(canisterID, {
-      agentOptions: { identity, verifyQuerySignatures: false },
+      agentOptions: {
+        // host: "http://localhost:4943",
+        identity,
+        verifyQuerySignatures: false,
+      },
     }),
   };
 };

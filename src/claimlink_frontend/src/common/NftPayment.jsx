@@ -38,7 +38,7 @@ const NftPayment = ({ img, toggleModal, name, handlecreate }) => {
   const authenticatedAgent = useAgent();
   const actor = Actor.createActor(idlFactory, {
     agent: authenticatedAgent,
-    canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+    canisterId: process.env.CANISTER_ID_ICP_LEDGER_CANISTER,
   });
 
   // Handle Plug Payment
