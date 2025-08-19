@@ -116,12 +116,15 @@ WASM_SIZE=$(stat -f%z "$WASM_FILE" 2>/dev/null || stat -c%s "$WASM_FILE" 2>/dev/
 CHUNK_SIZE=1000000  # 1MB chunks
 TOTAL_CHUNKS=$(( (WASM_SIZE + CHUNK_SIZE - 1) / CHUNK_SIZE ))
 
+WASM_HASH=$(cksum "$WASM_FILE" | awk '{print $1}')
+echo "WASM file hash: $WASM_HASH"
+
 echo "WASM file size: $WASM_SIZE bytes"
 echo "Chunk size: $CHUNK_SIZE bytes"
 echo "Total chunks: $TOTAL_CHUNKS"
 
 echo "Starting WASM upload..."
-dfx canister call claimlink_backend startWasmUpload "($TOTAL_CHUNKS)"
+dfx canister call claimlink_backend startWasmUpload "($TOTAL_CHUNKS, $WASM_HASH)"
 
 for ((i=0; i<TOTAL_CHUNKS; i++)); do
     echo "Uploading chunk $((i+1))/$TOTAL_CHUNKS..."
@@ -142,7 +145,17 @@ for ((i=0; i<TOTAL_CHUNKS; i++)); do
 done
 
 echo "Completing WASM upload..."
-dfx canister call claimlink_backend completeWasmUpload
+UPLOAD_RESULT=$(dfx canister call claimlink_backend completeWasmUpload)
+
+if [[ "$UPLOAD_RESULT" == *"ok"* ]]; then
+    echo "WASM upload completed successfully!"
+elif [[ "$UPLOAD_RESULT" == *"err"* ]]; then
+    echo "WASM upload failed: $UPLOAD_RESULT"
+    exit 1
+else
+    echo "Unexpected upload result: $UPLOAD_RESULT"
+    exit 1
+fi
 
 echo "Setting canister IDs for network: $NETWORK"
 

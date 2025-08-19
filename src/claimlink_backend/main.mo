@@ -838,20 +838,21 @@ actor Main {
 
     };
 
-    private stable var origyn_nft_wasm : Blob = Blob.fromArray([]); // Will be set via admin function
-    private stable var wasm_chunks : [Blob] = []; // For chunked upload
+    private stable var origyn_nft_wasm : Blob = Blob.fromArray([]);
+    private stable var expected_wasm_hash: Nat32 = 0;
     private stable var wasm_upload_in_progress : Bool = false;
     private stable var expected_chunks : Nat = 0;
     private stable var received_chunks : Nat = 0;
 
-    public shared ({ caller }) func startWasmUpload(total_chunks : Nat) : async () {
+    public shared ({ caller }) func startWasmUpload(total_chunks : Nat, expected_hash : Nat32) : async () {
         if (not Principal.isController(caller)) {
             throw Error.reject("You cannot control this canister");
         };
         wasm_upload_in_progress := true;
         expected_chunks := total_chunks;
         received_chunks := 0;
-        wasm_chunks := [];
+        expected_wasm_hash := expected_hash;
+        origyn_nft_wasm := Blob.fromArray([]);
     };
 
     public shared ({ caller }) func uploadWasmChunk(chunk_index : Nat, chunk : Blob) : async () {
@@ -864,58 +865,37 @@ actor Main {
         if (chunk_index >= expected_chunks) {
             throw Error.reject("Chunk index out of bounds");
         };
-        
-        var new_chunks : [Blob] = [];
-        var i : Nat = 0;
-        
-        while (i < chunk_index) {
-            if (i < wasm_chunks.size()) {
-                new_chunks := Array.append(new_chunks, [wasm_chunks[i]]);
-            } else {
-                new_chunks := Array.append(new_chunks, [Blob.fromArray([])]);
-            };
-            i := i + 1;
-        };
-        
-        new_chunks := Array.append(new_chunks, [chunk]);
-        
-        i := chunk_index + 1;
-        while (i < wasm_chunks.size()) {
-            new_chunks := Array.append(new_chunks, [wasm_chunks[i]]);
-            i := i + 1;
-        };
-        
-        wasm_chunks := new_chunks;
+                
+        origyn_nft_wasm := Blob.fromArray(Array.append(Blob.toArray(origyn_nft_wasm), Blob.toArray(chunk)));
+
         received_chunks := received_chunks + 1;
     };
 
-    public shared ({ caller }) func completeWasmUpload() : async () {
+    public shared ({ caller }) func completeWasmUpload() : async Result.Result<(), Text> {
         if (not Principal.isController(caller)) {
-            throw Error.reject("You cannot control this canister");
+            return #err("You cannot control this canister");
         };
         if (not wasm_upload_in_progress) {
-            throw Error.reject("No WASM upload in progress");
+            return #err("No WASM upload in progress");
         };
         if (received_chunks != expected_chunks) {
-            throw Error.reject("Not all chunks received");
+            return #err("Not all chunks received");
         };
         
-        var combined_size : Nat = 0;
-        for (chunk in wasm_chunks.vals()) {
-            combined_size := combined_size + chunk.size();
-        };
+        let actual_hash = Blob.hash(origyn_nft_wasm);
         
-        var combined_bytes : [Nat8] = [];
-        for (chunk in wasm_chunks.vals()) {
-            combined_bytes := Array.append(combined_bytes, Blob.toArray(chunk));
-        };
+        Debug.print("WASM hash verification - Expected: " # Nat32.toText(expected_wasm_hash) # ", Actual: " # Nat32.toText(actual_hash));
         
-        origyn_nft_wasm := Blob.fromArray(combined_bytes);
+        if (actual_hash != expected_wasm_hash) {
+            return #err("WASM hash verification failed. Expected: " # Nat32.toText(expected_wasm_hash) # ", Got: " # Nat32.toText(actual_hash));
+        };
         
         wasm_upload_in_progress := false;
         expected_chunks := 0;
         received_chunks := 0;
-        wasm_chunks := [];
+        expected_wasm_hash := 0;
+        
+        #ok(());
     };
 
     public query func getWasmUploadProgress() : async { in_progress : Bool; received : Nat; expected : Nat } {
