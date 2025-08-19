@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { TailSpin } from "react-loader-spinner";
-import { createActor } from "../../../../declarations/assets_canister";
+// import { createActor } from "../../../../declarations/assets_canister";
 import { useAuth } from "../../connect/useClient";
 
 const UploadImage = ({
@@ -18,9 +18,9 @@ const UploadImage = ({
   const [formErrors, setFormErrors] = useState({ img: "" });
   const canisterId = process.env.CANISTER_ID_ASSETS_CANISTER;
   const { identity } = useAuth();
-  const nft = createActor(canisterId, {
-    agentOptions: { identity, verifyQuerySignatures: false },
-  });
+  // const nft = createActor(canisterId, {
+  //   agentOptions: { identity, verifyQuerySignatures: false },
+  // });
 
   const validateImage = (file) => {
     const maxSizeInBytes = 1024 * 1024 * 1;
@@ -93,7 +93,7 @@ const UploadImage = ({
       console.log("ArrayBuffer to upload:", arrayBuffer);
 
       // Upload the image and retrieve the URL
-      await nft.uploadImg(imgId, [...arrayBuffer]);
+      // await nft.uploadImg(imgId, [...arrayBuffer]);
 
       const url = getImageURL(imgId);
       console.log("url", url);

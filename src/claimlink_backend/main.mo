@@ -1,3 +1,5 @@
+import OrigynNFTInterface "./OrigynNFTInterface";
+import IC "mo:ic";
 import ExtTokenClass "../extv2/ext_v2/v2";
 import Cycles "mo:base/ExperimentalCycles";
 import Principal "mo:base/Principal";
@@ -279,6 +281,8 @@ actor Main {
     private stable var stableDepositMap : [(Nat32, Deposit)] = [];
     // Payment recepient
     private stable var recepient : Principal = Principal.fromText("inerd-ot3e5-6uk35-zmytr-l64da-5r2jk-eqo6e-yds5d-nank5-z7vah-uqe");
+    private stable var ledger_canister_id : Text = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+    private stable var registry_canister_id : Text = "bd3sg-teaaa-aaaaa-qaaba-cai";
 
     public shared ({ caller }) func getRecepient() : async Result.Result<Principal, Text> {
         if (not Principal.isController(caller)) {
@@ -295,6 +299,20 @@ actor Main {
         };
         recepient := recepientPrincipal;
         return #ok(recepient);
+    };
+
+    public shared ({ caller }) func setLedgerCanisterId(id : Text) : async () {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+        };
+        ledger_canister_id := id;
+    };
+
+    public shared ({ caller }) func setRegistryCanisterId(id : Text) : async () {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+        };
+        registry_canister_id := id;
     };
 
     public query func availableCycles() : async Nat {
@@ -342,7 +360,7 @@ actor Main {
         return #ok("Cycles successfully transferred to collection canister.");
     };
 
-    let LedgerCanister = actor "ryjl3-tyaaa-aaaaa-aaaba-cai" : actor {
+    let LedgerCanister = actor (ledger_canister_id) : actor {
         account_balance : shared query BinaryAccountBalanceArgs -> async Tokens;
         // transfer : shared TransferArgs -> async Result_6;
         // send_dfx : shared SendArgs -> async Nat64;
@@ -351,7 +369,7 @@ actor Main {
 
     };
 
-    let RegistryCanister = actor "bd3sg-teaaa-aaaaa-qaaba-cai" : actor {
+    let RegistryCanister = actor (registry_canister_id) : actor {
         add_canister : (caller : Principal, metadata : AddCanisterInput, trusted_source : ?Principal) -> async Result.Result<(), OperationError>;
     };
 
@@ -818,6 +836,237 @@ actor Main {
             };
         };
 
+    };
+
+    private stable var origyn_nft_wasm : Blob = Blob.fromArray([]);
+    private stable var expected_wasm_hash: Nat32 = 0;
+    private stable var wasm_upload_in_progress : Bool = false;
+    private stable var expected_chunks : Nat = 0;
+    private stable var received_chunks : Nat = 0;
+
+    public shared ({ caller }) func startWasmUpload(total_chunks : Nat, expected_hash : Nat32) : async () {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+        };
+        wasm_upload_in_progress := true;
+        expected_chunks := total_chunks;
+        received_chunks := 0;
+        expected_wasm_hash := expected_hash;
+        origyn_nft_wasm := Blob.fromArray([]);
+    };
+
+    public shared ({ caller }) func uploadWasmChunk(chunk_index : Nat, chunk : Blob) : async () {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+        };
+        if (not wasm_upload_in_progress) {
+            throw Error.reject("No WASM upload in progress");
+        };
+        if (chunk_index >= expected_chunks) {
+            throw Error.reject("Chunk index out of bounds");
+        };
+                
+        origyn_nft_wasm := Blob.fromArray(Array.append(Blob.toArray(origyn_nft_wasm), Blob.toArray(chunk)));
+
+        received_chunks := received_chunks + 1;
+    };
+
+    public shared ({ caller }) func completeWasmUpload() : async Result.Result<(), Text> {
+        if (not Principal.isController(caller)) {
+            return #err("You cannot control this canister");
+        };
+        if (not wasm_upload_in_progress) {
+            return #err("No WASM upload in progress");
+        };
+        if (received_chunks != expected_chunks) {
+            return #err("Not all chunks received");
+        };
+        
+        let actual_hash = Blob.hash(origyn_nft_wasm);
+        
+        Debug.print("WASM hash verification - Expected: " # Nat32.toText(expected_wasm_hash) # ", Actual: " # Nat32.toText(actual_hash));
+        
+        if (actual_hash != expected_wasm_hash) {
+            return #err("WASM hash verification failed. Expected: " # Nat32.toText(expected_wasm_hash) # ", Got: " # Nat32.toText(actual_hash));
+        };
+        
+        wasm_upload_in_progress := false;
+        expected_chunks := 0;
+        received_chunks := 0;
+        expected_wasm_hash := 0;
+        
+        #ok(());
+    };
+
+    public query func getWasmUploadProgress() : async { in_progress : Bool; received : Nat; expected : Nat } {
+        { in_progress = wasm_upload_in_progress; received = received_chunks; expected = expected_chunks };
+    };
+    
+    public shared ({ caller }) func setOrigynNFTWasm(wasm : Blob) : async () {
+        if (not Principal.isController(caller)) {
+            throw Error.reject("You cannot control this canister");
+        };
+        origyn_nft_wasm := wasm;
+    };
+
+    public query func isOrigynNFTWasmSet() : async Bool {
+        origyn_nft_wasm.size() > 0;
+    };
+
+    public shared ({ caller = user }) func createOrigynCollection(
+        _title : Text,
+        _symbol : Text,
+        _metadata : Text
+    ) : async Result.Result<(Principal, Principal), Text> {
+        if (Principal.isAnonymous(user)) {
+            throw Error.reject("Anonymous principals are not allowed.");
+        };
+        
+        let availablecycles : Nat = await availableCycles();
+        if (availablecycles < 900_000_000_000) {
+            throw Error.reject("Canister doesnt have enough cycles");
+        };
+        
+        Cycles.add<system>(900_000_000_000);
+        
+        // Helpful: https://github.com/dfinity/portal/blob/master/docs/references/_attachments/ic.did
+        let ic = actor("aaaaa-aa") : IC.Service;
+        
+        let canister_result = await ic.create_canister({ settings = null; sender_canister_version = null });
+        let origynCollectionCanisterId = canister_result.canister_id;
+        
+        Debug.print("Created ORIGYN collection canister with ID: " # Principal.toText(origynCollectionCanisterId));
+        
+        
+        if (origyn_nft_wasm.size() == 0) {
+            throw Error.reject("ORIGYN NFT WASM not set. Please contact administrator.");
+        };
+
+        let initArgs : OrigynNFTInterface.InitArgs = {
+            permissions = {
+                user_permissions = [(user, [
+                    #UpdateMetadata,
+                    #Minting,
+                    #UpdateCollectionMetadata,
+                    #UpdateUploads,
+                    #ManageAuthorities,
+                    #ReadUploads
+                ])];
+            };
+            supply_cap = null;
+            tx_window = null;
+            test_mode = false;
+            default_take_value = null;
+            max_canister_storage_threshold = null;
+            logo = null;
+            permitted_drift = null;
+            name = _title;
+            description = null;
+            version = { major = 1; minor = 0; patch = 0 };
+            max_take_value = null;
+            max_update_batch_size = null;
+            max_query_batch_size = null;
+            commit_hash = "initial";
+            max_memo_size = null;
+            atomic_batch_transfers = null;
+            collection_metadata = [];
+            symbol = _symbol;
+            approval_init = {
+                max_approvals_per_token_or_collection = null;
+                max_revoke_approvals = null;
+            };
+        };
+
+        await ic.install_code({
+            arg = Blob.fromArray([]);
+            wasm_module = origyn_nft_wasm;
+            mode = #install;
+            canister_id = origynCollectionCanisterId;
+            sender_canister_version = null;
+        });
+        
+        // TODO: Remove this, just a placeholder for now
+        let collectionCanisterActor : OrigynNFTInterface.OrigynNFTCanister = actor (Principal.toText(origynCollectionCanisterId));
+        
+        let updateResult = await collectionCanisterActor.update_collection_metadata({
+            name = ?_title;
+            symbol = ?_symbol;
+            description = ?_metadata;
+            supply_cap = null;
+            tx_window = null;
+            default_take_value = null;
+            max_canister_storage_threshold = null;
+            logo = null;
+            permitted_drift = null;
+            max_take_value = null;
+            max_update_batch_size = null;
+            max_query_batch_size = null;
+            max_memo_size = null;
+            atomic_batch_transfers = null;
+            collection_metadata = null;
+        });
+        
+        switch (updateResult) {
+            case (#ok(())) {
+                Debug.print("Collection metadata updated successfully");
+            };
+            case (#err(#StorageCanisterError(message))) {
+                Debug.print("Storage error updating metadata: " # message);
+            };
+            case (#err(#ConcurrentManagementCall)) {
+                Debug.print("Concurrent management call error");
+            };
+        };
+        
+        let collections = usersCollectionMap.get(user);
+        let buffer = Buffer.fromArray<Principal>(allCollections);
+        buffer.add(origynCollectionCanisterId);
+        allCollections := Buffer.toArray(buffer);
+        
+        let canisterMetadata : CanisterMetadata = {
+            name = _title;
+            description = _symbol;
+            thumbnail = _metadata;
+            frontend = null;
+            principal_id = origynCollectionCanisterId;
+            submitter = user;
+            last_updated_by = user;
+            last_updated_at = Time.now();
+            details = [];
+        };
+
+        let addResult = await RegistryCanister.add_canister(user, canisterMetadata, null);
+        switch (addResult) {
+            case (#ok(())) {
+                switch (collections) {
+                    case null {
+                        let updatedCollections = [(Time.now(), origynCollectionCanisterId)];
+                        usersCollectionMap.put(user, updatedCollections);
+                        return #ok(user, origynCollectionCanisterId);
+                    };
+                    case (?collections) {
+                        let updatedObj = Array.append(collections, [(Time.now(), origynCollectionCanisterId)]);
+                        usersCollectionMap.put(user, updatedObj);
+                        return #ok(user, origynCollectionCanisterId);
+                    };
+                };
+            };
+            case (#err(errType)) {
+                let errorMessage : Text = switch (errType) {
+                    case (#BadParameters) { "Bad parameters provided." };
+                    case (#NonExistentItem) {
+                        "The specified item does not exist.";
+                    };
+                    case (#NotAuthorized) {
+                        "Not authorized to perform this action.";
+                    };
+                    case (#Unknown(error)) {
+                        "Unknown error occurred: " # error;
+                    };
+                };
+                throw Error.reject("Failed to add canister to registry: " # errorMessage);
+            };
+        };
     };
 
     // Getting Collection Metadata

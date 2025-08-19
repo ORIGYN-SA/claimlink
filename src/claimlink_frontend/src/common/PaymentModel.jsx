@@ -353,12 +353,13 @@ const PaymentModel = ({
 
     const actor = Actor.createActor(idlFactory, {
       agent: authenticatedAgent,
-      canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+      canisterId: process.env.CANISTER_ID_ICP_LEDGER_CANISTER,
     });
+
     const transferArgs = {
       from_subaccount: [],
       spender: {
-        owner: Principal.fromText("xjhju-3aaaa-aaaak-akv5q-cai"),
+        owner: Principal.fromText(process.env.CANISTER_ID_CLAIMLINK_BACKEND),
         subaccount: [],
       },
       amount: BigInt(coffeeAmount * 10 ** 8 + 10000),

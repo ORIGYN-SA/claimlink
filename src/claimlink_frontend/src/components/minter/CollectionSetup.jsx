@@ -52,10 +52,11 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
     if (!validateForm()) {
       return;
     }
-    if (imgUploaded == false || formData.img === "") {
-      toast.error("Please Upload Img");
-      return;
-    }
+    // TODO: Add back once we have images
+    // if (imgUploaded == false || formData.img === "") {
+    //   toast.error("Please Upload Img");
+    //   return;
+    // }
     setIsModalOpen(!isModalOpen);
   };
 
@@ -75,6 +76,38 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
       if (res) {
         toast.success("Collection created successfully!");
         trackEvent("Collection_Created", {
+          event_category: "NFT Collection",
+          event_label: formData.title,
+          title: formData.title,
+          symbol: formData.symbol,
+        });
+
+        handleNext();
+        navigate(-1);
+      } else {
+        toast.error("Failed to create collection.");
+      }
+    } catch (error) {
+      console.error("Error creating collection:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCreateWithOrigyn = async () => {
+    try {
+      setLoading(true);
+
+      const res = await backend.createOrigynCollection(
+        formData.title,
+        formData.symbol,
+        "" // this will be metadata
+      );
+      console.log("res", res);
+      if (res) {
+        toast.success("ORIGYN Collection created successfully!");
+        trackEvent("ORIGYN_Collection_Created", {
           event_category: "NFT Collection",
           event_label: formData.title,
           title: formData.title,
@@ -192,7 +225,7 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
         <div className="flex gap-4 md:w-auto w-full mt-10">
           <BackButton onClick={handleBack} text={"Back"} loading={loading} />
 
-          <MainButton onClick={toggleModal} text={"Submit"} />
+          {/* <MainButton onClick={toggleModal} text={"Submit"} />
           {isModalOpen ? (
             <PaymentModel
               loading={loading}
@@ -202,7 +235,9 @@ const CollectionSetup = ({ handleNext, handleBack }) => {
               handlecreate={handleCreate}
               coffeeAmount={coffeeAmount}
             />
-          ) : null}
+          ) : null} */}
+          {/* TODO: Add back the above line after MVP, right now we create directly, without payment */}
+          <MainButton onClick={handleCreateWithOrigyn} text={"Submit"} />
         </div>
       </div>
     </motion.div>

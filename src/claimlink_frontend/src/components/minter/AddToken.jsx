@@ -235,10 +235,11 @@ const AddToken = () => {
       console.log("form", errors);
       return;
     }
-    if (imgUploaded == false) {
-      toast.error("Please Upload Img");
-      return;
-    }
+    // TODO: Add back once we have images
+    // if (imgUploaded == false) {
+    //   toast.error("Please Upload Img");
+    //   return;
+    // }
     setLoading(true);
 
     try {
