@@ -24,6 +24,7 @@
 
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./src/*"],
       "@services/*": ["src/services/*"],
       "@atoms/*": ["src/atoms/*"],
       "@hooks/*": ["src/hooks/*"],

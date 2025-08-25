@@ -24,453 +24,479 @@ dfx deploy
 
 # Start development server
 pnpm dev
+````
+
+## Tech Stack
+
+- **UI Components**: shadcn/ui (Radix UI + Tailwind CSS)
+- **Routing**: TanStack Router (file-based routing)
+- **State Management**: Jotai (atoms) + React Query (server state)
+- **Styling**: Tailwind CSS with CSS variables
+- **IC Integration**: @dfinity/agent, @dfinity/candid, @dfinity/principal
+
+## Routing Structure (TanStack Router)
+
+### File-Based Routes
+
+```
+src/
+├── routes/
+│   ├── __root.tsx              # Root layout with providers
+│   ├── index.tsx                # Home page (/)
+│   ├── dashboard.tsx            # Dashboard (/dashboard)
+│   ├── campaigns/
+│   │   ├── index.tsx           # Campaigns list (/campaigns)
+│   │   ├── $campaignId.tsx     # Campaign detail (/campaigns/:id)
+│   │   └── new.tsx             # Create campaign (/campaigns/new)
+│   ├── collections/
+│   │   ├── index.tsx           # Collections list
+│   │   └── $collectionId.tsx   # Collection detail
+│   └── _authenticated/         # Route group for auth-required pages
+│       ├── _layout.tsx         # Auth layout wrapper
+│       └── profile.tsx         # User profile
 ```
 
-## Project Structure
-
-### Component Organization Rules
-
-**CRITICAL**: We use a three-layer component system. Place components correctly:
-
-1. **`components/`** - Generic UI library components with ZERO business logic
-    - Could work in ANY React project
-    - No app-specific imports
-    - Pure presentational
-
-2. **`shared/ui/`** - Base design system primitives
-    - Atomic design elements (buttons, icons, logos)
-    - Define visual consistency
-    - Building blocks for other components
-
-3. **`shared/components/`** - App-aware shared components
-    - Use auth hooks, services, routing
-    - Contain business logic
-    - Used across multiple features
-
-4. **`apps/[feature]/components/`** - Feature-specific components
-    - Only used within that feature
-    - Tightly coupled to feature logic
-
-### Import Rules
-
-- Always use path aliases (@components, @services, @shared, etc.)
-- Never use relative imports crossing module boundaries
-- Barrel exports required for all component directories
-
-## Code Style & Conventions
-
-### TypeScript Rules
-
-- **NO `any` types** - Use `unknown` or proper types
-- Define interfaces in:
-    - `services/[service]/interfaces.ts` for API types
-    - `apps/[feature]/types.ts` for feature types
-    - `shared/components/[component]/types.ts` for component props
-- Strict mode enabled - no exceptions
-
-### Naming Conventions
-
-- Components: PascalCase (`CampaignCard.tsx`)
-- Hooks: camelCase with `use` prefix (`useCampaignData.tsx`)
-- Service functions: camelCase (`createCampaign.ts`)
-- Constants: SCREAMING_SNAKE_CASE
-- Path aliases: lowercase with @ prefix
-
-### Component Patterns
+### Route Components Pattern
 
 ```typescript
-// ✅ Good - Presentational component in components/
-const Card = ({ children, className }) => {
-  return <div className={`rounded-xl ${className}`}>{children}</div>;
-};
+// routes/campaigns/index.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { CampaignsPage } from '@/features/campaigns/CampaignsPage'
 
-// ✅ Good - App-aware component in shared/components/
-const ConnectWalletBtn = () => {
-  const { connect } = useAuth(); // App-specific hook
-  return <Button onClick={connect}>Connect</Button>;
-};
+export const Route = createFileRoute('/campaigns/')({
+  component: CampaignsPage,
+  beforeLoad: async ({ context }) => {
+    // Auth check, data preloading, etc.
+  }
+})
+```
 
-// ❌ Bad - Business logic in components/
-const Card = () => {
-  const { user } = useAuth(); // NO! This belongs in shared/components/
-  return <div>{user.name}</div>;
-};
+## Component Organization: Three-Layer System
+
+### 1. **`components/ui/` - shadcn/ui Components**
+
+**Purpose**: Pre-built, customizable UI components from shadcn/ui
+
+**Characteristics**:
+
+- Installed via CLI: `pnpm dlx shadcn-ui@latest add [component]`
+- Built on Radix UI primitives
+- Styled with Tailwind CSS
+- Customizable through CSS variables
+- Located in `components/ui/` by shadcn convention
+
+**Available Components**:
+
+```
+components/ui/
+├── button.tsx          # From shadcn/ui
+├── card.tsx           # From shadcn/ui
+├── dialog.tsx         # From shadcn/ui
+├── dropdown-menu.tsx  # From shadcn/ui
+├── input.tsx          # From shadcn/ui
+├── label.tsx          # From shadcn/ui
+├── select.tsx         # From shadcn/ui
+├── table.tsx          # From shadcn/ui
+├── tabs.tsx           # From shadcn/ui
+├── toast.tsx          # From shadcn/ui
+└── ... (other shadcn components)
+```
+
+### 2. **`features/` - Feature Modules**
+
+**Purpose**: Feature-specific components and logic, organized by domain
+
+**Characteristics**:
+
+- Self-contained feature implementations
+- Can have own components, hooks, and utils
+- Import from shadcn/ui and shared components
+- Maps loosely to route structure
+
+**Structure**:
+
+```
+features/
+├── campaigns/
+│   ├── CampaignsPage.tsx       # Main page component
+│   ├── CampaignCard.tsx        # Feature-specific component
+│   ├── CampaignForm.tsx        # Feature-specific form
+│   ├── hooks/
+│   │   └── useCampaignData.tsx
+│   └── types.ts
+├── collections/
+├── links/
+└── dashboard/
+```
+
+### 3. **`shared/` - Shared Application Code**
+
+**Purpose**: Cross-cutting concerns and app-specific shared components
+
+**Structure**:
+
+```
+shared/
+├── components/              # App-specific shared components
+│   ├── AppLayout.tsx       # Main layout wrapper
+│   ├── NavigationMenu.tsx  # App navigation
+│   ├── ConnectWallet.tsx   # Wallet connection
+│   ├── NFTSelector.tsx     # NFT picker component
+│   └── TokenBalance.tsx    # Token display
+├── hooks/                   # Shared custom hooks
+├── utils/                   # Helper functions
+└── lib/                     # Library configurations
+    └── utils.ts            # cn() utility for shadcn
+```
+
+## shadcn/ui Integration Guidelines
+
+### Component Customization
+
+**CSS Variables Alignment**:
+
+```css
+/* app/globals.css or index.css */
+@layer base {
+  :root {
+    /* Map Figma design tokens to shadcn CSS variables */
+    --background: 0 0% 100%;          /* #ffffff */
+    --foreground: 213 13% 16%;        /* #222526 */
+
+    --primary: 217 77% 13%;           /* #061937 - Figma primary */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 249 87% 68%;         /* #615bff - Figma accent */
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 0 0% 96%;                /* #f2f2f2 */
+    --muted-foreground: 206 8% 48%;   /* #69737c */
+
+    --card: 0 0% 100%;
+    --card-foreground: 213 13% 16%;
+
+    --destructive: 11 79% 53%;        /* #e84c25 - Figma error */
+    --success: 153 47% 55%;           /* #50be8f - Figma success */
+
+    --border: 0 0% 88%;               /* #e1e1e1 */
+    --ring: 217 77% 13%;
+
+    --radius: 1rem;                   /* 16px default radius */
+  }
+}
+```
+
+### Using shadcn Components
+
+```typescript
+// ✅ CORRECT: Import from components/ui
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
+
+// ✅ CORRECT: Use with cn() for additional styles
+import { cn } from "@/lib/utils"
+
+<Button
+  variant="default"
+  size="lg"
+  className={cn("w-full", someCondition && "opacity-50")}
+>
+  Click me
+</Button>
+
+// ❌ WRONG: Don't recreate shadcn components
+const MyButton = () => { /* custom implementation */ }
+```
+
+## Figma Design Implementation Rules
+
+### When Creating Components from Figma
+
+1. **Check shadcn/ui first**:
+
+    ```typescript
+    // Before creating custom components, check if shadcn/ui has it:
+    // - Button, Card, Dialog, Dropdown, Input, Select, Table, etc.
+    // Install if needed: pnpm dlx shadcn-ui@latest add [component]
+    ```
+
+2. **Component Priority Order**:
+
+    - Use shadcn/ui component if available
+    - Extend shadcn component with className if needed
+    - Create custom component only if truly unique
+3. **Figma to shadcn Mapping**:
+
+    |Figma Component|shadcn/ui Component|Notes|
+    |---|---|---|
+    |Button/Primary|`<Button variant="default">`|Adjust CSS variables|
+    |Button/Secondary|`<Button variant="outline">`||
+    |Card|`<Card>`|Use CardHeader, CardContent|
+    |Input Field|`<Input>` with `<Label>`||
+    |Dropdown|`<Select>` or `<DropdownMenu>`||
+    |Modal|`<Dialog>`||
+    |Table|`<Table>`||
+    |Tabs|`<Tabs>`||
+    |Toast/Alert|`<Toast>` or `<Alert>`||
+
+4. **Style Alignment Process**:
+
+    ```typescript
+    // Step 1: Use shadcn component
+    <Card>
+      <CardHeader>
+        <CardTitle>Title</CardTitle>
+      </CardHeader>
+      <CardContent>Content</CardContent>
+    </Card>
+
+    // Step 2: Adjust with className if needed
+    <Card className="shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] border-[#f2f2f2]">
+
+    // Step 3: Update CSS variables if systematic changes needed
+    // (in globals.css, not inline)
+    ```
+
+
+### Figma Style Extraction Checklist
+
+When implementing a Figma design:
+
+1. [ ] **Identify shadcn equivalent** - Can I use an existing shadcn component?
+2. [ ] **Extract design tokens** - What are the colors, spacing, radii?
+3. [ ] **Check CSS variables** - Do I need to update the theme?
+4. [ ] **Component composition** - Can I compose this from shadcn parts?
+5. [ ] **Custom styles needed** - What Figma-specific styles must be added?
+
+### Post-Generation CSS Alignment
+
+After generating components with AI, run this alignment check:
+
+```typescript
+// Style Alignment Checklist:
+// 1. Border radius matches Figma? (update --radius if needed)
+// 2. Colors match exactly? (update CSS variables)
+// 3. Shadows correct? (may need custom shadow-[] classes)
+// 4. Spacing consistent? (use Tailwind spacing scale)
+// 5. Typography matches? (font-size, line-height, font-weight)
+```
+
+## Feature Organization Pattern
+
+### Feature Module Structure
+
+```
+features/campaigns/
+├── CampaignsPage.tsx           # Main route component
+├── CampaignsList.tsx           # List view component
+├── CampaignCard.tsx           # List item component
+├── CampaignForm.tsx           # Create/edit form
+├── CampaignDetail.tsx         # Detail view
+├── components/                # Feature-specific components
+│   ├── CampaignStats.tsx
+│   └── CampaignActions.tsx
+├── hooks/
+│   ├── useCampaigns.tsx      # React Query hook
+│   └── useCampaignForm.tsx   # Form logic
+├── services/
+│   └── campaignService.ts    # API calls
+└── types.ts                   # TypeScript types
 ```
 
 ## State Management
 
 ### Jotai Atoms
 
-- Global state atoms go in `shared/atoms/`
-- Feature-specific atoms in `apps/[feature]/atoms/`
-- Always export read/write atoms separately
-- Atom names end with `Atom` suffix
+```typescript
+// shared/atoms/user.atom.ts
+import { atom } from 'jotai'
 
-### React Query
+export const userAtom = atom<User | null>(null)
+export const isAuthenticatedAtom = atom(
+  (get) => get(userAtom) !== null
+)
+```
 
-- Query keys: SCREAMING_SNAKE_CASE arrays `['FETCH_CAMPAIGNS']`
-- Custom hooks wrapper required for all queries
-- Place in `shared/hooks/` or feature-specific hooks
-- Handle errors at the hook level
+### React Query Integration
+
+```typescript
+// features/campaigns/hooks/useCampaigns.tsx
+import { useQuery } from '@tanstack/react-query'
+import { campaignService } from '../services/campaignService'
+
+export const useCampaigns = () => {
+  return useQuery({
+    queryKey: ['campaigns'],
+    queryFn: campaignService.fetchAll,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
+}
+```
 
 ## Service Layer Rules
 
-### Canister Interactions
+### Canister Service Pattern
 
 ```typescript
-// Every service function MUST:
-// 1. Accept actor as first parameter
-// 2. Handle errors with try/catch
-// 3. Return typed responses
-// 4. Throw meaningful error messages
+// services/claimlink/campaignService.ts
+import { Actor } from '@dfinity/agent'
+import { idlFactory } from './idlFactory'
 
-export default async function createCampaign(
-  actor: Actor,
-  args: CreateCampaignArgs
-): Promise<Campaign> {
-  try {
-    const result = await actor.create_campaign(args);
-    if ('err' in result) throw new Error(result.err);
-    return result.ok;
-  } catch (error) {
-    throw new Error('Campaign creation failed');
+export const campaignService = {
+  async fetchAll(actor: Actor) {
+    try {
+      const result = await actor.get_campaigns()
+      if ('err' in result) throw new Error(result.err)
+      return result.ok
+    } catch (error) {
+      throw new Error('Failed to fetch campaigns')
+    }
+  },
+
+  async create(actor: Actor, data: CreateCampaignInput) {
+    // Implementation
   }
 }
 ```
 
-### IDL Factory Organization
+## Import Rules & Path Aliases
 
-- One IDL factory per canister in `services/[canister]/idlFactory.ts`
-- Interfaces in `services/[canister]/interfaces.ts`
-- Functions in `services/[canister]/fn/[function].ts`
+```json
+// tsconfig.json paths
+{
+  "@/components/*": ["components/*"],      // shadcn/ui components
+  "@/features/*": ["features/*"],          // Feature modules
+  "@/shared/*": ["shared/*"],              // Shared code
+  "@/services/*": ["services/*"],          // API services
+  "@/lib/*": ["lib/*"],                    // Library code
+  "@/routes/*": ["routes/*"]               // Route components
+}
+```
+
+### Import Order
+
+```typescript
+// 1. React/External libraries
+import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+
+// 2. Routing
+import { createFileRoute, Link } from '@tanstack/react-router'
+
+// 3. UI Components (shadcn)
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+
+// 4. Shared components
+import { AppLayout } from '@/shared/components/AppLayout'
+
+// 5. Feature components
+import { CampaignCard } from '@/features/campaigns/CampaignCard'
+
+// 6. Services/Utils
+import { campaignService } from '@/services/claimlink/campaignService'
+import { cn } from '@/lib/utils'
+
+// 7. Types
+import type { Campaign } from '@/features/campaigns/types'
+```
 
 ## Testing Requirements
 
-### Before Committing
-
-```bash
-# Run type checking
-pnpm tsc --noEmit
-
-# Run linting
-pnpm lint
-
-# Run tests
-pnpm test
-
-# Build to verify
-pnpm build
-```
-
-### Test Coverage Requirements
-
-- Service functions: 100% coverage required
-- Shared hooks: 90% coverage minimum
-- UI components: Snapshot tests required
-- Feature components: Integration tests for critical paths
-
-## Authentication & Security
-
-### Auth Provider Rules
-
-- NFID/Internet Identity only
-- Anonymous principals blocked at component level
-- Auth state managed via Jotai atoms
-- Required for all write operations
-
-### Principal Validation
+### Component Testing
 
 ```typescript
-// Always validate principals before canister calls
-import { Principal } from "@dfinity/principal";
+// features/campaigns/CampaignCard.test.tsx
+import { render, screen } from '@testing-library/react'
+import { CampaignCard } from './CampaignCard'
 
-if (Principal.isAnonymous(user)) {
-  throw Error("Anonymous principals not allowed");
-}
-```
-
-## CSS & Styling
-
-### Tailwind Rules
-
-- Use Tailwind utilities exclusively
-- Custom CSS only in App.css for theme variables
-- Component styles via className prop
-- Responsive classes required (mobile-first)
-
-### Theme Structure
-
-```css
-/* CSS variables in App.css only */
-:root {
-  --color-background: /* ... */;
-  --color-surface-primary: /* ... */;
-  --color-content: /* ... */;
-}
-
-/* Dark mode via data-theme attribute */
-[data-theme='dark'] {
-  --color-background: /* ... */;
-}
-```
-
-## File Structure Validation
-
-### Required Files Per Feature
-
-```
-apps/[feature]/
-├── index.tsx         # REQUIRED: Feature entry
-├── components/       # REQUIRED: Feature components
-├── hooks/           # OPTIONAL: Feature hooks
-└── types.ts         # REQUIRED: Type definitions
-```
-
-### Barrel Export Requirements
-
-Every directory with multiple exports needs index.ts:
-
-```typescript
-// components/index.ts
-export { Card } from './cards/Card';
-export { Table } from './tables/Table';
-export type { CardProps, TableProps } from './types';
-```
-
-## Performance Guidelines
-
-### Code Splitting
-
-- Dynamic imports for routes
-- Lazy load heavy features
-- Chunk vendors separately
-
-### React Query Optimization
-
-```typescript
-// Set appropriate stale times
-staleTime: 60 * 1000,        // 1 minute for frequently changing
-staleTime: 5 * 60 * 1000,     // 5 minutes for stable data
-refetchOnWindowFocus: false,  // Disable for most queries
-```
-
-## Error Handling
-
-### User-Facing Errors
-
-- Toast notifications for actions
-- Error boundaries for crashes
-- Loading states required
-- Friendly error messages (no technical jargon)
-
-### Developer Errors
-
-- Console.error with context
-- Sentry integration for production
-- Source maps enabled
-
-## Git & PR Conventions
-
-### Branch Naming
-
-- `feature/[feature-name]`
-- `fix/[bug-description]`
-- `refactor/[component-name]`
-
-### Commit Format
-
-```
-type(scope): description
-
-- feat(campaigns): add campaign creation form
-- fix(auth): resolve NFID connection issue
-- refactor(components): reorganize table structure
-```
-
-### PR Requirements
-
-1. Type checking passes
-2. Linting passes
-3. Tests pass
-4. Build succeeds
-5. Screenshots for UI changes
-
-## Deployment Checklist
-
-### Pre-deployment
-
-```bash
-# Set production environment
-cp .env.production .env.local
-
-# Build with production config
-pnpm build
-
-# Test production build locally
-pnpm preview
-
-# Verify canister IDs match production
-dfx canister id claimlink_backend --network ic
-```
-
-### Environment Variables
-
-```bash
-# Required in .env
-VITE_CLAIMLINK_BACKEND_CANISTER_ID=
-VITE_LEDGER_CANISTER_ID=
-VITE_NFT_CANISTER_ID=
-VITE_IDENTITY_PROVIDER=
+describe('CampaignCard', () => {
+  it('renders campaign title', () => {
+    render(<CampaignCard campaign={mockCampaign} />)
+    expect(screen.getByText(mockCampaign.title)).toBeInTheDocument()
+  })
+})
 ```
 
 ## Common Pitfalls to Avoid
 
 ### DON'T
 
-- Place business logic in `components/` directory
-- Use relative imports across module boundaries
-- Commit without running type checks
-- Use `any` type
-- Create components without TypeScript interfaces
-- Skip loading states
-- Ignore error handling
-- Mix styling approaches (stick to Tailwind)
+- Create custom components when shadcn/ui has equivalent
+- Override shadcn components extensively (update CSS variables instead)
+- Put route components in features/ (use routes/ directory)
+- Create inline styles when Tailwind classes exist
+- Ignore TypeScript errors
+- Mix styling approaches
 
 ### DO
 
-- Follow the three-layer component system
-- Use path aliases for all imports
-- Run full test suite before committing
-- Define proper TypeScript types
-- Handle all error cases
-- Implement loading and error states
-- Use React Query for data fetching
-- Keep components small and focused
+- Use shadcn/ui components as foundation
+- Customize via CSS variables for systematic changes
+- Use className with cn() for component-specific styles
+- Follow TanStack Router file-based routing
+- Create feature modules for domain logic
+- Test critical user paths
 
-## Architecture Decisions
+## Figma to Code Workflow
 
-### Why Three Component Layers?
+### Step 1: Analyze Design
 
-1. **components/** - Publishing-ready, zero coupling
-2. **shared/ui/** - Design system consistency
-3. **shared/components/** - App integration layer
+1. Identify all shadcn/ui components that can be used
+2. Note custom components needed
+3. Extract color palette and spacing
 
-### Why Jotai + React Query?
+### Step 2: Setup Theme
 
-- Jotai: Atomic, composable state
-- React Query: Server state with caching
-- Together: Complete state solution
+1. Update CSS variables to match Figma
+2. Configure Tailwind if needed
+3. Test shadcn components with new theme
 
-### Why Service Layer Pattern?
+### Step 3: Implement
 
-- Isolates IC/canister complexity
-- Enables testing
-- Consistent error handling
-- Type safety at boundaries
+1. Use shadcn components
+2. Add custom className for specific styles
+3. Create custom components only when necessary
 
+### Step 4: Align Styles
 
-## Figma Design Implementation Rules
+Run this checklist after implementation:
 
-### When Creating Components from Figma
+- [ ] Colors match Figma exactly
+- [ ] Border radius consistent
+- [ ] Shadows accurate
+- [ ] Spacing follows design
+- [ ] Typography matches
+- [ ] Responsive behavior correct
+- [ ] Dark mode considered (if applicable)
 
-1. **NEVER create inline components** - Extract to appropriate directory:
-   - Reusable across features → `shared/components/`
-   - Feature-specific → `apps/[feature]/components/`
-   - Pure UI elements → `shared/ui/`
+## Quick Reference
 
-2. **Use existing design tokens**:
-   ```typescript
-   // Colors from Figma → CSS variables
-   --color-primary: #061937     // Figma: "Primary/Navy"
-   --color-success: #50be8f     // Figma: "Status/Success"
-   --color-error: #e84c25       // Figma: "Status/Error"
+### Available shadcn/ui Components
 
-   // Spacing from Figma → Tailwind classes
-   8px → "p-2"
-   16px → "p-4"
-   24px → "p-6"
+- Accordion, Alert, AlertDialog, AspectRatio, Avatar
+- Badge, Button, Breadcrumb
+- Calendar, Card, Carousel, Checkbox, Collapsible, Command, ContextMenu
+- Dialog, Drawer, DropdownMenu
+- Form, HoverCard
+- Input, Label
+- Menubar, NavigationMenu
+- Popover, Progress
+- RadioGroup, ScrollArea, Select, Separator, Sheet, Skeleton, Slider, Switch
+- Table, Tabs, Textarea, Toast, Toggle, Tooltip
 
-   // Border radius from Figma
-   8px → "rounded-lg"
-   16px → "rounded-2xl"
-   full → "rounded-full"
+### Install New Component
+
+```bash
+pnpm dlx shadcn-ui@latest add [component-name]
 ```
 
-3. **Component extraction checklist**:
+### Update Existing Component
 
-    - [ ] Does this component appear more than once? → Extract it
-    - [ ] Could this be parameterized? → Make it configurable
-    - [ ] Does it have business logic? → Move to shared/components
-    - [ ] Is it purely visual? → Move to shared/ui
-4. **Import existing components first**:
-
-    ```typescript
-    // ✅ GOOD - Check for existing components
-    import { Card } from "@shared/ui/card/Card";
-    import { StatCard } from "@shared/components/stat-card/StatCard";
-
-    // ❌ BAD - Creating inline when component exists
-    function StatCard() { /* inline implementation */ }
-    ```
-
-
-### Figma Property Mapping
-
-|Figma Property|Code Implementation|
-|---|---|
-|Auto Layout|Flexbox/Grid with gap|
-|Fill Container|`flex-1` or `w-full`|
-|Fixed Width|Exact pixel/rem values|
-|Corner Radius|`rounded-[value]`|
-|Effects/Shadows|Extract to design tokens|
-|Text Styles|Typography components|
-
-### Component Naming from Figma
-
-- Figma component "Card/Stat" → `StatCard.tsx`
-- Figma variant "Button/Primary/Large" → `<Button variant="primary" size="lg">`
-- Figma instance "Dashboard Stats Card" → Use existing `StatCard` component
-
-````
-
-## 3. **Create a Component Library Reference**
-
-Create a file that Cursor can reference:
-
-```typescript
-// docs/COMPONENT_LIBRARY.md
-
-# Available Components
-
-## UI Primitives (`@shared/ui`)
-
-### Button
-```tsx
-import { Button } from "@shared/ui/button/Button";
-
-<Button variant="primary" size="md" leftIcon={<Icon />}>
-  Click me
-</Button>
-````
-
-### Card
-
-```tsx
-import { Card } from "@shared/ui/card/Card";
-
-<Card variant="elevated" padding="lg">
-  Content
-</Card>
-```
-
-### Badge
-
-```tsx
-import { Badge } from "@shared/ui/badge/Badge";
-
-<Badge variant="success" dot>56%</Badge>
+```bash
+pnpm dlx shadcn-ui@latest add [component-name] --overwrite
 ```
 
 ## Questions or Updates?
 
-This file is the source of truth. If something is unclear or outdated, update it immediately. The closest AGENTS.md to the code wins - place feature-specific rules in `apps/[feature]/AGENTS.md`.
+This file is the source of truth. Update immediately if something changes. For feature-specific guidelines, create `features/[feature]/README.md`.
