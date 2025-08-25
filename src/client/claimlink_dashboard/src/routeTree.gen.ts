@@ -9,12 +9,42 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TemplatesRouteImport } from './routes/templates'
+import { Route as Mint_nftRouteImport } from './routes/mint_nft'
+import { Route as Mint_certificateRouteImport } from './routes/mint_certificate'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as CollectionsRouteImport } from './routes/collections'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
 
+const TemplatesRoute = TemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Mint_nftRoute = Mint_nftRouteImport.update({
+  id: '/mint_nft',
+  path: '/mint_nft',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const Mint_certificateRoute = Mint_certificateRouteImport.update({
+  id: '/mint_certificate',
+  path: '/mint_certificate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsRoute = CollectionsRouteImport.update({
+  id: '/collections',
+  path: '/collections',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -25,37 +55,114 @@ const IndexRoute = IndexRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/mint_certificate': typeof Mint_certificateRoute
+  '/mint_nft': typeof Mint_nftRoute
+  '/templates': typeof TemplatesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/mint_certificate': typeof Mint_certificateRoute
+  '/mint_nft': typeof Mint_nftRoute
+  '/templates': typeof TemplatesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
+  '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/mint_certificate': typeof Mint_certificateRoute
+  '/mint_nft': typeof Mint_nftRoute
+  '/templates': typeof TemplatesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/collections'
+    | '/dashboard'
+    | '/mint_certificate'
+    | '/mint_nft'
+    | '/templates'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard'
+  to:
+    | '/'
+    | '/account'
+    | '/collections'
+    | '/dashboard'
+    | '/mint_certificate'
+    | '/mint_nft'
+    | '/templates'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/collections'
+    | '/dashboard'
+    | '/mint_certificate'
+    | '/mint_nft'
+    | '/templates'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRoute
+  CollectionsRoute: typeof CollectionsRoute
   DashboardRoute: typeof DashboardRoute
+  Mint_certificateRoute: typeof Mint_certificateRoute
+  Mint_nftRoute: typeof Mint_nftRoute
+  TemplatesRoute: typeof TemplatesRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/templates': {
+      id: '/templates'
+      path: '/templates'
+      fullPath: '/templates'
+      preLoaderRoute: typeof TemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mint_nft': {
+      id: '/mint_nft'
+      path: '/mint_nft'
+      fullPath: '/mint_nft'
+      preLoaderRoute: typeof Mint_nftRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mint_certificate': {
+      id: '/mint_certificate'
+      path: '/mint_certificate'
+      fullPath: '/mint_certificate'
+      preLoaderRoute: typeof Mint_certificateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections': {
+      id: '/collections'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof CollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -70,7 +177,12 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRoute,
+  CollectionsRoute: CollectionsRoute,
   DashboardRoute: DashboardRoute,
+  Mint_certificateRoute: Mint_certificateRoute,
+  Mint_nftRoute: Mint_nftRoute,
+  TemplatesRoute: TemplatesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -26,6 +26,8 @@ import {
   ClockIcon as Clock,
   CircleStackIcon as CircleStack,
   Square3Stack3DIcon as SquareStack,
+  ArrowTrendingDownIcon as TrendingDown,
+  ArrowTrendingUpIcon as TrendingUp,
 } from "@heroicons/react/24/outline";
 import {
   ExclamationTriangleIcon as Warning,
@@ -189,6 +191,8 @@ const Icon = {
   DoNotDisturb,
   Insights,
   Receipt,
+  TrendingDown,
+  TrendingUp,
 };
 
 export default Icon;

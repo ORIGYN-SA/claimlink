@@ -19,6 +19,7 @@
     "iconsax-react": "^0.0.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.12",
     "web-vitals": "^5.1.0"
   },
