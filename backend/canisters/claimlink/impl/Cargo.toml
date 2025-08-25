@@ -1,0 +1,36 @@
+[package]
+name = "claimlink"
+version = "0.1.0"
+description = "Main back-end canister of the minting studio"
+edition = "2021"
+
+[features]
+inttest = []
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = { workspace = true }
+canister_logger = { path = '../../../libraries/canister_logger' }
+canister_state_macros = { path = '../../../libraries/canister_state_macros' }
+canister_time = { path = '../../../libraries/canister_time' }
+canister_tracing_macros = { path = '../../../libraries/canister_tracing_macros' }
+futures = { workspace = true }
+hex = { workspace = true }
+http_request = { path = '../../../libraries/http_request' }
+ic-cdk = { workspace = true }
+ic-cdk-macros = { workspace = true }
+ic-cdk-timers = { workspace = true }
+ic-stable-structures = { workspace = true }
+icrc-ledger-types = { workspace = true }
+ic-ledger-types = { workspace = true }
+tracing = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+claimlink_api = { path = "../api" }
+utils = { path = "../../../libraries/utils" }
+types = { path = "../../../libraries/types" }
+stable_memory = { path = '../../../libraries/stable_memory' }
+serializer = { path = '../../../libraries/serializer' }
+
