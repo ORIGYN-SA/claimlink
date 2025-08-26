@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { SearchInput } from "@/shared/components/SearchInput"
+import { SearchInput } from "@/components/common"
 import { cn } from "@/lib/utils"
 
 interface CertificateItem {

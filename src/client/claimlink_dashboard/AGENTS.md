@@ -24,15 +24,222 @@ dfx deploy
 
 # Start development server
 pnpm dev
-````
+```
 
 ## Tech Stack
 
 - **UI Components**: shadcn/ui (Radix UI + Tailwind CSS)
 - **Routing**: TanStack Router (file-based routing)
-- **State Management**: Jotai (atoms) + React Query (server state)
+- **State Management**: Zustand + React Query (server state)
 - **Styling**: Tailwind CSS with CSS variables
 - **IC Integration**: @dfinity/agent, @dfinity/candid, @dfinity/principal
+
+## Project Structure: Modern React Architecture
+
+### Complete Directory Structure
+
+```
+src/
+├── app/                          # Application-wide configuration
+│   ├── provider.tsx             # App-wide providers (Router, Query, etc.)
+│   ├── router.tsx               # Router configuration
+│   └── globals.css              # Global styles and Tailwind imports
+├── components/
+│   ├── ui/                      # shadcn/ui components
+│   │   ├── button.tsx
+│   │   ├── card.tsx
+│   │   ├── dialog.tsx
+│   │   ├── input.tsx
+│   │   ├── table.tsx
+│   │   └── ... (other shadcn components)
+│   ├── layout/                  # Layout components
+│   │   ├── header.tsx
+│   │   ├── sidebar.tsx
+│   │   ├── footer.tsx
+│   │   └── navigation.tsx
+│   └── common/                  # Reusable business components
+│       ├── data-table.tsx
+│       ├── loading-spinner.tsx
+│       ├── connect-wallet.tsx
+│       ├── nft-selector.tsx
+│       └── error-boundary.tsx
+├── routes/                      # TanStack Router file-based routing
+│   ├── __root.tsx              # Root route with global layout
+│   ├── index.tsx               # Home page (/)
+│   ├── dashboard/
+│   │   ├── index.tsx           # Dashboard index (/dashboard)
+│   │   ├── settings.tsx        # Dashboard settings (/dashboard/settings)
+│   │   └── profile.tsx         # User profile (/dashboard/profile)
+│   ├── campaigns/
+│   │   ├── index.tsx           # Campaigns list (/campaigns)
+│   │   ├── $campaignId.tsx     # Campaign detail (/campaigns/:id)
+│   │   └── new.tsx             # Create campaign (/campaigns/new)
+│   ├── collections/
+│   │   ├── index.tsx           # Collections list
+│   │   └── $collectionId.tsx   # Collection detail
+│   └── (auth)/                 # Route group for auth pages
+│       ├── login.tsx           # Login page (/login)
+│       └── register.tsx        # Register page (/register)
+├── features/                    # Feature-based modules
+│   ├── campaigns/
+│   │   ├── api/
+│   │   │   ├── campaigns.queries.ts    # TanStack Query hooks
+│   │   │   └── campaigns.mutations.ts
+│   │   ├── components/
+│   │   │   ├── campaign-card.tsx
+│   │   │   ├── campaign-form.tsx
+│   │   │   └── campaign-stats.tsx
+│   │   ├── hooks/
+│   │   │   └── use-campaign-data.ts
+│   │   ├── stores/
+│   │   │   └── campaigns.store.ts      # Zustand store
+│   │   ├── types/
+│   │   │   └── campaign.types.ts
+│   │   └── utils/
+│   │       └── campaign.utils.ts
+│   ├── collections/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── types/
+│   ├── links/
+│   │   ├── api/
+│   │   ├── components/
+│   │   ├── hooks/
+│   │   └── types/
+│   └── auth/
+│       ├── api/
+│       ├── components/
+│       ├── hooks/
+│       └── stores/
+└── shared/                     # Shared utilities and configurations
+    ├── api/
+    │   ├── client.ts           # API client configuration
+    │   ├── query-client.ts     # TanStack Query client setup
+    │   └── types.ts            # Shared API types
+    ├── config/
+    │   ├── env.ts              # Environment variables
+    │   └── constants.ts        # App constants
+    ├── hooks/
+    │   ├── use-local-storage.ts
+    │   ├── use-debounce.ts
+    │   └── use-media-query.ts
+    ├── lib/
+    │   ├── utils.ts            # shadcn/ui utility functions
+    │   ├── validations.ts      # Schema validations (Zod)
+    │   └── date.ts             # Date utilities
+    ├── stores/
+    │   └── global.store.ts     # Global Zustand store
+    ├── types/
+    │   ├── api.ts              # Global API types
+    │   └── common.ts           # Common types
+    └── utils/
+        ├── helpers.ts          # Helper functions
+        ├── formatters.ts       # Data formatters
+        └── validators.ts       # Validation utilities
+```
+
+### Component Organization: Four-Layer System
+
+#### 1. **`components/ui/` - shadcn/ui Foundation**
+
+**Purpose**: Pre-built, customizable UI primitives from shadcn/ui
+
+**Characteristics**:
+
+- Installed via CLI: `pnpm dlx shadcn-ui@latest add [component]`
+- Built on Radix UI primitives
+- Styled with Tailwind CSS
+- Customizable through CSS variables
+- Auto-generated, don't modify these files
+
+#### 2. **`components/layout/` - Layout Components**
+
+**Purpose**: Structural layout components used across the application
+
+**Examples**:
+
+- Header with navigation and user menu
+- Sidebar for dashboard layouts
+- Footer with links and info
+- Navigation components
+
+#### 3. **`components/common/` - Reusable Business Components**
+
+**Purpose**: Application-specific reusable components that combine UI primitives with business logic
+
+**Characteristics**:
+
+- Combine shadcn/ui components
+- Include ClaimLink-specific logic
+- Used across multiple features
+- Know about app context (auth, routing)
+
+#### 4. **`features/[feature]/components/` - Feature-Specific Components**
+
+**Purpose**: Components that belong to a specific feature and are not reused elsewhere
+
+**Structure per Feature**:
+
+```
+features/campaigns/
+├── api/                        # Data fetching logic
+│   ├── campaigns.queries.ts   # React Query hooks
+│   └── campaigns.mutations.ts # Mutation hooks
+├── components/                # Feature components
+│   ├── campaign-card.tsx
+│   ├── campaign-form.tsx
+│   └── campaign-detail.tsx
+├── hooks/                     # Custom hooks
+│   └── use-campaign-form.ts
+├── stores/                    # Feature state
+│   └── campaigns.store.ts
+├── types/                     # TypeScript types
+│   └── campaign.types.ts
+└── utils/                     # Feature utilities
+    └── campaign.utils.ts
+```
+
+## Decision Tree for Component Placement
+
+```mermaid
+graph TD
+    A[New Component] --> B{Is it a shadcn/ui component?}
+    B -->|Yes| C[components/ui/]
+    B -->|No| D{Is it a layout component?}
+    D -->|Yes| E[components/layout/]
+    D -->|No| F{Used across multiple features?}
+    F -->|Yes| G[components/common/]
+    F -->|No| H[features/[feature]/components/]
+```
+
+## App Provider Configuration
+
+```typescript
+// app/provider.tsx
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './router'
+import { Toaster } from '@/components/ui/toaster'
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+})
+
+export function AppProvider() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RouterProvider router={router} />
+      <Toaster />
+    </QueryClientProvider>
+  )
+}
+```
 
 ## Routing Structure (TanStack Router)
 
@@ -61,7 +268,7 @@ src/
 ```typescript
 // routes/campaigns/index.tsx
 import { createFileRoute } from '@tanstack/react-router'
-import { CampaignsPage } from '@/features/campaigns/CampaignsPage'
+import { CampaignsPage } from '@/features/campaigns/components/campaigns-page'
 
 export const Route = createFileRoute('/campaigns/')({
   component: CampaignsPage,
@@ -71,82 +278,356 @@ export const Route = createFileRoute('/campaigns/')({
 })
 ```
 
-## Component Organization: Three-Layer System
+## Service Layer & API Organization
 
-### 1. **`components/ui/` - shadcn/ui Components**
+### API Client Structure
 
-**Purpose**: Pre-built, customizable UI components from shadcn/ui
+```typescript
+// shared/api/client.ts
+import { Actor } from '@dfinity/agent'
+import { createAgent } from '@dfinity/agent'
+import { idlFactory } from '@/services/claimlink/idlFactory'
 
-**Characteristics**:
-
-- Installed via CLI: `pnpm dlx shadcn-ui@latest add [component]`
-- Built on Radix UI primitives
-- Styled with Tailwind CSS
-- Customizable through CSS variables
-- Located in `components/ui/` by shadcn convention
-
-**Available Components**:
-
-```
-components/ui/
-├── button.tsx          # From shadcn/ui
-├── card.tsx           # From shadcn/ui
-├── dialog.tsx         # From shadcn/ui
-├── dropdown-menu.tsx  # From shadcn/ui
-├── input.tsx          # From shadcn/ui
-├── label.tsx          # From shadcn/ui
-├── select.tsx         # From shadcn/ui
-├── table.tsx          # From shadcn/ui
-├── tabs.tsx           # From shadcn/ui
-├── toast.tsx          # From shadcn/ui
-└── ... (other shadcn components)
+export const apiClient = {
+  async createActor(canisterId: string) {
+    const agent = await createAgent({
+      host: import.meta.env.VITE_IC_HOST || 'http://127.0.0.1:4943',
+    })
+    
+    return Actor.createActor(idlFactory, {
+      agent,
+      canisterId,
+    })
+  }
+}
 ```
 
-### 2. **`features/` - Feature Modules**
+### Feature API Pattern
 
-**Purpose**: Feature-specific components and logic, organized by domain
+```typescript
+// features/campaigns/api/campaigns.queries.ts
+import { useQuery, useMutation } from '@tanstack/react-query'
+import { campaignService } from './campaign.service'
 
-**Characteristics**:
+export const campaignKeys = {
+  all: ['campaigns'] as const,
+  lists: () => [...campaignKeys.all, 'list'] as const,
+  list: (filters: string) => [...campaignKeys.lists(), { filters }] as const,
+  details: () => [...campaignKeys.all, 'detail'] as const,
+  detail: (id: string) => [...campaignKeys.details(), id] as const,
+}
 
-- Self-contained feature implementations
-- Can have own components, hooks, and utils
-- Import from shadcn/ui and shared components
-- Maps loosely to route structure
+export const useCampaigns = (filters?: string) => {
+  return useQuery({
+    queryKey: campaignKeys.list(filters || ''),
+    queryFn: () => campaignService.fetchAll(filters),
+    staleTime: 5 * 60 * 1000,
+  })
+}
 
-**Structure**:
+export const useCreateCampaign = () => {
+  return useMutation({
+    mutationFn: campaignService.create,
+    onSuccess: () => {
+      // Invalidate and refetch campaigns
+      queryClient.invalidateQueries({ queryKey: campaignKeys.lists() })
+    },
+  })
+}
+```
+
+### Service Implementation
+
+```typescript
+// features/campaigns/api/campaign.service.ts
+import { apiClient } from '@/shared/api/client'
+import type { Campaign, CreateCampaignInput } from '../types/campaign.types'
+
+export const campaignService = {
+  async fetchAll(): Promise<Campaign[]> {
+    try {
+      const actor = await apiClient.createActor(CLAIMLINK_CANISTER_ID)
+      const result = await actor.get_user_campaigns()
+      
+      if ('err' in result) {
+        throw new Error(result.err)
+      }
+      
+      return result.ok || []
+    } catch (error) {
+      throw new Error(`Failed to fetch campaigns: ${error}`)
+    }
+  },
+  
+  async create(data: CreateCampaignInput): Promise<Campaign> {
+    try {
+      const actor = await apiClient.createActor(CLAIMLINK_CANISTER_ID)
+      const result = await actor.create_campaign(data)
+      
+      if ('err' in result) {
+        throw new Error(result.err)
+      }
+      
+      return result.ok
+    } catch (error) {
+      throw new Error(`Failed to create campaign: ${error}`)
+    }
+  }
+}
+```
+
+## State Management with Zustand
+
+### Feature Store Pattern
+
+```typescript
+// features/campaigns/stores/campaigns.store.ts
+import { create } from 'zustand'
+import { devtools } from 'zustand/middleware'
+import type { Campaign } from '../types/campaign.types'
+
+interface CampaignState {
+  selectedCampaign: Campaign | null
+  isCreating: boolean
+  filters: {
+    status: string
+    tokenType: string
+  }
+}
+
+interface CampaignActions {
+  setSelectedCampaign: (campaign: Campaign | null) => void
+  setIsCreating: (isCreating: boolean) => void
+  updateFilters: (filters: Partial<CampaignState['filters']>) => void
+  resetFilters: () => void
+}
+
+const initialState: CampaignState = {
+  selectedCampaign: null,
+  isCreating: false,
+  filters: {
+    status: 'all',
+    tokenType: 'all',
+  },
+}
+
+export const useCampaignStore = create<CampaignState & CampaignActions>()(
+  devtools(
+    (set) => ({
+      ...initialState,
+      
+      setSelectedCampaign: (campaign) =>
+        set({ selectedCampaign: campaign }, false, 'setSelectedCampaign'),
+      
+      setIsCreating: (isCreating) =>
+        set({ isCreating }, false, 'setIsCreating'),
+      
+      updateFilters: (newFilters) =>
+        set(
+          (state) => ({
+            filters: { ...state.filters, ...newFilters },
+          }),
+          false,
+          'updateFilters'
+        ),
+      
+      resetFilters: () =>
+        set({ filters: initialState.filters }, false, 'resetFilters'),
+    }),
+    { name: 'campaign-store' }
+  )
+)
+```
+
+### Global Store
+
+```typescript
+// shared/stores/global.store.ts
+import { create } from 'zustand'
+import { devtools, persist } from 'zustand/middleware'
+
+interface GlobalState {
+  theme: 'light' | 'dark'
+  sidebarOpen: boolean
+  user: User | null
+}
+
+interface GlobalActions {
+  setTheme: (theme: 'light' | 'dark') => void
+  toggleSidebar: () => void
+  setUser: (user: User | null) => void
+}
+
+export const useGlobalStore = create<GlobalState & GlobalActions>()(
+  devtools(
+    persist(
+      (set) => ({
+        theme: 'light',
+        sidebarOpen: true,
+        user: null,
+        
+        setTheme: (theme) => set({ theme }),
+        toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
+        setUser: (user) => set({ user }),
+      }),
+      {
+        name: 'claimlink-global',
+        partialize: (state) => ({ theme: state.theme }), // Only persist theme
+      }
+    )
+  )
+)
+```
+
+## Import Rules & Path Aliases
+
+```json
+// tsconfig.json paths
+{
+  "@/*": ["./src/*"],
+  "@/components/*": ["./src/components/*"],
+  "@/features/*": ["./src/features/*"],
+  "@/shared/*": ["./src/shared/*"],
+  "@/routes/*": ["./src/routes/*"],
+  "@/assets/*": ["./src/assets/*"]
+}
+```
+
+### Import Order & Best Practices
+
+```typescript
+// 1. React/External libraries
+import React, { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Link, createFileRoute } from '@tanstack/react-router'
+
+// 2. UI Components (shadcn/ui)
+import { Button } from '@/components/ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
+
+// 3. Layout Components
+import { Header } from '@/components/layout/header'
+
+// 4. Common/Shared Components
+import { ConnectWallet } from '@/components/common/connect-wallet'
+import { NFTSelector } from '@/components/common/nft-selector'
+
+// 5. Feature Components
+import { CampaignCard } from '@/features/campaigns/components/campaign-card'
+
+// 6. API/Services
+import { useCampaigns } from '@/features/campaigns/api/campaigns.queries'
+import { campaignService } from '@/features/campaigns/api/campaign.service'
+
+// 7. Stores/Hooks
+import { useCampaignStore } from '@/features/campaigns/stores/campaigns.store'
+import { useGlobalStore } from '@/shared/stores/global.store'
+
+// 8. Utils/Lib
+import { cn } from '@/shared/lib/utils'
+import { formatDate } from '@/shared/utils/formatters'
+
+// 9. Types
+import type { Campaign } from '@/features/campaigns/types/campaign.types'
+
+// 10. Relative imports (avoid when possible)
+import { LocalComponent } from './local-component'
+```
+
+## File Naming Conventions
+
+|Type|Convention|Examples|
+|---|---|---|
+|**Components**|kebab-case|`campaign-card.tsx`, `nft-selector.tsx`|
+|**Pages/Routes**|kebab-case|`dashboard.tsx`, `campaign-detail.tsx`|
+|**Hooks**|camelCase with "use"|`useCampaigns.ts`, `use-auth.ts`|
+|**Services**|kebab-case with suffix|`campaign.service.ts`, `auth.service.ts`|
+|**Types**|kebab-case with suffix|`campaign.types.ts`, `common.types.ts`|
+|**Stores**|kebab-case with suffix|`campaigns.store.ts`, `global.store.ts`|
+|**Utils**|kebab-case|`formatters.ts`, `validators.ts`|
+|**Constants**|SCREAMING_SNAKE_CASE|`API_ENDPOINTS.ts`, `ROUTES.ts`|
+
+## Feature Module Example: Campaigns
+
+### Complete Feature Structure
 
 ```
-features/
-├── campaigns/
-│   ├── CampaignsPage.tsx       # Main page component
-│   ├── CampaignCard.tsx        # Feature-specific component
-│   ├── CampaignForm.tsx        # Feature-specific form
-│   ├── hooks/
-│   │   └── useCampaignData.tsx
-│   └── types.ts
-├── collections/
-├── links/
-└── dashboard/
+features/campaigns/
+├── api/
+│   ├── campaigns.queries.ts      # React Query hooks
+│   ├── campaigns.mutations.ts    # Mutation hooks
+│   └── campaign.service.ts       # Service layer
+├── components/
+│   ├── campaign-card.tsx         # Campaign list item
+│   ├── campaign-form.tsx         # Create/edit form
+│   ├── campaign-detail.tsx       # Detail view
+│   ├── campaign-stats.tsx        # Statistics component
+│   └── campaign-actions.tsx      # Action buttons
+├── hooks/
+│   ├── use-campaign-form.ts      # Form logic hook
+│   └── use-campaign-actions.ts   # Action handlers
+├── stores/
+│   └── campaigns.store.ts        # Feature state
+├── types/
+│   └── campaign.types.ts         # TypeScript definitions
+└── utils/
+    └── campaign.utils.ts         # Helper functions
 ```
 
-### 3. **`shared/` - Shared Application Code**
+### Implementation Examples
 
-**Purpose**: Cross-cutting concerns and app-specific shared components
+**Route Component:**
 
-**Structure**:
+```typescript
+// routes/campaigns/index.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { CampaignsPage } from '@/features/campaigns/components/campaigns-page'
 
+export const Route = createFileRoute('/campaigns/')({
+  component: CampaignsPage,
+  beforeLoad: async ({ context }) => {
+    // Auth validation, preloading, etc.
+    if (!context.auth.user) {
+      throw redirect({ to: '/login' })
+    }
+  }
+})
 ```
-shared/
-├── components/              # App-specific shared components
-│   ├── AppLayout.tsx       # Main layout wrapper
-│   ├── NavigationMenu.tsx  # App navigation
-│   ├── ConnectWallet.tsx   # Wallet connection
-│   ├── NFTSelector.tsx     # NFT picker component
-│   └── TokenBalance.tsx    # Token display
-├── hooks/                   # Shared custom hooks
-├── utils/                   # Helper functions
-└── lib/                     # Library configurations
-    └── utils.ts            # cn() utility for shadcn
+
+**Feature Page Component:**
+
+```typescript
+// features/campaigns/components/campaigns-page.tsx
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { useCampaigns } from '../api/campaigns.queries'
+import { CampaignCard } from './campaign-card'
+import type { Campaign } from '../types/campaign.types'
+
+export function CampaignsPage() {
+  const { data: campaigns, isLoading, error } = useCampaigns()
+
+  if (isLoading) return <div>Loading campaigns...</div>
+  if (error) return <div>Error loading campaigns</div>
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Campaigns</h1>
+        <Button asChild>
+          <Link to="/campaigns/new">Create Campaign</Link>
+        </Button>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {campaigns?.map((campaign: Campaign) => (
+          <CampaignCard key={campaign.id} campaign={campaign} />
+        ))}
+      </div>
+    </div>
+  )
+}
 ```
 
 ## shadcn/ui Integration Guidelines
@@ -162,25 +643,25 @@ shared/
     /* Map Figma design tokens to shadcn CSS variables */
     --background: 0 0% 100%;          /* #ffffff */
     --foreground: 213 13% 16%;        /* #222526 */
-
+    
     --primary: 217 77% 13%;           /* #061937 - Figma primary */
-    --primary-foreground: 0 0% 100%;
-
+    --primary-foreground: 0 0% 100%;  
+    
     --secondary: 249 87% 68%;         /* #615bff - Figma accent */
     --secondary-foreground: 0 0% 100%;
-
+    
     --muted: 0 0% 96%;                /* #f2f2f2 */
     --muted-foreground: 206 8% 48%;   /* #69737c */
-
+    
     --card: 0 0% 100%;
     --card-foreground: 213 13% 16%;
-
+    
     --destructive: 11 79% 53%;        /* #e84c25 - Figma error */
     --success: 153 47% 55%;           /* #50be8f - Figma success */
-
+    
     --border: 0 0% 88%;               /* #e1e1e1 */
     --ring: 217 77% 13%;
-
+    
     --radius: 1rem;                   /* 16px default radius */
   }
 }
@@ -194,9 +675,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
 // ✅ CORRECT: Use with cn() for additional styles
-import { cn } from "@/lib/utils"
+import { cn } from "@/shared/lib/utils"
 
-<Button
+<Button 
   variant="default"
   size="lg"
   className={cn("w-full", someCondition && "opacity-50")}
@@ -213,20 +694,20 @@ const MyButton = () => { /* custom implementation */ }
 ### When Creating Components from Figma
 
 1. **Check shadcn/ui first**:
-
+    
     ```typescript
     // Before creating custom components, check if shadcn/ui has it:
     // - Button, Card, Dialog, Dropdown, Input, Select, Table, etc.
     // Install if needed: pnpm dlx shadcn-ui@latest add [component]
     ```
-
+    
 2. **Component Priority Order**:
-
+    
     - Use shadcn/ui component if available
     - Extend shadcn component with className if needed
     - Create custom component only if truly unique
 3. **Figma to shadcn Mapping**:
-
+    
     |Figma Component|shadcn/ui Component|Notes|
     |---|---|---|
     |Button/Primary|`<Button variant="default">`|Adjust CSS variables|
@@ -238,9 +719,9 @@ const MyButton = () => { /* custom implementation */ }
     |Table|`<Table>`||
     |Tabs|`<Tabs>`||
     |Toast/Alert|`<Toast>` or `<Alert>`||
-
+    
 4. **Style Alignment Process**:
-
+    
     ```typescript
     // Step 1: Use shadcn component
     <Card>
@@ -249,14 +730,14 @@ const MyButton = () => { /* custom implementation */ }
       </CardHeader>
       <CardContent>Content</CardContent>
     </Card>
-
+    
     // Step 2: Adjust with className if needed
     <Card className="shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] border-[#f2f2f2]">
-
+    
     // Step 3: Update CSS variables if systematic changes needed
     // (in globals.css, not inline)
     ```
-
+    
 
 ### Figma Style Extraction Checklist
 
@@ -281,134 +762,14 @@ After generating components with AI, run this alignment check:
 // 5. Typography matches? (font-size, line-height, font-weight)
 ```
 
-## Feature Organization Pattern
-
-### Feature Module Structure
-
-```
-features/campaigns/
-├── CampaignsPage.tsx           # Main route component
-├── CampaignsList.tsx           # List view component
-├── CampaignCard.tsx           # List item component
-├── CampaignForm.tsx           # Create/edit form
-├── CampaignDetail.tsx         # Detail view
-├── components/                # Feature-specific components
-│   ├── CampaignStats.tsx
-│   └── CampaignActions.tsx
-├── hooks/
-│   ├── useCampaigns.tsx      # React Query hook
-│   └── useCampaignForm.tsx   # Form logic
-├── services/
-│   └── campaignService.ts    # API calls
-└── types.ts                   # TypeScript types
-```
-
-## State Management
-
-### Jotai Atoms
-
-```typescript
-// shared/atoms/user.atom.ts
-import { atom } from 'jotai'
-
-export const userAtom = atom<User | null>(null)
-export const isAuthenticatedAtom = atom(
-  (get) => get(userAtom) !== null
-)
-```
-
-### React Query Integration
-
-```typescript
-// features/campaigns/hooks/useCampaigns.tsx
-import { useQuery } from '@tanstack/react-query'
-import { campaignService } from '../services/campaignService'
-
-export const useCampaigns = () => {
-  return useQuery({
-    queryKey: ['campaigns'],
-    queryFn: campaignService.fetchAll,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-  })
-}
-```
-
-## Service Layer Rules
-
-### Canister Service Pattern
-
-```typescript
-// services/claimlink/campaignService.ts
-import { Actor } from '@dfinity/agent'
-import { idlFactory } from './idlFactory'
-
-export const campaignService = {
-  async fetchAll(actor: Actor) {
-    try {
-      const result = await actor.get_campaigns()
-      if ('err' in result) throw new Error(result.err)
-      return result.ok
-    } catch (error) {
-      throw new Error('Failed to fetch campaigns')
-    }
-  },
-
-  async create(actor: Actor, data: CreateCampaignInput) {
-    // Implementation
-  }
-}
-```
-
-## Import Rules & Path Aliases
-
-```json
-// tsconfig.json paths
-{
-  "@/components/*": ["components/*"],      // shadcn/ui components
-  "@/features/*": ["features/*"],          // Feature modules
-  "@/shared/*": ["shared/*"],              // Shared code
-  "@/services/*": ["services/*"],          // API services
-  "@/lib/*": ["lib/*"],                    // Library code
-  "@/routes/*": ["routes/*"]               // Route components
-}
-```
-
-### Import Order
-
-```typescript
-// 1. React/External libraries
-import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-
-// 2. Routing
-import { createFileRoute, Link } from '@tanstack/react-router'
-
-// 3. UI Components (shadcn)
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-
-// 4. Shared components
-import { AppLayout } from '@/shared/components/AppLayout'
-
-// 5. Feature components
-import { CampaignCard } from '@/features/campaigns/CampaignCard'
-
-// 6. Services/Utils
-import { campaignService } from '@/services/claimlink/campaignService'
-import { cn } from '@/lib/utils'
-
-// 7. Types
-import type { Campaign } from '@/features/campaigns/types'
-```
-
 ## Testing Requirements
 
 ### Component Testing
 
 ```typescript
-// features/campaigns/CampaignCard.test.tsx
+// features/campaigns/components/__tests__/campaign-card.test.tsx
 import { render, screen } from '@testing-library/react'
-import { CampaignCard } from './CampaignCard'
+import { CampaignCard } from '../campaign-card'
 
 describe('CampaignCard', () => {
   it('renders campaign title', () => {

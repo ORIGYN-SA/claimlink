@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import Icon from "@shared/ui/icons";
+import Icon from "@/shared/ui/icons";
 
 const navItems: {
   title: string;
