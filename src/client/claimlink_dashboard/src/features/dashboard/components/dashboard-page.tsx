@@ -1,8 +1,8 @@
-import { StatCard } from "./StatCard";
-import { WelcomeCard } from "./WelcomeCard";
-import { FeedCard } from "./FeedCard";
-import { MintCard } from "./MintCard";
-import { CertificateListCard } from "./CertificateListCard";
+import { StatCard } from "./stat-card";
+import { WelcomeCard } from "./welcome-card";
+import { FeedCard } from "./feed-card";
+import { MintCard } from "./mint-card";
+import { CertificateListCard } from "./certificate-list-card";
 import {
   Card,
   CardHeader,

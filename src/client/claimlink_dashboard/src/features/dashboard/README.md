@@ -6,14 +6,20 @@ This feature contains all components and logic related to the main dashboard pag
 
 ```
 dashboard/
+├── api/                       # Data fetching logic (future)
 ├── components/
-│   ├── StatCard.tsx           # Statistics display card
-│   ├── WelcomeCard.tsx        # Welcome banner with CTA
-│   ├── FeedCard.tsx          # User activity feed item
-│   ├── MintCard.tsx          # NFT minting status card
-│   └── CertificateListCard.tsx # Certificate list with search
-├── DashboardPage.tsx          # Main dashboard page component
-├── types.ts                   # TypeScript types and interfaces
+│   ├── dashboard-page.tsx     # Main dashboard page component
+│   ├── stat-card.tsx          # Statistics display card
+│   ├── welcome-card.tsx       # Welcome banner with CTA
+│   ├── feed-card.tsx          # User activity feed item
+│   ├── mint-card.tsx          # NFT minting status card
+│   ├── certificate-list-card.tsx # Certificate list with search
+│   └── index.ts               # Component exports
+├── hooks/                     # Custom hooks (future)
+├── stores/                    # Feature state management (future)
+├── types/
+│   └── dashboard.types.ts     # TypeScript types and interfaces
+├── utils/                     # Feature utilities (future)
 ├── index.ts                   # Feature exports
 └── README.md                  # This file
 ```
