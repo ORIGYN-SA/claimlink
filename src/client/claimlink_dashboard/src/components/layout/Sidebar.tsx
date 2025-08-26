@@ -1,4 +1,4 @@
-import navItems from "@shared/app-layout/utils";
+import navItems from "@/components/layout/SideBarNavItems";
 import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import clsx from "clsx";

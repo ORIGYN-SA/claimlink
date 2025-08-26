@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TemplatesRouteImport } from './routes/templates'
 import { Route as Mint_nftRouteImport } from './routes/mint_nft'
 import { Route as Mint_certificateRouteImport } from './routes/mint_certificate'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AccountRouteImport } from './routes/account'
@@ -30,6 +31,11 @@ const Mint_nftRoute = Mint_nftRouteImport.update({
 const Mint_certificateRoute = Mint_certificateRouteImport.update({
   id: '/mint_certificate',
   path: '/mint_certificate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/account': typeof AccountRoute
   '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/account': typeof AccountRoute
   '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/account': typeof AccountRoute
   '/collections': typeof CollectionsRoute
   '/dashboard': typeof DashboardRoute
+  '/login': typeof LoginRoute
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
@@ -88,6 +97,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/collections'
     | '/dashboard'
+    | '/login'
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/collections'
     | '/dashboard'
+    | '/login'
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/account'
     | '/collections'
     | '/dashboard'
+    | '/login'
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
@@ -116,6 +128,7 @@ export interface RootRouteChildren {
   AccountRoute: typeof AccountRoute
   CollectionsRoute: typeof CollectionsRoute
   DashboardRoute: typeof DashboardRoute
+  LoginRoute: typeof LoginRoute
   Mint_certificateRoute: typeof Mint_certificateRoute
   Mint_nftRoute: typeof Mint_nftRoute
   TemplatesRoute: typeof TemplatesRoute
@@ -142,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/mint_certificate'
       fullPath: '/mint_certificate'
       preLoaderRoute: typeof Mint_certificateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -180,6 +200,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountRoute: AccountRoute,
   CollectionsRoute: CollectionsRoute,
   DashboardRoute: DashboardRoute,
+  LoginRoute: LoginRoute,
   Mint_certificateRoute: Mint_certificateRoute,
   Mint_nftRoute: Mint_nftRoute,
   TemplatesRoute: TemplatesRoute,

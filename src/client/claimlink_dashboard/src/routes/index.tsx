@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HeaderBar } from "@/shared/components";
 import { DashboardPage } from "@/features/dashboard";
-import SideNav from "@shared/app-layout/sidebar";
+import SideNav from "@/components/layout/Sidebar";
 
 export const Route = createFileRoute("/")({
   component: App,
