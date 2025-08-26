@@ -1,51 +1,40 @@
 {
+  "__0": "ORIGYN Claimlink Monorepo",
   "canisters": {
     "claimlink_backend": {
-      "main": "src/claimlink_backend/main.mo",
-      "type": "motoko",
-      "dependencies": [
-        "registry"
-      ]
-    },
-    "assets_canister": {
-      "main": "src/assets_canister/assets.mo",
-      "type": "motoko"
-    },
-    "extv2": {
-      "main": "src/extv2/ext_v2/v2.mo",
-      "type": "motoko"
+      "type": "custom",
+      "candid": "backend/canisters/backend/canisters/claimlink/api/can.did",
+      "package": "claimlink_backend",
+      "wasm": "backend/canisters/backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "declarations": {
+        "bindings": ["js", "did", "ts"],
+        "env_override": null,
+        "output": "backend/canisters/backend/canisters/claimlink/api/declarations"
+      }
     },
     "claimlink_frontend": {
-      "dependencies": [
-        "claimlink_backend"
-      ],
-      "source": [
-        "src/claimlink_frontend/dist"
-      ],
-      "type": "assets",
-      "workspace": "claimlink_frontend"
-    },
-    "registry": {
-      "main": "src/claimlink_backend/registry.mo",
-      "type": "motoko"
-    },
-    "icp_ledger_canister": {
-      "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/aba60ffbc46acfc8990bf4d5685c1360bd7026b9/rs/ledger_suite/icp/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/aba60ffbc46acfc8990bf4d5685c1360bd7026b9/canisters/ledger-canister.wasm.gz",
-      "remote": {
-        "id": {
-          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-        }
-      }
+      "declarations": {
+        "bindings": [],
+        "env_override": null,
+        "output": null
+      },
+      "source": ["frontend/claimlink_frontend/dist"],
+      "type": "assets"
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": "mops sources"
+  "dfx": "0.29.0",
+  "networks": {
+    "staging": {
+      "providers": ["https://icp0.io"],
+      "type": "persistent"
+    },
+    "preprod": {
+      "providers": ["https://icp0.io"],
+      "type": "persistent"
+    },
+    "local": {
+      "bind": "localhost:8080",
+      "type": "ephemeral"
     }
-  },
-  "output_env_file": ".env",
-  "version": 1
+  }
 }

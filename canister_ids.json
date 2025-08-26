@@ -1,21 +1,18 @@
 {
   "claimlink_backend": {
-    "ic": "xjhju-3aaaa-aaaak-akv5q-cai",
-    "local": "bkyz2-fmaaa-aaaaa-qaaaq-cai"
+    "ic": "",
+    "staging": ""
   },
   "claimlink_frontend": {
-    "ic": "x4ayz-2iaaa-aaaak-akv6a-cai",
-    "local": "x4ayz-2iaaa-aaaak-akv6a-cai"
-  },
-  "extv2": {
-    "ic": "4rvqj-2qaaa-aaaak-ao3yq-cai"
+    "ic": "",
+    "staging": ""
   },
   "registry": {
-    "ic": "rnj74-naaaa-aaaak-ao2rq-cai",
-    "local": "rnj74-naaaa-aaaak-ao2rq-cai"
+    "ic": "",
+    "staging": ""
   },
-  "ledger": {
-    "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
-    "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+  "sns_ledger": {
+    "ic": "lkwrt-vyaaa-aaaaq-aadhq-cai",
+    "staging": "j5naj-nqaaa-aaaal-ajc7q-cai"
   }
 }
