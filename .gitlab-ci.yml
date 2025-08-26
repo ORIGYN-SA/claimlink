@@ -123,11 +123,11 @@ claimlink staging:
       changes:
         - "backend/libraries/{**,**/**,**/**/**}/*.{rs,toml,lock}"
         - "backend/external_canisters/{**,**/**,**/**/**}/*.{rs,toml,lock}"
-        - "backend/canisters/ogy_token_swap/{**,**/**,**/**/**}/*.{rs,toml,lock}"
+        - "backend/canisters/claimlink/{**,**/**,**/**/**}/*.{rs,toml,lock}"
   variables:
     TARGET_NETWORK: staging
     PEM_FILE: "${PEM_FILE_STAGING}"
-  needs: ["ogy_token_swap staging build"]
+  needs: ["claimlink staging build"]
   before_script:
     - !reference [.import dfx identity, before_script]
   script:
