@@ -21,27 +21,23 @@ export function MintCard({
     switch (status) {
       case "Minted":
         return {
-          dot: "#50be8f",
-          bg: "#c7f2e0",
-          variant: "default" as const
+          dot: "#50be8f", // Jade
+          border: "#c7f2e0", // Jade 90
         }
       case "Transferred":
         return {
-          dot: "#615bff",
-          bg: "#ddddff",
-          variant: "secondary" as const
+          dot: "#615bff", // Space Purple
+          border: "#dddbff", // Space Purple lighter
         }
       case "Waiting":
         return {
-          dot: "#e84c25",
-          bg: "#ffcec2",
-          variant: "destructive" as const
+          dot: "#ff55c5", // Candy Floss
+          border: "#ffd4f0", // Candy Floss 95
         }
       default:
         return {
-          dot: "#69737c",
-          bg: "#f2f2f2",
-          variant: "outline" as const
+          dot: "#69737c", // Slate
+          border: "#e1e1e1", // Mouse
         }
     }
   }
@@ -49,29 +45,44 @@ export function MintCard({
   const statusConfig = getStatusConfig(status)
 
   return (
-    <Card className={cn("border border-[#e8e8e8]", className)}>
-      <CardContent className="p-3">
-        <div
-          className="h-[201px] rounded-lg bg-center bg-cover bg-no-repeat"
-          style={{
-            backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
-            backgroundColor: imageUrl ? undefined : "#060606"
-          }}
-        />
-        <div className="px-1 pt-1 pb-2">
-          <div className="text-[18px] text-[#222526] leading-6">{title}</div>
-          <div className="mt-2 flex items-center justify-between">
-            <div className="text-[13px] text-[#69737c]">{date}</div>
-            <Badge
-              variant="outline"
-              className="bg-white rounded-full px-2 py-1 flex items-center gap-2 border border-[#e1e1e1] hover:bg-white"
+    <Card className={cn("border border-[#e8e8e8] rounded-2xl bg-white", className)}>
+      <CardContent className="px-3 py-[9px] flex flex-col gap-4">
+        {/* Image */}
+        <div className="relative w-full">
+          <div
+            className="h-[201px] w-full rounded-lg bg-center bg-cover bg-no-repeat"
+            style={{
+              backgroundImage: imageUrl ? `url(${imageUrl})` : undefined,
+              backgroundColor: imageUrl ? undefined : "#060606"
+            }}
+          />
+        </div>
+        
+        {/* Content */}
+        <div className="px-1 pt-1 pb-2 flex flex-col gap-1">
+          <div className="flex flex-col gap-2">
+            <div className="font-['General_Sans'] font-normal text-[#222526] text-lg leading-6 w-full">
+              {title}
+            </div>
+          </div>
+          <div className="flex items-center justify-between w-full">
+            <div className="font-['General_Sans'] font-medium text-[#69737c] text-[13px] leading-normal">
+              {date}
+            </div>
+            <div 
+              className="bg-white border border-[rgba(225,225,225,0.5)] rounded-full px-2 py-1 flex items-center gap-2 h-8"
             >
-              <span
-                className="h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: statusConfig.dot }}
+              <div
+                className="w-2.5 h-2.5 rounded-full"
+                style={{ 
+                  backgroundColor: statusConfig.dot,
+                  border: `1px solid ${statusConfig.border}`
+                }}
               />
-              <span className="text-[12px] text-[#222526]">{status}</span>
-            </Badge>
+              <span className="font-['General_Sans'] font-medium text-[#222526] text-xs leading-normal">
+                {status}
+              </span>
+            </div>
           </div>
         </div>
       </CardContent>

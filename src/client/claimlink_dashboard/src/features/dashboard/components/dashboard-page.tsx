@@ -3,6 +3,15 @@ import { WelcomeCard } from "./welcome-card";
 import { FeedCard } from "./feed-card";
 import { MintCard } from "./mint-card";
 import { CertificateListCard } from "./certificate-list-card";
+import { 
+  MintedCertificatesIcon, 
+  AwaitingCertificatesIcon, 
+  WalletCertificatesIcon, 
+  TransferredCertificatesIcon,
+  SearchIcon,
+  GridIcon,
+  LineIcon
+} from "./icons";
 import {
   Card,
   CardHeader,
@@ -44,72 +53,120 @@ export function DashboardPage({ className }: DashboardPageProps) {
   return (
     <div
       className={cn(
-        "mx-auto max-w-[1158px] bg-[#fcfafa] rounded-[20px]",
+        "bg-[#fcfafa] rounded-[20px] flex flex-col items-center justify-start py-6 px-0 w-[1158px]",
         className,
       )}
     >
-      {/* Stats Grid */}
-      <div className="px-6 py-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard
-            title="Minted Certificates"
-            value="235"
-            trend="56%"
-            trendColor="green"
-          />
-          <StatCard
-            title="Awaiting Certificates"
-            value="235"
-            trend="56%"
-            trendColor="green"
-          />
-          <StatCard
-            title="Certificate in my wallet"
-            value="235"
-            trend="11%"
-            trendColor="red"
-          />
-          <StatCard
-            title="Transferred Certificates"
-            value="235"
-            trend="56%"
-            trendColor="green"
-          />
+      {/* Header - exactly matching Figma */}
+      <div className="flex items-center justify-between px-6 py-0 w-full">
+        <h1 className="font-['General_Sans'] font-medium text-[#222526] text-2xl leading-8 text-right">
+          Dashboard
+        </h1>
+        <div className="flex gap-2 items-center">
+          {/* Wallet Button */}
+          <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-2 flex items-center gap-2 h-[47px]">
+            <div className="w-4 h-4 bg-orange-500 rounded-full" />
+            <span className="font-['General_Sans'] text-sm">
+              <span className="font-medium text-[#061937]">1'256</span>
+              <span className="font-normal text-[#69737c] tracking-[0.7px]"> OGY</span>
+            </span>
+          </div>
+          
+          {/* Account Button */}
+          <button className="bg-white border border-[#e1e1e1] rounded-full pl-1 pr-4 py-2 flex items-center gap-2 h-[47px]">
+            <div className="w-[39px] h-[39px] bg-gray-300 rounded-full relative">
+              <div className="absolute inset-3 w-4 h-4 bg-white rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-gray-400" />
+              </div>
+            </div>
+            <span className="font-['General_Sans'] text-sm">
+              <span className="font-medium text-[#061937]">My Account:</span>
+              <span className="font-normal text-[#69737c] tracking-[0.7px]"> 55vo...3dfa</span>
+            </span>
+          </button>
         </div>
       </div>
 
+      {/* Stats Section */}
+      <div className="flex flex-col gap-4 items-start justify-start p-6 w-full">
+        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full">
+          <div className="font-['General_Sans'] font-medium text-black text-sm leading-4 mb-4">
+            Total certificate status
+          </div>
+          <div className="flex gap-4 items-start justify-start shadow-[0_3px_4px_0_rgba(0,0,0,0.05)] w-full">
+            <StatCard
+              title="Minted Certificates"
+              value="235"
+              trend="56%"
+              trendColor="green"
+              icon={<MintedCertificatesIcon />}
+              className="flex-1"
+            />
+            <StatCard
+              title="Awaiting Certificates"
+              value="235"
+              trend="56%"
+              trendColor="green"
+              icon={<AwaitingCertificatesIcon />}
+              className="flex-1"
+            />
+            <StatCard
+              title="Certificate in my wallet"
+              value="235"
+              trend="11%"
+              trendColor="red"
+              icon={<WalletCertificatesIcon />}
+              className="flex-1"
+            />
+            <StatCard
+              title="Transferred Certificates"
+              value="235"
+              trend="56%"
+              trendColor="green"
+              icon={<TransferredCertificatesIcon />}
+              className="flex-1"
+            />
+          </div>
+        </Card>
+      </div>
+
       {/* Main Content */}
-      <div className="px-6 py-6 flex gap-6">
+      <div className="flex gap-6 items-start justify-start px-6 py-0 w-full">
         {/* Left Sidebar */}
-        <div className="w-[346px] flex flex-col gap-6">
+        <div className="flex flex-col gap-6 items-start justify-start">
           <WelcomeCard />
 
           {/* Last Certificate Owners */}
-          <Card className="shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] overflow-hidden">
-            <CardHeader className="p-4">
-              <div className="flex items-start justify-between">
-                <div>
-                  <CardTitle className="text-[14px] text-[#222526] font-normal">
+          <div className="flex flex-col shadow-[0_2px_4px_0_rgba(0,0,0,0.05)]">
+            <Card className="bg-white border-[#f2f2f2] border-t border-l border-r border-b-0 rounded-t-2xl rounded-b-none p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className="flex flex-col gap-1">
+                  <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
                     Last Certificate Owners
-                  </CardTitle>
-                  <CardDescription className="text-[13px] text-[#69737c]">
+                  </div>
+                  <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
                     Last 7 days
-                  </CardDescription>
+                  </div>
                 </div>
-                <Button
-                  variant="link"
-                  className="text-[13px] text-[#615bff] hover:text-[#615bff]/80 p-0 h-auto"
-                >
+                <button className="font-['General_Sans'] font-medium text-[#615bff] text-[13px] leading-normal pb-1">
                   View all
-                </Button>
+                </button>
               </div>
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
+              <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center justify-between">
+                <span className="font-['General_Sans'] font-light text-[#69737c] text-[13px] leading-normal">
+                  Search for an item
+                </span>
+                <div className="w-4 h-4">
+                  <SearchIcon />
+                </div>
+              </div>
+            </Card>
+            <div className="bg-white border-[#f2f2f2] border-l border-r border-b rounded-bl-2xl rounded-br-2xl px-4 pb-4">
               {certificateOwners.map((owner, index) => (
                 <FeedCard key={index} title={owner.title} />
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Last Sent Certificates */}
           <CertificateListCard
@@ -122,55 +179,90 @@ export function DashboardPage({ className }: DashboardPageProps) {
         </div>
 
         {/* Main Content Area */}
-        <Card className="flex-1 shadow-[0_2px_4px_0_rgba(0,0,0,0.05)]">
-          <CardHeader className="p-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <CardTitle className="text-[14px] text-[#222526] font-normal">
-                  Last minted Certificate
-                </CardTitle>
-                <CardDescription className="text-[13px] text-[#69737c]">
-                  Last 30 days
-                </CardDescription>
+        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-[740px]">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex flex-col gap-1">
+              <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
+                Last minted Certificate
               </div>
-              <div className="flex items-center gap-3">
-                <Button
-                  variant="link"
-                  className="text-[13px] text-[#615bff] hover:text-[#615bff]/80 p-0 h-auto"
-                >
-                  View all
-                </Button>
-                <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1">
-                  <div className="flex gap-1">
-                    <Button
-                      size="sm"
-                      className="bg-[#061937] text-white rounded-[21.5px] px-1.5 py-1 text-[12px] h-auto hover:bg-[#061937]/90"
-                    >
-                      Grid
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="bg-[#fcfafa] rounded-[21.5px] px-1.5 py-1 text-[12px] h-auto hover:bg-[#fcfafa]/80"
-                    >
-                      Line
-                    </Button>
+              <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
+                Last 30 days
+              </div>
+            </div>
+            <div className="flex gap-2 items-center">
+              <button className="font-['General_Sans'] font-medium text-[#615bff] text-[13px] leading-normal pb-1">
+                View all
+              </button>
+              <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1 flex gap-0.5">
+                <div className="bg-[#061937] rounded-[21.5px] p-1 flex items-center justify-center gap-2.5">
+                  <div className="w-4 h-4 text-white">
+                    <GridIcon />
+                  </div>
+                </div>
+                <div className="bg-[#fcfafa] rounded-[21.5px] p-1 flex items-center justify-center gap-2.5">
+                  <div className="w-4 h-4 text-[#69737c]">
+                    <LineIcon />
                   </div>
                 </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {mintedCertificates.map((certificate, index) => (
-                <MintCard
-                  key={index}
-                  title={certificate.title}
-                  status={certificate.status}
-                />
-              ))}
+          </div>
+          <div className="flex flex-col gap-4">
+            {/* First Row */}
+            <div className="flex gap-4 items-start justify-start w-full">
+              <MintCard
+                title={mintedCertificates[0]?.title}
+                status={mintedCertificates[0]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[1]?.title}
+                status={mintedCertificates[1]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[2]?.title}
+                status={mintedCertificates[2]?.status}
+                className="flex-1"
+              />
             </div>
-          </CardContent>
+            {/* Second Row */}
+            <div className="flex gap-4 items-start justify-start w-full">
+              <MintCard
+                title={mintedCertificates[3]?.title}
+                status={mintedCertificates[3]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[4]?.title}
+                status={mintedCertificates[4]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[5]?.title}
+                status={mintedCertificates[5]?.status}
+                className="flex-1"
+              />
+            </div>
+            {/* Third Row */}
+            <div className="flex gap-4 items-start justify-start w-full">
+              <MintCard
+                title={mintedCertificates[6]?.title}
+                status={mintedCertificates[6]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[7]?.title}
+                status={mintedCertificates[7]?.status}
+                className="flex-1"
+              />
+              <MintCard
+                title={mintedCertificates[8]?.title}
+                status={mintedCertificates[8]?.status}
+                className="flex-1"
+              />
+            </div>
+          </div>
         </Card>
       </div>
     </div>
