@@ -9,7 +9,7 @@ use super::init_canister;
 
 #[init]
 fn init(args: InitArgs) {
-    canister_logger::init(args.test_mode);
+    bity_ic_canister_logger::init(args.test_mode);
 
     let env = CanisterEnv::new(args.test_mode);
 

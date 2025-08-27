@@ -1,5 +1,5 @@
+use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
-use canister_state_macros::canister_state;
 use serde::{Deserialize, Serialize};
 use types::{CanisterId, TimestampMillis};
 use utils::{

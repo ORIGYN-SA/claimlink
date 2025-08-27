@@ -20,6 +20,6 @@ serde = { workspace = true }
 types = { path = "../libraries/types" }
 sha2 = "0.10.8"
 hex = "0.4"
-canister_time = { path = '../libraries/canister_time' }
+bity-ic-canister-time = { workspace = true }
 utils = { path = '../libraries/utils' }
 

@@ -1,5 +1,5 @@
 [package]
-name = "utils"
+name = "origyn_nft_canister"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,14 +7,14 @@ edition = "2021"
 
 [dependencies]
 candid = { workspace = true }
+bity-ic-candid-gen = { workspace = true }
 bity-ic-canister-time = { workspace = true }
-bity-ic-stable-memory = { workspace = true }
-ciborium = { workspace = true }
 hex = { workspace = true }
-ic-ledger-types = { workspace = true }
-icrc-ledger-types = { workspace = true }
-ic-cdk = { workspace = true }
 ic-stable-structures = { workspace = true }
 serde = { workspace = true }
+types = { path = "../../../libraries/types" }
+icrc-ledger-types = { workspace = true }
+bity-ic-icrc3 = { workspace = true }
 serde_bytes = { workspace = true }
-types = { path = "../types" }
+bity-ic-storage-canister-api = { workspace = true }
+bity-ic-types = { workspace = true }

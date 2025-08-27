@@ -2,19 +2,12 @@
 members = [
   "backend/canisters/claimlink/api",
   "backend/canisters/claimlink/impl",
+  "backend/external_canisters/origyn_nft/api",
+  "backend/external_canisters/origyn_nft/c2c_client",
   "backend/external_canisters/icrc_ledger/api",
   "backend/external_canisters/icrc_ledger/c2c_client",
   "backend/integration_tests",
-  "backend/libraries/candid_gen",
-  "backend/libraries/canister_client",
-  "backend/libraries/canister_client_macros",
-  "backend/libraries/canister_logger",
-  "backend/libraries/canister_state_macros",
-  "backend/libraries/canister_time",
-  "backend/libraries/canister_tracing_macros",
   "backend/libraries/http_request",
-  "backend/libraries/serializer",
-  "backend/libraries/stable_memory",
   "backend/libraries/types",
   "backend/libraries/utils",
 ]
@@ -31,17 +24,17 @@ futures = "0.3.29"
 # Enable `custom` feature of k256's getrandom dependency. See icp_neuron/impl/src/ecdsa.rs for more details.
 getrandom = { version = "0.2.12", features = ["custom"] }
 hex = "0.4.3"
-ic-cdk = "0.13.1"
-ic-cdk-macros = "0.9.0"
-ic-cdk-timers = "0.7.0"
-ic-ledger-types = "0.10.0"
-ic-stable-structures = "0.6.1"
-ic-transport-types = "0.34.0"
-ic0 = "0.21.1"
-icrc-ledger-types = "0.1.5"
+ic-cdk = "0.18.5"
+ic-cdk-macros = "0.18.5"
+ic-cdk-timers = "0.12.2"
+ic-ledger-types = "0.15.0"
+ic-stable-structures = "0.6.9"
+ic-transport-types = "0.41.0"
+ic0 = "1.0.0"
+icrc-ledger-types = "0.1.6"
 k256 = "0.13.1"
 lazy_static = "1.4.0"
-pocket-ic = "3.1.0"
+pocket-ic = "9.0.2"
 proc-macro2 = "1.0.78"
 quote = "1.0.33"
 rmp-serde = "1.1.2"
@@ -61,3 +54,16 @@ time = { version = "0.3.36", features = [
   "parsing",
   "formatting",
 ] }
+
+# Bity crates
+bity-ic-icrc3 = { version =  "=0.4.8", features = ["debug-logs"] }
+bity-ic-storage-canister-api = "0.2.0"
+bity-ic-types = "0.1.0"
+bity-ic-candid-gen = "0.1.0"
+bity-ic-canister-client = "0.2.4"
+bity-ic-canister-logger = "0.2.0"
+bity-ic-canister-state-macros = "0.1.0"
+bity-ic-canister-time = "0.2.1"
+bity-ic-canister-tracing-macros = "0.1.0"
+bity-ic-serializer = "0.1.0"
+bity-ic-stable-memory = "0.2.0"
