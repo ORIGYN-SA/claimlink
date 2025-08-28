@@ -5,11 +5,20 @@ import clsx from "clsx";
 
 const Brand = () => {
   return (
-    <div className="flex items-center gap-3 h-10 w-full px-4 select-none">
-      <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-teal-400 via-cyan-400 to-sky-300" />
-      <span className="text-lg font-semibold tracking-wide text-[#E0E6EA]">
-        ORIGYN
-      </span>
+    <div className="h-10 w-[175px] relative select-none">
+      {/* ORIGYN Logo - exact Figma design */}
+      <div className="absolute inset-[3.09%_3.39%_3.14%_2.84%]">
+        {/* Icon part */}
+        <div className="absolute inset-[3.09%_74.91%_3.14%_2.84%]">
+          <div className="w-full h-full bg-gradient-to-br from-orange-400 via-blue-500 to-purple-600 rounded-sm" />
+        </div>
+        {/* ORIGYN text */}
+        <div className="absolute inset-[24.7%_3.39%_23.13%_31.66%] flex items-center">
+          <span className="font-['General_Sans'] font-medium text-white text-lg tracking-wide">
+            ORIGYN
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
@@ -33,7 +42,7 @@ const NavLink = ({
       to={isDisabled ? "#" : url}
       className={clsx(
         "flex items-center gap-4 rounded-lg w-full px-4 py-3 overflow-hidden",
-        "text-[14px] transition-colors",
+        "font-['General_Sans'] font-medium text-[14px] leading-4 transition-colors",
         {
           "pointer-events-none opacity-50 cursor-not-allowed": isDisabled,
           "bg-[rgba(133,241,255,0.25)] text-white": isActive && !isDisabled,
@@ -42,7 +51,7 @@ const NavLink = ({
       )}
       aria-disabled={isDisabled}
     >
-      <div className="h-[22px] w-[22px] text-current">{icon}</div>
+      <div className="h-[22px] w-[22px] shrink-0 text-current">{icon}</div>
       <div className="leading-4 whitespace-pre">{title}</div>
     </Link>
   );
@@ -53,11 +62,16 @@ const SideNav = ({ className }: { className?: string }) => {
   const active = location.pathname;
 
   return (
-    <aside className={clsx("flex flex-col justify-between h-full", className)}>
-      <div className="flex flex-col items-start gap-10 px-4 pt-10">
+    <aside className={clsx(
+      "flex flex-col items-center justify-between h-full p-[40px]", 
+      className
+    )}>
+      {/* Content */}
+      <div className="flex flex-col gap-10 items-center justify-start shrink-0">
         <Brand />
 
-        <nav className="w-[250px] px-2">
+        {/* Navigation Menu */}
+        <nav className="w-[250px] px-2 py-0">
           <ul className="flex flex-col gap-1">
             {navItems.map(({ title, url, icon }, i) => (
               <li key={i}>
@@ -73,15 +87,18 @@ const SideNav = ({ className }: { className?: string }) => {
         </nav>
       </div>
 
-      <div className="px-6 pb-10">
-        <div className="bg-white rounded-2xl w-[202px] p-6">
-          <div className="flex flex-col gap-4 text-[14px] text-[#69737c]">
-            <button type="button" className="text-left leading-4">
-              Technical help
-            </button>
-            <button type="button" className="text-left leading-4">
-              Contact us
-            </button>
+      {/* Footer */}
+      <div className="flex flex-col gap-6 items-start justify-start shrink-0 w-[202px]">
+        <div className="flex flex-col gap-2 items-start justify-start">
+          <div className="bg-white rounded-2xl w-[202px] p-6">
+            <div className="flex flex-col gap-4 font-['General_Sans'] font-medium text-[14px] text-[#69737c] leading-4 w-[98px] overflow-hidden">
+              <button type="button" className="text-left w-full">
+                Technical help
+              </button>
+              <button type="button" className="text-left w-full">
+                Contact us
+              </button>
+            </div>
           </div>
         </div>
       </div>

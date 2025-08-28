@@ -1,9 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardLayout } from '@/components/layout'
+import { MintCertificatePage } from '@/features/mint-certificate'
 
 export const Route = createFileRoute('/mint_certificate')({
-  component: RouteComponent,
+  component: MintCertificateRoute,
 })
 
-function RouteComponent() {
-  return <div>Hello "/mint_certificate"!</div>
+function MintCertificateRoute() {
+  return (
+    <DashboardLayout>
+      <MintCertificatePage />
+    </DashboardLayout>
+  )
 }
