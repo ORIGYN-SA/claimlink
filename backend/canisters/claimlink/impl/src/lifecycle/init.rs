@@ -15,7 +15,11 @@ fn init(args: InitArgs) {
 
     let runtime_state = RuntimeState::new(
         env.clone(),
-        Data::new(args.ledger_canister_id, args.authorized_principals),
+        Data::new(
+            args.ledger_canister_id,
+            args.authorized_principals,
+            args.origyn_nft_commit_hash,
+        ),
     );
 
     init_canister(runtime_state);

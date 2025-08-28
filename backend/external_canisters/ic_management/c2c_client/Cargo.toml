@@ -1,5 +1,5 @@
 [package]
-name = "origyn-nft-canister-c2c-client"
+name = "ic_management_canister_c2c_client"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 
 [dependencies]
 bity-ic-canister-client = { workspace = true }
-origyn-nft-canister-api = { path = "../api" }
+ic_management_canister_api = { path = "../api" }
 types = { path = "../../../libraries/types" }
 ic-cdk = { workspace = true }

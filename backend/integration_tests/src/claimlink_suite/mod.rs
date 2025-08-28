@@ -18,4 +18,5 @@ pub struct PrincipalIds {
 #[derive(Debug)]
 pub struct CanisterIds {
     pub ogy_sns_ledger: CanisterId,
+    pub claimlink: CanisterId,
 }

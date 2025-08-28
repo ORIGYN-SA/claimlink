@@ -5,13 +5,13 @@ use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub enum Args {
     Init(InitArgs),
     Upgrade(UpgradeArgs),
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub struct InitArgs {
     pub test_mode: bool,
     pub version: BuildVersion,
@@ -42,7 +42,7 @@ pub struct InitApprovalsArg {
     pub max_revoke_approvals: Option<Nat>,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub struct UpgradeArgs {
     pub version: BuildVersion,
     pub commit_hash: String,

@@ -1,5 +1,5 @@
 use bity_ic_canister_client::generate_candid_c2c_call;
-use origyn_nft_canister::*;
+use origyn_nft_canister_api::*;
 
 // ICRC10
 generate_candid_c2c_call!(icrc10_supported_standards);
