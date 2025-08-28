@@ -43,6 +43,7 @@ pub fn init() -> TestEnv {
     let canisters = install_canisters(&mut pic, principal_ids.controller);
     let canister_ids: CanisterIds = CanisterIds {
         ogy_sns_ledger: canisters.ogy_sns_ledger,
+        claimlink: canisters.claimlink,
     };
 
     TestEnv {
@@ -73,16 +74,7 @@ pub fn validate_pocketic_installation() {
 
 fn install_canisters(pic: &mut PocketIc, controller: Principal) -> CanisterIds {
     let origyn_sns_ledger_canister_id: Principal = create_canister(pic, controller);
-
     let origyn_sns_ledger_canister_wasm = wasms::IC_ICRC1_LEDGER.clone();
-
-    install_canister(
-        pic,
-        controller,
-        origyn_sns_ledger_canister_id,
-        origyn_sns_ledger_canister_wasm.clone(),
-        {},
-    );
 
     let origyn_sns_ledger_init_args = LedgerArgument::Init(InitArgs {
         minting_account: Account::from(controller),
@@ -102,11 +94,30 @@ fn install_canisters(pic: &mut PocketIc, controller: Principal) -> CanisterIds {
         pic,
         controller,
         origyn_sns_ledger_canister_id,
-        origyn_sns_ledger_canister_wasm,
+        origyn_sns_ledger_canister_wasm.clone(),
         origyn_sns_ledger_init_args,
+    );
+
+    let claimlink_canister_id: Principal = create_canister(pic, controller);
+    let claimlink_canister_wasm = wasms::CLAIMLINK.clone();
+
+    let claimlink_init_args = claimlink_api::init::InitArgs {
+        test_mode: true,
+        ledger_canister_id: origyn_sns_ledger_canister_id,
+        authorized_principals: vec![controller],
+        origyn_nft_commit_hash: "t1e2s3t".to_string(),
+    };
+
+    install_canister(
+        pic,
+        controller,
+        claimlink_canister_id,
+        claimlink_canister_wasm,
+        claimlink_init_args,
     );
 
     CanisterIds {
         ogy_sns_ledger: origyn_sns_ledger_canister_id,
+        claimlink: claimlink_canister_id,
     }
 }

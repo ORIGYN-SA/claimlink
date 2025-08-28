@@ -9,6 +9,7 @@ edition = "2021"
 candid = { workspace = true }
 ic-cdk = { workspace = true }
 icrc_ledger_canister = { path = "../external_canisters/icrc_ledger/api" }
+origyn-nft-canister-api = { path = "../external_canisters/origyn_nft/api" }
 ic-ledger-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
 lazy_static = { workspace = true }
