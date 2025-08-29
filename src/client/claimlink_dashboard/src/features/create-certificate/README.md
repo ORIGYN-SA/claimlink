@@ -15,8 +15,6 @@ The create certificate feature provides a comprehensive interface for users to:
 
 ### Main Components
 - **CreateCertificatePage** - Main page component with form layout
-- **WalletButton** - Displays wallet balance and OGY token info
-- **AccountButton** - Shows user account information and address
 
 ### Form Components
 - **CollectionDropdown** - Select which collection to assign certificates to

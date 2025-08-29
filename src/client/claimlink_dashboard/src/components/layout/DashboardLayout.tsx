@@ -9,7 +9,7 @@ interface DashboardLayoutProps {
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
-  
+
   // Map route paths to page titles
   const getPageTitle = (pathname: string): string => {
     if (pathname === '/') return 'Dashboard';
@@ -18,8 +18,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
     if (pathname.startsWith('/mint_nft')) return 'Mint NFT';
     if (pathname.startsWith('/account')) return 'Account';
+    if (pathname.startsWith('/create_certificate')) return 'Create Certificate';
     return 'Dashboard';
   };
+
+  // Determine if back button should be shown and where to navigate
+  const getBackNavigation = (pathname: string) => {
+    if (pathname.startsWith('/create_certificate')) {
+      return { showBackButton: true, backTo: '/mint_certificate' };
+    }
+    return { showBackButton: false, backTo: undefined };
+  };
+
+  const { showBackButton, backTo } = getBackNavigation(location.pathname);
 
   return (
     <div className="min-h-screen bg-[#fcfafa]">
@@ -30,7 +41,11 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
         <main className="flex-1 px-0 py-3">
-          <HeaderBar title={getPageTitle(location.pathname)} />
+          <HeaderBar
+            title={getPageTitle(location.pathname)}
+            showBackButton={showBackButton}
+            backTo={backTo}
+          />
           {children}
         </main>
       </div>

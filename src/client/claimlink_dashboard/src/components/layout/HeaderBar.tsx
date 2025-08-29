@@ -1,17 +1,44 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { ArrowLeft } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 import { cn } from "@/lib/utils"
 
 interface HeaderBarProps {
   title?: string
   className?: string
+  showBackButton?: boolean
+  backTo?: string
 }
 
-export function HeaderBar({ title = "Dashboard", className }: HeaderBarProps) {
+export function HeaderBar({ title = "Dashboard", className, showBackButton = false, backTo }: HeaderBarProps) {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (backTo) {
+      navigate({ to: backTo });
+    } else {
+      navigate({ to: '/dashboard' });
+    }
+  };
+
   return (
     <div className={cn("flex items-center justify-between px-6 py-0", className)}>
-      <h1 className="font-['General_Sans'] font-medium text-[#222526] text-2xl leading-8">
-        {title}
-      </h1>
+      <div className="flex items-center gap-3">
+        {showBackButton && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-6 h-6 text-[#222526] hover:bg-[#f0f0f0]"
+            onClick={handleBack}
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Button>
+        )}
+        <h1 className="font-['General_Sans'] font-medium text-[#222526] text-2xl leading-8">
+          {title}
+        </h1>
+      </div>
       <div className="flex items-center gap-2">
         {/* Wallet Button */}
         <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-2 flex items-center gap-2 h-[47px]">
