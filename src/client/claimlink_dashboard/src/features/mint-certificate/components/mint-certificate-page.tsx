@@ -5,8 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CertificateCard } from "./certificate-card";
-import { AddCertificateCard } from "./add-certificate-card";
+import { CertificateGridView } from "./certificate-grid-view";
+import { CertificateListView } from "./certificate-list-view";
 import type { Certificate } from "../types/certificate.types";
 
 // Mock data - replace with actual data fetching
@@ -222,24 +222,17 @@ export function MintCertificatePage() {
         {/* Content */}
         <div className="bg-white p-4">
           {viewMode === 'grid' ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {/* Add Certificate Card - always first */}
-              <AddCertificateCard onClick={handleAddCertificate} />
-              
-              {/* Certificate Cards */}
-              {paginatedCertificates.map((certificate) => (
-                <CertificateCard
-                  key={certificate.id}
-                  certificate={certificate}
-                  onClick={handleCertificateClick}
-                />
-              ))}
-            </div>
+            <CertificateGridView
+              certificates={paginatedCertificates}
+              onCertificateClick={handleCertificateClick}
+              onAddCertificate={handleAddCertificate}
+            />
           ) : (
-            <div className="space-y-2">
-              {/* List view - implement if needed */}
-              <p className="text-[#69737c] text-center py-8">List view not implemented yet</p>
-            </div>
+            <CertificateListView
+              certificates={paginatedCertificates}
+              onCertificateClick={handleCertificateClick}
+              onAddCertificate={handleAddCertificate}
+            />
           )}
         </div>
 
