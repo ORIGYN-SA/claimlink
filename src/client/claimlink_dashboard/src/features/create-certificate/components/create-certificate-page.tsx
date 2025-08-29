@@ -10,8 +10,6 @@ export function CreateCertificatePage() {
       <div className="content-stretch flex gap-[18px] items-start justify-start relative w-full max-w-[1110px]">
         {/* Main Form Section */}
         <div className="content-stretch flex flex-col gap-4 items-start justify-start relative shrink-0 w-[692px]">
-          {/* Header */}
-          <CertificateHeader />
 
           {/* Collection Section */}
           <CollectionSection />
