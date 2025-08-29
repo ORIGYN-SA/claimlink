@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, Grid, List, ChevronDown, MoreHorizontal } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -102,6 +103,7 @@ const mockCertificates: Certificate[] = [
 ];
 
 export function MintCertificatePage() {
+  const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -117,7 +119,7 @@ export function MintCertificatePage() {
   };
 
   const handleMintCertificate = () => {
-    console.log('Mint a certificate clicked');
+    navigate({ to: '/create_certificate' });
   };
 
   // Filter certificates based on search and status
