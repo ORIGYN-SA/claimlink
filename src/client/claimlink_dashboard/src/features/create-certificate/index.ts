@@ -1,5 +1,4 @@
 export { CreateCertificatePage } from './components/create-certificate-page';
-export { CertificateHeader } from './components/certificate-header';
 export { CollectionSection } from './components/collection-section';
 export { ImageUploadSection } from './components/image-upload-section';
 export { CompanyForm } from './components/company-form';

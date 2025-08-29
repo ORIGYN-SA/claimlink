@@ -1,4 +1,3 @@
-import { CertificateHeader } from "./certificate-header";
 import { CollectionSection } from "./collection-section";
 import { ImageUploadSection } from "./image-upload-section";
 import { CompanyForm } from "./company-form";
