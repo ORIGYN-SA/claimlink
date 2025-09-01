@@ -12,14 +12,7 @@ import {
   GridIcon,
   LineIcon
 } from "./icons";
-import {
-  Card,
-  CardHeader,
-  CardContent,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
 interface DashboardPageProps {
@@ -53,7 +46,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
   return (
     <div
       className={cn(
-        "bg-[#fcfafa] rounded-[20px] flex flex-col items-center justify-start py-6 px-0 w-[1158px]",
+        "bg-[#fcfafa] rounded-[20px] flex flex-col items-start justify-start py-6 px-0 w-full max-w-none",
         className,
       )}
     >
@@ -103,9 +96,9 @@ export function DashboardPage({ className }: DashboardPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex gap-6 items-start justify-start px-6 py-0 w-full">
+      <div className="flex gap-6 items-start justify-start px-6 py-0 w-full flex-1 min-w-0">
         {/* Left Sidebar */}
-        <div className="flex flex-col gap-6 items-start justify-start">
+        <div className="flex flex-col gap-6 items-start justify-start w-[346px] flex-shrink-0">
           <WelcomeCard />
 
           {/* Last Certificate Owners */}
@@ -151,7 +144,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
         </div>
 
         {/* Main Content Area */}
-        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-[740px]">
+        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 flex-1 min-w-0">
           <div className="flex items-start justify-between mb-4">
             <div className="flex flex-col gap-1">
               <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
@@ -185,17 +178,17 @@ export function DashboardPage({ className }: DashboardPageProps) {
               <MintCard
                 title={mintedCertificates[0]?.title}
                 status={mintedCertificates[0]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[1]?.title}
                 status={mintedCertificates[1]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[2]?.title}
                 status={mintedCertificates[2]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
             </div>
             {/* Second Row */}
@@ -203,17 +196,17 @@ export function DashboardPage({ className }: DashboardPageProps) {
               <MintCard
                 title={mintedCertificates[3]?.title}
                 status={mintedCertificates[3]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[4]?.title}
                 status={mintedCertificates[4]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[5]?.title}
                 status={mintedCertificates[5]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
             </div>
             {/* Third Row */}
@@ -221,17 +214,17 @@ export function DashboardPage({ className }: DashboardPageProps) {
               <MintCard
                 title={mintedCertificates[6]?.title}
                 status={mintedCertificates[6]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[7]?.title}
                 status={mintedCertificates[7]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
               <MintCard
                 title={mintedCertificates[8]?.title}
                 status={mintedCertificates[8]?.status}
-                className="flex-1"
+                className="basis-0 grow min-w-0"
               />
             </div>
           </div>

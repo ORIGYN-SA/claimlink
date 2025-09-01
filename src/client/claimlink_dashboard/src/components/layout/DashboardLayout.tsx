@@ -33,14 +33,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { showBackButton, backTo } = getBackNavigation(location.pathname);
 
   return (
-    <div className="min-h-screen bg-[#fcfafa]">
-      <div className="flex">
-        <div className="w-[250px] bg-transparent">
+    <div className="min-h-screen bg-[#222526] relative">
+      {/* Blur background overlay */}
+      <div className="absolute backdrop-blur-[100px] backdrop-filter bg-[rgba(19,19,19,0.4)] h-full w-full" />
+      <div className="relative flex">
+        <div className="w-[250px]">
           <div className="sticky top-0 h-screen p-0">
             <Sidebar />
           </div>
         </div>
-        <main className="flex-1 px-0 py-3">
+        <main className="flex-1 px-6 py-6">
           <HeaderBar
             title={getPageTitle(location.pathname)}
             showBackButton={showBackButton}
