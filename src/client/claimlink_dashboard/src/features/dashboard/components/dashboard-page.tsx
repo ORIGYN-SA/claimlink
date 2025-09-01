@@ -46,7 +46,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
   return (
     <div
       className={cn(
-        "bg-[#fcfafa] rounded-[20px] flex flex-col items-start justify-start py-6 px-0 w-full max-w-none",
+        "bg-[#fcfafa] rounded-b-[20px] flex flex-col items-start justify-start py-6 px-0 w-full max-w-none",
         className,
       )}
     >

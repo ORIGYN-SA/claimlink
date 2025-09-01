@@ -200,6 +200,87 @@ features/campaigns/
     └── campaign.utils.ts
 ```
 
+### Layout System & Component Integration
+
+#### HeaderBar Component (`components/layout/HeaderBar.tsx`)
+
+**Purpose**: Persistent header component used across all dashboard pages with integrated navigation and user controls.
+
+**Key Features**:
+- **Persistent Navigation**: Appears on all dashboard pages within DashboardLayout
+- **Responsive Design**: Adapts to different screen sizes while maintaining visual consistency
+- **Page Title Integration**: Dynamically displays current page title from routing context
+- **User Controls**: Wallet balance display and account management
+- **Back Navigation**: Conditional back button for multi-step flows (e.g., create certificate → back to mint certificate)
+
+**Usage Pattern**:
+```typescript
+// Integrated within DashboardLayout - not used directly in individual pages
+<DashboardLayout>
+  <HeaderBar title={pageTitle} showBackButton={hasBackNavigation} backTo={backRoute} />
+  <PageContent />
+</DashboardLayout>
+```
+
+**Styling Integration**:
+- White background (`bg-white`) to match page content
+- Top rounded corners (`rounded-t-[20px]`) that merge with page containers
+- Page components use bottom rounded corners (`rounded-b-[20px]`) for seamless integration
+
+#### Sidebar Navigation (`components/layout/Sidebar.tsx`)
+
+**Purpose**: Main navigation sidebar with collapsible menu items and branding.
+
+**Key Features**:
+- **Fixed Positioning**: Stays visible while scrolling through page content
+- **Menu Items**: Dashboard, Collections, Templates, Mint Certificate, Mint NFT, Account
+- **Active State**: Visual indication of current page/section
+- **Branding**: ORIGYN logo prominently displayed at top
+- **Footer Links**: Technical help and contact information
+
+**Layout Integration**:
+- Fixed width (250px) for consistent navigation experience
+- Positioned alongside HeaderBar and page content
+- Creates the main dashboard layout structure with DashboardLayout wrapper
+
+#### DashboardLayout System (`components/layout/DashboardLayout.tsx`)
+
+**Purpose**: Main layout wrapper that combines HeaderBar, Sidebar, and page content into cohesive dashboard experience.
+
+**Key Features**:
+- **Unified Container**: Single source for dashboard page structure
+- **Background Integration**: Blur overlay and dark background for visual depth
+- **Responsive Layout**: Flex-based layout that adapts to content size
+- **Navigation Context**: Manages page titles and back navigation logic
+- **Route Awareness**: Dynamically determines page titles and navigation options
+
+**Layout Structure**:
+```typescript
+<div className="min-h-screen bg-[#222526] relative">
+  {/* Blur background overlay */}
+  <div className="absolute backdrop-blur-[100px] backdrop-filter bg-[rgba(19,19,19,0.4)] h-full w-full" />
+
+  <div className="relative flex">
+    {/* Fixed sidebar */}
+    <div className="w-[250px]">
+      <Sidebar />
+    </div>
+
+    {/* Main content area */}
+    <main className="flex-1 px-6 py-6">
+      <HeaderBar title={currentPageTitle} showBackButton={showBack} backTo={backRoute} />
+      {children} {/* Page content */}
+    </main>
+  </div>
+</div>
+```
+
+**Page Integration Rules**:
+- Page components should use `rounded-b-[20px]` (bottom only) to merge with HeaderBar
+- HeaderBar handles top rounded corners (`rounded-t-[20px]`)
+- Avoid duplicate rounded corners on individual page containers
+- Use consistent background colors (`bg-[#fcfafa]`) across pages
+
 ## Decision Tree for Component Placement
 
 ```mermaid
