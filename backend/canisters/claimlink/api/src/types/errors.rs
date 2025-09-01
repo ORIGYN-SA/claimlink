@@ -1,9 +1,9 @@
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 
 pub enum GenericError {
     Other(String),
 }
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize)]
+#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum CreateCollectionError {
     InsufficientCycles,
     InsufficientBalance,

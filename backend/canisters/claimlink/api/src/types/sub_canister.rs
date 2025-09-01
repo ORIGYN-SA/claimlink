@@ -5,8 +5,10 @@ use bity_ic_types::BuildVersion;
 use candid::Nat;
 use candid::{CandidType, Principal};
 use canfund::manager::options::{CyclesThreshold, FundManagerOptions, FundStrategy};
-use origyn_nft_canister_api::lifecycle::InitArgs as OrigynNftInitArgs;
-use origyn_nft_canister_api::InitApprovalsArg;
+use origyn_nft_canister_api::lifecycle::{
+    Args as OrigynNftSetupArgs, InitArgs as OrigynNftInitArgs,
+};
+use origyn_nft_canister_api::{InitApprovalsArg, PermissionManager};
 use serde::{Deserialize, Serialize};
 
 pub const INITIAL_CYCLES_BALANCE: u128 = 2_000_000_000_000; // 2T cycles
@@ -35,11 +37,11 @@ impl From<bity_ic_subcanister_manager::NewCanisterError> for CreateOrigynNftCani
 pub struct OrigynNftCanister {
     canister_id: Principal,
     state: bity_ic_subcanister_manager::CanisterState,
-    canister_param: OrigynNftInitArgs,
+    canister_param: OrigynNftSetupArgs,
 }
 
 impl bity_ic_subcanister_manager::Canister for OrigynNftCanister {
-    type ParamType = OrigynNftInitArgs;
+    type ParamType = OrigynNftSetupArgs;
 
     fn new(
         canister_id: Principal,
@@ -100,8 +102,7 @@ impl OrigynSubCanisterManager {
             test_mode: self.test_mode,
             version: BuildVersion::default(),
             commit_hash: self.commit_hash.clone(),
-            authorized_principals: vec![data.creator],
-            minting_authorities: vec![data.creator],
+            permissions: PermissionManager::new(HashMap::new()),
             description: data.description,
             symbol: data.symbol,
             name: data.name,
@@ -138,6 +139,8 @@ impl OrigynSubCanisterManager {
             funding_config,
         );
 
-        Ok(*sub_canister_manager.create_canister(init_args).await?)
+        Ok(*sub_canister_manager
+            .create_canister(OrigynNftSetupArgs::Init(init_args))
+            .await?)
     }
 }

@@ -1,4 +1,7 @@
-use crate::claimlink_suite::{init::init, TestEnv};
+use crate::{
+    claimlink_suite::{init::init, TestEnv},
+    utils::random_principal,
+};
 
 #[test]
 fn create_collection_basic() {
@@ -19,7 +22,7 @@ fn create_collection_basic() {
 
     let create_collection_result = crate::client::claimlink::create_collection(
         &mut pic,
-        controller,
+        principal_ids.principal_100k_ogy,
         claimlink,
         &create_collection_args,
     );
@@ -35,4 +38,27 @@ fn create_collection_basic() {
     );
 
     println!("{:?}", canister_info);
+}
+
+#[test]
+fn create_collection_fails_if_insufficient_balance() {
+    let mut env = init();
+
+    let create_collection_args = claimlink_api::updates::create_collection::Args {
+        name: "Test Collection".to_string(),
+        symbol: "TC".to_string(),
+        description: "Test Description".to_string(),
+    };
+
+    let create_collection_result = crate::client::claimlink::create_collection(
+        &mut env.pic,
+        random_principal(),
+        env.canister_ids.claimlink,
+        &create_collection_args,
+    );
+
+    assert_eq!(
+        create_collection_result.unwrap_err(),
+        claimlink_api::errors::CreateCollectionError::InsufficientBalance
+    );
 }

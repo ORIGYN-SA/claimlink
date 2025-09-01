@@ -1,28 +1,34 @@
 use crate::{guards, state::mutate_state};
 use bity_ic_subcanister_manager::Canister;
 use candid::{Nat, Principal};
+use claimlink_api::errors::{CreateCollectionError, GenericError};
 pub use claimlink_api::updates::create_collection::{
     Args as CreateCollectionArgs, Response as CreateCollectionResponse,
 };
-use claimlink_api::{
-    errors::{CreateCollectionError, GenericError},
-    types,
-};
 use icrc_ledger_canister_c2c_client::icrc2_transfer_from;
 use icrc_ledger_types::icrc1::account::Account;
-use utils::env::Environment;
+use utils::{consts, env::Environment};
 
 const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
-const INITIAL_COLLECTION_CYCLES: u128 = 800_000_000_000;
+const INITIAL_COLLECTION_CYCLES: u128 = 1 * consts::T;
 
 #[ic_cdk::update(guard = "guards::reject_anonymous_caller")]
 #[bity_ic_canister_tracing_macros::trace]
 pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionResponse {
-    let available_cycles = mutate_state(|state| state.env.cycles_balance());
+    let available_cycles = mutate_state(|state| {
+        if state.env.is_test_mode() {
+            INITIAL_COLLECTION_CYCLES
+        } else {
+            state.env.cycles_balance()
+        }
+    });
+    println!("available_cycles: {}", available_cycles);
     let ledger_id = mutate_state(|state| state.data.ledger_canister_id);
     let caller = ic_cdk::api::msg_caller();
     // TODO: Change this / move to state
-    let bank_principal: Principal = Principal::from_text("qjd6w-7yaaa-aaaaa-qaaca-cai").unwrap();
+    let bank_principal: Principal =
+        Principal::from_text("jqdha-t6k7d-iitf4-6mxtc-dzkp2-kpk7c-mmtnp-ab2ef-xotlg-5m5qc-3qe")
+            .unwrap();
 
     if available_cycles < INITIAL_COLLECTION_CYCLES {
         return Err(CreateCollectionError::InsufficientCycles);
@@ -39,7 +45,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
     .map_err(|e| CreateCollectionError::Generic(GenericError::Other(e.to_string())))?;
 
     if caller_balance < OGY_TO_PAY {
-        return Err(CreateCollectionError::InsufficientCycles);
+        return Err(CreateCollectionError::InsufficientBalance);
     }
 
     let transfer_from_args = icrc_ledger_types::icrc2::transfer_from::TransferFromArgs {

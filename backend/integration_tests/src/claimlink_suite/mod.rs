@@ -14,6 +14,8 @@ pub struct TestEnv {
 #[derive(Debug, Clone)]
 pub struct PrincipalIds {
     pub controller: Principal,
+    pub principal_100k_ogy: Principal,
+    pub principal_1m_ogy: Principal,
 }
 #[derive(Debug)]
 pub struct CanisterIds {

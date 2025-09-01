@@ -72,12 +72,11 @@ pub struct Data {
 
 impl Data {
     pub fn new(
+        is_test_mode: bool,
         ledger_canister_id: CanisterId,
         authorized_principals: Vec<Principal>,
         origyn_nft_commit_hash: String,
     ) -> Self {
-        let is_test_mode = mutate_state(|state| state.env.is_test_mode());
-
         Self {
             ledger_canister_id,
             authorized_principals,

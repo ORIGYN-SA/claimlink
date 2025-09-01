@@ -1,9 +1,10 @@
 use bity_ic_types::BuildVersion;
-use candid::Principal;
 use candid::{CandidType, Nat};
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+
+use crate::PermissionManager;
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub enum Args {
@@ -16,8 +17,7 @@ pub struct InitArgs {
     pub test_mode: bool,
     pub version: BuildVersion,
     pub commit_hash: String,
-    pub authorized_principals: Vec<Principal>,
-    pub minting_authorities: Vec<Principal>,
+    pub permissions: PermissionManager,
     pub description: Option<String>,
     pub symbol: String,
     pub name: String,
