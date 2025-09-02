@@ -5,10 +5,9 @@ import { PricingSidebar } from "./pricing-sidebar";
 
 export function CreateCertificatePage() {
   return (
-    <div className="flex justify-center px-4 py-6">
-      <div className="content-stretch flex gap-[18px] items-start justify-start relative w-full max-w-[1110px]">
+    <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full max-w-none">
         {/* Main Form Section */}
-        <div className="content-stretch flex flex-col gap-4 items-start justify-start relative shrink-0 w-[692px]">
+        <div className="content-stretch flex flex-col gap-4 items-start justify-start relative w-full lg:w-auto lg:flex-1">
 
           {/* Collection Section */}
           <CollectionSection />
@@ -31,8 +30,9 @@ export function CreateCertificatePage() {
         </div>
 
         {/* Sidebar */}
-        <PricingSidebar />
-      </div>
+        <div className="w-full lg:w-auto lg:flex-shrink-0">
+          <PricingSidebar />
+        </div>
     </div>
   );
 }

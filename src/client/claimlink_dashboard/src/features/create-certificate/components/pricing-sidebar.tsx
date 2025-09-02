@@ -2,19 +2,19 @@ import { Button } from "@/components/ui/button";
 
 export function PricingSidebar() {
   return (
-    <div className="bg-white box-border content-stretch flex flex-col gap-6 items-start justify-center p-[24px] rounded-[25px] shrink-0 sticky top-0 w-[400px] border border-[#e1e1e1]">
+    <div className="bg-white box-border content-stretch flex flex-col gap-6 items-start justify-center p-[24px] rounded-[25px] shrink-0 w-full lg:w-[350px] border border-[#e1e1e1]">
       {/* Introduction */}
       <div className="content-stretch flex flex-col gap-2 items-start justify-start leading-[0] not-italic relative shrink-0">
         <div className="font-['General_Sans:Medium',_sans-serif] relative shrink-0 text-[18px] text-black text-nowrap">
           <p className="leading-[normal] whitespace-pre">General information</p>
         </div>
-        <div className="font-['General_Sans:Regular',_sans-serif] relative shrink-0 text-[#69737c] text-[13px] w-[360px]">
+        <div className="font-['General_Sans:Regular',_sans-serif] relative shrink-0 text-[#69737c] text-[13px] w-full">
           <p className="leading-[normal]">Vestibulum eu purus eu orci commodo elementum et et lorem. Curabitur pharetra velit ut facilisis ultrices.</p>
         </div>
       </div>
 
       {/* Separator */}
-      <div className="h-0 relative shrink-0 w-[361px] border-t border-[#e1e1e1]"></div>
+      <div className="h-0 relative shrink-0 w-full border-t border-[#e1e1e1]"></div>
 
       {/* Price Section */}
       <div className="content-stretch flex flex-col gap-4 items-start justify-start relative w-full">
@@ -32,7 +32,7 @@ export function PricingSidebar() {
 
         {/* Certificate Cost Box */}
         <div className="bg-[rgba(205,223,236,0.15)] box-border content-stretch flex flex-col gap-1 items-start justify-start p-[16px] relative rounded-[16px] w-full border border-[#e1e1e1]">
-          <div className="font-['General_Sans:Medium',_sans-serif] h-5 leading-[0] not-italic relative shrink-0 text-[#69737c] text-[14px] w-[167px]">
+          <div className="font-['General_Sans:Medium',_sans-serif] h-5 leading-[0] not-italic relative shrink-0 text-[#69737c] text-[14px] w-full lg:w-[167px]">
             <p className="leading-[16px]">Certificate cost:</p>
           </div>
           <div className="content-stretch flex gap-2 items-start justify-start relative shrink-0">
@@ -42,7 +42,7 @@ export function PricingSidebar() {
                 <text x="10" y="13" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">O</text>
               </svg>
             </div>
-            <div className="flex flex-col font-['DM_Sans:SemiBold',_sans-serif] font-semibold justify-end leading-[0] relative shrink-0 text-[#222526] text-[0px] w-[294px]">
+            <div className="flex flex-col font-['DM_Sans:SemiBold',_sans-serif] font-semibold justify-end leading-[0] relative shrink-0 text-[#222526] text-[0px] w-full lg:w-[294px]">
               <p className="not-italic">
                 <span className="font-['General_Sans:Semibold',_sans-serif] leading-[24px] text-[18px]">8800 OGY </span>
                 <span className="font-['General_Sans:Regular',_sans-serif] leading-[18px] text-[#69737c] text-[14px]">(2500$)</span>

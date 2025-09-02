@@ -54,7 +54,7 @@ const TemplatesPage: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-none">
       {/* Page Description */}
       <div>
         <p className="font-['General_Sans'] font-light text-[#69737c] text-base leading-8">

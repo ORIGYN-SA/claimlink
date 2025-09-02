@@ -28,7 +28,7 @@ export function FormField({
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
-          className="bg-white box-border content-stretch flex gap-[30px] items-center justify-start ml-0 mt-[26px] px-6 py-2.5 relative rounded-[100px] w-[318px] border border-[#e1e1e1] h-auto"
+          className="bg-white box-border content-stretch flex gap-[30px] items-center justify-start ml-0 mt-[26px] px-6 py-2.5 relative rounded-[100px] w-full max-w-[318px] border border-[#e1e1e1] h-auto"
         />
       </div>
     </div>

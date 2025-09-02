@@ -49,7 +49,7 @@ export function CompanyForm() {
                 <p className="leading-[normal] whitespace-pre">Registration Date</p>
               </div>
             </div>
-            <div className="bg-white box-border content-stretch flex gap-[30px] items-center justify-start ml-0 mt-[26px] px-6 py-2.5 relative rounded-[100px] w-[318px] border border-[#e1e1e1]">
+            <div className="bg-white box-border content-stretch flex gap-[30px] items-center justify-start ml-0 mt-[26px] px-6 py-2.5 relative rounded-[100px] w-full max-w-[318px] border border-[#e1e1e1]">
               <div className="font-['Satoshi:Regular',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#69737c] text-[16px] text-nowrap">
                 <p className="leading-[25px] whitespace-pre">dd/mm/yyyy</p>
               </div>

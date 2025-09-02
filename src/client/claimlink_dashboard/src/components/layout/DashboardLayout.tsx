@@ -42,8 +42,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             <Sidebar />
           </div>
         </div>
-        <main className="flex-1 px-6 py-6">
-          <div className="bg-[#fcfafa] rounded-[20px] overflow-hidden p-[24px]">
+        <main className="flex-1 px-6 py-6 min-w-0">
+          <div className="bg-[#fcfafa] rounded-[20px] p-[24px] w-full max-w-none">
             <HeaderBar
               title={getPageTitle(location.pathname)}
               showBackButton={showBackButton}
