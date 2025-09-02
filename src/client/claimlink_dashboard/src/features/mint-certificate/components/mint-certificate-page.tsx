@@ -136,9 +136,9 @@ export function MintCertificatePage() {
   const paginatedCertificates = filteredCertificates.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="flex flex-col gap-6 p-6 w-full">
+    <div className="bg-[#fcfafa] rounded-b-[20px] p-6 w-full">
       {/* Search and Filter Actions */}
-      <div className="flex gap-4 items-center w-full">
+      <div className="flex gap-4 items-center w-full mb-6">
         {/* Search and Dropdown Actions */}
         <div className="flex-1 flex gap-2 items-center">
           {/* Search */}
@@ -179,16 +179,16 @@ export function MintCertificatePage() {
       </div>
 
       {/* Certificate List */}
-      <Card className="w-full shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] border-[#f2f2f2] rounded-[16px] overflow-hidden">
+      <div className="bg-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] border border-[#f2f2f2] rounded-[16px] overflow-hidden">
         {/* Header */}
-        <div className="bg-white border-b border-[#f2f2f2] p-4 rounded-t-[16px]">
+        <div className="bg-white border-b border-[#f2f2f2] p-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
               <h2 className="text-[18px] font-medium text-[#222526] leading-normal">
                 Certificate <span className="text-[#69737c]">({filteredCertificates.length})</span>
               </h2>
             </div>
-            
+
             {/* View Toggle */}
             <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1 flex gap-0.5">
               <Button
@@ -197,8 +197,8 @@ export function MintCertificatePage() {
                 onClick={() => setViewMode('grid')}
                 className={cn(
                   "rounded-full p-1 w-8 h-8",
-                  viewMode === 'grid' 
-                    ? "bg-[#061937] text-white" 
+                  viewMode === 'grid'
+                    ? "bg-[#061937] text-white"
                     : "bg-[#fcfafa] text-[#69737c] hover:bg-[#f0f0f0]"
                 )}
               >
@@ -210,8 +210,8 @@ export function MintCertificatePage() {
                 onClick={() => setViewMode('list')}
                 className={cn(
                   "rounded-full p-1 w-8 h-8",
-                  viewMode === 'list' 
-                    ? "bg-[#061937] text-white" 
+                  viewMode === 'list'
+                    ? "bg-[#061937] text-white"
                     : "bg-[#fcfafa] text-[#69737c] hover:bg-[#f0f0f0]"
                 )}
               >
@@ -239,12 +239,12 @@ export function MintCertificatePage() {
         </div>
 
         {/* Footer - Pagination */}
-        <div className="bg-white border-t border-[#f2f2f2] px-10 py-4 rounded-b-[16px] flex items-center justify-between">
+        <div className="bg-white border-t border-[#f2f2f2] px-10 py-4 rounded-b-[25px] flex items-center justify-between">
           {/* Lines per page */}
           <div className="flex gap-2.5 items-center">
             <span className="text-[13px] text-[#86858a] leading-normal">Lines per page</span>
-            <Select 
-              value={itemsPerPage.toString()} 
+            <Select
+              value={itemsPerPage.toString()}
               onValueChange={(value) => setItemsPerPage(parseInt(value))}
             >
               <SelectTrigger className="w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white">
@@ -270,7 +270,7 @@ export function MintCertificatePage() {
             >
               ←
             </Button>
-            
+
             <div className="flex items-center gap-2">
               {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                 const page = i + 1;
@@ -282,8 +282,8 @@ export function MintCertificatePage() {
                     onClick={() => setCurrentPage(page)}
                     className={cn(
                       "h-7 w-7 rounded-[11px] text-[13px]",
-                      currentPage === page 
-                        ? "bg-[rgba(205,233,236,0.4)] text-[#222526]" 
+                      currentPage === page
+                        ? "bg-[rgba(205,233,236,0.4)] text-[#222526]"
                         : "text-[#69737c]"
                     )}
                   >
@@ -317,7 +317,7 @@ export function MintCertificatePage() {
             </Button>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
