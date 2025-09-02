@@ -22,7 +22,7 @@ export function HeaderBar({ title = "Dashboard", className, showBackButton = fal
   };
 
   return (
-    <div className={cn("flex items-center justify-between px-6 py-0 bg-white rounded-t-[20px]", className)}>
+    <div className={cn("flex items-center justify-between px-6 py-0", className)}>
       <div className="flex items-center gap-3">
         {showBackButton && (
           <Button

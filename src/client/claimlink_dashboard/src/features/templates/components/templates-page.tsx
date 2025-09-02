@@ -35,10 +35,7 @@ const mockTemplates: Template[] = [
 ]
 
 const TemplatesPage: React.FC = () => {
-  const [currentPage, setCurrentPage] = useState(1)
-  const [linesPerPage, setLinesPerPage] = useState(10)
-
-  const totalPages = 12 // Mock total pages
+  const [linesPerPage] = useState(10)
 
   const handleCreateManual = () => {
     console.log('Create manual template')
@@ -57,7 +54,7 @@ const TemplatesPage: React.FC = () => {
   }
 
   return (
-    <div className="bg-[#fcfafa] p-6 rounded-b-[20px] space-y-6">
+    <div className="space-y-6">
       {/* Page Description */}
       <div>
         <p className="font-['General_Sans'] font-light text-[#69737c] text-base leading-8">
@@ -66,22 +63,22 @@ const TemplatesPage: React.FC = () => {
       </div>
 
       {/* Create Section */}
-      <div className="flex gap-4 h-[200px]">
-        <div className="w-[359px]">
-          <TemplateCard 
-            variant="create-manual" 
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-[200px]">
+        <div className="w-full">
+          <TemplateCard
+            variant="create-manual"
             onClick={handleCreateManual}
           />
         </div>
-        <div className="w-[359px]">
-          <TemplateCard 
-            variant="create-ai" 
+        <div className="w-full">
+          <TemplateCard
+            variant="create-ai"
             onClick={handleCreateAI}
           />
         </div>
-        <div className="w-[359px]">
-          <TemplateCard 
-            variant="create-existing" 
+        <div className="w-full">
+          <TemplateCard
+            variant="create-existing"
             onClick={handleCreateExisting}
           />
         </div>
@@ -100,16 +97,17 @@ const TemplatesPage: React.FC = () => {
                 </h2>
               </div>
             </div>
-            
+
             {/* Templates Grid */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {mockTemplates.map((template) => (
-                <TemplateCard
-                  key={template.id}
-                  template={template}
-                  variant="template"
-                  onClick={() => handleTemplateClick(template)}
-                />
+                <div key={template.id} className="w-full">
+                  <TemplateCard
+                    template={template}
+                    variant="template"
+                    onClick={() => handleTemplateClick(template)}
+                  />
+                </div>
               ))}
             </div>
           </CardContent>
@@ -136,13 +134,13 @@ const TemplatesPage: React.FC = () => {
           <div className="flex items-center gap-2 relative">
             {/* Current page highlight */}
             <div className="absolute bg-[#cde9ec66] rounded-[11px] w-7 h-7 left-[29px]" />
-            
+
             <button className="w-3.5 h-3.5 rotate-180">
               <svg viewBox="0 0 14 14" fill="currentColor" className="w-full h-full text-gray-400">
                 <path d="M5 3L8 6L5 9" stroke="currentColor" strokeWidth="1" fill="none" />
               </svg>
             </button>
-            
+
             <div className="flex items-center gap-4 font-['General_Sans'] text-[13px]">
               <span className="font-medium text-[#222526] bg-[#cde9ec66] rounded-[11px] w-7 h-7 flex items-center justify-center">
                 1
@@ -154,7 +152,7 @@ const TemplatesPage: React.FC = () => {
               <span className="font-normal text-[#69737c]">11</span>
               <span className="font-normal text-[#69737c]">12</span>
             </div>
-            
+
             <button className="w-3.5 h-3.5">
               <svg viewBox="0 0 14 14" fill="currentColor" className="w-full h-full text-gray-400">
                 <path d="M5 3L8 6L5 9" stroke="currentColor" strokeWidth="1" fill="none" />

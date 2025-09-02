@@ -19,8 +19,8 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         image: (
           <div className="grid grid-cols-1 place-items-start relative w-full h-[104px]">
             <div className="bg-[#cde9ec66] opacity-50 rounded-lg w-full h-full" />
-            <div className="absolute bg-white border border-[#cde9ec]/16 rounded-t-2xl h-[91px] w-[279px] left-[28px] top-[13px]" />
-            <div className="absolute font-['General_Sans'] font-medium text-[#69737c] text-xs left-[59px] top-[25px] w-[217px] leading-normal">
+            <div className="absolute bg-white border border-[#cde9ec]/16 rounded-t-2xl h-[91px] w-[calc(100%-56px)] max-w-[279px] left-[28px] top-[13px]" />
+            <div className="absolute font-['General_Sans'] font-medium text-[#69737c] text-xs left-[59px] top-[25px] w-[calc(100%-88px)] max-w-[217px] leading-normal">
               <div>
                 <p className="mb-0">{`{`}</p>
                 <p className="mb-0">model": "Watch",</p>
@@ -50,13 +50,13 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           <div className="grid grid-cols-1 place-items-start relative w-full h-[104px]">
             <div className="bg-[#cde9ec66] opacity-50 rounded-lg w-full h-full" />
             {/* Multiple template overlays */}
-            <div className="absolute h-[77px] w-[244px] left-[46px] top-[9px]">
+            <div className="absolute h-[77px] w-[calc(100%-92px)] max-w-[244px] left-[46px] top-[9px]">
               <div className="w-full h-full bg-white rounded-lg shadow-sm border" />
             </div>
-            <div className="absolute h-[83px] w-[262px] left-[36px] top-[14px]">
+            <div className="absolute h-[83px] w-[calc(100%-72px)] max-w-[262px] left-[36px] top-[14px]">
               <div className="w-full h-full bg-white rounded-lg shadow-sm border opacity-90" />
             </div>
-            <div className="absolute h-[82px] w-[277px] left-[29px] top-[22px]">
+            <div className="absolute h-[82px] w-[calc(100%-58px)] max-w-[277px] left-[29px] top-[22px]">
               <div className="w-full h-full bg-white rounded-lg shadow-sm border opacity-80" />
             </div>
           </div>
@@ -67,9 +67,9 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
     const config = configs[variant as keyof typeof configs]
 
     return (
-      <Card 
+      <Card
         className={cn(
-          "cursor-pointer transition-all duration-200 hover:shadow-md border-[#e1e1e1] rounded-2xl h-[200px] w-full",
+          "cursor-pointer transition-all duration-200 hover:shadow-md border-[#e1e1e1] rounded-2xl h-[200px] w-full min-w-0",
           "flex flex-col gap-4 p-3"
         )}
         onClick={onClick}
@@ -81,7 +81,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           <h3 className="font-['General_Sans'] font-medium text-[#222526] text-lg leading-normal">
             {config.title}
           </h3>
-          <p className="font-['General_Sans'] font-normal text-[#69737c] text-sm leading-[18px]">
+          <p className="font-['General_Sans'] font-normal text-[#69737c] text-sm leading-[18px] line-clamp-2">
             {config.description}
           </p>
         </CardContent>
@@ -93,10 +93,10 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
     if (!template) return null
 
     return (
-      <Card 
+      <Card
         className={cn(
           "cursor-pointer transition-all duration-200 hover:shadow-md border-[#e1e1e1] rounded-2xl",
-          "flex items-center gap-4 p-3 h-[94px]"
+          "flex items-center gap-4 p-3 h-[94px] w-full min-w-0"
         )}
         onClick={onClick}
       >
@@ -114,14 +114,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           )}
         </div>
         
-        <div className="flex-1 flex items-center justify-between">
-          <div className="space-y-1">
-            <h3 className="font-['General_Sans'] font-normal text-[#222526] text-lg leading-normal">
+        <div className="flex-1 flex items-center justify-between min-w-0">
+          <div className="space-y-1 min-w-0 flex-1">
+            <h3 className="font-['General_Sans'] font-normal text-[#222526] text-lg leading-normal truncate">
               {template.name}
             </h3>
             {template.certificateCount && (
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className="text-[#061937] border-0 bg-white px-0 py-1 text-xs uppercase font-medium tracking-wide"
               >
                 <div className="w-3.5 h-3.5 opacity-40 mr-1">

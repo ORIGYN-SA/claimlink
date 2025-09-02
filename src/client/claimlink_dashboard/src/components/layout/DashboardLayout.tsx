@@ -43,12 +43,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </div>
         <main className="flex-1 px-6 py-6">
-          <HeaderBar
-            title={getPageTitle(location.pathname)}
-            showBackButton={showBackButton}
-            backTo={backTo}
-          />
-          {children}
+          <div className="bg-[#fcfafa] rounded-[20px] overflow-hidden p-[24px]">
+            <HeaderBar
+              title={getPageTitle(location.pathname)}
+              showBackButton={showBackButton}
+              backTo={backTo}
+            />
+            <div className="mt-6">
+              {children}
+            </div>
+          </div>
         </main>
       </div>
     </div>

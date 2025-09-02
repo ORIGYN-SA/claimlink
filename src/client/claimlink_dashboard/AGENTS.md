@@ -268,11 +268,54 @@ features/campaigns/
 
     {/* Main content area */}
     <main className="flex-1 px-6 py-6">
-      <HeaderBar title={currentPageTitle} showBackButton={showBack} backTo={backRoute} />
-      {children} {/* Page content */}
+      <div className="bg-[#fcfafa] rounded-[20px] p-[24px] overflow-hidden">
+        <HeaderBar title={currentPageTitle} showBackButton={showBack} backTo={backRoute} />
+        <div className="mt-6">
+          {children} {/* Page content */}
+        </div>
+      </div>
     </main>
   </div>
 </div>
+```
+
+### Layout Responsibility Separation
+
+**DashboardLayout handles**:
+- **Page-level spacing and padding** (`p-[24px]`) - provides consistent internal spacing
+- **Background styling** (`bg-[#fcfafa]`) - unified page background
+- **Container boundaries** (`rounded-[20px] overflow-hidden`) - visual container definition
+- **HeaderBar positioning** - ensures proper header placement and spacing
+- **Content area margin** (`mt-6`) - separates header from page content
+
+**Individual page components should NOT**:
+- Add their own background colors (conflicts with DashboardLayout)
+- Manage page-level padding (handled by DashboardLayout)
+- Apply rounded corners (handled by DashboardLayout)
+- Handle header spacing (DashboardLayout manages HeaderBar positioning)
+
+**Example of proper page component**:
+```typescript
+// ✅ GOOD: Clean page component that relies on DashboardLayout
+export function TemplatesPage() {
+  return (
+    <div className="space-y-6">
+      {/* Page content only - no layout concerns */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Content components */}
+      </div>
+    </div>
+  )
+}
+
+// ❌ BAD: Page component trying to handle layout
+export function TemplatesPage() {
+  return (
+    <div className="bg-[#fcfafa] p-6 rounded-[20px] space-y-6">
+      {/* This creates conflicts with DashboardLayout */}
+    </div>
+  )
+}
 ```
 
 **Page Integration Rules**:
