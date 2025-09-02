@@ -46,14 +46,14 @@ export function DashboardPage({ className }: DashboardPageProps) {
   return (
     <div
       className={cn(
-        "bg-[#fcfafa] rounded-b-[20px] flex flex-col items-start justify-start py-6 px-0 w-full max-w-none",
+        "flex flex-col items-start justify-start w-full max-w-none space-y-6",
         className,
       )}
     >
       {/* Header - Using existing HeaderBar component */}
 
       {/* Stats Section */}
-      <div className="flex flex-col gap-4 items-start justify-start p-6 w-full">
+      <div className="w-full">
         <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full">
           <div className="font-['General_Sans'] font-medium text-black text-sm leading-4 mb-4">
             Total certificate status
@@ -96,9 +96,9 @@ export function DashboardPage({ className }: DashboardPageProps) {
       </div>
 
       {/* Main Content */}
-      <div className="flex gap-6 items-start justify-start px-6 py-0 w-full flex-1 min-w-0">
+      <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
         {/* Left Sidebar */}
-        <div className="flex flex-col gap-6 items-start justify-start w-[346px] flex-shrink-0">
+        <div className="flex flex-col gap-6 items-start justify-start w-full lg:w-[346px] flex-shrink-0">
           <WelcomeCard />
 
           {/* Last Certificate Owners */}
@@ -144,7 +144,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
         </div>
 
         {/* Main Content Area */}
-        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 flex-1 min-w-0">
+        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full lg:flex-1 min-w-0">
           <div className="flex items-start justify-between mb-4">
             <div className="flex flex-col gap-1">
               <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
@@ -174,57 +174,57 @@ export function DashboardPage({ className }: DashboardPageProps) {
           </div>
           <div className="flex flex-col gap-4">
             {/* First Row */}
-            <div className="flex gap-4 items-start justify-start w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               <MintCard
                 title={mintedCertificates[0]?.title}
                 status={mintedCertificates[0]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[1]?.title}
                 status={mintedCertificates[1]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[2]?.title}
                 status={mintedCertificates[2]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
             </div>
             {/* Second Row */}
-            <div className="flex gap-4 items-start justify-start w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               <MintCard
                 title={mintedCertificates[3]?.title}
                 status={mintedCertificates[3]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[4]?.title}
                 status={mintedCertificates[4]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[5]?.title}
                 status={mintedCertificates[5]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
             </div>
             {/* Third Row */}
-            <div className="flex gap-4 items-start justify-start w-full">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
               <MintCard
                 title={mintedCertificates[6]?.title}
                 status={mintedCertificates[6]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[7]?.title}
                 status={mintedCertificates[7]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
               <MintCard
                 title={mintedCertificates[8]?.title}
                 status={mintedCertificates[8]?.status}
-                className="basis-0 grow min-w-0"
+                className="w-full"
               />
             </div>
           </div>
