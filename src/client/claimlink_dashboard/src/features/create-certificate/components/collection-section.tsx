@@ -3,11 +3,11 @@ import { Button } from "@/components/ui/button";
 
 export function CollectionSection() {
   return (
-    <div className="bg-white box-border content-stretch flex flex-col gap-4 items-center justify-center px-5 py-6 relative rounded-[25px] w-full border border-[#efece3]">
-      <div className="content-stretch flex flex-col gap-4 items-start justify-center relative w-full">
-        <div className="content-stretch flex flex-col gap-2 items-start justify-center relative w-[129.951px]">
-          <div className="font-['DM_Sans:SemiBold',_sans-serif] font-semibold leading-[0] relative shrink-0 text-[#222526] text-[22px] text-nowrap">
-            <p className="leading-[normal] whitespace-pre">Collection</p>
+    <div className="bg-white box-border flex flex-col gap-4 items-center justify-center px-5 py-6 rounded-[25px] w-full border border-[#efece3]">
+      <div className="flex flex-col gap-4 items-start justify-center w-full">
+        <div className="flex flex-col gap-2 items-start justify-center">
+          <div className="font-['DM_Sans'] font-semibold text-[#222526] text-[16px]">
+            Collection
           </div>
         </div>
 
