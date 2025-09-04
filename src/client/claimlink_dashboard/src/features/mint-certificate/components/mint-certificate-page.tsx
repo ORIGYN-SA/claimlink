@@ -4,103 +4,12 @@ import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card } from "@/components/ui/card";
+// import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { CertificateGridView } from "./certificate-grid-view";
-import { CertificateListView } from "./certificate-list-view";
-import type { Certificate } from "../types/certificate.types";
-
-// Mock data - replace with actual data fetching
-const mockCertificates: Certificate[] = [
-  {
-    id: "1",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Minted",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "2",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Transferred",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "3",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Waiting",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "4",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Waiting",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "5",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Waiting",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "6",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Minted",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "7",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Minted",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "8",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Minted",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "9",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Minted",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "10",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Transferred",
-    date: "20 Feb, 2024"
-  },
-  {
-    id: "11",
-    title: "The midsummer Night Dream",
-    collectionName: "Collection's name",
-    imageUrl: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=400&fit=crop",
-    status: "Transferred",
-    date: "20 Feb, 2024"
-  }
-];
+import { CertificateGridView } from "../../certificates/components/certificate-grid-view";
+import { CertificateListView } from "../../certificates/components/certificate-list-view";
+import { mockCertificates } from "@/shared/data/certificates";
+import type { Certificate } from "../../certificates/types/certificate.types";
 
 export function MintCertificatePage() {
   const navigate = useNavigate();

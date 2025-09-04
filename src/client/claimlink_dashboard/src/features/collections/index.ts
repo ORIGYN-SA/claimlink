@@ -1,4 +1,5 @@
 export { CollectionsPage } from './components/collections-page'
+export { CollectionDetailPage } from './components/collection-detail-page'
 export { CollectionCard } from './components/collection-card'
 export { CollectionGridView } from './components/collection-grid-view'
 export { CollectionListView } from './components/collection-list-view'

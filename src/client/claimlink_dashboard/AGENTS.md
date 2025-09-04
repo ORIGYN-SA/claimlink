@@ -76,7 +76,10 @@ src/
 │   │   └── new.tsx             # Create campaign (/campaigns/new)
 │   ├── collections/
 │   │   ├── index.tsx           # Collections list
-│   │   └── $collectionId.tsx   # Collection detail
+│   │   ├── $collectionId.tsx   # Collection detail
+│   │   └── $collectionId/
+│   │       ├── mint.tsx        # Mint in collection
+│   │       └── edit.tsx        # Edit collection
 │   └── (auth)/                 # Route group for auth pages
 │       ├── login.tsx           # Login page (/login)
 │       └── register.tsx        # Register page (/register)
@@ -102,6 +105,16 @@ src/
 │   │   ├── components/
 │   │   ├── hooks/
 │   │   └── types/
+│   ├── certificates/            # SHARED FEATURE MODULE
+│   │   ├── components/
+│   │   │   ├── certificate-card.tsx
+│   │   │   ├── certificate-status-badge.tsx
+│   │   │   ├── certificate-grid.tsx
+│   │   │   ├── certificate-list.tsx
+│   │   │   └── add-certificate-card.tsx
+│   │   ├── types/
+│   │   │   └── certificate.types.ts
+│   │   └── index.ts
 │   ├── links/
 │   │   ├── api/
 │   │   ├── components/
@@ -139,14 +152,13 @@ src/
         └── validators.ts       # Validation utilities
 ```
 
-### Component Organization: Four-Layer System
+### Component Organization: Five-Layer System
 
 #### 1. **`components/ui/` - shadcn/ui Foundation**
 
 **Purpose**: Pre-built, customizable UI primitives from shadcn/ui
 
 **Characteristics**:
-
 - Installed via CLI: `pnpm dlx shadcn-ui@latest add [component]`
 - Built on Radix UI primitives
 - Styled with Tailwind CSS
@@ -158,7 +170,6 @@ src/
 **Purpose**: Structural layout components used across the application
 
 **Examples**:
-
 - Header with navigation and user menu
 - Sidebar for dashboard layouts
 - Footer with links and info
@@ -169,18 +180,17 @@ src/
 **Purpose**: Application-specific reusable components that combine UI primitives with business logic
 
 **Characteristics**:
-
 - Combine shadcn/ui components
 - Include ClaimLink-specific logic
 - Used across multiple features
 - Know about app context (auth, routing)
+- NOT domain-specific (domain components go in features/)
 
 #### 4. **`features/[feature]/components/` - Feature-Specific Components**
 
 **Purpose**: Components that belong to a specific feature and are not reused elsewhere
 
 **Structure per Feature**:
-
 ```
 features/campaigns/
 ├── api/                        # Data fetching logic
@@ -198,6 +208,119 @@ features/campaigns/
 │   └── campaign.types.ts
 └── utils/                     # Feature utilities
     └── campaign.utils.ts
+```
+
+#### 5. **`features/[shared-domain]/` - Shared Feature Modules** (NEW)
+
+**Purpose**: Domain-specific components and logic shared across multiple features
+
+**When to Create a Shared Feature Module**:
+- When 2+ features need the same domain components
+- When components represent a core business entity (e.g., certificates, NFTs)
+- When you need consistent display/behavior across features
+- When the shared logic is domain-specific (not just UI)
+
+**Example: Certificates Module**
+```
+features/certificates/           # Shared by collections, mint-certificate, campaigns
+├── components/
+│   ├── certificate-card.tsx    # Reusable certificate display
+│   ├── certificate-grid.tsx    # Grid layout for certificates
+│   ├── certificate-list.tsx    # List layout for certificates
+│   └── certificate-status-badge.tsx
+├── types/
+│   └── certificate.types.ts    # Shared certificate types
+└── index.ts                     # Public exports
+```
+
+### Shared Feature Modules Pattern
+
+#### When to Create a Shared Feature Module
+
+Create a shared feature module when:
+1. **Multiple features display the same entity** (e.g., certificates shown in collections, minting, campaigns)
+2. **Business logic is shared** (e.g., certificate status calculations)
+3. **Consistent UI/UX is critical** (e.g., all certificates must look identical)
+4. **Types are shared across features** (e.g., Certificate interface)
+
+#### Structure of Shared Feature Modules
+
+```typescript
+// features/certificates/types/certificate.types.ts
+export interface Certificate {
+  id: string
+  title: string
+  collectionId: string
+  collectionName: string
+  imageUrl: string
+  status: CertificateStatus
+  date: string
+  owner?: string
+  metadata?: Record<string, any>
+}
+
+// features/certificates/components/certificate-card.tsx
+interface CertificateCardProps {
+  certificate: Certificate
+  onClick?: () => void
+  showCollection?: boolean  // Flexibility for different contexts
+  className?: string
+}
+
+export function CertificateCard({ 
+  certificate, 
+  showCollection = false,  // Don't show in collection context, do show in global context
+  ...props 
+}: CertificateCardProps) {
+  // Component implementation
+}
+```
+
+#### Usage Pattern
+
+```typescript
+// In collections feature
+import { CertificateGrid } from '@/features/certificates'
+
+export function CollectionDetailPage() {
+  return (
+    <CertificateGrid
+      certificates={collectionCertificates}
+      showCollection={false}  // We're already in collection context
+      showAddCard={true}
+    />
+  )
+}
+
+// In mint-certificate feature
+import { CertificateGrid } from '@/features/certificates'
+
+export function MintCertificatePage() {
+  return (
+    <CertificateGrid
+      certificates={allCertificates}
+      showCollection={true}  // Show which collection each belongs to
+      showAddCard={true}
+    />
+  )
+}
+```
+
+### Decision Tree for Component Placement
+
+```mermaid
+graph TD
+    A[New Component] --> B{Is it a shadcn/ui component?}
+    B -->|Yes| C[components/ui/]
+    B -->|No| D{Is it a layout component?}
+    D -->|Yes| E[components/layout/]
+    D -->|No| F{Is it domain-specific?}
+    F -->|No| G[components/common/]
+    F -->|Yes| H{Used by multiple features?}
+    H -->|Yes| I{Same domain entity?}
+    I -->|Yes| J[features/[shared-domain]/]
+    I -->|No| K[components/common/]
+    H -->|No| L[features/[feature]/components/]
 ```
 
 ### Layout System & Component Integration
@@ -318,23 +441,74 @@ export function TemplatesPage() {
 }
 ```
 
-**Page Integration Rules**:
-- Page components should use `rounded-b-[20px]` (bottom only) to merge with HeaderBar
-- HeaderBar handles top rounded corners (`rounded-t-[20px]`)
-- Avoid duplicate rounded corners on individual page containers
-- Use consistent background colors (`bg-[#fcfafa]`) across pages
+## Dynamic Routing with TanStack Router
 
-## Decision Tree for Component Placement
+### File-Based Dynamic Routes
 
-```mermaid
-graph TD
-    A[New Component] --> B{Is it a shadcn/ui component?}
-    B -->|Yes| C[components/ui/]
-    B -->|No| D{Is it a layout component?}
-    D -->|Yes| E[components/layout/]
-    D -->|No| F{Used across multiple features?}
-    F -->|Yes| G[components/common/]
-    F -->|No| H[features/[feature]/components/]
+Dynamic routes use the `$paramName` convention:
+
+```
+routes/
+├── collections/
+│   ├── index.tsx                    # /collections
+│   ├── $collectionId.tsx           # /collections/:collectionId
+│   └── $collectionId/
+│       ├── mint.tsx                 # /collections/:collectionId/mint
+│       ├── edit.tsx                 # /collections/:collectionId/edit
+│       └── certificates/
+│           └── $certificateId.tsx   # /collections/:collectionId/certificates/:certificateId
+```
+
+### Dynamic Route Implementation
+
+```typescript
+// routes/collections/$collectionId.tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { DashboardLayout } from '@/components/layout'
+import { CollectionDetailPage } from '@/features/collections'
+
+export const Route = createFileRoute('/collections/$collectionId')({
+  component: CollectionDetailRoute,
+  // Optional: Prefetch data
+  loader: async ({ params }) => {
+    return { collectionId: params.collectionId }
+  },
+  // Optional: Error handling
+  errorComponent: ({ error }) => <ErrorDisplay error={error} />
+})
+
+function CollectionDetailRoute() {
+  const { collectionId } = Route.useParams()
+  
+  return (
+    <DashboardLayout>
+      <CollectionDetailPage collectionId={collectionId} />
+    </DashboardLayout>
+  )
+}
+```
+
+### Type-Safe Navigation
+
+```typescript
+// Navigate programmatically
+const navigate = useNavigate()
+navigate({ 
+  to: '/collections/$collectionId', 
+  params: { collectionId: '123' } 
+})
+
+// Link component
+<Link 
+  to="/collections/$collectionId" 
+  params={{ collectionId: collection.id }}
+>
+  View Collection
+</Link>
+
+// Access params in component
+import { Route } from '@/routes/collections/$collectionId'
+const { collectionId } = Route.useParams()
 ```
 
 ## App Provider Configuration
@@ -363,43 +537,6 @@ export function AppProvider() {
     </QueryClientProvider>
   )
 }
-```
-
-## Routing Structure (TanStack Router)
-
-### File-Based Routes
-
-```
-src/
-├── routes/
-│   ├── __root.tsx              # Root layout with providers
-│   ├── index.tsx                # Home page (/)
-│   ├── dashboard.tsx            # Dashboard (/dashboard)
-│   ├── campaigns/
-│   │   ├── index.tsx           # Campaigns list (/campaigns)
-│   │   ├── $campaignId.tsx     # Campaign detail (/campaigns/:id)
-│   │   └── new.tsx             # Create campaign (/campaigns/new)
-│   ├── collections/
-│   │   ├── index.tsx           # Collections list
-│   │   └── $collectionId.tsx   # Collection detail
-│   └── _authenticated/         # Route group for auth-required pages
-│       ├── _layout.tsx         # Auth layout wrapper
-│       └── profile.tsx         # User profile
-```
-
-### Route Components Pattern
-
-```typescript
-// routes/campaigns/index.tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { CampaignsPage } from '@/features/campaigns/components/campaigns-page'
-
-export const Route = createFileRoute('/campaigns/')({
-  component: CampaignsPage,
-  beforeLoad: async ({ context }) => {
-    // Auth check, data preloading, etc.
-  }
-})
 ```
 
 ## Service Layer & API Organization
@@ -457,46 +594,6 @@ export const useCreateCampaign = () => {
       queryClient.invalidateQueries({ queryKey: campaignKeys.lists() })
     },
   })
-}
-```
-
-### Service Implementation
-
-```typescript
-// features/campaigns/api/campaign.service.ts
-import { apiClient } from '@/shared/api/client'
-import type { Campaign, CreateCampaignInput } from '../types/campaign.types'
-
-export const campaignService = {
-  async fetchAll(): Promise<Campaign[]> {
-    try {
-      const actor = await apiClient.createActor(CLAIMLINK_CANISTER_ID)
-      const result = await actor.get_user_campaigns()
-      
-      if ('err' in result) {
-        throw new Error(result.err)
-      }
-      
-      return result.ok || []
-    } catch (error) {
-      throw new Error(`Failed to fetch campaigns: ${error}`)
-    }
-  },
-  
-  async create(data: CreateCampaignInput): Promise<Campaign> {
-    try {
-      const actor = await apiClient.createActor(CLAIMLINK_CANISTER_ID)
-      const result = await actor.create_campaign(data)
-      
-      if ('err' in result) {
-        throw new Error(result.err)
-      }
-      
-      return result.ok
-    } catch (error) {
-      throw new Error(`Failed to create campaign: ${error}`)
-    }
-  }
 }
 ```
 
@@ -563,46 +660,6 @@ export const useCampaignStore = create<CampaignState & CampaignActions>()(
 )
 ```
 
-### Global Store
-
-```typescript
-// shared/stores/global.store.ts
-import { create } from 'zustand'
-import { devtools, persist } from 'zustand/middleware'
-
-interface GlobalState {
-  theme: 'light' | 'dark'
-  sidebarOpen: boolean
-  user: User | null
-}
-
-interface GlobalActions {
-  setTheme: (theme: 'light' | 'dark') => void
-  toggleSidebar: () => void
-  setUser: (user: User | null) => void
-}
-
-export const useGlobalStore = create<GlobalState & GlobalActions>()(
-  devtools(
-    persist(
-      (set) => ({
-        theme: 'light',
-        sidebarOpen: true,
-        user: null,
-        
-        setTheme: (theme) => set({ theme }),
-        toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
-        setUser: (user) => set({ user }),
-      }),
-      {
-        name: 'claimlink-global',
-        partialize: (state) => ({ theme: state.theme }), // Only persist theme
-      }
-    )
-  )
-)
-```
-
 ## Import Rules & Path Aliases
 
 ```json
@@ -637,25 +694,29 @@ import { Header } from '@/components/layout/header'
 import { ConnectWallet } from '@/components/common/connect-wallet'
 import { NFTSelector } from '@/components/common/nft-selector'
 
-// 5. Feature Components
+// 5. Shared Feature Components (NEW)
+import { CertificateGrid, CertificateCard } from '@/features/certificates'
+
+// 6. Feature Components
 import { CampaignCard } from '@/features/campaigns/components/campaign-card'
 
-// 6. API/Services
+// 7. API/Services
 import { useCampaigns } from '@/features/campaigns/api/campaigns.queries'
 import { campaignService } from '@/features/campaigns/api/campaign.service'
 
-// 7. Stores/Hooks
+// 8. Stores/Hooks
 import { useCampaignStore } from '@/features/campaigns/stores/campaigns.store'
 import { useGlobalStore } from '@/shared/stores/global.store'
 
-// 8. Utils/Lib
+// 9. Utils/Lib
 import { cn } from '@/shared/lib/utils'
 import { formatDate } from '@/shared/utils/formatters'
 
-// 9. Types
+// 10. Types
 import type { Campaign } from '@/features/campaigns/types/campaign.types'
+import type { Certificate } from '@/features/certificates/types/certificate.types'
 
-// 10. Relative imports (avoid when possible)
+// 11. Relative imports (avoid when possible)
 import { LocalComponent } from './local-component'
 ```
 
@@ -665,6 +726,7 @@ import { LocalComponent } from './local-component'
 |---|---|---|
 |**Components**|kebab-case|`campaign-card.tsx`, `nft-selector.tsx`|
 |**Pages/Routes**|kebab-case|`dashboard.tsx`, `campaign-detail.tsx`|
+|**Dynamic Routes**|$param syntax|`$collectionId.tsx`, `$campaignId.tsx`|
 |**Hooks**|camelCase with "use"|`useCampaigns.ts`, `use-auth.ts`|
 |**Services**|kebab-case with suffix|`campaign.service.ts`, `auth.service.ts`|
 |**Types**|kebab-case with suffix|`campaign.types.ts`, `common.types.ts`|
@@ -672,7 +734,7 @@ import { LocalComponent } from './local-component'
 |**Utils**|kebab-case|`formatters.ts`, `validators.ts`|
 |**Constants**|SCREAMING_SNAKE_CASE|`API_ENDPOINTS.ts`, `ROUTES.ts`|
 
-## Feature Module Example: Campaigns
+## Feature Module Examples
 
 ### Complete Feature Structure
 
@@ -699,59 +761,23 @@ features/campaigns/
     └── campaign.utils.ts         # Helper functions
 ```
 
-### Implementation Examples
+### Shared Feature Module Example
 
-**Route Component:**
-
-```typescript
-// routes/campaigns/index.tsx
-import { createFileRoute } from '@tanstack/react-router'
-import { CampaignsPage } from '@/features/campaigns/components/campaigns-page'
-
-export const Route = createFileRoute('/campaigns/')({
-  component: CampaignsPage,
-  beforeLoad: async ({ context }) => {
-    // Auth validation, preloading, etc.
-    if (!context.auth.user) {
-      throw redirect({ to: '/login' })
-    }
-  }
-})
 ```
-
-**Feature Page Component:**
-
-```typescript
-// features/campaigns/components/campaigns-page.tsx
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { useCampaigns } from '../api/campaigns.queries'
-import { CampaignCard } from './campaign-card'
-import type { Campaign } from '../types/campaign.types'
-
-export function CampaignsPage() {
-  const { data: campaigns, isLoading, error } = useCampaigns()
-
-  if (isLoading) return <div>Loading campaigns...</div>
-  if (error) return <div>Error loading campaigns</div>
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Campaigns</h1>
-        <Button asChild>
-          <Link to="/campaigns/new">Create Campaign</Link>
-        </Button>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {campaigns?.map((campaign: Campaign) => (
-          <CampaignCard key={campaign.id} campaign={campaign} />
-        ))}
-      </div>
-    </div>
-  )
-}
+features/certificates/              # Shared across collections, mint, campaigns
+├── components/
+│   ├── certificate-card.tsx       # Single certificate display
+│   ├── certificate-grid.tsx       # Grid layout
+│   ├── certificate-list.tsx       # List/table layout
+│   ├── certificate-status-badge.tsx # Status indicator
+│   └── add-certificate-card.tsx   # Add new certificate CTA
+├── hooks/
+│   └── use-certificate-filters.ts # Shared filtering logic
+├── types/
+│   └── certificate.types.ts       # Certificate interfaces
+├── utils/
+│   └── certificate.utils.ts       # Status calculations, etc.
+└── index.ts                        # Public API exports
 ```
 
 ## shadcn/ui Integration Guidelines
@@ -825,12 +851,23 @@ const MyButton = () => { /* custom implementation */ }
     // Install if needed: pnpm dlx shadcn-ui@latest add [component]
     ```
     
-2. **Component Priority Order**:
+2. **Check for shared domain components**:
+    
+    ```typescript
+    // If the component represents a business entity used across features:
+    // - Is it a Certificate? Use @/features/certificates
+    // - Is it a Campaign element? Check @/features/campaigns
+    // - Is it used in 2+ features? Consider creating a shared feature module
+    ```
+    
+3. **Component Priority Order**:
     
     - Use shadcn/ui component if available
-    - Extend shadcn component with className if needed
+    - Use shared feature component if domain-specific
+    - Extend existing component with className if needed
     - Create custom component only if truly unique
-3. **Figma to shadcn Mapping**:
+    
+4. **Figma to shadcn Mapping**:
     
     |Figma Component|shadcn/ui Component|Notes|
     |---|---|---|
@@ -844,7 +881,7 @@ const MyButton = () => { /* custom implementation */ }
     |Tabs|`<Tabs>`||
     |Toast/Alert|`<Toast>` or `<Alert>`||
     
-4. **Style Alignment Process**:
+5. **Style Alignment Process**:
     
     ```typescript
     // Step 1: Use shadcn component
@@ -855,23 +892,26 @@ const MyButton = () => { /* custom implementation */ }
       <CardContent>Content</CardContent>
     </Card>
     
-    // Step 2: Adjust with className if needed
+    // Step 2: Check if it's a shared domain component
+    import { CertificateCard } from '@/features/certificates'
+    
+    // Step 3: Adjust with className if needed
     <Card className="shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] border-[#f2f2f2]">
     
-    // Step 3: Update CSS variables if systematic changes needed
+    // Step 4: Update CSS variables if systematic changes needed
     // (in globals.css, not inline)
     ```
-    
 
 ### Figma Style Extraction Checklist
 
 When implementing a Figma design:
 
 1. [ ] **Identify shadcn equivalent** - Can I use an existing shadcn component?
-2. [ ] **Extract design tokens** - What are the colors, spacing, radii?
-3. [ ] **Check CSS variables** - Do I need to update the theme?
-4. [ ] **Component composition** - Can I compose this from shadcn parts?
-5. [ ] **Custom styles needed** - What Figma-specific styles must be added?
+2. [ ] **Check shared features** - Is this a domain component used elsewhere?
+3. [ ] **Extract design tokens** - What are the colors, spacing, radii?
+4. [ ] **Check CSS variables** - Do I need to update the theme?
+5. [ ] **Component composition** - Can I compose this from existing parts?
+6. [ ] **Custom styles needed** - What Figma-specific styles must be added?
 
 ### Post-Generation CSS Alignment
 
@@ -908,6 +948,7 @@ describe('CampaignCard', () => {
 ### DON'T
 
 - Create custom components when shadcn/ui has equivalent
+- Duplicate domain components across features (use shared feature modules)
 - Override shadcn components extensively (update CSS variables instead)
 - Put route components in features/ (use routes/ directory)
 - Create inline styles when Tailwind classes exist
@@ -917,6 +958,7 @@ describe('CampaignCard', () => {
 ### DO
 
 - Use shadcn/ui components as foundation
+- Create shared feature modules for domain entities
 - Customize via CSS variables for systematic changes
 - Use className with cn() for component-specific styles
 - Follow TanStack Router file-based routing
@@ -928,22 +970,31 @@ describe('CampaignCard', () => {
 ### Step 1: Analyze Design
 
 1. Identify all shadcn/ui components that can be used
-2. Note custom components needed
-3. Extract color palette and spacing
+2. Identify domain components that already exist in shared features
+3. Note custom components needed
+4. Extract color palette and spacing
 
-### Step 2: Setup Theme
+### Step 2: Check for Reuse
+
+1. Is this component displaying certificates? → Use `@/features/certificates`
+2. Is this a campaign element? → Check `@/features/campaigns`
+3. Is this used in multiple features? → Consider shared feature module
+4. Is this truly unique? → Create in current feature
+
+### Step 3: Setup Theme
 
 1. Update CSS variables to match Figma
 2. Configure Tailwind if needed
 3. Test shadcn components with new theme
 
-### Step 3: Implement
+### Step 4: Implement
 
 1. Use shadcn components
-2. Add custom className for specific styles
-3. Create custom components only when necessary
+2. Use shared feature components
+3. Add custom className for specific styles
+4. Create custom components only when necessary
 
-### Step 4: Align Styles
+### Step 5: Align Styles
 
 Run this checklist after implementation:
 
@@ -956,6 +1007,16 @@ Run this checklist after implementation:
 - [ ] Dark mode considered (if applicable)
 
 ## Quick Reference
+
+### Component Location Guide
+
+| Component Type | Location | When to Use |
+|---|---|---|
+| **UI Primitives** | `components/ui/` | shadcn/ui components |
+| **Layout** | `components/layout/` | Headers, sidebars, footers |
+| **Common Business** | `components/common/` | Non-domain specific, reusable |
+| **Shared Domain** | `features/[entity]/` | Domain entities used in 2+ features |
+| **Feature Specific** | `features/[feature]/components/` | Used in one feature only |
 
 ### Available shadcn/ui Components
 

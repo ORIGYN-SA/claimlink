@@ -16,9 +16,10 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as Create_collectionRouteImport } from './routes/create_collection'
 import { Route as Create_certificateRouteImport } from './routes/create_certificate'
-import { Route as CollectionsRouteImport } from './routes/collections'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
+import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
 
 const TemplatesRoute = TemplatesRouteImport.update({
   id: '/templates',
@@ -55,11 +56,6 @@ const Create_certificateRoute = Create_certificateRouteImport.update({
   path: '/create_certificate',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsRoute = CollectionsRouteImport.update({
-  id: '/collections',
-  path: '/collections',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AccountRoute = AccountRouteImport.update({
   id: '/account',
   path: '/account',
@@ -70,11 +66,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
+  id: '/collections/$collectionId',
+  path: '/collections/$collectionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/collections': typeof CollectionsRoute
   '/create_certificate': typeof Create_certificateRoute
   '/create_collection': typeof Create_collectionRoute
   '/dashboard': typeof DashboardRoute
@@ -82,11 +87,12 @@ export interface FileRoutesByFullPath {
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections': typeof CollectionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/collections': typeof CollectionsRoute
   '/create_certificate': typeof Create_certificateRoute
   '/create_collection': typeof Create_collectionRoute
   '/dashboard': typeof DashboardRoute
@@ -94,12 +100,13 @@ export interface FileRoutesByTo {
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections': typeof CollectionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/account': typeof AccountRoute
-  '/collections': typeof CollectionsRoute
   '/create_certificate': typeof Create_certificateRoute
   '/create_collection': typeof Create_collectionRoute
   '/dashboard': typeof DashboardRoute
@@ -107,13 +114,14 @@ export interface FileRoutesById {
   '/mint_certificate': typeof Mint_certificateRoute
   '/mint_nft': typeof Mint_nftRoute
   '/templates': typeof TemplatesRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
+  '/collections/': typeof CollectionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/account'
-    | '/collections'
     | '/create_certificate'
     | '/create_collection'
     | '/dashboard'
@@ -121,11 +129,12 @@ export interface FileRouteTypes {
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
+    | '/collections/$collectionId'
+    | '/collections'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/account'
-    | '/collections'
     | '/create_certificate'
     | '/create_collection'
     | '/dashboard'
@@ -133,11 +142,12 @@ export interface FileRouteTypes {
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
+    | '/collections/$collectionId'
+    | '/collections'
   id:
     | '__root__'
     | '/'
     | '/account'
-    | '/collections'
     | '/create_certificate'
     | '/create_collection'
     | '/dashboard'
@@ -145,12 +155,13 @@ export interface FileRouteTypes {
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
+    | '/collections/$collectionId'
+    | '/collections/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AccountRoute: typeof AccountRoute
-  CollectionsRoute: typeof CollectionsRoute
   Create_certificateRoute: typeof Create_certificateRoute
   Create_collectionRoute: typeof Create_collectionRoute
   DashboardRoute: typeof DashboardRoute
@@ -158,6 +169,8 @@ export interface RootRouteChildren {
   Mint_certificateRoute: typeof Mint_certificateRoute
   Mint_nftRoute: typeof Mint_nftRoute
   TemplatesRoute: typeof TemplatesRoute
+  CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
+  CollectionsIndexRoute: typeof CollectionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -211,13 +224,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Create_certificateRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections': {
-      id: '/collections'
-      path: '/collections'
-      fullPath: '/collections'
-      preLoaderRoute: typeof CollectionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/account': {
       id: '/account'
       path: '/account'
@@ -232,13 +238,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/collections/': {
+      id: '/collections/'
+      path: '/collections'
+      fullPath: '/collections'
+      preLoaderRoute: typeof CollectionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$collectionId': {
+      id: '/collections/$collectionId'
+      path: '/collections/$collectionId'
+      fullPath: '/collections/$collectionId'
+      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AccountRoute: AccountRoute,
-  CollectionsRoute: CollectionsRoute,
   Create_certificateRoute: Create_certificateRoute,
   Create_collectionRoute: Create_collectionRoute,
   DashboardRoute: DashboardRoute,
@@ -246,6 +265,8 @@ const rootRouteChildren: RootRouteChildren = {
   Mint_certificateRoute: Mint_certificateRoute,
   Mint_nftRoute: Mint_nftRoute,
   TemplatesRoute: TemplatesRoute,
+  CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
+  CollectionsIndexRoute: CollectionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

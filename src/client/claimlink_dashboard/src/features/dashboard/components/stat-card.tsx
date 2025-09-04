@@ -1,16 +1,16 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+// import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { StatCardProps } from "../types/dashboard.types";
 
-interface StatCardProps {
-  title: string
-  value: string
-  trend: string
-  trendColor: "green" | "red"
-  icon?: React.ReactNode
-  className?: string
-}
+// interface StatCardProps {
+//   title: string
+//   value: string
+//   trend: string
+//   trendColor: "green" | "red"
+//   icon?: React.ReactNode
+//   className?: string
+// }
 
 export function StatCard({
   title,

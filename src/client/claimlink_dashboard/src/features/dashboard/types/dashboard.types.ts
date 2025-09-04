@@ -2,7 +2,8 @@ export interface StatCardProps {
   title: string
   value: string
   trend: string
-  trendColor: "green" | "red"
+  trendColor: "green" | "red",
+  icon?: React.ReactNode
   className?: string
 }
 
