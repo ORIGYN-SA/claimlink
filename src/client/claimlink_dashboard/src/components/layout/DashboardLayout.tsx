@@ -13,6 +13,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Map route paths to page titles
   const getPageTitle = (pathname: string): string => {
     if (pathname === '/') return 'Dashboard';
+    if (pathname === '/collections/new') return 'Create Collection';
     if (pathname.startsWith('/templates')) return 'Templates';
     if (pathname.startsWith('/collections')) return 'Collections';
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
