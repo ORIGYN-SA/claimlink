@@ -27,7 +27,7 @@ export function CollectionsPage() {
   const handleCreateCollection = () => {
     console.log('Create collection clicked');
     // Navigate to create collection page
-    navigate({ to: '/create_collection' });
+    navigate({ to: '/collections/new' });
   };
 
   // Filter collections based on search and status
