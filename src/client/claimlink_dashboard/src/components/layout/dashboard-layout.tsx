@@ -18,11 +18,18 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/collections')) return 'Collections';
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
     if (pathname.startsWith('/mint_nft')) return 'Mint NFT';
-    if (pathname.startsWith('/account/new')) return 'Create User';
-    if (pathname.startsWith('/account/edit')) return 'Edit Profile';
+    if (pathname.startsWith('/account/new')) return 'Create user';
+    if (pathname.startsWith('/account/edit')) return 'Edit profile';
     if (pathname.startsWith('/account')) return 'Account';
     if (pathname.startsWith('/create_certificate')) return 'Create Certificate';
     return 'Dashboard';
+  };
+
+  // Map route paths to page subtitles
+  const getPageSubtitle = (pathname: string): string | undefined => {
+    if (pathname.startsWith('/account/new')) return "Create and manage your organization's user roles and permissions";
+    if (pathname.startsWith('/account/edit')) return "Create and manage your organization's user roles and permissions";
+    return undefined;
   };
 
   // Determine if back button should be shown and where to navigate
@@ -55,6 +62,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="bg-[#fcfafa] rounded-[20px] p-[24px] w-full max-w-none">
             <HeaderBar
               title={getPageTitle(location.pathname)}
+              subtitle={getPageSubtitle(location.pathname)}
               showBackButton={showBackButton}
               backTo={backTo}
             />

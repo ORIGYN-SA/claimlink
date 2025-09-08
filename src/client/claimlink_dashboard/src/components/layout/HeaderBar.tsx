@@ -7,12 +7,13 @@ import { AccountMenu } from "@/components/common/account-menu"
 
 interface HeaderBarProps {
   title?: string
+  subtitle?: string
   className?: string
   showBackButton?: boolean
   backTo?: string
 }
 
-export function HeaderBar({ title = "Dashboard", className, showBackButton = false, backTo }: HeaderBarProps) {
+export function HeaderBar({ title = "Dashboard", subtitle, className, showBackButton = false, backTo }: HeaderBarProps) {
   const navigate = useNavigate();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
 
@@ -37,9 +38,16 @@ export function HeaderBar({ title = "Dashboard", className, showBackButton = fal
             <ArrowLeft className="w-4 h-4" />
           </Button>
         )}
-        <h1 className="font-['General_Sans:Medium',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#222526] text-[24px] text-nowrap">
-          <p className="leading-[32px] whitespace-pre">{title}</p>
-        </h1>
+        <div className="flex flex-col">
+          <h1 className="font-['General_Sans:Medium',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#222526] text-[24px] text-nowrap">
+            <p className="leading-[32px] whitespace-pre">{title}</p>
+          </h1>
+          {subtitle && (
+            <p className="font-['General_Sans:Light',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#69737c] text-[16px] text-nowrap mt-1">
+              <span className="leading-[32px] whitespace-pre">{subtitle}</span>
+            </p>
+          )}
+        </div>
       </div>
       <div className="flex items-center gap-2">
         {/* Wallet Button */}
