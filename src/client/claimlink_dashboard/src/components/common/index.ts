@@ -1,2 +1,2 @@
-export { SearchInput } from "./SearchInput"
+export { SearchInput } from "./search-input"
 export { AccountMenu } from "./account-menu"

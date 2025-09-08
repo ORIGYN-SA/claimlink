@@ -1,4 +1,4 @@
-export { HeaderBar } from "./HeaderBar"
-export { default as Sidebar } from "./Sidebar"
-export { default as SideBarNavItems } from "./SideBarNavItems"
-export { DashboardLayout } from "./DashboardLayout"
+export { HeaderBar } from "./headerbar"
+export { default as Sidebar } from "./sidebar"
+export { default as SideBarNavItems } from "./sidebar-nav-items"
+export { DashboardLayout } from "./dashboard-layout"

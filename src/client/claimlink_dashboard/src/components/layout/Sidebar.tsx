@@ -1,4 +1,4 @@
-import navItems from "@/components/layout/SideBarNavItems";
+import navItems from "@/components/layout/sidebar-nav-items";
 import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import clsx from "clsx";
