@@ -2,3 +2,4 @@
 export * from './collections';
 export * from './certificates';
 export * from './templates';
+export * from './users';
