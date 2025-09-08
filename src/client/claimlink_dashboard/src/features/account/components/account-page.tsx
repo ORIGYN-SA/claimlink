@@ -33,6 +33,10 @@ export function AccountPage() {
     navigate({ to: "/account/new" });
   };
 
+  const handleEditBiography = () => {
+    navigate({ to: "/account/edit" });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -75,6 +79,7 @@ export function AccountPage() {
 
             {/* Edit Button */}
             <Button
+              onClick={handleEditBiography}
               variant="outline"
               className="bg-white border border-[#e1e1e1] hover:bg-gray-50 text-[#222526] rounded-2xl px-4 py-2 h-auto"
             >

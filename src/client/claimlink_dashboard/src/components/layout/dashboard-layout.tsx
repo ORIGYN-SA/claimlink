@@ -19,6 +19,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
     if (pathname.startsWith('/mint_nft')) return 'Mint NFT';
     if (pathname.startsWith('/account/new')) return 'Create User';
+    if (pathname.startsWith('/account/edit')) return 'Edit Profile';
     if (pathname.startsWith('/account')) return 'Account';
     if (pathname.startsWith('/create_certificate')) return 'Create Certificate';
     return 'Dashboard';
@@ -30,6 +31,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       return { showBackButton: true, backTo: '/mint_certificate' };
     }
     if (pathname.startsWith('/account/new')) {
+      return { showBackButton: true, backTo: '/account' };
+    }
+    if (pathname.startsWith('/account/edit')) {
       return { showBackButton: true, backTo: '/account' };
     }
     return { showBackButton: false, backTo: undefined };
