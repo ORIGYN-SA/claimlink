@@ -1,7 +1,9 @@
 // AccountMenu.tsx
+import { useState } from "react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Copy, LogOut } from "lucide-react"
+import { WithdrawDialog } from "./withdraw-dialog"
 
 interface AccountMenuProps {
   isOpen: boolean
@@ -10,6 +12,8 @@ interface AccountMenuProps {
 }
 
 export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps) {
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
+
   const handleCopyAccountId = () => {
     navigator.clipboard.writeText("55vo5-45mf9-...1234d-erpra")
     // TODO: Add toast notification
@@ -18,6 +22,10 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
   const handleSignOut = () => {
     // TODO: Implement sign out logic
     console.log("Sign out")
+  }
+
+  const handleWithdrawClick = () => {
+    setWithdrawDialogOpen(true)
   }
 
   return (
@@ -131,7 +139,10 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                       </div>
 
                       {/* Withdraw button */}
-                      <Button className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-2.5 w-full text-sm font-medium">
+                      <Button
+                        onClick={handleWithdrawClick}
+                        className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-2.5 w-full text-sm font-medium"
+                      >
                         Withdraw
                       </Button>
 
@@ -197,6 +208,12 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
           </div>
         </div>
       </SheetContent>
+
+      {/* Withdraw Dialog */}
+      <WithdrawDialog
+        isOpen={withdrawDialogOpen}
+        onOpenChange={setWithdrawDialogOpen}
+      />
     </Sheet>
   )
 }
