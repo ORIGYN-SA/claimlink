@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Search, Edit, MoreHorizontal } from "lucide-react";
 import { mockUsers } from "@/shared/data";
+import { useNavigate } from "@tanstack/react-router";
 
 const getAccessBadgeColor = (access: string) => {
   switch (access) {
@@ -26,6 +27,12 @@ const getAccessBadgeColor = (access: string) => {
 };
 
 export function AccountPage() {
+  const navigate = useNavigate();
+
+  const handleCreateUser = () => {
+    navigate({ to: "/account/new" });
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Section */}
@@ -98,7 +105,10 @@ export function AccountPage() {
               />
             </div>
 
-            <Button className="bg-[#222526] hover:bg-[#1a1a1a] text-white rounded-full px-6">
+            <Button
+              onClick={handleCreateUser}
+              className="bg-[#222526] hover:bg-[#1a1a1a] text-white rounded-full px-6"
+            >
               Add user
             </Button>
           </div>

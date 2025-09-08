@@ -1,15 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardLayout } from '@/components/layout'
-import { AccountPage } from '@/features/account'
+import { CreateUserPage } from '@/features/account'
 
-export const Route = createFileRoute('/account')({
+export const Route = createFileRoute('/account/new')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
   return (
     <DashboardLayout>
-      <AccountPage />
+      <CreateUserPage />
     </DashboardLayout>
   )
 }
