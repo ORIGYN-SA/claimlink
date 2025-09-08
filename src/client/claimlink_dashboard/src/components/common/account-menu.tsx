@@ -1,7 +1,7 @@
-import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Copy, LogOut } from "lucide-react"
-import { cn } from "@/lib/utils"
+// import { cn } from "@/lib/utils"
 
 interface AccountMenuProps {
   isOpen: boolean

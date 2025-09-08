@@ -1,56 +1,56 @@
-import { Card, CardContent } from "@/components/ui/card"
+// wallet-connection-section.tsx
 import { NFIDIcon, InternetIdentityIcon, OISYIcon, PlugIcon, InfoIcon } from "./wallet-icons"
 
 export function WalletConnectionSection() {
   return (
-    <div className="mb-10">
+    <div className="mb-6">
       {/* Section divider */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex-1 h-px bg-white/30" />
-        <span className="text-gray-300 text-sm font-medium px-2">
+        <span className="text-gray-300 text-xs font-medium px-2 whitespace-nowrap">
           Connect with your Wallet
         </span>
-        <InfoIcon />
+        <div className="w-3 h-3 text-gray-300">
+          <InfoIcon />
+        </div>
         <div className="flex-1 h-px bg-white/30" />
       </div>
       
       {/* NFID - Primary wallet option */}
-      <div className="mb-2">
-        <Card className="bg-white border-2 border-purple-400 hover:border-purple-500 transition-colors cursor-pointer">
-          <CardContent className="p-4 flex items-start gap-4">
-            <NFIDIcon />
-            <div className="flex-1">
-              <h3 className="text-gray-900 font-semibold text-lg leading-6">NFID</h3>
-              <p className="text-gray-600 text-sm leading-relaxed mt-1">
-                Quickly sign in or create an anonymous, self-sovereign wallet with your email address or passkey.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <button className="w-full bg-white rounded-xl p-3 mb-2 border-2 border-purple-400 hover:border-purple-500 transition-colors text-left">
+        <div className="flex items-start gap-3">
+          <NFIDIcon />
+          <div className="flex-1">
+            <h3 className="text-gray-900 font-semibold text-sm">NFID</h3>
+            <p className="text-gray-600 text-xs leading-relaxed mt-0.5">
+              Quickly sign in or create an anonymous, self-sovereign wallet with your email address or passkey.
+            </p>
+          </div>
+        </div>
+      </button>
       
       {/* Other wallet options */}
       <div className="space-y-2">
-        <Card className="bg-white border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
-          <CardContent className="p-4 flex items-center gap-4">
+        <button className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left">
+          <div className="flex items-center gap-3">
             <InternetIdentityIcon />
-            <span className="text-gray-900 font-semibold">Internet Identity</span>
-          </CardContent>
-        </Card>
+            <span className="text-gray-900 font-medium text-sm">Internet Identity</span>
+          </div>
+        </button>
         
-        <Card className="bg-white border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
-          <CardContent className="p-4 flex items-center gap-4">
+        <button className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left">
+          <div className="flex items-center gap-3">
             <OISYIcon />
-            <span className="text-gray-900 font-semibold">OISY</span>
-          </CardContent>
-        </Card>
+            <span className="text-gray-900 font-medium text-sm">OISY</span>
+          </div>
+        </button>
         
-        <Card className="bg-white border border-gray-200 hover:border-gray-300 transition-colors cursor-pointer">
-          <CardContent className="p-4 flex items-center gap-4">
+        <button className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left">
+          <div className="flex items-center gap-3">
             <PlugIcon />
-            <span className="text-gray-900 font-semibold">Plug Wallet</span>
-          </CardContent>
-        </Card>
+            <span className="text-gray-900 font-medium text-sm">Plug Wallet</span>
+          </div>
+        </button>
       </div>
     </div>
   )
