@@ -1,47 +1,51 @@
 import { useState } from "react";
-import { Search, Grid, List, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Search, Grid, List, ChevronDown } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-// import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { TokenGridView } from "@/components/common/token-grid-view";
-import { mockCertificates } from "@/shared/data/certificates";
-import type { Certificate } from "../../certificates/types/certificate.types";
+import { NFTList } from "../../nfts/components/nft-list";
+import { useNFTs } from "../../nfts/api/nfts.queries";
+import type { NFT } from "../../nfts/types/nft.types";
 
-export function MintCertificatePage() {
+export function MintNFTPage() {
   const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [rarityFilter, setRarityFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  const handleCertificateClick = (certificate: Certificate) => {
-    console.log('Certificate clicked:', certificate);
+  // Fetch NFTs using React Query
+  const { data: nfts = [], isLoading } = useNFTs();
+
+  const handleNFTClick = (nft: NFT) => {
+    console.log('NFT clicked:', nft);
+    // TODO: Navigate to NFT detail page
+    // navigate({ to: '/nfts/$nftId', params: { nftId: nft.id } });
   };
 
-  const handleAddCertificate = () => {
-    console.log('Add certificate clicked');
+  const handleMintNFT = () => {
+    console.log('Mint NFT clicked');
+    // TODO: Navigate to mint NFT form
+    // navigate({ to: '/mint_nft/new' });
   };
 
-  const handleMintCertificate = () => {
-    navigate({ to: '/mint_certificate/new' });
-  };
-
-  // Filter certificates based on search and status
-  const filteredCertificates = mockCertificates.filter(cert => {
-    const matchesSearch = cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         cert.collectionName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || cert.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  // Filter NFTs based on search and filters
+  const filteredNFTs = nfts.filter(nft => {
+    const matchesSearch = nft.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         nft.collectionName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || nft.status === statusFilter;
+    const matchesRarity = rarityFilter === 'all' || nft.rarity === rarityFilter;
+    return matchesSearch && matchesStatus && matchesRarity;
   });
 
   // Pagination
-  const totalPages = Math.ceil(filteredCertificates.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredNFTs.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCertificates = filteredCertificates.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedNFTs = filteredNFTs.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="bg-[#fcfafa] rounded-b-[20px] p-6 w-full">
@@ -52,7 +56,7 @@ export function MintCertificatePage() {
           {/* Search */}
           <div className="flex-1 relative">
             <Input
-              placeholder="Search for an item"
+              placeholder="Search for an NFT"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pr-10 rounded-full border-[#e1e1e1] bg-white h-12"
@@ -62,7 +66,7 @@ export function MintCertificatePage() {
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[250px] rounded-full border-[#e1e1e1] bg-white h-12">
+            <SelectTrigger className="w-[180px] rounded-full border-[#e1e1e1] bg-white h-12">
               <SelectValue placeholder="Status" />
               <ChevronDown className="w-2 h-2" />
             </SelectTrigger>
@@ -74,26 +78,42 @@ export function MintCertificatePage() {
               <SelectItem value="Burned">Burned</SelectItem>
             </SelectContent>
           </Select>
+
+          {/* Rarity Filter */}
+          <Select value={rarityFilter} onValueChange={setRarityFilter}>
+            <SelectTrigger className="w-[150px] rounded-full border-[#e1e1e1] bg-white h-12">
+              <SelectValue placeholder="Rarity" />
+              <ChevronDown className="w-2 h-2" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Rarity</SelectItem>
+              <SelectItem value="Common">Common</SelectItem>
+              <SelectItem value="Uncommon">Uncommon</SelectItem>
+              <SelectItem value="Rare">Rare</SelectItem>
+              <SelectItem value="Epic">Epic</SelectItem>
+              <SelectItem value="Legendary">Legendary</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
-        {/* Mint Certificate Button */}
+        {/* Mint NFT Button */}
         <Button
-          onClick={handleMintCertificate}
+          onClick={handleMintNFT}
           className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-3 h-12 gap-2.5"
         >
-          <MoreHorizontal className="w-2 h-2" />
-          Mint a certificate
+          <List className="w-2 h-2" />
+          Mint a NFT
         </Button>
       </div>
 
-      {/* Certificate List */}
+      {/* NFT List */}
       <div className="bg-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] border border-[#f2f2f2] rounded-[16px] overflow-hidden">
         {/* Header */}
         <div className="bg-white border-b border-[#f2f2f2] p-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
               <h2 className="text-[18px] font-medium text-[#222526] leading-normal">
-                Certificate <span className="text-[#69737c]">({filteredCertificates.length})</span>
+                NFTs <span className="text-[#69737c]">({filteredNFTs.length})</span>
               </h2>
             </div>
 
@@ -132,15 +152,13 @@ export function MintCertificatePage() {
         {/* Content */}
         <div className="bg-white p-4">
           {viewMode === 'grid' ? (
-            <TokenGridView
-              tokens={paginatedCertificates}
-              showCertifiedBadge={true} // Certificates show ORIGYN badge
-              onTokenClick={handleCertificateClick}
-              onAddToken={handleAddCertificate}
-              addButtonText="Create a certificate"
-              addButtonDescription="Create a campaign to distribute your NFTs via claim links"
+            <NFTList
+              nfts={paginatedNFTs}
+              onNFTClick={handleNFTClick}
+              onMintNFT={handleMintNFT}
             />
           ) : (
+            // TODO: Implement NFT list view
             <div className="text-center py-8 text-[#69737c]">
               List view coming soon...
             </div>

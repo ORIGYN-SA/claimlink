@@ -1,5 +1,4 @@
-import { CertificateCard } from "./certificate-card";
-import { AddCertificateCard } from "./add-certificate-card";
+import { TokenGridView } from "@/components/common/token-grid-view";
 import type { Certificate } from "../types/certificate.types";
 
 interface CertificateGridViewProps {
@@ -8,24 +7,20 @@ interface CertificateGridViewProps {
   onAddCertificate: () => void;
 }
 
+// CertificateGridView now uses the shared TokenGridView component
 export function CertificateGridView({
   certificates,
   onCertificateClick,
   onAddCertificate
 }: CertificateGridViewProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {/* Add Certificate Card - always first */}
-      <AddCertificateCard onClick={onAddCertificate} />
-
-      {/* Certificate Cards */}
-      {certificates.map((certificate) => (
-        <CertificateCard
-          key={certificate.id}
-          certificate={certificate}
-          onClick={onCertificateClick}
-        />
-      ))}
-    </div>
+    <TokenGridView
+      tokens={certificates}
+      showCertifiedBadge={true} // Certificates show ORIGYN badge
+      onTokenClick={onCertificateClick}
+      onAddToken={onAddCertificate}
+      addButtonText="Create a certificate"
+      addButtonDescription="Create a campaign to distribute your NFTs via claim links"
+    />
   );
 }

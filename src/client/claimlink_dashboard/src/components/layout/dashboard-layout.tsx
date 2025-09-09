@@ -17,7 +17,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/templates')) return 'Templates';
     if (pathname.startsWith('/collections')) return 'Collections';
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
-    if (pathname.startsWith('/mint_nft')) return 'Mint NFT';
+    if (pathname.startsWith('/mint_nft')) return 'NFTs';
     if (pathname.startsWith('/account/new')) return 'Create user';
     if (pathname.startsWith('/account/edit_company')) return 'Edit company information';
     if (pathname.startsWith('/account/edit_user')) return 'Edit profile';
@@ -28,6 +28,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Map route paths to page subtitles
   const getPageSubtitle = (pathname: string): string | undefined => {
+    if (pathname.startsWith('/mint_nft')) return "You can manage your organization's collections that hosts your certificates";
     if (pathname.startsWith('/account/new')) return "Create and manage your organization's user roles and permissions";
     if (pathname.startsWith('/account/edit_company')) return "Create and manage your organization's user roles and permissions";
     if (pathname.startsWith('/account/edit_user')) return "Create and manage your organization's user roles and permissions";
@@ -38,6 +39,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const getBackNavigation = (pathname: string) => {
     if (pathname.startsWith('/mint_certificate/new')) {
       return { showBackButton: true, backTo: '/mint_certificate' };
+    }
+    if (pathname.startsWith('/mint_nft/new')) {
+      return { showBackButton: true, backTo: '/mint_nft' };
+    }
+    if (pathname.startsWith('/collections/new')) {
+      return { showBackButton: true, backTo: '/collections' };
     }
     if (pathname.startsWith('/account/new')) {
       return { showBackButton: true, backTo: '/account' };

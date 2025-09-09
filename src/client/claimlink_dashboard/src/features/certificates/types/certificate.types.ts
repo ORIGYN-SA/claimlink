@@ -1,13 +1,13 @@
-export type CertificateStatus = 'Minted' | 'Transferred' | 'Waiting' | 'Burned';
+import type { BaseToken, TokenStatus } from "@/components/common/token-card";
 
-export interface Certificate {
-  id: string;
-  title: string;
-  collectionName: string;
-  imageUrl: string;
-  status: CertificateStatus;
-  date: string;
-  thumbnail?: string;
+// Certificate extends BaseToken to maintain compatibility while adding certificate-specific fields
+export interface Certificate extends BaseToken {
+  // Certificate-specific fields
+  issuer?: string;
+  verificationCode?: string;
+  certifiedBy?: 'ORIGYN';
+  integratorId?: string;
+  campaignId?: string;
 }
 
 export interface CertificateGridProps {
@@ -23,3 +23,6 @@ export interface CertificateCardProps {
 export interface AddCertificateCardProps {
   onClick?: () => void;
 }
+
+// Re-export TokenStatus for backward compatibility
+export type CertificateStatus = TokenStatus;
