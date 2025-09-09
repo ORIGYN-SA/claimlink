@@ -10,7 +10,7 @@ export function PricingSidebar() {
         </div>
         <div className="font-['General_Sans'] text-[#69737c] text-[13px] w-full">
           <p className="leading-normal">
-            Vestibulum eu purus eu orci commodo elementum et et lorem. 
+            Vestibulum eu purus eu orci commodo elementum et et lorem.
             Curabitur pharetra velit ut facilisis ultrices.
           </p>
         </div>

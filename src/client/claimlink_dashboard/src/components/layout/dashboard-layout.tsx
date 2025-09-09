@@ -36,7 +36,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
   // Determine if back button should be shown and where to navigate
   const getBackNavigation = (pathname: string) => {
-    if (pathname.startsWith('/create_certificate')) {
+    if (pathname.startsWith('/mint_certificate/new')) {
       return { showBackButton: true, backTo: '/mint_certificate' };
     }
     if (pathname.startsWith('/account/new')) {

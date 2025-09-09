@@ -28,7 +28,7 @@ export function MintCertificatePage() {
   };
 
   const handleMintCertificate = () => {
-    navigate({ to: '/create_certificate' });
+    navigate({ to: '/mint_certificate/new' });
   };
 
   // Filter certificates based on search and status
