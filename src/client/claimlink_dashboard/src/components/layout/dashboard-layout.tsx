@@ -19,7 +19,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
     if (pathname.startsWith('/mint_nft')) return 'Mint NFT';
     if (pathname.startsWith('/account/new')) return 'Create user';
-    if (pathname.startsWith('/account/edit')) return 'Edit profile';
+    if (pathname.startsWith('/account/edit_company')) return 'Edit company information';
+    if (pathname.startsWith('/account/edit_user')) return 'Edit profile';
     if (pathname.startsWith('/account')) return 'Account';
     if (pathname.startsWith('/create_certificate')) return 'Create Certificate';
     return 'Dashboard';
@@ -28,7 +29,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   // Map route paths to page subtitles
   const getPageSubtitle = (pathname: string): string | undefined => {
     if (pathname.startsWith('/account/new')) return "Create and manage your organization's user roles and permissions";
-    if (pathname.startsWith('/account/edit')) return "Create and manage your organization's user roles and permissions";
+    if (pathname.startsWith('/account/edit_company')) return "Create and manage your organization's user roles and permissions";
+    if (pathname.startsWith('/account/edit_user')) return "Create and manage your organization's user roles and permissions";
     return undefined;
   };
 
@@ -40,7 +42,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/account/new')) {
       return { showBackButton: true, backTo: '/account' };
     }
-    if (pathname.startsWith('/account/edit')) {
+    if (pathname.startsWith('/account/edit_company')) {
+      return { showBackButton: true, backTo: '/account' };
+    }
+    if (pathname.startsWith('/account/edit_user')) {
       return { showBackButton: true, backTo: '/account' };
     }
     return { showBackButton: false, backTo: undefined };

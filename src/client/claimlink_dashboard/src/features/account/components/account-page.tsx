@@ -34,7 +34,12 @@ export function AccountPage() {
   };
 
   const handleEditBiography = () => {
-    navigate({ to: "/account/edit" });
+    navigate({ to: "/account/edit_company" });
+  };
+
+  const handleEditUser = () => {
+    // TODO: Navigate to edit user page with user ID
+    navigate({ to: "/account/edit_user" });
   };
 
   return (
@@ -136,7 +141,11 @@ export function AccountPage() {
             {/* Table Rows */}
             <div className="divide-y divide-[#e1e1e1]">
               {mockUsers.map((user) => (
-                <div key={user.id} className="px-10 py-4 hover:bg-gray-50">
+                <div
+                  key={user.id}
+                  className="px-10 py-4 hover:bg-gray-50 cursor-pointer"
+                  onClick={handleEditUser}
+                >
                   <div className="grid grid-cols-5 gap-4 items-center">
                     {/* User Info */}
                     <div className="flex items-center gap-3 w-[400px]">
