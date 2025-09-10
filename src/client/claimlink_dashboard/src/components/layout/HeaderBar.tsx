@@ -4,6 +4,7 @@ import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { AccountMenu } from "@/components/common/account-menu"
+import { useAuth } from "@/features/auth"
 
 interface HeaderBarProps {
   title?: string
@@ -16,6 +17,7 @@ interface HeaderBarProps {
 export function HeaderBar({ title = "Dashboard", subtitle, className, showBackButton = false, backTo }: HeaderBarProps) {
   const navigate = useNavigate();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+  const { isConnected, principalId } = useAuth();
 
   const handleBack = () => {
     if (backTo) {
@@ -51,24 +53,47 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
       </div>
       <div className="flex items-center gap-2">
         {/* Wallet Button */}
-        <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
-          <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
-          <div className="relative shrink-0 size-4">
-            <div className="absolute inset-0">
-              {/* OGY Icon placeholder - you may need to import the actual OGY icon */}
-              <div className="w-full h-full bg-[#615bff] rounded-full flex items-center justify-center">
-                <span className="text-white text-xs font-bold">O</span>
+        {isConnected ? (
+          <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
+            <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
+            <div className="relative shrink-0 size-4">
+              <div className="absolute inset-0">
+                {/* Wallet connected indicator */}
+                <div className="w-full h-full bg-green-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">✓</span>
+                </div>
               </div>
             </div>
+            <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
+              <p className="text-[14px] whitespace-pre">
+                <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
+                  {principalId ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}` : 'Connected'}
+                </span>
+                <span className="leading-[16px]"> </span>
+                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">ICP</span>
+              </p>
+            </div>
           </div>
-          <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-            <p className="text-[14px] whitespace-pre">
-              <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">1'256</span>
-              <span className="leading-[16px]"> </span>
-              <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">OGY</span>
-            </p>
+        ) : (
+          <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
+            <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
+            <div className="relative shrink-0 size-4">
+              <div className="absolute inset-0">
+                {/* OGY Icon placeholder */}
+                <div className="w-full h-full bg-[#615bff] rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">O</span>
+                </div>
+              </div>
+            </div>
+            <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
+              <p className="text-[14px] whitespace-pre">
+                <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">Connect</span>
+                <span className="leading-[16px]"> </span>
+                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">Wallet</span>
+              </p>
+            </div>
           </div>
-        </div>
+        )}
         
         {/* Account Button */}
         <AccountMenu

@@ -3,6 +3,19 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
+// Import authentication
+import { AuthProvider } from "./features/auth";
+import {
+  CLAIMLINK_CANISTER_ID,
+  NFT_CANISTER_ID,
+  CERTIFICATE_CANISTER_ID,
+  LEDGER_CANISTER_ID,
+  APP_MODE,
+} from "./shared/constants";
+
+// Import IdentityKit styles
+import "@nfid/identitykit/react/styles.css";
+
 // Import the generated route tree
 import { routeTree } from "./routeTree.gen";
 
@@ -43,7 +56,21 @@ if (rootElement && !rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <RouterProvider router={router} />
+        <AuthProvider
+          derivationOrigin={
+            ["preprod", "production"].includes(APP_MODE)
+              ? "https://your-claimlink-canister.icp0.io"
+              : undefined
+          }
+          targets={[
+            CLAIMLINK_CANISTER_ID,
+            NFT_CANISTER_ID,
+            CERTIFICATE_CANISTER_ID,
+            LEDGER_CANISTER_ID,
+          ].filter(Boolean)} // Filter out undefined values
+        >
+          <RouterProvider router={router} />
+        </AuthProvider>
       </QueryClientProvider>
     </StrictMode>,
   );
