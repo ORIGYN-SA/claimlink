@@ -61,7 +61,7 @@ export function WalletConnectionSection() {
           </div>
         </button>
 
-        <button
+        {/* <button
           onClick={connect}
           className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left"
         >
@@ -69,7 +69,7 @@ export function WalletConnectionSection() {
             <OISYIcon />
             <span className="text-gray-900 font-medium text-sm">OISY</span>
           </div>
-        </button>
+        </button> */}
 
         <button
           onClick={connect}

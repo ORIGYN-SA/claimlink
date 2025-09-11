@@ -8,6 +8,7 @@ import {
 import type { IdentityKitSignerConfig } from "@nfid/identitykit";
 import { useAtom } from "jotai";
 import { useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import {
   IdentityKitProvider,
   useAuth,
@@ -27,6 +28,7 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
     HttpAgent | Agent | undefined
   >();
   const authenticatedAgent = useAgent({ host: "https://ic0.app" });
+  const navigate = useNavigate();
 
   // Create unauthenticated agent for public queries
   useEffect(() => {
@@ -52,6 +54,8 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
         isInitializing: false,
         authenticatedAgent,
       }));
+      // Navigate to dashboard when user connects
+      navigate({ to: "/dashboard" });
     } else {
       setState((prevState) => ({
         ...prevState,
@@ -60,8 +64,10 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
         isInitializing: false,
         authenticatedAgent: undefined,
       }));
+      // Navigate to login when user disconnects
+      navigate({ to: "/login" });
     }
-  }, [user, authenticatedAgent, setState]);
+  }, [user, authenticatedAgent, setState, navigate]);
 
   // Show loading screen during initialization
   if (isInitializing || (user && !state.isConnected)) {

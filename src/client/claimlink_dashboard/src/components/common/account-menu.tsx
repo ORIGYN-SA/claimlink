@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
 import { Copy, LogOut } from "lucide-react"
 import { WithdrawDialog } from "./withdraw-dialog"
+import { useAuth } from "@/features/auth/hooks/useAuth"
 
 interface AccountMenuProps {
   isOpen: boolean
@@ -13,15 +14,15 @@ interface AccountMenuProps {
 
 export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
+  const { disconnect, principalId } = useAuth()
 
   const handleCopyAccountId = () => {
-    navigator.clipboard.writeText("55vo5-45mf9-...1234d-erpra")
+    navigator.clipboard.writeText(principalId || "55vo5-45mf9-...1234d-erpra")
     // TODO: Add toast notification
   }
 
   const handleSignOut = () => {
-    // TODO: Implement sign out logic
-    console.log("Sign out")
+    disconnect()
   }
 
   const handleWithdrawClick = () => {
@@ -124,7 +125,7 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                           <div className="text-xs">
                             <span className="text-[#69737c] font-normal">Account ID: </span>
                             <span className="text-[#222526] font-semibold">
-                              55vo5-45mf9-...1234d-erpra
+                              {principalId || "55vo5-45mf9-...1234d-erpra"}
                             </span>
                           </div>
                         </div>
