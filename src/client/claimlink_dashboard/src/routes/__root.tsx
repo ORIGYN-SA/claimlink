@@ -7,6 +7,8 @@ import {
   LEDGER_CANISTER_ID,
   APP_MODE,
 } from "../shared/constants";
+// Import IdentityKit styles
+import "@nfid/identitykit/react/styles.css";
 
 export const Route = createRootRoute({
   component: RootComponent,
