@@ -9,6 +9,18 @@ import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 import reportWebVitals from "./reportWebVitals";
 
+// Create query client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes - good for IC
+      retry: 1, // IC calls can be slow, limit retries
+      refetchOnWindowFocus: false, // Prevent unnecessary IC calls
+    },
+  },
+});
+
+
 // Create a new router instance
 const router = createRouter({
   routeTree,
@@ -25,17 +37,6 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
-
-// Create query client
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes - good for IC
-      retry: 1, // IC calls can be slow, limit retries
-      refetchOnWindowFocus: false, // Prevent unnecessary IC calls
-    },
-  },
-});
 
 // Render the app
 const rootElement = document.getElementById("root");

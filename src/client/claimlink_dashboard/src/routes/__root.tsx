@@ -15,19 +15,18 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <AuthProvider
-      derivationOrigin={
-        ["preprod", "production"].includes(APP_MODE)
-          ? "https://your-claimlink-canister.icp0.io"
-          : undefined
-      }
-      targets={[
-        CLAIMLINK_CANISTER_ID,
-        NFT_CANISTER_ID,
-        CERTIFICATE_CANISTER_ID,
-        LEDGER_CANISTER_ID,
-      ].filter(Boolean)} // Filter out undefined values
-      maxTimeToLive={604800000000000n} // one week
-    >
+          derivationOrigin={
+            ["preprod", "production"].includes(APP_MODE)
+              ? "https://your-claimlink-canister.icp0.io"
+              : undefined
+          }
+          targets={[
+            CLAIMLINK_CANISTER_ID,
+            NFT_CANISTER_ID,
+            CERTIFICATE_CANISTER_ID,
+            LEDGER_CANISTER_ID,
+          ].filter(Boolean)} // Filter out undefined values
+        >
       <Outlet />
     </AuthProvider>
   );
