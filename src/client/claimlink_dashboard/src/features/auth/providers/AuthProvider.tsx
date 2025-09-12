@@ -65,7 +65,7 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
         authenticatedAgent: undefined,
       }));
       // Navigate to login when user disconnects
-      navigate({ to: "/login" });
+      // navigate({ to: "/login" });
     }
   }, [user, authenticatedAgent, setState, navigate]);
 

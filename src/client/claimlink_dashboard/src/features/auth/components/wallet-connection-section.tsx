@@ -1,5 +1,5 @@
 // wallet-connection-section.tsx
-import { NFIDIcon, InternetIdentityIcon, OISYIcon, PlugIcon, InfoIcon } from "./wallet-icons"
+import { NFIDIcon, InternetIdentityIcon, PlugIcon, InfoIcon } from "./wallet-icons"
 import { useAuth } from "../hooks/useAuth"
 
 export function WalletConnectionSection() {
@@ -36,7 +36,7 @@ export function WalletConnectionSection() {
       {/* NFID - Primary wallet option */}
       <button
         onClick={connect}
-        className="w-full bg-white rounded-xl p-3 mb-2 border-2 border-purple-400 hover:border-purple-500 transition-colors text-left"
+        className="w-full bg-white rounded-xl p-3 mb-2 border-2 border-purple-400 hover:border-purple-500 transition-colors text-left cursor-pointer"
       >
         <div className="flex items-start gap-3">
           <NFIDIcon />
@@ -53,7 +53,7 @@ export function WalletConnectionSection() {
       <div className="space-y-2">
         <button
           onClick={connect}
-          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left"
+          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <InternetIdentityIcon />
@@ -61,19 +61,9 @@ export function WalletConnectionSection() {
           </div>
         </button>
 
-        {/* <button
-          onClick={connect}
-          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left"
-        >
-          <div className="flex items-center gap-3">
-            <OISYIcon />
-            <span className="text-gray-900 font-medium text-sm">OISY</span>
-          </div>
-        </button> */}
-
         <button
           onClick={connect}
-          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left"
+          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
         >
           <div className="flex items-center gap-3">
             <PlugIcon />

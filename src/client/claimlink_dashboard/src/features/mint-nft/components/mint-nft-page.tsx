@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Search, Grid, List, ChevronDown } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+// import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -10,7 +10,7 @@ import { useNFTs } from "../../nfts/api/nfts.queries";
 import type { NFT } from "../../nfts/types/nft.types";
 
 export function MintNFTPage() {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -19,7 +19,9 @@ export function MintNFTPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Fetch NFTs using React Query
-  const { data: nfts = [], isLoading } = useNFTs();
+  const { data: nfts = [] } = useNFTs();
+  // const { isLoading } = useNFTs();
+
 
   const handleNFTClick = (nft: NFT) => {
     console.log('NFT clicked:', nft);

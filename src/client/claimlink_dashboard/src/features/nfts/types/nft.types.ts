@@ -1,4 +1,6 @@
-import type { BaseToken, TokenStatus } from "@/components/common/token-card";
+import type { BaseToken } from "@/components/common/token-card";
+// import type { TokenStatus } from "@/components/common/token-card";
+
 
 export interface NFT extends BaseToken {
   // NFT-specific fields

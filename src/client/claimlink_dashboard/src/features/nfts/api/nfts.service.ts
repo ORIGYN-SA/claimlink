@@ -3,7 +3,7 @@ import type { NFT, NFTMintData } from '../types/nft.types';
 
 export class NFTService {
   // Fetch NFTs from IC canister
-  static async fetchNFTs(collectionId?: string): Promise<NFT[]> {
+  static async fetchNFTs(_collectionId?: string): Promise<NFT[]> {
     // TODO: Replace with actual IC canister call
     // const canister = await getNFTCanister(collectionId);
     // return await canister.getNFTs();

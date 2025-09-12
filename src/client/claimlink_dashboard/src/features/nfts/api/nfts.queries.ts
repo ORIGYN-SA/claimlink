@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NFTService } from './nfts.service';
-import type { NFT, NFTMintData } from '../types/nft.types';
+import type { NFTMintData } from '../types/nft.types';
+// import type { NFT } from '../types/nft.types';
 
 export const nftKeys = {
   all: ['nfts'] as const,
