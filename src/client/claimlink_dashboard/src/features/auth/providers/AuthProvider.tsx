@@ -18,6 +18,7 @@ import {
 import { HttpAgent } from "@dfinity/agent";
 import type { Agent } from "@dfinity/agent";
 import authStateAtom from "../stores/atoms";
+import { IC_HOST, getNfidTargets, getDerivationOrigin } from "@/shared/constants";
 
 // Internal component to handle auth state initialization
 const AuthProviderInit = ({ children }: { children: ReactNode }) => {
@@ -27,12 +28,12 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
   const [unauthenticatedAgent, setUnauthenticatedAgent] = useState<
     HttpAgent | Agent | undefined
   >();
-  const authenticatedAgent = useAgent({ host: "https://ic0.app" });
+  const authenticatedAgent = useAgent({ host: IC_HOST });
   const navigate = useNavigate();
 
   // Create unauthenticated agent for public queries
   useEffect(() => {
-    HttpAgent.create({ host: "https://ic0.app" }).then(setUnauthenticatedAgent);
+    HttpAgent.create({ host: IC_HOST }).then(setUnauthenticatedAgent);
   }, []);
 
   // Update agents in state
@@ -65,7 +66,7 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
         authenticatedAgent: undefined,
       }));
       // Navigate to login when user disconnects
-      // navigate({ to: "/login" });
+      navigate({ to: "/login" });
     }
   }, [user, authenticatedAgent, setState, navigate]);
 
@@ -84,9 +85,9 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
 // Main AuthProvider component
 const AuthProvider = ({
   children,
-  targets = [],
+  targets,
   signers = [NFIDW, InternetIdentity],
-  derivationOrigin = undefined,
+  derivationOrigin,
   maxTimeToLive = 604800000000000n, // one week
 }: {
   children: ReactNode;
@@ -97,14 +98,18 @@ const AuthProvider = ({
 }) => {
   const queryClient = useQueryClient();
 
+  // Use helper functions to get environment-specific configuration
+  const nfidTargets = targets || getNfidTargets();
+  const nfidDerivationOrigin = derivationOrigin !== undefined ? derivationOrigin : getDerivationOrigin();
+
   return (
     <IdentityKitProvider
       signers={signers}
       authType={IdentityKitAuthType.DELEGATION}
       signerClientOptions={{
-        targets,
+        targets: nfidTargets,
         maxTimeToLive,
-        derivationOrigin,
+        derivationOrigin: nfidDerivationOrigin,
         idleOptions: {
           disableIdle: false,
         },

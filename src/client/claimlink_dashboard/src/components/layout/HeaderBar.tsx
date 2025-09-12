@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, RefreshCw } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { AccountMenu } from "@/components/common/account-menu"
 import { useAuth } from "@/features/auth"
+import icon from "@/assets/icon.svg";
+import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared"
 
 interface HeaderBarProps {
   title?: string
@@ -17,7 +19,21 @@ interface HeaderBarProps {
 export function HeaderBar({ title = "Dashboard", subtitle, className, showBackButton = false, backTo }: HeaderBarProps) {
   const navigate = useNavigate();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
-  const { isConnected, principalId } = useAuth();
+  const { isConnected, principalId, authenticatedAgent } = useAuth();
+  // Fetch balances for all supported tokens
+  const { balances, refetchAll } = useMultiTokenBalance(
+    SUPPORTED_TOKENS,
+    authenticatedAgent,
+    principalId || "",
+    {
+      enabled: !!principalId && !!authenticatedAgent,
+      refetchInterval: 30000, // Refresh every 30 seconds
+    }
+  )
+
+  // Get OGY balance specifically for display
+  const icpBalance = balances.find(({ token }) => token.id === "ogy")?.balance
+
 
   const handleBack = () => {
     if (backTo) {
@@ -58,16 +74,41 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
             <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
             <div className="relative shrink-0 size-4">
               <div className="absolute inset-0">
-                {/* Wallet connected indicator */}
-                <div className="w-full h-full bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">✓</span>
-                </div>
+                <img
+                  src={icon}
+                  // className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
+                  alt="logo"
+                />
               </div>
             </div>
             <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
               <p className="text-[14px] whitespace-pre">
                 <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
-                  {principalId ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}` : 'Connected'}
+                {icpBalance?.isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className=" animate-spin text-[#69737c]" />
+                    <span className="text-[#69737c] ">Loading...</span>
+                  </div>
+                ) : icpBalance?.isError ? (
+                  <div className="flex items-center gap-2">
+                    <span className="text-red-500 text-lg">Error</span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => refetchAll()}
+                      className="p-1 h-auto"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                      {icpBalance?.data?.balance.toLocaleString(undefined, {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      }) || "0.00"}
+                  </>
+                )}                
                 </span>
                 <span className="leading-[16px]"> </span>
                 <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">ICP</span>
@@ -120,7 +161,7 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
                 <p className="not-italic text-[14px] whitespace-pre">
                   <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] text-[#061937]">My Account:</span>
                   <span className="font-['General_Sans:Semibold',_sans-serif] leading-[16px]"> </span>
-                  <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] text-[#69737c] tracking-[0.7px]">55vo...3dfa</span>
+                  <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] text-[#69737c] tracking-[0.7px]">{principalId ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}` : 'Connected'}</span>
                 </p>
               </div>
             </button>

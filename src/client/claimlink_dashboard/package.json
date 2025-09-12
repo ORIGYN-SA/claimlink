@@ -12,6 +12,7 @@
   "dependencies": {
     "@dfinity/agent": "2.4.1",
     "@dfinity/candid": "2.4.1",
+    "@dfinity/ledger-icrc": "^2.8.0",
     "@dfinity/principal": "2.4.1",
     "@heroicons/react": "^2.2.0",
     "@nfid/identitykit": "^1.0.15",
@@ -30,9 +31,11 @@
     "iconsax-react": "^0.0.8",
     "jotai": "^2.14.0",
     "lucide-react": "^0.541.0",
+    "next-themes": "^0.4.6",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "simple-cbor": "^0.4.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.12",
     "web-vitals": "^5.1.0"

@@ -2,9 +2,10 @@
 import { useState } from "react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
-import { Copy, LogOut } from "lucide-react"
+import { Copy, LogOut, RefreshCw } from "lucide-react"
 import { WithdrawDialog } from "./withdraw-dialog"
 import { useAuth } from "@/features/auth/hooks/useAuth"
+import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared"
 
 interface AccountMenuProps {
   isOpen: boolean
@@ -14,7 +15,21 @@ interface AccountMenuProps {
 
 export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
-  const { disconnect, principalId } = useAuth()
+  const { disconnect, principalId, authenticatedAgent } = useAuth()
+
+  // Fetch balances for all supported tokens
+  const { balances, summary, refetchAll } = useMultiTokenBalance(
+    SUPPORTED_TOKENS,
+    authenticatedAgent,
+    principalId || "",
+    {
+      enabled: !!principalId && !!authenticatedAgent,
+      refetchInterval: 30000, // Refresh every 30 seconds
+    }
+  )
+
+  // Get OGY balance specifically for display
+  const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance
 
   const handleCopyAccountId = () => {
     navigator.clipboard.writeText(principalId || "55vo5-45mf9-...1234d-erpra")
@@ -44,8 +59,17 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
           {/* Background with blur effect */}
           <div className="min-h-full bg-[#051936]/95 backdrop-blur-xl">
             <div className="flex flex-col h-full p-10 gap-8">
-              {/* Sign out button */}
-              <div className="flex justify-end">
+              {/* Sign out and refresh buttons */}
+              <div className="flex justify-between items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => refetchAll()}
+                  disabled={summary.loadingCount > 0}
+                  className="text-[#e8e8e8] hover:bg-[#e8e8e8]/10 rounded-full"
+                >
+                  <RefreshCw className={`w-5 h-5 ${summary.loadingCount > 0 ? 'animate-spin' : ''}`} />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -99,15 +123,43 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                           <div className="w-7 h-7 bg-[#615bff] rounded-full flex items-center justify-center">
                             <span className="text-white text-xs font-bold">O</span>
                           </div>
-                          <span className="text-[#222526] text-3xl font-semibold">
-                            3,800.02
-                          </span>
-                          <span className="text-[#69737c] text-lg font-normal tracking-[1px] ml-1">
-                            OGY
-                          </span>
+                          {ogyBalance?.isLoading ? (
+                            <div className="flex items-center gap-2">
+                              <RefreshCw className="w-6 h-6 animate-spin text-[#69737c]" />
+                              <span className="text-[#69737c] text-lg">Loading...</span>
+                            </div>
+                          ) : ogyBalance?.isError ? (
+                            <div className="flex items-center gap-2">
+                              <span className="text-red-500 text-lg">Error</span>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => refetchAll()}
+                                className="p-1 h-auto"
+                              >
+                                <RefreshCw className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          ) : (
+                            <>
+                              <span className="text-[#222526] text-3xl font-semibold">
+                                {ogyBalance?.data?.balance.toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2,
+                                }) || "0.00"}
+                              </span>
+                              <span className="text-[#69737c] text-lg font-normal tracking-[1px] ml-1">
+                                OGY
+                              </span>
+                            </>
+                          )}
                         </div>
                         <p className="text-[#69737c] text-sm tracking-[0.8px]">
-                          ($0.1337)
+                          {ogyBalance?.data?.balance_usd ? (
+                            `$${ogyBalance.data.balance_usd.toFixed(4)}`
+                          ) : (
+                            ogyBalance?.isLoading ? "Loading..." : "Price unavailable"
+                          )}
                         </p>
                       </div>
 
@@ -157,6 +209,36 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                       <span className="font-normal">Current rate:</span>{" "}
                       <span className="font-medium">1 OGY = 0.01072 USD</span>
                     </p>
+                  </div>
+                </div>
+
+                {/* Portfolio Summary */}
+                <div className="flex flex-col rounded-[20px] overflow-hidden">
+                  <div className="bg-[#fcfafa] border border-[#e1e1e1] border-b-0 px-6 py-3">
+                    <h3 className="text-[#69737c] text-sm font-medium">
+                      Portfolio Summary
+                    </h3>
+                  </div>
+                  <div className="bg-white border-x border-b border-[#e1e1e1] px-5 py-4">
+                    <div className="text-center">
+                      <div className="text-[#222526] text-lg font-semibold mb-1">
+                        Total Value
+                      </div>
+                      <div className="text-[#69737c] text-sm">
+                        {summary.totalUsdValue > 0 ? (
+                          `$${summary.totalUsdValue.toFixed(2)} USD`
+                        ) : summary.loadingCount > 0 ? (
+                          "Loading..."
+                        ) : (
+                          "No balances available"
+                        )}
+                      </div>
+                      {summary.errorCount > 0 && (
+                        <div className="text-red-500 text-xs mt-1">
+                          {summary.errorCount} token(s) failed to load
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 

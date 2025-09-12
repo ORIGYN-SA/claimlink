@@ -1,11 +1,71 @@
-# React + TypeScript + Vite
+# ClaimLink Dashboard
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React/TypeScript frontend application for Internet Computer (ICP) dApp that enables users to create, share, and claim NFT links through campaigns, dispensers, and QR codes.
 
-Currently, two official plugins are available:
+## Development Setup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+- dfx (IC SDK)
+
+### Installation
+
+```bash
+pnpm install
+```
+
+### Local Development
+
+1. **Start local IC replica:**
+```bash
+dfx start --clean
+```
+
+2. **Deploy local canisters:**
+```bash
+dfx deploy
+```
+
+3. **Create environment file:**
+```bash
+cp .env.example .env
+```
+
+4. **Configure environment variables for localhost:**
+```bash
+# Update .env file with:
+VITE_IC_HOST=http://localhost:4943
+VITE_NFID_LOCALHOST_TARGETS=http://localhost:3000,http://localhost:5173,http://localhost:4943
+VITE_NFID_DERIVATION_ORIGIN=http://localhost:5173
+```
+
+5. **Start development server:**
+```bash
+pnpm dev
+```
+
+### NFID Wallet Configuration for Localhost
+
+NFID requires specific configuration to trust localhost URLs for signing. The app automatically handles this based on your environment variables:
+
+- **Development mode**: Uses localhost URLs from `VITE_NFID_LOCALHOST_TARGETS`
+- **Production mode**: Uses canister IDs and your domain
+
+**Important**: Make sure your `.env` file includes:
+```bash
+VITE_NFID_LOCALHOST_TARGETS=http://localhost:5173,http://localhost:4943
+VITE_NFID_DERIVATION_ORIGIN=http://localhost:5173
+```
+
+## Tech Stack
+
+- **UI**: React, TypeScript, shadcn/ui, Tailwind CSS
+- **Routing**: TanStack Router
+- **State Management**: Jotai
+- **IC Integration**: @dfinity/agent, NFID IdentityKit
+- **Build Tool**: Vite
 
 ## Expanding the ESLint configuration
 
