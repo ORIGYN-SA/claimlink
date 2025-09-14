@@ -524,6 +524,7 @@ dependencies = [
  "ic_management_canister_api",
  "ic_management_canister_c2c_client",
  "icrc-ledger-types",
+ "icrc_ledger_canister",
  "icrc_ledger_canister_c2c_client",
  "origyn-nft-canister-api",
  "serde",
@@ -536,6 +537,7 @@ dependencies = [
 name = "claimlink_api"
 version = "0.1.0"
 dependencies = [
+ "bity-ic-canister-client",
  "bity-ic-canister-logger",
  "bity-ic-canister-state-macros",
  "bity-ic-canister-time",
@@ -546,6 +548,8 @@ dependencies = [
  "candid",
  "canfund",
  "ic-cdk",
+ "icrc-ledger-types",
+ "icrc_ledger_canister",
  "origyn-nft-canister-api",
  "serde",
  "types",

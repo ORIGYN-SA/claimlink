@@ -1,11 +1,11 @@
 use crate::{guards, state::mutate_state};
+use bity_ic_canister_time::timestamp_nanos;
 use bity_ic_subcanister_manager::Canister;
 use candid::{Nat, Principal};
 use claimlink_api::errors::{CreateCollectionError, GenericError};
 pub use claimlink_api::updates::create_collection::{
     Args as CreateCollectionArgs, Response as CreateCollectionResponse,
 };
-use icrc_ledger_canister_c2c_client::icrc2_transfer_from;
 use icrc_ledger_types::icrc1::account::Account;
 use utils::{consts, env::Environment};
 
@@ -22,30 +22,12 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
             state.env.cycles_balance()
         }
     });
-    println!("available_cycles: {}", available_cycles);
     let ledger_id = mutate_state(|state| state.data.ledger_canister_id);
     let caller = ic_cdk::api::msg_caller();
-    // TODO: Change this / move to state
-    let bank_principal: Principal =
-        Principal::from_text("jqdha-t6k7d-iitf4-6mxtc-dzkp2-kpk7c-mmtnp-ab2ef-xotlg-5m5qc-3qe")
-            .unwrap();
+    let bank_principal: Principal = mutate_state(|state| state.data.bank_principal_id);
 
     if available_cycles < INITIAL_COLLECTION_CYCLES {
         return Err(CreateCollectionError::InsufficientCycles);
-    }
-
-    let caller_balance = icrc_ledger_canister_c2c_client::icrc1_balance_of(
-        ledger_id,
-        &(Account {
-            owner: caller,
-            subaccount: None,
-        }),
-    )
-    .await
-    .map_err(|e| CreateCollectionError::Generic(GenericError::Other(e.to_string())))?;
-
-    if caller_balance < OGY_TO_PAY {
-        return Err(CreateCollectionError::InsufficientBalance);
     }
 
     let transfer_from_args = icrc_ledger_types::icrc2::transfer_from::TransferFromArgs {
@@ -60,13 +42,21 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
         },
         amount: Nat::from(OGY_TO_PAY),
         fee: Some(Nat::from(utils::consts::E8S_FEE_OGY)),
-        memo: None,
-        created_at_time: None,
+        memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
+            format!("Canister creation: {}", args.symbol).into_bytes(),
+        )),
+        created_at_time: Some(timestamp_nanos()),
     };
 
-    icrc2_transfer_from(ledger_id, &transfer_from_args)
-        .await
-        .map_err(|e| CreateCollectionError::Generic(GenericError::Other(e.to_string())))?;
+    let response =
+        icrc_ledger_canister_c2c_client::icrc2_transfer_from(ledger_id, &transfer_from_args)
+            .await
+            .map_err(|e| CreateCollectionError::Generic(GenericError::Other(e.to_string())))?;
+
+    println!("Response: {:?}", response);
+    if let icrc_ledger_canister::icrc2_transfer_from::Response::Err(e) = response {
+        return Err(CreateCollectionError::TransferFromError(e));
+    }
 
     let mut sub_canister_manager = mutate_state(|state| state.data.sub_canister_manager.clone());
 

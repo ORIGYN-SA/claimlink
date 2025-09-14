@@ -34,6 +34,7 @@ impl RuntimeState {
             origyn_nft_commit_hash: self.data.origyn_nft_commit_hash.clone(),
             authorized_principals: self.data.authorized_principals.clone(),
             ledger_canister_id: self.data.ledger_canister_id,
+            bank_principal_id: self.data.bank_principal_id,
         }
     }
     pub fn is_caller_authorised_principal(&self) -> bool {
@@ -47,6 +48,7 @@ pub struct Metrics {
     pub canister_info: CanisterInfo,
     pub authorized_principals: Vec<Principal>,
     pub ledger_canister_id: Principal,
+    pub bank_principal_id: Principal,
     pub origyn_nft_commit_hash: String,
 }
 
@@ -66,6 +68,8 @@ pub struct Data {
     pub ledger_canister_id: Principal,
     /// authorized Principals for guarded calls
     pub authorized_principals: Vec<Principal>,
+    /// Bank principal for paying OGY to create canisters
+    pub bank_principal_id: Principal,
     /// Manages the ORIGYN NFT canister (create_canister)
     pub sub_canister_manager: OrigynSubCanisterManager,
 }
@@ -75,11 +79,13 @@ impl Data {
         is_test_mode: bool,
         ledger_canister_id: CanisterId,
         authorized_principals: Vec<Principal>,
+        bank_principal_id: Principal,
         origyn_nft_commit_hash: String,
     ) -> Self {
         Self {
             ledger_canister_id,
             authorized_principals,
+            bank_principal_id,
             origyn_nft_commit_hash: origyn_nft_commit_hash.clone(),
             sub_canister_manager: OrigynSubCanisterManager::new(
                 is_test_mode,

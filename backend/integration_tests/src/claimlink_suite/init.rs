@@ -40,6 +40,7 @@ pub fn init() -> TestEnv {
         controller: random_principal(),
         principal_100k_ogy: random_principal(),
         principal_1m_ogy: random_principal(),
+        bank_principal_id: random_principal(),
     };
 
     let canisters = install_canisters(&mut pic, &principal_ids);
@@ -118,6 +119,7 @@ fn install_canisters(pic: &mut PocketIc, principal_ids: &PrincipalIds) -> Canist
         test_mode: true,
         ledger_canister_id: origyn_sns_ledger_canister_id,
         authorized_principals: vec![principal_ids.controller],
+        bank_principal_id: principal_ids.bank_principal_id,
         origyn_nft_commit_hash: "t1e2s3t".to_string(),
     };
 

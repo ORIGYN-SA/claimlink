@@ -6,10 +6,11 @@ pub enum GenericError {
 #[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum CreateCollectionError {
     InsufficientCycles,
-    InsufficientBalance,
     // We would need to update bity_ic_subcanister_manager::NewCanisterError
     // to derive CandidType and Serialize
     CreateOrigynNftCanisterError,
+    TransferFromError(icrc_ledger_types::icrc2::transfer_from::TransferFromError),
+    ExternalCanisterError(String),
     Generic(GenericError),
 }
 
