@@ -1,4 +1,7 @@
-use crate::{guards, state::mutate_state};
+use crate::{
+    guards,
+    state::{mutate_state, read_state},
+};
 use bity_ic_canister_time::timestamp_nanos;
 use bity_ic_subcanister_manager::Canister;
 use candid::{Nat, Principal};
@@ -15,16 +18,16 @@ const INITIAL_COLLECTION_CYCLES: u128 = 1 * consts::T;
 #[ic_cdk::update(guard = "guards::reject_anonymous_caller")]
 #[bity_ic_canister_tracing_macros::trace]
 pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionResponse {
-    let available_cycles = mutate_state(|state| {
+    let available_cycles = read_state(|state| {
         if state.env.is_test_mode() {
             INITIAL_COLLECTION_CYCLES
         } else {
             state.env.cycles_balance()
         }
     });
-    let ledger_id = mutate_state(|state| state.data.ledger_canister_id);
+    let ledger_id = read_state(|state| state.data.ledger_canister_id);
     let caller = ic_cdk::api::msg_caller();
-    let bank_principal: Principal = mutate_state(|state| state.data.bank_principal_id);
+    let bank_principal: Principal = read_state(|state| state.data.bank_principal_id);
 
     if available_cycles < INITIAL_COLLECTION_CYCLES {
         return Err(CreateCollectionError::InsufficientCycles);
@@ -58,7 +61,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
         return Err(CreateCollectionError::TransferFromError(e));
     }
 
-    let mut sub_canister_manager = mutate_state(|state| state.data.sub_canister_manager.clone());
+    let mut sub_canister_manager = read_state(|state| state.data.sub_canister_manager.clone());
 
     let origyn_nft_canister = sub_canister_manager
         .create_canister(
@@ -71,6 +74,8 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
             },
         )
         .await?;
+
+    mutate_state(|state| state.data.sub_canister_manager = sub_canister_manager);
 
     Ok(claimlink_api::create_collection::CreateCollectionResult {
         origyn_nft_canister_id: origyn_nft_canister.canister_id(),
