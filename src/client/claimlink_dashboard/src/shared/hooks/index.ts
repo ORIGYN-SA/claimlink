@@ -1,2 +1,2 @@
-export { useFetchLedgerBalance } from './useFetchLedgerBalance';
-export { useMultiTokenBalance } from './useMultiTokenBalance';
+export { default as useFetchLedgerBalance } from "./useFetchLedgerBalance";
+export { useMultiTokenBalance } from "./useMultiTokenBalance";

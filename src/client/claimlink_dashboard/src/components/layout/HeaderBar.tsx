@@ -1,22 +1,28 @@
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, RefreshCw } from "lucide-react"
-import { useNavigate } from "@tanstack/react-router"
-import { useState } from "react"
-import { cn } from "@/lib/utils"
-import { AccountMenu } from "@/components/common/account-menu"
-import { useAuth } from "@/features/auth"
+import { Button } from "@/components/ui/button";
+import { ArrowLeft, RefreshCw } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
+import { AccountMenu } from "@/components/common/account-menu";
+import { useAuth } from "@/features/auth";
 import icon from "@/assets/icon.svg";
-import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared"
+import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared";
 
 interface HeaderBarProps {
-  title?: string
-  subtitle?: string
-  className?: string
-  showBackButton?: boolean
-  backTo?: string
+  title?: string;
+  subtitle?: string;
+  className?: string;
+  showBackButton?: boolean;
+  backTo?: string;
 }
 
-export function HeaderBar({ title = "Dashboard", subtitle, className, showBackButton = false, backTo }: HeaderBarProps) {
+export function HeaderBar({
+  title = "Dashboard",
+  subtitle,
+  className,
+  showBackButton = false,
+  backTo,
+}: HeaderBarProps) {
   const navigate = useNavigate();
   const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
   const { isConnected, principalId, authenticatedAgent } = useAuth();
@@ -28,23 +34,24 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
     {
       enabled: !!principalId && !!authenticatedAgent,
       refetchInterval: 30000, // Refresh every 30 seconds
-    }
-  )
+    },
+  );
 
   // Get OGY balance specifically for display
-  const icpBalance = balances.find(({ token }) => token.id === "ogy")?.balance
-
+  const icpBalance = balances.find(({ token }) => token.id === "icp")?.balance;
 
   const handleBack = () => {
     if (backTo) {
       navigate({ to: backTo });
     } else {
-      navigate({ to: '/dashboard' });
+      navigate({ to: "/dashboard" });
     }
   };
 
   return (
-    <div className={cn("flex items-center justify-between px-6 py-0", className)}>
+    <div
+      className={cn("flex items-center justify-between px-6 py-0", className)}
+    >
       <div className="flex items-center gap-3">
         {showBackButton && (
           <Button
@@ -71,7 +78,10 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
         {/* Wallet Button */}
         {isConnected ? (
           <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
-            <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
+            <div
+              aria-hidden="true"
+              className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]"
+            />
             <div className="relative shrink-0 size-4">
               <div className="absolute inset-0">
                 <img
@@ -84,40 +94,45 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
             <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
               <p className="text-[14px] whitespace-pre">
                 <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
-                {icpBalance?.isLoading ? (
-                  <div className="flex items-center gap-2">
-                    <RefreshCw className=" animate-spin text-[#69737c]" />
-                    <span className="text-[#69737c] ">Loading...</span>
-                  </div>
-                ) : icpBalance?.isError ? (
-                  <div className="flex items-center gap-2">
-                    <span className="text-red-500 text-lg">Error</span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => refetchAll()}
-                      className="p-1 h-auto"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <>
+                  {icpBalance?.isLoading ? (
+                    <div className="flex items-center gap-2">
+                      <RefreshCw className=" animate-spin text-[#69737c]" />
+                      <span className="text-[#69737c] ">Loading...</span>
+                    </div>
+                  ) : icpBalance?.isError ? (
+                    <div className="flex items-center gap-2">
+                      <span className="text-red-500 text-lg">Error</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => refetchAll()}
+                        className="p-1 h-auto"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
                       {icpBalance?.data?.balance.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
                       }) || "0.00"}
-                  </>
-                )}                
+                    </>
+                  )}
                 </span>
                 <span className="leading-[16px]"> </span>
-                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">ICP</span>
+                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">
+                  ICP
+                </span>
               </p>
             </div>
           </div>
         ) : (
           <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
-            <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]" />
+            <div
+              aria-hidden="true"
+              className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]"
+            />
             <div className="relative shrink-0 size-4">
               <div className="absolute inset-0">
                 {/* OGY Icon placeholder */}
@@ -128,14 +143,18 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
             </div>
             <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
               <p className="text-[14px] whitespace-pre">
-                <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">Connect</span>
+                <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
+                  Connect
+                </span>
                 <span className="leading-[16px]"> </span>
-                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">Wallet</span>
+                <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">
+                  Wallet
+                </span>
               </p>
             </div>
           </div>
         )}
-        
+
         {/* Account Button */}
         <AccountMenu
           isOpen={isAccountMenuOpen}
@@ -157,11 +176,22 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
                   </div>
                 </div>
               </div>
-              <div className="font-['DM_Sans:SemiBold',_sans-serif] font-semibold leading-[0] relative shrink-0 text-[#222526] text-[0px] text-nowrap" style={{ fontVariationSettings: "'opsz' 14" }}>
+              <div
+                className="font-['DM_Sans:SemiBold',_sans-serif] font-semibold leading-[0] relative shrink-0 text-[#222526] text-[0px] text-nowrap"
+                style={{ fontVariationSettings: "'opsz' 14" }}
+              >
                 <p className="not-italic text-[14px] whitespace-pre">
-                  <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] text-[#061937]">My Account:</span>
-                  <span className="font-['General_Sans:Semibold',_sans-serif] leading-[16px]"> </span>
-                  <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] text-[#69737c] tracking-[0.7px]">{principalId ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}` : 'Connected'}</span>
+                  <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] text-[#061937]">
+                    My Account:
+                  </span>
+                  <span className="font-['General_Sans:Semibold',_sans-serif] leading-[16px]">
+                    {" "}
+                  </span>
+                  <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] text-[#69737c] tracking-[0.7px]">
+                    {principalId
+                      ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}`
+                      : "Connected"}
+                  </span>
                 </p>
               </div>
             </button>
@@ -169,5 +199,5 @@ export function HeaderBar({ title = "Dashboard", subtitle, className, showBackBu
         />
       </div>
     </div>
-  )
+  );
 }

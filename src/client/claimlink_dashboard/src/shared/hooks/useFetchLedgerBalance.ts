@@ -1,16 +1,30 @@
 import {
   useQuery,
+  // keepPreviousData,
   type UseQueryOptions,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 import { KONGSWAP_CANISTER_ID_IC } from "../constants";
-import { icrc1_balance_of, icrc1_decimals, icrc1_fee } from "../services/ledger";
+// @ts-expect-error: later will be fixed
+import { idlFactory as idlFactoryLedger } from "@/services/ledger/idlFactory";
+// @ts-expect-error: later will be fixed
+import { idlFactory as idlFactoryKongswap } from "@/services/kongswap/idlFactory";
+import { icrc1_balance_of } from "../services/ledger/icrc1_balance_of";
+import icrc1_decimals from "../services/ledger/icrc1_decimals";
+import icrc1_fee from "../services/ledger/icrc1_fee";
 import swap_amounts from "../services/kongswap/swap_amounts";
-import { idlFactory as icrc1IdlFactory } from "../services/idl/icrc1";
-import { idlFactory as kongswapIdlFactory } from "../services/idl/kongswap";
-import { handleLedgerError, isRetryableError, getRetryDelay } from "../utils/errorHandling";
-import type { LedgerBalanceData } from "../types/tokens";
+
+interface LedgerBalanceData {
+  balance: number;
+  balance_e8s: bigint;
+  balance_usd: number;
+  decimals: number;
+  fee: number;
+  fee_usd: number;
+  fee_e8s: bigint;
+  price_usd: number;
+}
 
 interface UseFetchLedgerBalanceOptions
   extends Omit<UseQueryOptions<LedgerBalanceData>, "queryKey" | "queryFn"> {
@@ -18,18 +32,20 @@ interface UseFetchLedgerBalanceOptions
   owner: string;
 }
 
-export const useFetchLedgerBalance = (
+type UseFetchLedgerBalanceResult = UseQueryResult<LedgerBalanceData, Error>;
+
+const useFetchLedgerBalance = (
   canisterId: string,
   agent: Agent | HttpAgent | undefined,
-  options: UseFetchLedgerBalanceOptions
-): UseQueryResult<LedgerBalanceData, Error> => {
+  options: UseFetchLedgerBalanceOptions,
+): UseFetchLedgerBalanceResult => {
   const {
     enabled = true,
     refetchInterval = false,
     placeholderData = undefined,
     ledger,
     owner,
-    staleTime = 60 * 1000, // Cache for 1 minute
+    staleTime = 60 * 1000,
     refetchOnMount = true,
     refetchOnWindowFocus = false,
     refetchOnReconnect = true,
@@ -39,86 +55,56 @@ export const useFetchLedgerBalance = (
   return useQuery<LedgerBalanceData>({
     queryKey: ["FETCH_LEDGER_BALANCE", ledger, owner, canisterId],
     queryFn: async (): Promise<LedgerBalanceData> => {
-      try {
-      if (!owner) {
-        throw new Error("Owner principal is required");
-      }
-
-      if (!agent) {
-        throw new Error("Agent is required");
-      }
-
-      // Create ledger actor
-      const ledgerActor = Actor.createActor(icrc1IdlFactory, {
+      const actorLedger = Actor.createActor(idlFactoryLedger, {
         agent,
         canisterId,
       });
 
-      // Fetch balance and token metadata
-      const [balance_e8s, fee_e8s, decimals] = await Promise.all([
-        icrc1_balance_of({ actor: ledgerActor, owner }),
-        icrc1_fee(ledgerActor),
-        icrc1_decimals(ledgerActor),
-      ]);
+      const balance_e8s = await icrc1_balance_of({
+        actor: actorLedger,
+        owner,
+      });
+      const actorKongswap = Actor.createActor(idlFactoryKongswap, {
+        agent,
+        canisterId: KONGSWAP_CANISTER_ID_IC,
+      });
+      const fee_e8s = await icrc1_fee(actorLedger);
+      const decimals = await icrc1_decimals(actorLedger);
 
-      // Convert to human-readable format
-      const balance = Number(balance_e8s) / 10 ** decimals;
+      const price = await swap_amounts(actorKongswap, {
+        from: ledger,
+        to: "ckUSDT",
+        amount: BigInt(1 * 10 ** decimals),
+      });
       const fee = Number(fee_e8s) / 10 ** decimals;
+      const balance = Number(balance_e8s) / 10 ** decimals;
+      const balance_usd = balance * price.mid_price;
 
-      // Fetch USD price (optional)
-      let price_usd = 0;
-      let balance_usd = 0;
-      let fee_usd = 0;
-
-      try {
-        // Create KongSwap actor
-        const kongswapActor = Actor.createActor(kongswapIdlFactory, {
-          agent,
-          canisterId: KONGSWAP_CANISTER_ID_IC,
-        });
-
-        const priceData = await swap_amounts(kongswapActor, {
-          from: ledger,
-          to: "ckUSDT",
-          amount: BigInt(1 * 10 ** decimals),
-        });
-
-        price_usd = priceData.mid_price;
-        balance_usd = balance * price_usd;
-        fee_usd = fee * price_usd;
-      } catch (error) {
-        console.warn(`Failed to fetch price for ${ledger}:`, error);
-      }
-
-        return {
-          balance,
-          balance_e8s,
-          balance_usd,
-          decimals,
-          fee,
-          fee_e8s,
-          fee_usd,
-          price_usd,
-        };
-      } catch (error) {
-        throw handleLedgerError(error);
-      }
+      return {
+        balance,
+        balance_e8s,
+        balance_usd,
+        decimals,
+        fee,
+        fee_e8s,
+        fee_usd: fee * price.mid_price,
+        price_usd: price.mid_price,
+      };
     },
     placeholderData,
-    enabled: enabled && !!owner && !!agent,
+    enabled,
     refetchInterval,
     staleTime,
     refetchOnMount,
     refetchOnWindowFocus,
     refetchOnReconnect,
-    retry: (failureCount, error) => {
-      // Retry up to 3 times for retryable errors
-      if (isRetryableError(error) && failureCount < 3) {
-        return true;
-      }
-      return false;
-    },
-    retryDelay: (attemptIndex, error) => getRetryDelay(attemptIndex, error),
     ...queryOptions,
   });
+};
+
+export default useFetchLedgerBalance;
+export type {
+  LedgerBalanceData,
+  UseFetchLedgerBalanceOptions,
+  UseFetchLedgerBalanceResult,
 };

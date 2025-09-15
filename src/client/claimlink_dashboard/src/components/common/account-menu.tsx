@@ -1,21 +1,27 @@
 // AccountMenu.tsx
-import { useState } from "react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { Button } from "@/components/ui/button"
-import { Copy, LogOut, RefreshCw } from "lucide-react"
-import { WithdrawDialog } from "./withdraw-dialog"
-import { useAuth } from "@/features/auth/hooks/useAuth"
-import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared"
+import { useState } from "react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Copy, LogOut, RefreshCw } from "lucide-react";
+import { WithdrawDialog } from "./withdraw-dialog";
+import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared";
+// import { useFetchLedgerBalance } from "@/shared";
 
 interface AccountMenuProps {
-  isOpen: boolean
-  onOpenChange: (open: boolean) => void
-  trigger?: React.ReactNode
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  trigger?: React.ReactNode;
 }
 
-export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps) {
-  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false)
-  const { disconnect, principalId, authenticatedAgent } = useAuth()
+export function AccountMenu({
+  isOpen,
+  onOpenChange,
+  trigger,
+}: AccountMenuProps) {
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const { disconnect, principalId, authenticatedAgent, unauthenticatedAgent } =
+    useAuth();
 
   // Fetch balances for all supported tokens
   const { balances, summary, refetchAll } = useMultiTokenBalance(
@@ -25,24 +31,24 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
     {
       enabled: !!principalId && !!authenticatedAgent,
       refetchInterval: 30000, // Refresh every 30 seconds
-    }
-  )
+    },
+  );
 
   // Get OGY balance specifically for display
-  const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance
+  const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance;
 
   const handleCopyAccountId = () => {
-    navigator.clipboard.writeText(principalId || "55vo5-45mf9-...1234d-erpra")
+    navigator.clipboard.writeText(principalId || "55vo5-45mf9-...1234d-erpra");
     // TODO: Add toast notification
-  }
+  };
 
   const handleSignOut = () => {
-    disconnect()
-  }
+    disconnect();
+  };
 
   const handleWithdrawClick = () => {
-    setWithdrawDialogOpen(true)
-  }
+    setWithdrawDialogOpen(true);
+  };
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -51,7 +57,7 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
         side="right"
         className="w-[502px] sm:w-[502px] p-0 border-0 h-full"
         style={{
-          backgroundColor: '#051936',
+          backgroundColor: "#051936",
         }}
       >
         {/* Remove the nested relative div and simplify structure */}
@@ -68,7 +74,9 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                   disabled={summary.loadingCount > 0}
                   className="text-[#e8e8e8] hover:bg-[#e8e8e8]/10 rounded-full"
                 >
-                  <RefreshCw className={`w-5 h-5 ${summary.loadingCount > 0 ? 'animate-spin' : ''}`} />
+                  <RefreshCw
+                    className={`w-5 h-5 ${summary.loadingCount > 0 ? "animate-spin" : ""}`}
+                  />
                 </Button>
                 <Button
                   variant="ghost"
@@ -84,7 +92,9 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
               <div className="flex items-center gap-6">
                 <div className="relative shrink-0">
                   <div className="w-20 h-20 rounded-full bg-gray-300 flex items-center justify-center">
-                    <span className="text-2xl font-bold text-[#222526]">JD</span>
+                    <span className="text-2xl font-bold text-[#222526]">
+                      JD
+                    </span>
                   </div>
                 </div>
                 <div className="flex-1">
@@ -121,16 +131,22 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-2 mb-1">
                           <div className="w-7 h-7 bg-[#615bff] rounded-full flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">O</span>
+                            <span className="text-white text-xs font-bold">
+                              O
+                            </span>
                           </div>
                           {ogyBalance?.isLoading ? (
                             <div className="flex items-center gap-2">
                               <RefreshCw className="w-6 h-6 animate-spin text-[#69737c]" />
-                              <span className="text-[#69737c] text-lg">Loading...</span>
+                              <span className="text-[#69737c] text-lg">
+                                Loading...
+                              </span>
                             </div>
                           ) : ogyBalance?.isError ? (
                             <div className="flex items-center gap-2">
-                              <span className="text-red-500 text-lg">Error</span>
+                              <span className="text-red-500 text-lg">
+                                Error
+                              </span>
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -143,10 +159,13 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                           ) : (
                             <>
                               <span className="text-[#222526] text-3xl font-semibold">
-                                {ogyBalance?.data?.balance.toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }) || "0.00"}
+                                {ogyBalance?.data?.balance.toLocaleString(
+                                  undefined,
+                                  {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                  },
+                                ) || "0.00"}
                               </span>
                               <span className="text-[#69737c] text-lg font-normal tracking-[1px] ml-1">
                                 OGY
@@ -155,11 +174,11 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                           )}
                         </div>
                         <p className="text-[#69737c] text-sm tracking-[0.8px]">
-                          {ogyBalance?.data?.balance_usd ? (
-                            `$${ogyBalance.data.balance_usd.toFixed(4)}`
-                          ) : (
-                            ogyBalance?.isLoading ? "Loading..." : "Price unavailable"
-                          )}
+                          {ogyBalance?.data?.balance_usd
+                            ? `$${ogyBalance.data.balance_usd.toFixed(4)}`
+                            : ogyBalance?.isLoading
+                              ? "Loading..."
+                              : "Price unavailable"}
                         </p>
                       </div>
 
@@ -168,14 +187,18 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                         <div className="flex items-center gap-3">
                           <div className="relative">
                             <div className="w-9 h-9 bg-gray-300 rounded-full flex items-center justify-center">
-                              <span className="text-[#222526] text-xs font-bold">IC</span>
+                              <span className="text-[#222526] text-xs font-bold">
+                                IC
+                              </span>
                             </div>
                             <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-[#69737c] rounded-full flex items-center justify-center">
                               <span className="text-white text-[8px]">C</span>
                             </div>
                           </div>
                           <div className="text-xs">
-                            <span className="text-[#69737c] font-normal">Account ID: </span>
+                            <span className="text-[#69737c] font-normal">
+                              Account ID:{" "}
+                            </span>
                             <span className="text-[#222526] font-semibold">
                               {principalId || "55vo5-45mf9-...1234d-erpra"}
                             </span>
@@ -225,13 +248,11 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                         Total Value
                       </div>
                       <div className="text-[#69737c] text-sm">
-                        {summary.totalUsdValue > 0 ? (
-                          `$${summary.totalUsdValue.toFixed(2)} USD`
-                        ) : summary.loadingCount > 0 ? (
-                          "Loading..."
-                        ) : (
-                          "No balances available"
-                        )}
+                        {summary.totalUsdValue > 0
+                          ? `$${summary.totalUsdValue.toFixed(2)} USD`
+                          : summary.loadingCount > 0
+                            ? "Loading..."
+                            : "No balances available"}
                       </div>
                       {summary.errorCount > 0 && (
                         <div className="text-red-500 text-xs mt-1">
@@ -256,9 +277,7 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                           <h4 className="text-[#222526] text-sm font-semibold">
                             Collection Name
                           </h4>
-                          <p className="text-[#69737c] text-xs">
-                            20 Feb, 2024
-                          </p>
+                          <p className="text-[#69737c] text-xs">20 Feb, 2024</p>
                         </div>
                         <div className="bg-[#edf8f4] px-2 py-0.5 rounded-full w-fit">
                           <span className="text-[#50be8f] text-[10px] font-medium tracking-[0.5px] uppercase">
@@ -269,15 +288,15 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
                       <div className="text-right">
                         <div className="flex items-center gap-1 mb-0.5">
                           <div className="w-3.5 h-3.5 bg-[#615bff] rounded-full flex items-center justify-center">
-                            <span className="text-white text-[8px] font-bold">O</span>
+                            <span className="text-white text-[8px] font-bold">
+                              O
+                            </span>
                           </div>
                           <span className="text-[#222526] text-sm font-semibold">
                             1325 OGY
                           </span>
                         </div>
-                        <p className="text-[#69737c] text-xs">
-                          (15$)
-                        </p>
+                        <p className="text-[#69737c] text-xs">(15$)</p>
                       </div>
                     </div>
 
@@ -298,5 +317,5 @@ export function AccountMenu({ isOpen, onOpenChange, trigger }: AccountMenuProps)
         onOpenChange={setWithdrawDialogOpen}
       />
     </Sheet>
-  )
+  );
 }
