@@ -20,8 +20,7 @@ export function AccountMenu({
   trigger,
 }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
-  const { disconnect, principalId, authenticatedAgent, unauthenticatedAgent } =
-    useAuth();
+  const { disconnect, principalId, authenticatedAgent } = useAuth();
 
   // Fetch balances for all supported tokens
   const { balances, summary, refetchAll } = useMultiTokenBalance(

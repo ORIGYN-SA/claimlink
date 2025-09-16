@@ -14,6 +14,9 @@ importers:
       '@dfinity/candid':
         specifier: 2.4.1
         version: 2.4.1(@dfinity/principal@2.4.1)
+      '@dfinity/ledger-icp':
+        specifier: ^2.6.12
+        version: 2.6.13(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))
       '@dfinity/ledger-icrc':
         specifier: ^2.8.0
         version: 2.10.0(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))
@@ -25,7 +28,7 @@ importers:
         version: 2.2.0(react@19.1.1)
       '@nfid/identitykit':
         specifier: ^1.0.15
-        version: 1.0.15(0e31e0a86c31e37426d35ada0fab7dd5)
+        version: 1.0.15(5b89bf7e7cff22ce9acd14813edad144)
       '@radix-ui/react-avatar':
         specifier: ^1.1.10
         version: 1.1.10(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -364,13 +367,13 @@ packages:
       '@dfinity/agent': ^2.4.1
       '@dfinity/principal': ^2.4.1
 
-  '@dfinity/ledger-icp@6.0.0':
-    resolution: {integrity: sha512-PoS8fwJuOJIRX6Coaq+tZJJ553IW++7CVFmR0OdHBE5fmvJEJ2ID2hARcKkyf1vvTCu8uOeIVWQ3hJA1AA0bSg==}
+  '@dfinity/ledger-icp@2.6.13':
+    resolution: {integrity: sha512-Py/fpmT7+LVhrGYgKapuPz2l0+6HoVvuyN6xCr6MAu6DA8375cWJmXKeCWLz5qWPRu+D7zjKeitWdhUfxAy/cA==}
     peerDependencies:
-      '@dfinity/agent': ^3
-      '@dfinity/candid': ^3
-      '@dfinity/principal': ^3
-      '@dfinity/utils': ^3
+      '@dfinity/agent': ^2.0.0
+      '@dfinity/candid': ^2.0.0
+      '@dfinity/principal': ^2.0.0
+      '@dfinity/utils': ^2.13.0
 
   '@dfinity/ledger-icrc@2.10.0':
     resolution: {integrity: sha512-8+0wTk+z/HjpZ6WIgDlxVW6na6UhpyqNLJLDvQp9/vJ6+dTQdaNcNpjlL9r6v/t7JuH4+/4v2BCJMrLqbhRjgg==}
@@ -3373,7 +3376,7 @@ snapshots:
       '@noble/hashes': 1.8.0
       borc: 2.1.2
 
-  '@dfinity/ledger-icp@6.0.0(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))':
+  '@dfinity/ledger-icp@2.6.13(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))':
     dependencies:
       '@dfinity/agent': 2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)
       '@dfinity/candid': 2.4.1(@dfinity/principal@2.4.1)
@@ -3602,13 +3605,13 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@nfid/identitykit@1.0.15(0e31e0a86c31e37426d35ada0fab7dd5)':
+  '@nfid/identitykit@1.0.15(5b89bf7e7cff22ce9acd14813edad144)':
     dependencies:
       '@dfinity/agent': 2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)
       '@dfinity/auth-client': 2.4.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/identity@2.4.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)
       '@dfinity/candid': 2.4.1(@dfinity/principal@2.4.1)
       '@dfinity/identity': 2.4.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)
-      '@dfinity/ledger-icp': 6.0.0(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))
+      '@dfinity/ledger-icp': 2.6.13(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1)(@dfinity/utils@3.0.1(@dfinity/agent@2.4.1(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))(@dfinity/candid@2.4.1(@dfinity/principal@2.4.1))(@dfinity/principal@2.4.1))
       '@dfinity/principal': 2.4.1
       '@headlessui/react': 2.2.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@radix-ui/react-dialog': 1.1.15(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
