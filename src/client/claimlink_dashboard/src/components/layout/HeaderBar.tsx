@@ -92,7 +92,7 @@ export function HeaderBar({
               </div>
             </div>
             <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-              <p className="text-[14px] whitespace-pre">
+              <div className="text-[14px] whitespace-pre">
                 <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
                   {icpBalance?.isLoading ? (
                     <div className="flex items-center gap-2">
@@ -124,7 +124,7 @@ export function HeaderBar({
                 <span className="font-['General_Sans:Regular',_sans-serif] leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">
                   ICP
                 </span>
-              </p>
+              </div>
             </div>
           </div>
         ) : (

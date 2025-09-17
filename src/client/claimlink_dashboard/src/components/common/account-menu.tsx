@@ -4,9 +4,9 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Copy, LogOut, RefreshCw } from "lucide-react";
 import { WithdrawDialog } from "./withdraw-dialog";
+import { PortfolioSummary } from "./balance/portfolio-summary";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared";
-// import { useFetchLedgerBalance } from "@/shared";
+import { useMultiTokenBalance, SUPPORTED_TOKENS, useFetchTokenPrice } from "@/shared";
 import { useCopyToClipboard } from "@shared/hooks/useCopyToClipboard";
 
 interface AccountMenuProps {
@@ -37,11 +37,19 @@ export function AccountMenu({
 
   // Get OGY balance specifically for display
   const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance;
-
-  const handleCopyAccountId = () => {
-    navigator.clipboard.writeText(principalId || "55vo5-45mf9-...1234d-erpra");
-    // TODO: Add toast notification
-  };
+  const ogyToken = SUPPORTED_TOKENS.find(token => token.id === "ogy");
+  
+  // Fetch real-time OGY token price
+  const { data: ogyPriceData, isLoading: ogyPriceLoading } = useFetchTokenPrice(
+    authenticatedAgent,
+    {
+      from: "OGY",
+      from_canister_id: ogyToken?.canister_id || "",
+      amount: 1n * BigInt(10 ** 8), // 1 OGY in e8s format
+      enabled: !!authenticatedAgent && !!ogyToken,
+      refetchInterval: 60000, // Refresh price every minute
+    }
+  );
 
   const handleSignOut = () => {
     disconnect();
@@ -231,7 +239,17 @@ export function AccountMenu({
                   <div className="bg-[#fcfafa] border-x border-b border-[#e1e1e1] px-4 py-3">
                     <p className="text-[#69737c] text-xs text-center">
                       <span className="font-normal">Current rate:</span>{" "}
-                      <span className="font-medium">1 OGY = 0.01072 USD</span>
+                      {ogyPriceLoading ? (
+                        <span className="font-medium flex items-center justify-center gap-1">
+                          <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
+                        </span>
+                      ) : ogyPriceData ? (
+                        <span className="font-medium">
+                          1 OGY = {ogyPriceData.amount_usd.toFixed(5)} USD
+                        </span>
+                      ) : (
+                        <span className="font-medium">Price unavailable</span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -243,23 +261,15 @@ export function AccountMenu({
                       Portfolio Summary
                     </h3>
                   </div>
-                  <div className="bg-white border-x border-b border-[#e1e1e1] px-5 py-4">
-                    <div className="text-center">
-                      <div className="text-[#222526] text-lg font-semibold mb-1">
-                        Total Value
-                      </div>
-                      <div className="text-[#69737c] text-sm">
-                        {summary.totalUsdValue > 0
-                          ? `$${summary.totalUsdValue.toFixed(2)} USD`
-                          : summary.loadingCount > 0
-                            ? "Loading..."
-                            : "No balances available"}
-                      </div>
-                      {summary.errorCount > 0 && (
-                        <div className="text-red-500 text-xs mt-1">
-                          {summary.errorCount} token(s) failed to load
-                        </div>
-                      )}
+                  <div className="bg-white border-x border-b border-[#e1e1e1]">
+                    <div className="px-5 py-4">
+                      <PortfolioSummary 
+                        totalValue={summary.totalUsdValue}
+                        loadingCount={summary.loadingCount}
+                        errorCount={summary.errorCount}
+                        successCount={summary.successCount}
+                        onRefresh={refetchAll}
+                      />
                     </div>
                   </div>
                 </div>

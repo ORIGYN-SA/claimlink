@@ -6,6 +6,8 @@ const swap_amounts = async (
   options: { from: string; to: string; amount: bigint },
 ) => {
   const { from, to, amount } = options;
+  
+  // Some versions use this syntax instead
   const result = (await actor.swap_amounts(
     from,
     amount,

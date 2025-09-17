@@ -84,9 +84,10 @@ export const useMultiTokenBalance = (
 
             const priceData = await swap_amounts(kongswapActor, {
               from: token.name,
-              to: "ckUSDT",
+              to: "ckUSDC",
               amount: BigInt(1 * 10 ** decimals),
             });
+            console.log("pricedata: ", priceData);
 
             price_usd = priceData.mid_price;
             balance_usd = balance * price_usd;
