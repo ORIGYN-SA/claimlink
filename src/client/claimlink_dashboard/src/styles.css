@@ -58,13 +58,14 @@ code {
 
 :root {
     --radius: 1rem;
-    
+
     /* Figma Design Variables */
     --background: 252 98% 98%; /* #fcfafa */
     --foreground: 213 13% 16%; /* #222526 - Charcoal */
     --card: 0 0% 100%; /* #ffffff - White */
     --card-foreground: 213 13% 16%; /* #222526 - Charcoal */
-    --popover: 0 0% 100%;
+    /*--popover: 0 0% 100%;*/
+    --popover: oklch(1 0 0);
     --popover-foreground: 213 13% 16%;
     --primary: 217 77% 13%; /* #061937 - Cobalt */
     --primary-foreground: 0 0% 100%;
@@ -75,10 +76,11 @@ code {
     --accent: 249 87% 68%;
     --accent-foreground: 0 0% 100%;
     --destructive: 11 79% 53%; /* #e84c25 */
-    --border: 0 0% 88%; /* #e1e1e1 - Mouse */
+    /*--border: 0 0% 88%; /* #e1e1e1 - Mouse */
+    --border: oklch(0.922 0 0);
     --input: 0 0% 88%;
     --ring: 217 77% 13%;
-    
+
     /* Figma Design System Colors */
     --slate: 206 8% 48%; /* #69737c - Neutral/Slate */
     --cobalt: 217 77% 13%; /* #061937 - Contrast/Cobalt */
@@ -93,7 +95,7 @@ code {
     --candy-floss-95: 323 100% 94%; /* #ffd4f0 - Candy Floss/CF95 */
     --celeste: 183 64% 79%; /* #cde9ec - Contrast/Celeste */
     --celeste-40: 183 64% 79% / 0.4; /* #cde9ec66 - Contrast/Celeste40 */
-    
+
     --chart-1: 153 47% 55%;
     --chart-2: 249 87% 68%;
     --chart-3: 217 77% 13%;

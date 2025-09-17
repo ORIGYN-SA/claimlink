@@ -7,6 +7,7 @@ import { WithdrawDialog } from "./withdraw-dialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useMultiTokenBalance, SUPPORTED_TOKENS } from "@/shared";
 // import { useFetchLedgerBalance } from "@/shared";
+import { useCopyToClipboard } from "@shared/hooks/useCopyToClipboard";
 
 interface AccountMenuProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export function AccountMenu({
 }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const { disconnect, principalId, authenticatedAgent } = useAuth();
+  const { copyToClipboard } = useCopyToClipboard();
 
   // Fetch balances for all supported tokens
   const { balances, summary, refetchAll } = useMultiTokenBalance(
@@ -206,7 +208,7 @@ export function AccountMenu({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={handleCopyAccountId}
+                          onClick={() => copyToClipboard(principalId)}
                           className="w-6 h-6 p-0 text-[#69737c] hover:text-[#222526] hover:bg-transparent"
                         >
                           <Copy className="w-3.5 h-3.5" />
