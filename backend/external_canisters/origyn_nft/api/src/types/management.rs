@@ -1,4 +1,9 @@
-use bity_ic_storage_canister_api::types::storage::UploadState;
+pub enum UploadState {
+    Init,
+    InProgress,
+    Finalized,
+}
+
 use candid::{CandidType, Nat, Principal};
 use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 use icrc_ledger_types::icrc1::account::Account;

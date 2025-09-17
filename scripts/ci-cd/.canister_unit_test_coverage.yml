@@ -28,17 +28,15 @@ $[[ inputs.src-folder ]] tests:
   extends: .rust template
   tags:
     - docker
-  # services:
-  #   - docker:dind
   variables:
     DOCKER_TLS_CERTDIR: "/certs"
     DOCKER_SECURITY_OPT: "--security-opt seccomp=unconfined"
   script:
-    # - cargo tarpaulin -p $[[ inputs.src-folder ]] -j 2 --lib --no-fail-fast -o Xml
-    - cargo test -p $[[ inputs.src-folder ]]
-  # coverage: /^\d+.\d+% coverage/
-  # artifacts:
-  #   reports:
-  #     coverage_report:
-  #       coverage_format: cobertura
-  #       path: cobertura.xml
+    - |
+      set -e
+      status=0
+      for crate in $(find backend/canisters/$[[inputs.src-folder]] -name Cargo.toml -exec dirname {} \;); do
+        echo "📦 Running tests in $crate"
+        (cd "$crate" && cargo test) || status=1
+      done
+      exit $status
