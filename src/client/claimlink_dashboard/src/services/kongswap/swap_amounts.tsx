@@ -1,15 +1,15 @@
-import { ActorSubclass } from "@dfinity/agent";
-import { SwapAmountsResult } from "./interfaces";
+import type { ActorSubclass } from "@dfinity/agent";
+import type { SwapAmountsResult } from "./interfaces";
 
 const swap_amounts = async (
   actor: ActorSubclass,
-  options: { from: string; to: string; amount: bigint }
+  options: { from: string; to: string; amount: bigint },
 ) => {
   const { from, to, amount } = options;
   const result = (await actor.swap_amounts(
     from,
     amount,
-    to
+    to,
   )) as SwapAmountsResult;
 
   if ("Err" in result) throw new Error(result.Err);

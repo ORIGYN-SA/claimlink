@@ -1,1 +1,1 @@
-export { default as swap_amounts } from './swap_amounts';
+export { default as swap_amounts } from "./swap_amounts";

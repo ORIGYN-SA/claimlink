@@ -10,6 +10,10 @@ import { KONGSWAP_CANISTER_ID_IC } from "../constants";
 import { idlFactory as idlFactoryLedger } from "@/services/ledger/idlFactory";
 // @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryKongswap } from "@/services/kongswap/idlFactory";
+// import { icrc1_balance_of } from "@services/ledger/icrc1_balance_of";
+// import icrc1_decimals from "@services/ledger/icrc1_decimals";
+// import icrc1_fee from "@services/ledger/icrc1_fee";
+// import swap_amounts from "@services/kongswap/swap_amounts";
 import { icrc1_balance_of } from "../services/ledger/icrc1_balance_of";
 import icrc1_decimals from "../services/ledger/icrc1_decimals";
 import icrc1_fee from "../services/ledger/icrc1_fee";

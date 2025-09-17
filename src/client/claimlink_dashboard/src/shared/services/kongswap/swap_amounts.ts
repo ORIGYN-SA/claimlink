@@ -19,7 +19,7 @@ interface SwapAmountsResult {
 
 const swap_amounts = async (
   actor: Actor,
-  params: SwapAmountsParams
+  params: SwapAmountsParams,
 ): Promise<SwapAmountsResult> => {
   const result = await actor.swap_amounts(params);
   return result;

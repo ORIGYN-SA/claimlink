@@ -1,4 +1,4 @@
-import { ActorSubclass } from "@dfinity/agent";
+import type { ActorSubclass } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { Buffer } from "buffer";
 
