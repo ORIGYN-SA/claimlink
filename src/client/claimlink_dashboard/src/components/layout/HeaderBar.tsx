@@ -38,8 +38,6 @@ export function HeaderBar({
         },
     );
 
-    // Get OGY balance specifically for display
-    // const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance;
     console.log("ogy", ogyBalance);
 
     const handleBack = () => {

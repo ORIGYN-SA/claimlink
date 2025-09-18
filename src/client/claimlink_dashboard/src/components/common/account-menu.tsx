@@ -55,6 +55,12 @@ export function AccountMenu({
             refetchInterval: 60000, // Refresh price every minute
         });
 
+    // Calculate total USD value
+    const totalUsdValue =
+        ogyBalance?.data?.balance && ogyPriceData
+            ? ogyBalance.data.balance * ogyPriceData.amount_usd
+            : 0;
+
     const handleSignOut = () => {
         disconnect();
     };
@@ -202,8 +208,8 @@ export function AccountMenu({
                                                     ) : ogyPriceData ? (
                                                         <span className="font-medium">
                                                             ($
-                                                            {ogyPriceData.amount_usd.toFixed(
-                                                                5,
+                                                            {totalUsdValue.toFixed(
+                                                                2,
                                                             )}
                                                             )
                                                         </span>

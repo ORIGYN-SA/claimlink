@@ -32,7 +32,7 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
     const [unauthenticatedAgent, setUnauthenticatedAgent] = useState<
         HttpAgent | Agent | undefined
     >();
-    const authenticatedAgent = useAgent({ host: "https://ic0.app" });
+    const authenticatedAgent = useAgent({ host: IC_HOST });
     const navigate = useNavigate();
 
     // Create unauthenticated agent for public queries
