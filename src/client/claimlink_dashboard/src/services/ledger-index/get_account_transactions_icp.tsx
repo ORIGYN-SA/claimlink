@@ -1,13 +1,13 @@
-import { ActorSubclass } from "@dfinity/agent";
+import type { ActorSubclass } from "@dfinity/agent";
 import { Buffer } from "buffer";
 import { Principal } from "@dfinity/principal";
-import { Subaccount } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
+import type { Subaccount } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
 import _upperFirst from "lodash/upperFirst";
-import {
+import type {
   GetAccountIdentifierTransactionsResult,
   TransactionWithId,
 } from "./idlFactory_icp.interface";
-import { Transactions } from "./utils/interfaces";
+import type { Transactions } from "./utils/interfaces";
 import { getDateUTC } from "@shared/utils/dates";
 // import { decodeIcrcAccount, encodeIcrcAccount } from "@dfinity/ledger-icrc";
 
@@ -18,7 +18,7 @@ const get_account_transactions_icp = async (
     start: number | null;
     owner: Principal;
     subaccount: Subaccount[];
-  }
+  },
 ): Promise<Transactions> => {
   const { max_results, start, owner, subaccount } = args;
 
@@ -84,7 +84,7 @@ const get_account_transactions_icp = async (
         kind: _upperFirst(kind),
         is_credit: false,
       };
-    }
+    },
   );
 
   return {

@@ -20,7 +20,7 @@ export const CKUSDT_LEDGER_CANISTER_ID = "xevnm-gaaaa-aaaar-qafnq-cai";
 // Token Ledger Index Canister IDs (for transaction history)
 export const ICP_LEDGER_INDEX_CANISTER_ID = "qhbym-qaaaa-aaaah-qcl4q-cai";
 export const GLDT_LEDGER_INDEX_CANISTER_ID = "apia6-jaaaa-aaaar-qabma-cai";
-export const OGY_LEDGER_INDEX_CANISTER_ID = "lkwrt-vyaaa-aaaaq-aadhq-cai"; // Same as ledger for OGY
+export const OGY_LEDGER_INDEX_CANISTER_ID = "jqkzp-liaaa-aaaaq-aadiq-cai";
 export const CKUSDT_LEDGER_INDEX_CANISTER_ID = "xevnm-gaaaa-aaaar-qafnq-cai"; // Same as ledger for ckUSDT
 
 // Swap Canister ID

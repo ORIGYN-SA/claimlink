@@ -14,6 +14,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  define: {
+    global: "globalThis",
+  },
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
@@ -40,6 +43,10 @@ export default defineConfig({
         new URL("./src/apps/advanced", import.meta.url),
       ),
       "@shared": fileURLToPath(new URL("./src/shared", import.meta.url)),
+      buffer: "buffer",
     },
+  },
+  optimizeDeps: {
+    include: ["buffer"],
   },
 });
