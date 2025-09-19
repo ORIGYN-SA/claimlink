@@ -11,10 +11,12 @@ import {
   useFetchTokenPrice,
   useFetchAccountTransactions,
   useCopyToClipboard,
+  useFetchLedgerDecimals,
 } from "@/shared";
 import { OGY_LEDGER_INDEX_CANISTER_ID } from "@/shared/constants";
 import icon from "@/assets/icon.svg";
 import type { Transaction } from "@services/ledger-index/utils/interfaces";
+import E8sToLocaleString from "@shared/utils/numbers/E8sToLocaleString";
 
 interface AccountMenuProps {
   isOpen: boolean;
@@ -64,6 +66,16 @@ export function AccountMenu({
     },
   );
 
+  // Fetch OGY token decimals for proper amount formatting
+  const decimals = useFetchLedgerDecimals(
+    ogyToken?.canister_id || "",
+    unauthenticatedAgent,
+    {
+      ledger: ogyToken?.name || "OGY",
+      enabled: !!unauthenticatedAgent && !!ogyToken,
+    },
+  );
+
   // Fetch account transactions
   // Fetch transaction history for OGY token
   const txs = useFetchAccountTransactions(
@@ -100,43 +112,46 @@ export function AccountMenu({
     setWithdrawDialogOpen(true);
   };
 
-  // Helper function to format transaction type
-  const getTransactionType = (transaction: Transaction) => {
-    if (transaction.kind === "transfer") {
-      return transaction.from === principalId ? "Sent" : "Received";
-    }
-    return transaction.kind || "Unknown";
-  };
-
-  // Helper function to format transaction amount
   // TODO: Move these functions to a utils or helpers file
-  const getTransactionAmount = (transaction: Transaction) => {
-    if (transaction.kind === "transfer" && transaction) {
-      const amount = Number(transaction.amount) / 100000000; // Convert from e8s
-      const isOutgoing = transaction.from === principalId;
-      return {
-        amount: amount,
-        isOutgoing,
-        displayAmount: `${isOutgoing ? "-" : "+"}${amount.toLocaleString(
-          undefined,
-          {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 8,
-          },
-        )} OGY`,
-      };
-    }
-    return { amount: 0, isOutgoing: false, displayAmount: "0 OGY" };
+  const handleSeeAllTransactions = () => {
+    // Navigate to transactions page or open transactions modal
+    console.log("Navigate to all transactions");
   };
 
-  // Helper function to format date
   const formatTransactionDate = (timestamp: string) => {
-    const date = new Date(Number(timestamp) / 1000000); // Convert from nanoseconds
-    return date.toLocaleDateString("en-US", {
-      day: "numeric",
-      month: "short",
-      year: "numeric",
-    });
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+      });
+    } catch {
+      return timestamp;
+    }
+  };
+
+  const getTransactionTypeLabel = (kind: string) => {
+    switch (kind.toLowerCase()) {
+      case "transfer":
+        return "Transfer";
+      case "mint":
+        return "Mint";
+      case "burn":
+        return "Burn";
+      case "approve":
+        return "Approve";
+      default:
+        return kind;
+    }
+  };
+
+  const getTransactionTypeColor = (kind: string, isCredit: boolean) => {
+    if (isCredit) {
+      return "bg-[#edf8f4] text-[#50be8f]"; // Green for credits
+    } else {
+      return "bg-[#fef3f2] text-[#f56565]"; // Red for debits
+    }
   };
 
   return (
@@ -392,7 +407,7 @@ export function AccountMenu({
                           <div className="flex flex-col gap-2">
                             <div>
                               <h4 className="text-[#222526] text-sm font-semibold">
-                                {getTransactionType(lastTransaction)}
+                                {getTransactionTypeLabel(lastTransaction.kind)}
                               </h4>
                               <p className="text-[#69737c] text-xs">
                                 {formatTransactionDate(
@@ -400,35 +415,55 @@ export function AccountMenu({
                                 )}
                               </p>
                             </div>
-                            <div className="bg-[#edf8f4] px-2 py-0.5 rounded-full w-fit">
-                              <span className="text-[#50be8f] text-[10px] font-medium tracking-[0.5px] uppercase">
-                                {lastTransaction.kind}
+                            <div
+                              className={`px-2 py-0.5 rounded-full w-fit ${getTransactionTypeColor(
+                                lastTransaction.kind,
+                                lastTransaction.is_credit,
+                              )}`}
+                            >
+                              <span className="text-[10px] font-medium tracking-[0.5px] uppercase">
+                                {lastTransaction.is_credit ? "Credit" : "Debit"}
                               </span>
                             </div>
                           </div>
                           <div className="text-right">
                             <div className="flex items-center gap-1 mb-0.5">
-                              <div className="w-3.5 h-3.5 bg-[#615bff] rounded-full flex items-center justify-center">
-                                <span className="text-white text-[8px] font-bold">
-                                  O
-                                </span>
+                              <div className="w-3.5 h-3.5rounded-full flex items-center justify-center">
+                                <img
+                                  src={icon}
+                                  // className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
+                                  alt="logo"
+                                />
                               </div>
                               <span className="text-[#222526] text-sm font-semibold">
-                                {
-                                  getTransactionAmount(lastTransaction)
-                                    .displayAmount
-                                }
+                                {lastTransaction.is_credit ? "+" : "-"}
+                                {decimals.isSuccess &&
+                                lastTransaction.amount ? (
+                                  <E8sToLocaleString
+                                    value={lastTransaction.amount}
+                                    tokenDecimals={decimals.data}
+                                  />
+                                ) : (
+                                  "0.00"
+                                )}{" "}
+                                OGY
                               </span>
                             </div>
                             <p className="text-[#69737c] text-xs">
-                              {ogyPriceData
-                                ? `($${(getTransactionAmount(lastTransaction).amount * ogyPriceData.amount_usd).toFixed(2)})`
-                                : "(Price unavailable)"}
+                              {/* TODO: Figure out a better way to handle this, maybe also a utils function */}
+                              {ogyPriceData &&
+                              lastTransaction.amount &&
+                              decimals.isSuccess
+                                ? `($${((Number(lastTransaction.amount) / 10 ** decimals.data) * ogyPriceData.amount_usd).toFixed(2)})`
+                                : "($-.--)"}
                             </p>
                           </div>
                         </div>
 
-                        <Button className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-2.5 w-full text-sm font-medium">
+                        <Button
+                          onClick={handleSeeAllTransactions}
+                          className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-2.5 w-full text-sm font-medium"
+                        >
                           See all transactions
                         </Button>
                       </>

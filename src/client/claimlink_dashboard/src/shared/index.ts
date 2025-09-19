@@ -16,3 +16,4 @@ export * from "./services/ledger";
 
 // Utils
 export * from "./utils/errorHandling";
+export * from "./utils/numbers/E8sToLocaleString";

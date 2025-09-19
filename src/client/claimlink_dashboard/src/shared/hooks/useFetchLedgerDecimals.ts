@@ -1,9 +1,10 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
+// @ts-expect-error: later will be fixed
 import { idlFactory } from "../../services/ledger/idlFactory";
 import icrc1_decimals from "../../services/ledger/icrc1_decimals";
 
@@ -12,7 +13,7 @@ const useFetchLedgerDecimals = (
   agent: Agent | HttpAgent | undefined,
   options: Omit<UseQueryOptions<number>, "queryKey" | "queryFn"> & {
     ledger: string;
-  }
+  },
 ) => {
   const {
     enabled = true,
