@@ -1,0 +1,20 @@
+# dfx and quill commands templates
+
+.import dfx identity:
+  before_script:
+    - echo "Loading identity for network" $TARGET_NETWORK
+    - export DFX_WARNING=-mainnet_plaintext_identity
+    - dfx --version
+    - dfx identity import --storage-mode plaintext gitlab-ci-ogy $PEM_FILE > /dev/null 2>&1
+    - dfx identity use gitlab-ci-ogy
+    - dfx identity whoami
+    - if [[ $(date -R) == "Fri"* ]]; then echo "It appear you are deploying on a Friday....."; fi
+    - dfx identity get-principal
+
+.include didc:
+  before_script:
+    - release=$(curl --silent "https://api.github.com/repos/dfinity/candid/releases/latest" | grep -e '"tag_name"' | cut -c 16-25)
+    # - curl -fsSL https://github.com/dfinity/candid/releases/download/${release}/didc-linux64 > /usr/bin/didc
+    - curl -fsSL https://github.com/dfinity/candid/releases/download/2025-07-29/didc-linux64 > /usr/bin/didc
+    - chmod +x /usr/bin/didc
+    - didc --version
