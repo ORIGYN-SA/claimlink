@@ -4,6 +4,9 @@ use icrc_ledger_types::icrc1::account::Account;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+// This is thhorwing the cc linker issue, because bity_ic_storage_canister_api does export_candid!();
+// use bity_ic_storage_canister_api::types::storage::UploadState;
+
 #[derive(Serialize, Clone, Deserialize, CandidType, Debug, PartialEq, Eq)]
 pub enum UploadState {
     Init,

@@ -35,10 +35,13 @@ include:
   - local: scripts/ci-cd/.frontend_linter.yml
     inputs:
       src-folder: claimlink_frontend
-  # Unit tests coverage
+  # Unit tests
+  - local: scripts/ci-cd/.libraries_unit_test_coverage.yml
   - local: scripts/ci-cd/.canister_unit_test_coverage.yml
     inputs:
       src-folder: claimlink
+  # Integration tests
+  - local: scripts/ci-cd/.integration_tests.yml
   # Canister builds
   - local: scripts/ci-cd/.canister_builds.yml
     inputs:
@@ -47,8 +50,14 @@ include:
   - local: scripts/ci-cd/.frontend_builds.yml
     inputs:
       src-folder: claimlink_frontend
-  # Deployments
-  - local: scripts/ci-cd/.dfx_templates.yml
+  # Backend deployments
+  - local: scripts/ci-cd/.canister_deploys.yml
+    inputs:
+      src-folder: claimlink
+  # Frontend deployments
+  - local: scripts/ci-cd/.frontend_deploys.yml
+    inputs:
+      src-folder: claimlink_frontend
 
 ################################################################################
 # Cache preparation
