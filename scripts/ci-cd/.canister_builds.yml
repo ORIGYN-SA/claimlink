@@ -33,7 +33,7 @@ $[[ inputs.src-folder ]] staging build:
       - backend/canisters/$[[ inputs.src-folder ]]/api/can.did
     expire_in: 1 day
 
-$[[ inputs.src-folder ]] canister build:
+$[[ inputs.src-folder ]] production build:
   stage: build
   rules:
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"
