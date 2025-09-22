@@ -146,7 +146,7 @@ export function AccountMenu({
     }
   };
 
-  const getTransactionTypeColor = (kind: string, isCredit: boolean) => {
+  const getTransactionTypeColor = (isCredit: boolean) => {
     if (isCredit) {
       return "bg-[#edf8f4] text-[#50be8f]"; // Green for credits
     } else {
@@ -417,7 +417,6 @@ export function AccountMenu({
                             </div>
                             <div
                               className={`px-2 py-0.5 rounded-full w-fit ${getTransactionTypeColor(
-                                lastTransaction.kind,
                                 lastTransaction.is_credit,
                               )}`}
                             >

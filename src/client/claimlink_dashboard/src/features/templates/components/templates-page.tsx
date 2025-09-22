@@ -1,80 +1,76 @@
-import React, { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { TemplateCard } from './template-card'
-import type { Template } from '../types/template.types'
+import React, { useState } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { TemplateCard } from "./template-card";
+import type { Template } from "../types/template.types";
+// import { mockTemplates } from "@/shared/data/templates";
 
 // Mock data for demonstration - this would come from API in real implementation
 const mockTemplates: Template[] = [
   {
-    id: '1',
-    name: 'Template name',
-    description: 'Sample template',
-    category: 'existing',
+    id: "1",
+    name: "Template name",
+    description: "Sample template",
+    category: "existing",
     certificateCount: 4,
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: '2',
-    name: 'Template name',
-    description: 'Sample template',
-    category: 'existing',
+    id: "2",
+    name: "Template name",
+    description: "Sample template",
+    category: "existing",
     certificateCount: 4,
     createdAt: new Date(),
     updatedAt: new Date(),
   },
   {
-    id: '3',
-    name: 'Template name',
-    description: 'Sample template',
-    category: 'existing',
+    id: "3",
+    name: "Template name",
+    description: "Sample template",
+    category: "existing",
     certificateCount: 4,
     createdAt: new Date(),
     updatedAt: new Date(),
   },
-]
+];
 
 const TemplatesPage: React.FC = () => {
-  const [linesPerPage] = useState(10)
+  const [linesPerPage] = useState(10);
 
   const handleCreateManual = () => {
-    console.log('Create manual template')
-  }
+    console.log("Create manual template");
+  };
 
   const handleCreateAI = () => {
-    console.log('Create AI template')
-  }
+    console.log("Create AI template");
+  };
 
   const handleCreateExisting = () => {
-    console.log('Use existing template')
-  }
+    console.log("Use existing template");
+  };
 
   const handleTemplateClick = (template: Template) => {
-    console.log('Template clicked:', template)
-  }
+    console.log("Template clicked:", template);
+  };
 
   return (
     <div className="space-y-6 max-w-none">
       {/* Page Description */}
       <div>
         <p className="font-['General_Sans'] font-light text-[#69737c] text-base leading-8">
-          You can manage your organization's collections that hosts your certificates
+          You can manage your organization's collections that hosts your
+          certificates
         </p>
       </div>
 
       {/* Create Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 h-auto md:h-[200px]">
         <div className="w-full">
-          <TemplateCard
-            variant="create-manual"
-            onClick={handleCreateManual}
-          />
+          <TemplateCard variant="create-manual" onClick={handleCreateManual} />
         </div>
         <div className="w-full">
-          <TemplateCard
-            variant="create-ai"
-            onClick={handleCreateAI}
-          />
+          <TemplateCard variant="create-ai" onClick={handleCreateAI} />
         </div>
         <div className="w-full">
           <TemplateCard
@@ -92,8 +88,10 @@ const TemplatesPage: React.FC = () => {
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-['General_Sans'] font-medium text-[#222526] text-lg leading-normal">
-                  My template{' '}
-                  <span className="text-[#69737c]">({mockTemplates.length})</span>
+                  My template{" "}
+                  <span className="text-[#69737c]">
+                    ({mockTemplates.length})
+                  </span>
                 </h2>
               </div>
             </div>
@@ -124,8 +122,17 @@ const TemplatesPage: React.FC = () => {
                 {linesPerPage}
               </span>
               <div className="w-2 h-2 rotate-90">
-                <svg viewBox="0 0 8 8" fill="currentColor" className="w-full h-full text-gray-400">
-                  <path d="M2 3L4 5L6 3" stroke="currentColor" strokeWidth="1" fill="none" />
+                <svg
+                  viewBox="0 0 8 8"
+                  fill="currentColor"
+                  className="w-full h-full text-gray-400"
+                >
+                  <path
+                    d="M2 3L4 5L6 3"
+                    stroke="currentColor"
+                    strokeWidth="1"
+                    fill="none"
+                  />
                 </svg>
               </div>
             </div>
@@ -136,8 +143,17 @@ const TemplatesPage: React.FC = () => {
             <div className="absolute bg-[#cde9ec66] rounded-[11px] w-7 h-7 left-[29px]" />
 
             <button className="w-3.5 h-3.5 rotate-180">
-              <svg viewBox="0 0 14 14" fill="currentColor" className="w-full h-full text-gray-400">
-                <path d="M5 3L8 6L5 9" stroke="currentColor" strokeWidth="1" fill="none" />
+              <svg
+                viewBox="0 0 14 14"
+                fill="currentColor"
+                className="w-full h-full text-gray-400"
+              >
+                <path
+                  d="M5 3L8 6L5 9"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  fill="none"
+                />
               </svg>
             </button>
 
@@ -154,15 +170,24 @@ const TemplatesPage: React.FC = () => {
             </div>
 
             <button className="w-3.5 h-3.5">
-              <svg viewBox="0 0 14 14" fill="currentColor" className="w-full h-full text-gray-400">
-                <path d="M5 3L8 6L5 9" stroke="currentColor" strokeWidth="1" fill="none" />
+              <svg
+                viewBox="0 0 14 14"
+                fill="currentColor"
+                className="w-full h-full text-gray-400"
+              >
+                <path
+                  d="M5 3L8 6L5 9"
+                  stroke="currentColor"
+                  strokeWidth="1"
+                  fill="none"
+                />
               </svg>
             </button>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export { TemplatesPage }
+export { TemplatesPage };
