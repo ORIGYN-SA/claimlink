@@ -31,7 +31,7 @@ export function StatCard({
                 {icon}
               </div>
             )}
-            <div className="font-['General_Sans'] font-medium text-[#69737c] text-[13px] leading-normal">
+            <div className="font-sans font-medium text-[#69737c] text-[13px] leading-normal">
               {title}
             </div>
           </div>
@@ -46,7 +46,7 @@ export function StatCard({
 
         {/* Value and Trend */}
         <div className="flex items-center gap-2">
-          <div className="font-['General_Sans'] font-medium text-[#222526] text-[48px] leading-[56px]">
+          <div className="font-sans font-medium text-[#222526] text-[48px] leading-[56px]">
             {value}
           </div>
           <div 
@@ -70,7 +70,7 @@ export function StatCard({
                 </svg>
               </div>
             </div>
-            <span className="font-['General_Sans'] font-medium text-white text-[10px] leading-normal">
+            <span className="font-sans font-medium text-white text-[10px] leading-normal">
               {trend}
             </span>
           </div>

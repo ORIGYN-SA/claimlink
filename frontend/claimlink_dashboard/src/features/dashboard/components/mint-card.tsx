@@ -61,12 +61,12 @@ export function MintCard({
         {/* Content */}
         <div className="px-1 pt-1 pb-2 flex flex-col gap-1">
           <div className="flex flex-col gap-2">
-            <div className="font-['General_Sans'] font-normal text-[#222526] text-lg leading-6 w-full">
+            <div className="font-sans font-normal text-[#222526] text-lg leading-6 w-full">
               {title}
             </div>
           </div>
           <div className="flex items-center justify-between w-full">
-            <div className="font-['General_Sans'] font-medium text-[#69737c] text-[13px] leading-normal">
+            <div className="font-sans font-medium text-[#69737c] text-[13px] leading-normal">
               {date}
             </div>
             <div 
@@ -79,7 +79,7 @@ export function MintCard({
                   border: `1px solid ${statusConfig.border}`
                 }}
               />
-              <span className="font-['General_Sans'] font-medium text-[#222526] text-xs leading-normal">
+              <span className="font-sans font-medium text-[#222526] text-xs leading-normal">
                 {status}
               </span>
             </div>

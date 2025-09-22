@@ -20,7 +20,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           <div className="grid grid-cols-1 place-items-start relative w-full h-[104px]">
             <div className="bg-[#cde9ec66] opacity-50 rounded-lg w-full h-full" />
             <div className="absolute bg-white border border-[#cde9ec]/16 rounded-t-2xl h-[91px] w-[calc(100%-56px)] max-w-[279px] left-[28px] top-[13px]" />
-            <div className="absolute font-['General_Sans'] font-medium text-[#69737c] text-xs left-[59px] top-[25px] w-[calc(100%-88px)] max-w-[217px] leading-normal">
+            <div className="absolute font-sans font-medium text-[#69737c] text-xs left-[59px] top-[25px] w-[calc(100%-88px)] max-w-[217px] leading-normal">
               <div>
                 <p className="mb-0">{`{`}</p>
                 <p className="mb-0">model": "Watch",</p>
@@ -78,10 +78,10 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           {config.image}
         </div>
         <CardContent className="p-1 space-y-1">
-          <h3 className="font-['General_Sans'] font-medium text-[#222526] text-lg leading-normal">
+          <h3 className="font-sans font-medium text-[#222526] text-lg leading-normal">
             {config.title}
           </h3>
-          <p className="font-['General_Sans'] font-normal text-[#69737c] text-sm leading-[18px] line-clamp-2">
+          <p className="font-sans font-normal text-[#69737c] text-sm leading-[18px] line-clamp-2">
             {config.description}
           </p>
         </CardContent>
@@ -116,7 +116,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         
         <div className="flex-1 flex items-center justify-between min-w-0">
           <div className="space-y-1 min-w-0 flex-1">
-            <h3 className="font-['General_Sans'] font-normal text-[#222526] text-lg leading-normal truncate">
+            <h3 className="font-sans font-normal text-[#222526] text-lg leading-normal truncate">
               {template.name}
             </h3>
             {template.certificateCount && (

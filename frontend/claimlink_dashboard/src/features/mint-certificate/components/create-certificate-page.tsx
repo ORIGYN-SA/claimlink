@@ -17,7 +17,7 @@ export function CreateCertificatePage() {
             <div className="bg-white box-border flex flex-col gap-8 items-center justify-center px-5 py-6 rounded-[25px] w-full border border-[#e1e1e1]">
               {/* Title */}
               <div className="w-full">
-                <h2 className="font-['DM_Sans'] font-semibold text-[#222526] text-[22px]">
+                <h2 className="font-sans font-semibold text-[#222526] text-[22px]">
                   Certified Company
                 </h2>
               </div>
