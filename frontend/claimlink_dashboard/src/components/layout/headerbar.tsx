@@ -67,11 +67,11 @@ export function HeaderBar({
                     </Button>
                 )}
                 <div className="flex flex-col">
-                    <h1 className="font-['General_Sans:Medium',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#222526] text-[24px] text-nowrap">
+                    <h1 className="font-['General_Sans:Medium',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#222526] text-2xl text-nowrap">
                         <p className="leading-[32px] whitespace-pre">{title}</p>
                     </h1>
                     {subtitle && (
-                        <p className="font-['General_Sans:Light',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#69737c] text-[16px] text-nowrap mt-1">
+                        <p className="font-['General_Sans:Light',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#69737c] text-base text-nowrap mt-1">
                             <span className="leading-[32px] whitespace-pre">
                                 {subtitle}
                             </span>
@@ -97,7 +97,7 @@ export function HeaderBar({
                             </div>
                         </div>
                         <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-                            <div className="text-[14px] whitespace-pre">
+                            <div className="text-sm whitespace-pre">
                                 <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
                                     {ogyBalance?.isLoading ? (
                                         <div className="flex items-center gap-2">
@@ -148,7 +148,7 @@ export function HeaderBar({
                             </div>
                         </div>
                         <div className="font-['General_Sans:Semibold',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-                            <p className="text-[14px] whitespace-pre">
+                            <p className="text-sm whitespace-pre">
                                 <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] not-italic">
                                     Connect
                                 </span>
@@ -188,7 +188,7 @@ export function HeaderBar({
                                 className="font-['DM_Sans:SemiBold',_sans-serif] font-semibold leading-[0] relative shrink-0 text-[#222526] text-[0px] text-nowrap"
                                 style={{ fontVariationSettings: "'opsz' 14" }}
                             >
-                                <p className="not-italic text-[14px] whitespace-pre">
+                                <p className="not-italic text-sm whitespace-pre">
                                     <span className="font-['General_Sans:Medium',_sans-serif] leading-[16px] text-[#061937]">
                                         My Account:
                                     </span>

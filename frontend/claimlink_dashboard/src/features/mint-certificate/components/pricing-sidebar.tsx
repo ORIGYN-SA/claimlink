@@ -5,10 +5,10 @@ export function PricingSidebar() {
     <div className="bg-white box-border flex flex-col gap-6 items-start justify-center p-6 rounded-[25px] w-full border border-[#e1e1e1]">
       {/* Introduction */}
       <div className="flex flex-col gap-2 items-start justify-start w-full">
-        <div className="font-['General_Sans'] font-medium text-[18px] text-black">
+        <div className="font-sans font-medium text-lg text-black">
           General information
         </div>
-        <div className="font-['General_Sans'] text-[#69737c] text-[13px] w-full">
+        <div className="font-sans text-[#69737c] text-[13px] w-full">
           <p className="leading-normal">
             Vestibulum eu purus eu orci commodo elementum et et lorem.
             Curabitur pharetra velit ut facilisis ultrices.
@@ -24,30 +24,30 @@ export function PricingSidebar() {
         {/* Price header */}
         <div className="flex gap-2 items-center justify-start">
           {/* Icon SVG */}
-          <div className="font-['General_Sans'] font-medium text-[#222526] text-[14px] uppercase tracking-[0.7px]">
+          <div className="font-sans font-medium text-[#222526] text-[14px] uppercase tracking-[0.7px]">
             Price
           </div>
         </div>
 
         {/* Certificate Cost Box */}
         <div className="bg-[rgba(205,223,236,0.15)] box-border flex flex-col gap-1 items-start justify-start p-4 rounded-[16px] w-full border border-[#e1e1e1]">
-          <div className="font-['General_Sans'] font-medium text-[#69737c] text-[14px]">
+          <div className="font-sans font-medium text-[#69737c] text-[14px]">
             Certificate cost:
           </div>
           <div className="flex gap-2 items-start justify-start">
             {/* OGY Icon */}
             <div className="flex items-center gap-2">
-              <span className="font-['General_Sans'] font-semibold text-[18px] text-[#222526]">
+              <span className="font-sans font-semibold text-lg text-[#222526]">
                 8800 OGY
               </span>
-              <span className="font-['General_Sans'] text-[14px] text-[#69737c]">
+              <span className="font-sans text-[14px] text-[#69737c]">
                 (2500$)
               </span>
             </div>
           </div>
         </div>
 
-        <div className="font-['General_Sans'] text-[#69737c] text-[13px]">
+        <div className="font-sans text-[#69737c] text-[13px]">
           <p>When you mint a certificate, you will need to pay 17 OGY + 17 OGY as fees.</p>
         </div>
       </div>

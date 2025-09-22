@@ -64,7 +64,7 @@ export function CertificateListCard({
                 }}
               />
               <div className="flex-1 min-w-0">
-                <div className="text-[16px] text-[#061937] truncate">
+                <div className="text-base text-[#061937] truncate">
                   {item.title}
                 </div>
                 <div className="flex items-center gap-2 text-[13px] text-[#69737c]">

@@ -16,7 +16,7 @@ export function ImageUploadSection() {
             </div>
           </div>
           <div className="font-['General_Sans:Medium',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[#69737c] text-[0px] text-center w-full">
-            <p className="leading-[24px] text-[16px]">
+            <p className="leading-[24px] text-base">
               <span className="font-['General_Sans:Medium',_sans-serif] not-italic text-[#615bff]">Upload</span>
               <span className="font-['General_Sans:Medium',_sans-serif] not-italic"> your products image or drag it here</span>
             </p>

@@ -92,7 +92,7 @@ export function CollectionsPage() {
         <div className="bg-white border-b border-[#f2f2f2] p-4">
           <div className="flex items-center justify-between">
             <div className="flex flex-col gap-1">
-              <h2 className="text-[18px] font-medium text-[#222526] leading-normal">
+              <h2 className="text-lg font-medium text-[#222526] leading-normal">
                 Collections <span className="text-[#69737c]">({filteredCollections.length})</span>
               </h2>
             </div>

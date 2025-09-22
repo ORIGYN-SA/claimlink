@@ -20,7 +20,7 @@ const Brand = () => {
         </div>
         {/* ORIGYN text */}
         <div className="absolute inset-[24.7%_3.39%_23.13%_31.66%] flex items-center">
-          <span className="font-['General_Sans'] font-medium text-white text-lg tracking-wide">
+          <span className="font-sans font-medium text-white text-lg tracking-wide">
             ORIGYN
           </span>
         </div>
@@ -48,7 +48,7 @@ const NavLink = ({
       to={isDisabled ? "#" : url}
       className={clsx(
         "box-border content-stretch flex gap-4 items-center justify-start overflow-clip px-4 py-3 relative rounded-[8px] w-full",
-        "font-['General_Sans'] font-medium text-[14px] leading-[0] not-italic transition-colors",
+        "font-sans font-medium text-[14px] leading-[0] not-italic transition-colors",
         {
           "pointer-events-none opacity-50 cursor-not-allowed": isDisabled,
           "bg-[rgba(133,241,255,0.25)] text-white": isActive && !isDisabled,
@@ -97,7 +97,7 @@ const SideNav = ({ className }: { className?: string }) => {
       <div className="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-[202px]" data-name="Footer">
         <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0">
           <div className="bg-white box-border content-stretch flex flex-col gap-6 items-start justify-start p-[24px] relative rounded-[16px] shrink-0 w-[202px]" data-name="Footer">
-            <div className="content-stretch flex flex-col font-['General_Sans'] gap-4 items-start justify-start leading-[0] not-italic overflow-clip relative shrink-0 text-[#69737c] text-[14px] w-[98px]" data-name="Menu">
+            <div className="content-stretch flex flex-col font-sans gap-4 items-start justify-start leading-[0] not-italic overflow-clip relative shrink-0 text-[#69737c] text-[14px] w-[98px]" data-name="Menu">
               <button type="button" className="relative shrink-0 w-full text-left hover:text-[#80848a] transition-colors">
                 <p className="leading-[16px]">Technical help</p>
               </button>

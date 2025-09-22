@@ -61,7 +61,7 @@ export function CollectionListView({
                   />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[16px] font-medium text-[#222526] truncate">
+                  <div className="text-base font-medium text-[#222526] truncate">
                     {collection.title}
                   </div>
                 </div>

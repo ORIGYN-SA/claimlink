@@ -102,7 +102,7 @@ function DateField() {
         <Input
           type="date"
           placeholder="dd/mm/yyyy"
-          className="bg-white px-6 py-2.5 rounded-[100px] border border-[#e1e1e1] h-auto text-[16px] placeholder:text-[#69737c] w-full"
+          className="bg-white px-6 py-2.5 rounded-[100px] border border-[#e1e1e1] h-auto text-base placeholder:text-[#69737c] w-full"
         />
       </div>
     </div>

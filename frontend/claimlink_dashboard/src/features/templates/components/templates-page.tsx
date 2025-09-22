@@ -58,7 +58,7 @@ const TemplatesPage: React.FC = () => {
     <div className="space-y-6 max-w-none">
       {/* Page Description */}
       <div>
-        <p className="font-['General_Sans'] font-light text-[#69737c] text-base leading-8">
+        <p className="font-sans font-light text-[#69737c] text-base leading-8">
           You can manage your organization's collections that hosts your
           certificates
         </p>
@@ -87,7 +87,7 @@ const TemplatesPage: React.FC = () => {
             {/* Title */}
             <div className="flex items-start justify-between">
               <div>
-                <h2 className="font-['General_Sans'] font-medium text-[#222526] text-lg leading-normal">
+                <h2 className="font-sans font-medium text-[#222526] text-lg leading-normal">
                   My template{" "}
                   <span className="text-[#69737c]">
                     ({mockTemplates.length})
@@ -114,11 +114,11 @@ const TemplatesPage: React.FC = () => {
         {/* Footer with Pagination */}
         <div className="bg-white border border-[#f2f2f2] rounded-b-[25px] px-10 py-4 flex items-center justify-between shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)]">
           <div className="flex items-center gap-2.5">
-            <span className="font-['General_Sans'] font-normal text-[#86858a] text-[13px]">
+            <span className="font-sans font-normal text-[#86858a] text-13px">
               Lines per page
             </span>
             <div className="bg-white border border-[#e1e1e1] rounded-full px-2.5 py-[5px] flex items-center gap-[5px]">
-              <span className="font-['General_Sans'] font-medium text-[#222526] text-[13px]">
+              <span className="font-sans font-medium text-[#222526] text-13px">
                 {linesPerPage}
               </span>
               <div className="w-2 h-2 rotate-90">
@@ -157,7 +157,7 @@ const TemplatesPage: React.FC = () => {
               </svg>
             </button>
 
-            <div className="flex items-center gap-4 font-['General_Sans'] text-[13px]">
+            <div className="flex items-center gap-4 font-sans text-13px">
               <span className="font-medium text-[#222526] bg-[#cde9ec66] rounded-[11px] w-7 h-7 flex items-center justify-center">
                 1
               </span>

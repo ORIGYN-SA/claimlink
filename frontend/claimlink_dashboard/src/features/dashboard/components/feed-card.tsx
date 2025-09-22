@@ -17,7 +17,7 @@ export function FeedCard({ title, id = "65d32901f244eeb354d4b2df", className }: 
         <div className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-white border border-[#e1e1e1]" />
       </div>
       <div>
-        <div className="text-[16px] leading-6 text-[#061937]">{title}</div>
+        <div className="text-base leading-6 text-[#061937]">{title}</div>
         <div className="text-[13px] text-[#69737c] leading-none">
           {id}
         </div>

@@ -23,7 +23,7 @@ export function CollectionSection() {
     <div className="bg-white box-border flex flex-col gap-4 items-center justify-center px-5 py-6 rounded-[25px] w-full border border-[#efece3]">
       <div className="flex flex-col gap-4 items-start justify-center w-full">
         <div className="flex flex-col gap-2 items-start justify-center">
-          <div className="font-['DM_Sans'] font-semibold text-[#222526] text-[16px]">
+          <div className="font-['DM_Sans'] font-semibold text-[#222526] text-base">
             Collection
           </div>
         </div>

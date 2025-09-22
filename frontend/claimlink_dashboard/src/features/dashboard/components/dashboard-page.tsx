@@ -59,7 +59,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
       {/* Stats Section */}
       <div className="w-full">
         <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full">
-          <div className="font-['General_Sans'] font-medium text-black text-sm leading-4 mb-4">
+          <div className="font-sans font-medium text-black text-sm leading-4 mb-4">
             Total certificate status
           </div>
           <div className="flex gap-4 items-start justify-start shadow-[0_3px_4px_0_rgba(0,0,0,0.05)] w-full">
@@ -110,19 +110,19 @@ export function DashboardPage({ className }: DashboardPageProps) {
             <Card className="bg-white border-[#f2f2f2] border-t border-l border-r border-b-0 rounded-t-2xl rounded-b-none p-4">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex flex-col gap-1">
-                  <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
+                  <div className="font-sans font-medium text-[#222526] text-sm leading-4">
                     Last Certificate Owners
                   </div>
-                  <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
+                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
                     Last 7 days
                   </div>
                 </div>
-                <button className="font-['General_Sans'] font-medium text-[#615bff] text-[13px] leading-normal pb-1">
+                <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
                   View all
                 </button>
               </div>
               <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center justify-between">
-                <span className="font-['General_Sans'] font-light text-[#69737c] text-[13px] leading-normal">
+                <span className="font-sans font-light text-[#69737c] text-[13px] leading-normal">
                   Search for an item
                 </span>
                 <div className="w-4 h-4">
@@ -142,19 +142,19 @@ export function DashboardPage({ className }: DashboardPageProps) {
             <Card className="bg-white border-[#f2f2f2] border-t border-l border-r border-b-0 rounded-t-2xl rounded-b-none p-4">
               <div className="flex items-start justify-between mb-2">
                 <div className="flex flex-col gap-1">
-                  <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
+                  <div className="font-sans font-medium text-[#222526] text-sm leading-4">
                     Last Sent certificates
                   </div>
-                  <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
+                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
                     Last 7 days
                   </div>
                 </div>
-                <button className="font-['General_Sans'] font-medium text-[#615bff] text-[13px] leading-normal pb-1">
+                <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
                   View all
                 </button>
               </div>
               <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center justify-between">
-                <span className="font-['General_Sans'] font-light text-[#69737c] text-[13px] leading-normal">
+                <span className="font-sans font-light text-[#69737c] text-[13px] leading-normal">
                   Search for an item
                 </span>
                 <div className="w-4 h-4">
@@ -165,10 +165,10 @@ export function DashboardPage({ className }: DashboardPageProps) {
             <div className="bg-white border-[#f2f2f2] border-l border-r border-b rounded-bl-2xl rounded-br-2xl px-4 pb-4">
               {sentCertificates.map((cert, index) => (
                 <div key={index} className="flex items-center justify-between py-2">
-                  <div className="font-['General_Sans'] font-normal text-[#222526] text-sm leading-4">
+                  <div className="font-sans font-normal text-[#222526] text-sm leading-4">
                     {cert.title}
                   </div>
-                  <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
+                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
                     {cert.date}
                   </div>
                 </div>
@@ -181,15 +181,15 @@ export function DashboardPage({ className }: DashboardPageProps) {
         <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full lg:flex-1 min-w-0">
           <div className="flex items-start justify-between mb-4">
             <div className="flex flex-col gap-1">
-              <div className="font-['General_Sans'] font-medium text-[#222526] text-sm leading-4">
+              <div className="font-sans font-medium text-[#222526] text-sm leading-4">
                 Last minted Certificate
               </div>
-              <div className="font-['General_Sans'] font-normal text-[#69737c] text-[13px] leading-normal">
+              <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
                 Last 30 days
               </div>
             </div>
             <div className="flex gap-2 items-center">
-              <button className="font-['General_Sans'] font-medium text-[#615bff] text-[13px] leading-normal pb-1">
+              <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
                 View all
               </button>
               <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1 flex gap-0.5">

@@ -42,7 +42,7 @@ export function CollectionCard({ collection, onClick, className }: CollectionCar
         {/* Description */}
         <div className="flex flex-col gap-2 w-full">
           <div className="flex gap-2 items-start w-full">
-            <h3 className="flex-1 text-[18px] font-normal text-[#222526] leading-normal">
+            <h3 className="flex-1 text-lg font-normal text-[#222526] leading-normal">
               {collection.title}
             </h3>
           </div>
