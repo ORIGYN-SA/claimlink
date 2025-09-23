@@ -1,39 +1,8 @@
 import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { TemplateCard } from "./template-card";
-import type { Template } from "../types/template.types";
-// import { mockTemplates } from "@/shared/data/templates";
-
-// Mock data for demonstration - this would come from API in real implementation
-const mockTemplates: Template[] = [
-  {
-    id: "1",
-    name: "Template name",
-    description: "Sample template",
-    category: "existing",
-    certificateCount: 4,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "2",
-    name: "Template name",
-    description: "Sample template",
-    category: "existing",
-    certificateCount: 4,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "3",
-    name: "Template name",
-    description: "Sample template",
-    category: "existing",
-    certificateCount: 4,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-];
+import type { Template } from "@/shared/data/templates";
+import { mockTemplates } from "@/shared/data/templates";
 
 const TemplatesPage: React.FC = () => {
   const [linesPerPage] = useState(10);

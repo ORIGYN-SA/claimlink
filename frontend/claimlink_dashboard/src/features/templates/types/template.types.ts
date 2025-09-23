@@ -1,14 +1,4 @@
-export interface Template {
-  id: string
-  name: string
-  description: string
-  category: 'manual' | 'ai' | 'existing'
-  certificateCount?: number
-  createdAt: Date
-  updatedAt: Date
-  thumbnail?: string
-  metadata?: Record<string, any>
-}
+import type { Template } from "@/shared/data/templates"
 
 export interface CreateTemplateInput {
   name: string

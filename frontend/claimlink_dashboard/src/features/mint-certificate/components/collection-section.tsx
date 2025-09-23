@@ -86,7 +86,7 @@ export function CollectionSection() {
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-[8px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
                       <img
-                        src={template.previewImage}
+                        src={template.thumbnail || "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop"}
                         alt={template.name}
                         className="w-full h-full object-cover"
                       />
@@ -94,7 +94,7 @@ export function CollectionSection() {
                     <div className="flex flex-col">
                       <span className="font-medium text-[#222526] text-[14px]">
                         {template.name}
-                        {template.isPremium && (
+                        {template.metadata?.premium && (
                           <span className="ml-2 text-[#615bff] text-[10px] font-bold bg-[#615bff]/10 px-2 py-0.5 rounded-full">
                             PRO
                           </span>
