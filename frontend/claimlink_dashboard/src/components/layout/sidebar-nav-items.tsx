@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import Icon from "@/shared/ui/icons";
+import { LayoutGrid, Layers, Timer, ImagePlus, UserPlus, ScrollText, BookCopy } from "lucide-react";
 
 const navItems: {
   title: string;
@@ -9,32 +10,32 @@ const navItems: {
   {
     title: "Dashboard",
     url: "/dashboard",
-    icon: <Icon.Redeem />,
+    icon: <LayoutGrid />,
   },
   {
     title: "Collections",
     url: "/collections",
-    icon: <Icon.Earn />,
+    icon: <Layers />,
   },
   {
     title: "Templates",
     url: "/templates",
-    icon: <Icon.Govern />,
+    icon: <BookCopy/>,
   },
   {
     title: "Mint Certificate",
     url: "/mint_certificate",
-    icon: <Icon.Wallet width={24} />,
+    icon: <ScrollText />,
   },
   {
     title: "Mint NFT",
     url: "/mint_nft",
-    icon: <Icon.Speedometer width={24} />,
+    icon: <ImagePlus />,
   },
   {
     title: "Account",
     url: "/account",
-    icon: <Icon.Wallet width={24} />,
+    icon: <UserPlus />,
   },
 ];
 
