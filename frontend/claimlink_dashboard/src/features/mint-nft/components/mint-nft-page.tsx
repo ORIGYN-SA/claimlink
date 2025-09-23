@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Pagination } from "@/components/common";
 import { NFTList } from "../../nfts/components/nft-list";
 import { useNFTs } from "../../nfts/api/nfts.queries";
 import type { NFT } from "../../nfts/types/nft.types";
@@ -168,84 +169,13 @@ export function MintNFTPage() {
         </div>
 
         {/* Footer - Pagination */}
-        <div className="bg-white border-t border-[#f2f2f2] px-10 py-4 rounded-b-[25px] flex items-center justify-between">
-          {/* Lines per page */}
-          <div className="flex gap-2.5 items-center">
-            <span className="text-[13px] text-[#86858a] leading-normal">Lines per page</span>
-            <Select
-              value={itemsPerPage.toString()}
-              onValueChange={(value) => setItemsPerPage(parseInt(value))}
-            >
-              <SelectTrigger className="w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5">5</SelectItem>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="p-2 h-8 w-8 rounded-full"
-            >
-              ←
-            </Button>
-
-            <div className="flex items-center gap-2">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                const page = i + 1;
-                return (
-                  <Button
-                    key={page}
-                    variant={currentPage === page ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setCurrentPage(page)}
-                    className={cn(
-                      "h-7 w-7 rounded-[11px] text-[13px]",
-                      currentPage === page
-                        ? "bg-[rgba(205,233,236,0.4)] text-[#222526]"
-                        : "text-[#69737c]"
-                    )}
-                  >
-                    {page}
-                  </Button>
-                );
-              })}
-              {totalPages > 5 && (
-                <>
-                  <span className="text-[#69737c] text-[13px]">...</span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setCurrentPage(totalPages)}
-                    className="h-7 w-7 rounded-[11px] text-[13px] text-[#69737c]"
-                  >
-                    {totalPages}
-                  </Button>
-                </>
-              )}
-            </div>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="p-2 h-8 w-8 rounded-full"
-            >
-              →
-            </Button>
-          </div>
-        </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={itemsPerPage}
+          onPageChange={setCurrentPage}
+          onItemsPerPageChange={setItemsPerPage}
+        />
       </div>
     </div>
   );

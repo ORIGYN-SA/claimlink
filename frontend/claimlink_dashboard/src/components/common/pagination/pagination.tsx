@@ -100,7 +100,11 @@ export function Pagination({
             </SelectTrigger>
             <SelectContent>
               {itemsPerPageOptions.map((option) => (
-                <SelectItem key={option} value={option.toString()}>
+                <SelectItem 
+                  key={option} 
+                  value={option.toString()}
+                  className="cursor-pointer hover:bg-[#f0f0f0] focus:bg-[#f0f0f0] transition-colors"
+                >
                   {option}
                 </SelectItem>
               ))}
