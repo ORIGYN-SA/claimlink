@@ -8,8 +8,7 @@ export interface CreateTemplateInput {
 }
 
 export interface TemplateCardProps {
-  template?: Template
-  variant: 'create-manual' | 'create-ai' | 'create-existing' | 'template'
+  template: Template
   onClick?: () => void
 }
 
