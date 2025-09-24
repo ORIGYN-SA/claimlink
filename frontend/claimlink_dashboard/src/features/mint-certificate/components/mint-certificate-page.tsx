@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Grid, List, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Grid, List, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Pagination, SearchInput } from "@/components/common";
+import { Pagination, SearchInput, FilterSelect } from "@/components/common";
+import type { FilterOption } from "@/components/common";
 import { TokenGridView } from "@/components/common/token-grid-view";
 import { mockCertificates } from "@/shared/data/certificates";
 import type { Certificate } from "../../certificates/types/certificate.types";
@@ -17,6 +17,15 @@ export function MintCertificatePage() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Status filter options
+  const statusOptions: FilterOption[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'Minted', label: 'Minted' },
+    { value: 'Transferred', label: 'Transferred' },
+    { value: 'Waiting', label: 'Waiting for minting' },
+    { value: 'Burned', label: 'Burned' }
+  ];
 
   const handleCertificateClick = (certificate: Certificate) => {
     console.log('Certificate clicked:', certificate);
@@ -57,19 +66,13 @@ export function MintCertificatePage() {
           />
 
           {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[250px] rounded-full border-[#e1e1e1] bg-white h-12">
-              <SelectValue placeholder="Status" />
-              <ChevronDown className="w-2 h-2" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Minted">Minted</SelectItem>
-              <SelectItem value="Transferred">Transferred</SelectItem>
-              <SelectItem value="Waiting">Waiting for minting</SelectItem>
-              <SelectItem value="Burned">Burned</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterSelect
+            placeholder="Status"
+            value={statusFilter}
+            options={statusOptions}
+            onValueChange={setStatusFilter}
+            width="w-[250px]"
+          />
         </div>
 
         {/* Mint Certificate Button */}

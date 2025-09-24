@@ -1,5 +1,6 @@
 import React from "react";
-import { SearchInput } from "@/components/common/search-input";
+import { SearchInput, FilterSelect } from "@/components/common";
+import type { FilterOption } from "@/components/common";
 import { Button } from "@/components/ui/button";
 
 interface TemplatesActionsProps {
@@ -17,34 +18,32 @@ const TemplatesActions: React.FC<TemplatesActionsProps> = ({
   onStatusChange,
   onCreateTemplate,
 }) => {
+  // Status filter options
+  const statusOptions: FilterOption[] = [
+    { value: 'all', label: 'Status' },
+    { value: 'existing', label: 'Existing' },
+    { value: 'manual', label: 'Manual' },
+    { value: 'ai', label: 'AI Generated' }
+  ];
   return (
     <div className="flex gap-[16px] items-center">
       {/* Search Input */}
       <div className="flex-1 ">
         <SearchInput
+          placeholder="Search for templates"
           value={searchQuery}
           onChange={onSearchChange}
         />
       </div>
 
-      {/* Status Dropdown */}
-      <div className="relative">
-        <select
-          value={selectedStatus}
-          onChange={(e) => onStatusChange(e.target.value)}
-          className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 pr-8 text-[14px] font-semibold text-[#222526] focus:outline-none focus:ring-2 focus:ring-[#222526]/20 appearance-none cursor-pointer"
-        >
-          <option value="all">Status</option>
-          <option value="existing">Existing</option>
-          <option value="manual">Manual</option>
-          <option value="ai">AI Generated</option>
-        </select>
-        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-          <svg viewBox="0 0 8 8" fill="currentColor" className="w-2 h-2 text-[#222526]">
-            <path d="M2 3L4 5L6 3" stroke="currentColor" strokeWidth="1" fill="none" />
-          </svg>
-        </div>
-      </div>
+      {/* Status Filter */}
+      <FilterSelect
+        placeholder="Status"
+        value={selectedStatus}
+        options={statusOptions}
+        onValueChange={onStatusChange}
+        width="w-[160px]"
+      />
 
       {/* Create Template Button */}
       <Button

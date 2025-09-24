@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Grid, List, ChevronDown } from "lucide-react";
+import { Grid, List } from "lucide-react";
 // import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Pagination, SearchInput } from "@/components/common";
+import { Pagination, SearchInput, FilterSelect } from "@/components/common";
+import type { FilterOption } from "@/components/common";
 import { NFTList } from "../../nfts/components/nft-list";
 import { useNFTs } from "../../nfts/api/nfts.queries";
 import type { NFT } from "../../nfts/types/nft.types";
@@ -17,6 +17,24 @@ export function MintNFTPage() {
   const [rarityFilter, setRarityFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Filter options
+  const statusOptions: FilterOption[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'Minted', label: 'Minted' },
+    { value: 'Transferred', label: 'Transferred' },
+    { value: 'Waiting', label: 'Waiting for minting' },
+    { value: 'Burned', label: 'Burned' }
+  ];
+
+  const rarityOptions: FilterOption[] = [
+    { value: 'all', label: 'All Rarity' },
+    { value: 'Common', label: 'Common' },
+    { value: 'Uncommon', label: 'Uncommon' },
+    { value: 'Rare', label: 'Rare' },
+    { value: 'Epic', label: 'Epic' },
+    { value: 'Legendary', label: 'Legendary' }
+  ];
 
   // Fetch NFTs using React Query
   const { data: nfts = [] } = useNFTs();
@@ -63,35 +81,22 @@ export function MintNFTPage() {
           />
 
           {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px] rounded-full border-[#e1e1e1] bg-white h-12">
-              <SelectValue placeholder="Status" />
-              <ChevronDown className="w-2 h-2" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Minted">Minted</SelectItem>
-              <SelectItem value="Transferred">Transferred</SelectItem>
-              <SelectItem value="Waiting">Waiting for minting</SelectItem>
-              <SelectItem value="Burned">Burned</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterSelect
+            placeholder="Status"
+            value={statusFilter}
+            options={statusOptions}
+            onValueChange={setStatusFilter}
+            width="w-[180px]"
+          />
 
           {/* Rarity Filter */}
-          <Select value={rarityFilter} onValueChange={setRarityFilter}>
-            <SelectTrigger className="w-[150px] rounded-full border-[#e1e1e1] bg-white h-12">
-              <SelectValue placeholder="Rarity" />
-              <ChevronDown className="w-2 h-2" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Rarity</SelectItem>
-              <SelectItem value="Common">Common</SelectItem>
-              <SelectItem value="Uncommon">Uncommon</SelectItem>
-              <SelectItem value="Rare">Rare</SelectItem>
-              <SelectItem value="Epic">Epic</SelectItem>
-              <SelectItem value="Legendary">Legendary</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterSelect
+            placeholder="Rarity"
+            value={rarityFilter}
+            options={rarityOptions}
+            onValueChange={setRarityFilter}
+            width="w-[150px]"
+          />
         </div>
 
         {/* Mint NFT Button */}

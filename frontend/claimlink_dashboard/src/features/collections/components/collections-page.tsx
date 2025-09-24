@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Grid, List, ChevronDown } from "lucide-react";
+import { Grid, List } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
-import { Pagination, SearchInput } from "@/components/common";
+import { Pagination, SearchInput, FilterSelect } from "@/components/common";
+import type { FilterOption } from "@/components/common";
 import { CollectionGridView } from "./collection-grid-view";
 import { CollectionListView } from "./collection-list-view";
 import { mockCollections } from "@/shared/data/collections";
@@ -17,6 +17,14 @@ export function CollectionsPage() {
   const [statusFilter, setStatusFilter] = useState<CollectionStatus>('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  // Status filter options
+  const statusOptions: FilterOption[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'Active', label: 'Active' },
+    { value: 'Inactive', label: 'Inactive' },
+    { value: 'Draft', label: 'Draft' }
+  ];
 
   const handleCollectionClick = (collection: Collection) => {
     console.log('Collection clicked:', collection);
@@ -58,18 +66,13 @@ export function CollectionsPage() {
           />
 
           {/* Status Filter */}
-          <Select value={statusFilter} onValueChange={(value) => setStatusFilter(value as CollectionStatus)}>
-            <SelectTrigger className="w-[200px] rounded-full border-[#e1e1e1] bg-white h-12">
-              <SelectValue placeholder="Status" />
-              <ChevronDown className="w-2 h-2" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="Active">Active</SelectItem>
-              <SelectItem value="Inactive">Inactive</SelectItem>
-              <SelectItem value="Draft">Draft</SelectItem>
-            </SelectContent>
-          </Select>
+          <FilterSelect
+            placeholder="Status"
+            value={statusFilter}
+            options={statusOptions}
+            onValueChange={(value) => setStatusFilter(value as CollectionStatus)}
+            width="w-[200px]"
+          />
         </div>
 
         {/* Create Collection Button */}
