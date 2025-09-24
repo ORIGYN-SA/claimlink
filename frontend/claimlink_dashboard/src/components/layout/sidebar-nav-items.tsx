@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Icon from "@/shared/ui/icons";
 import { LayoutGrid, Layers, Timer, ImagePlus, UserPlus, ScrollText, BookCopy } from "lucide-react";
 
 const navItems: {

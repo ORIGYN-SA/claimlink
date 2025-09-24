@@ -20,7 +20,7 @@ const TemplatesActions: React.FC<TemplatesActionsProps> = ({
   return (
     <div className="flex gap-[16px] items-center">
       {/* Search Input */}
-      <div className="flex-1 max-w-md">
+      <div className="flex-1 ">
         <SearchInput
           value={searchQuery}
           onChange={onSearchChange}

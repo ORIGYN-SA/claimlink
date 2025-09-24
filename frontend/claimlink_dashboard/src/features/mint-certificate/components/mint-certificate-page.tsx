@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { Search, Grid, List, ChevronDown, MoreHorizontal } from "lucide-react";
+import { Grid, List, ChevronDown, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 // import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { Pagination } from "@/components/common";
+import { Pagination, SearchInput } from "@/components/common";
 import { TokenGridView } from "@/components/common/token-grid-view";
 import { mockCertificates } from "@/shared/data/certificates";
 import type { Certificate } from "../../certificates/types/certificate.types";
@@ -51,15 +50,11 @@ export function MintCertificatePage() {
         {/* Search and Dropdown Actions */}
         <div className="flex-1 flex gap-2 items-center">
           {/* Search */}
-          <div className="flex-1 relative">
-            <Input
-              placeholder="Search for an item"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pr-10 rounded-full border-[#e1e1e1] bg-white h-12"
-            />
-            <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#69737c]" />
-          </div>
+          <SearchInput
+            placeholder="Search for an item"
+            value={searchQuery}
+            onChange={setSearchQuery}
+          />
 
           {/* Status Filter */}
           <Select value={statusFilter} onValueChange={setStatusFilter}>
