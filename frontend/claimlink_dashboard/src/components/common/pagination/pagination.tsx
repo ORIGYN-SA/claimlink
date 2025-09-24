@@ -95,7 +95,7 @@ export function Pagination({
             value={itemsPerPage.toString()}
             onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
           >
-            <SelectTrigger className="cursor-pointer w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white hover:bg-[#f9f9f9] transition-colors">
+            <SelectTrigger size="sm" className="cursor-pointer w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white hover:bg-[#f9f9f9] transition-colors">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
