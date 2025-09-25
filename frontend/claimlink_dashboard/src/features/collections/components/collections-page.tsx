@@ -1,14 +1,11 @@
 import { useState } from "react";
-import { Grid, List } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Pagination, SearchInput, FilterSelect } from "@/components/common";
+import { Pagination, SearchInput, FilterSelect, StandardizedGridListContainer, type ViewMode, type ListColumn } from "@/components/common";
 import type { FilterOption } from "@/components/common";
-import { CollectionGridView } from "./collection-grid-view";
-import { CollectionListView } from "./collection-list-view";
+import { CollectionStatusBadge } from "./collection-status-badge";
 import { mockCollections } from "@/shared/data/collections";
-import type { Collection, ViewMode, CollectionStatus } from "../types/collection.types";
+import type { Collection, CollectionStatus } from "../types/collection.types";
 
 export function CollectionsPage() {
   const navigate = useNavigate();
@@ -24,6 +21,63 @@ export function CollectionsPage() {
     { value: 'Active', label: 'Active' },
     { value: 'Inactive', label: 'Inactive' },
     { value: 'Draft', label: 'Draft' }
+  ];
+
+  // List view columns configuration
+  const listColumns: ListColumn[] = [
+    { key: 'ref', label: 'Ref', width: '50px' },
+    { key: 'createdDate', label: 'Created', width: '120px' },
+    { 
+      key: 'name', 
+      label: 'Name', 
+      width: '1fr',
+      render: (collection: Collection) => (
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
+            <img
+              src={collection.imageUrl}
+              alt={collection.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-base font-medium text-[#222526] truncate">
+              {collection.title}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'description', 
+      label: 'Description', 
+      width: '1fr',
+      render: (collection: Collection) => (
+        <div className="text-[14px] font-normal text-[#69737c] truncate">
+          {collection.description}
+        </div>
+      )
+    },
+    { 
+      key: 'itemCount', 
+      label: 'Items', 
+      width: '100px',
+      render: (collection: Collection) => (
+        <div className="text-[14px] font-medium text-[#69737c]">
+          {collection.itemCount}
+        </div>
+      )
+    },
+    { 
+      key: 'status', 
+      label: 'Status', 
+      width: '120px',
+      render: (collection: Collection) => (
+        <div className="flex items-center">
+          <CollectionStatusBadge status={collection.status} />
+        </div>
+      )
+    }
   ];
 
   const handleCollectionClick = (collection: Collection) => {
@@ -51,6 +105,12 @@ export function CollectionsPage() {
   const totalPages = Math.ceil(filteredCollections.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedCollections = filteredCollections.slice(startIndex, startIndex + itemsPerPage);
+  
+  // Add reference numbers for list view
+  const paginatedCollectionsWithRef = paginatedCollections.map((collection, index) => ({
+    ...collection,
+    ref: `#${String(startIndex + index + 1).padStart(3, '0')}`
+  }));
 
   return (
     <div className="bg-[#fcfafa] rounded-b-[20px] p-6 w-full">
@@ -86,74 +146,30 @@ export function CollectionsPage() {
       </div>
 
       {/* Collections List */}
-      <div className="bg-white shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] border border-[#f2f2f2] rounded-[16px] overflow-hidden">
-        {/* Header */}
-        <div className="bg-white border-b border-[#f2f2f2] p-4">
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col gap-1">
-              <h2 className="text-lg font-medium text-[#222526] leading-normal">
-                Collections <span className="text-[#69737c]">({filteredCollections.length})</span>
-              </h2>
-            </div>
+      <StandardizedGridListContainer
+        title="Collections"
+        totalCount={filteredCollections.length}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        items={paginatedCollectionsWithRef}
+        onItemClick={handleCollectionClick}
+        onAddItem={handleCreateCollection}
+        showCertifiedBadge={false}
+        addButtonText="Create a collection"
+        addButtonDescription="Create a new collection"
+        listColumns={listColumns}
+        addItemText="Create your first collection"
+        onMoreActionsClick={(collection) => console.log('More actions for collection:', collection.id)}
+      />
 
-            {/* View Toggle */}
-            <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1 flex gap-0.5">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className={cn(
-                  "rounded-full p-1 w-8 h-8",
-                  viewMode === 'grid'
-                    ? "bg-[#061937] text-white"
-                    : "bg-[#fcfafa] text-[#69737c] hover:bg-[#f0f0f0]"
-                )}
-              >
-                <Grid className="w-4 h-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className={cn(
-                  "rounded-full p-1 w-8 h-8",
-                  viewMode === 'list'
-                    ? "bg-[#061937] text-white"
-                    : "bg-[#fcfafa] text-[#69737c] hover:bg-[#f0f0f0]"
-                )}
-              >
-                <List className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="bg-white p-4">
-          {viewMode === 'grid' ? (
-            <CollectionGridView
-              collections={paginatedCollections}
-              onCollectionClick={handleCollectionClick}
-              onAddCollection={handleCreateCollection}
-            />
-          ) : (
-            <CollectionListView
-              collections={paginatedCollections}
-              onCollectionClick={handleCollectionClick}
-              onAddCollection={handleCreateCollection}
-            />
-          )}
-        </div>
-
-        {/* Footer - Pagination */}
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          itemsPerPage={itemsPerPage}
-          onPageChange={setCurrentPage}
-          onItemsPerPageChange={setItemsPerPage}
-        />
-      </div>
+      {/* Footer - Pagination */}
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        onPageChange={setCurrentPage}
+        onItemsPerPageChange={setItemsPerPage}
+      />
     </div>
   );
 }

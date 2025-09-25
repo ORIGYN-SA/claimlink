@@ -7,12 +7,10 @@ import {
   AwaitingCertificatesIcon,
   WalletCertificatesIcon,
   TransferredCertificatesIcon,
-  SearchIcon,
-  GridIcon,
-  LineIcon
+  SearchIcon
 } from "./icons";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { ViewToggle, type ViewMode } from "@/components/common";
 import { cn } from "@/lib/utils";
 import {
   CertificateCard,
@@ -45,7 +43,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
   }));
 
   // Add view mode state for grid/list toggle
-  const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = React.useState<ViewMode>('grid');
 
   return (
     <div
@@ -192,70 +190,24 @@ export function DashboardPage({ className }: DashboardPageProps) {
               <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
                 View all
               </button>
-              <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-full p-1 flex gap-0.5">
-                <Button
-                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('grid')}
-                  className={cn(
-                    "rounded-[21.5px] p-1 h-auto w-auto",
-                    viewMode === 'grid' ? "bg-[#061937] text-white" : "text-[#69737c]"
-                  )}
-                >
-                  <div className="w-4 h-4">
-                    <GridIcon />
-                  </div>
-                </Button>
-                <Button
-                  variant={viewMode === 'list' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode('list')}
-                  className={cn(
-                    "rounded-[21.5px] p-1 h-auto w-auto",
-                    viewMode === 'list' ? "bg-[#061937] text-white" : "text-[#69737c]"
-                  )}
-                >
-                  <div className="w-4 h-4">
-                    <LineIcon />
-                  </div>
-                </Button>
-              </div>
+              <ViewToggle
+                viewMode={viewMode}
+                onViewModeChange={setViewMode}
+                showListView={true}
+              />
             </div>
           </div>
           <div className="flex flex-col gap-4">
             {viewMode === 'grid' ? (
-              <>
-                {/* First Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                  {mintedCertificates.slice(0, 3).map((certificate) => (
-                    <CertificateCard
-                      key={certificate.id}
-                      certificate={certificate}
-                      onClick={() => console.log('Certificate clicked:', certificate)}
-                    />
-                  ))}
-                </div>
-                {/* Second Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                  {mintedCertificates.slice(3, 6).map((certificate) => (
-                    <CertificateCard
-                      key={certificate.id}
-                      certificate={certificate}
-                      onClick={() => console.log('Certificate clicked:', certificate)}
-                    />
-                  ))}
-                </div>
-                {/* Third Row */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                  {mintedCertificates.slice(6, 9).map((certificate) => (
-                    <CertificateCard
-                      key={certificate.id}
-                      certificate={certificate}
-                      onClick={() => console.log('Certificate clicked:', certificate)}
-                    />
-                  ))}
-                </div>
-              </>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+                {mintedCertificates.map((certificate) => (
+                  <CertificateCard
+                    key={certificate.id}
+                    certificate={certificate}
+                    onClick={() => console.log('Certificate clicked:', certificate)}
+                  />
+                ))}
+              </div>
             ) : (
               <CertificateListView
                 certificates={mintedCertificates}

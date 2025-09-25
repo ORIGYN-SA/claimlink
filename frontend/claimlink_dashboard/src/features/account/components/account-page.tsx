@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Edit, MoreHorizontal } from "lucide-react";
+import { Search, Edit } from "lucide-react";
+import { ListOnlyContainer, type ListColumn } from "@/components/common";
 import { mockUsers } from "@/shared/data";
 import { useNavigate } from "@tanstack/react-router";
 
@@ -41,6 +42,62 @@ export function AccountPage() {
     // TODO: Navigate to edit user page with user ID
     navigate({ to: "/account/edit_user" });
   };
+
+  // User list columns configuration
+  const userColumns: ListColumn[] = [
+    { 
+      key: 'user', 
+      label: 'Username', 
+      width: '400px',
+      render: (user) => (
+        <div className="flex items-center gap-3 w-[400px]">
+          <Avatar className="w-8 h-8">
+            <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
+              {user.username.split(' ').map((n: string) => n[0]).join('')}
+            </AvatarFallback>
+          </Avatar>
+          <div>
+            <p className="text-base font-medium text-[#222526]">{user.username}</p>
+            <p className="text-sm text-[#69737c] tracking-[0.01em]">{user.email}</p>
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'title', 
+      label: 'Title', 
+      width: '150px',
+      render: (user) => (
+        <div className="text-sm text-[#69737c] w-[150px]">{user.title}</div>
+      )
+    },
+    { 
+      key: 'access', 
+      label: 'Access', 
+      width: '1fr',
+      render: (user) => (
+        <div className="flex flex-wrap gap-1">
+          {user.access.map((access: string, idx: number) => (
+            <Badge
+              key={idx}
+              variant="secondary"
+              className={`text-xs px-2 py-1 rounded-full ${getAccessBadgeColor(access)}`}
+            >
+              {access}
+            </Badge>
+          ))}
+        </div>
+      )
+    },
+    { 
+      key: 'lastActive', 
+      label: 'Last active', 
+      width: '150px',
+      render: (user) => (
+        <div className="text-sm text-[#69737c] w-[150px]">{user.lastActive}</div>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -97,115 +154,34 @@ export function AccountPage() {
 
       {/* Users Table */}
       <div className="space-y-4">
-        {/* Table Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-medium text-[#222526]">
-              All users <span className="text-[#69737c]">({mockUsers.length})</span>
-            </h3>
+        {/* Search and Add User */}
+        <div className="flex items-center gap-4">
+          <div className="relative w-80">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#69737c] w-4 h-4" />
+            <Input
+              placeholder="Search for an item"
+              className="pl-10 bg-white border border-[#e1e1e1] rounded-full"
+            />
           </div>
 
-          {/* Search and Add User */}
-          <div className="flex items-center gap-4">
-            <div className="relative w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#69737c] w-4 h-4" />
-              <Input
-                placeholder="Search for an item"
-                className="pl-10 bg-white border border-[#e1e1e1] rounded-full"
-              />
-            </div>
-
-            <Button
-              onClick={handleCreateUser}
-              className="bg-[#222526] hover:bg-[#1a1a1a] text-white rounded-full px-6"
-            >
-              Add user
-            </Button>
-          </div>
+          <Button
+            onClick={handleCreateUser}
+            className="bg-[#222526] hover:bg-[#1a1a1a] text-white rounded-full px-6"
+          >
+            Add user
+          </Button>
         </div>
 
-        {/* Table */}
-        <Card className="bg-white border border-[#e1e1e1] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] overflow-hidden">
-          <div className="rounded-[25px] overflow-hidden">
-            {/* Table Header */}
-            <div className="bg-[#222526] px-10 py-4 rounded-t-[25px]">
-              <div className="grid grid-cols-5 gap-4 text-white text-sm font-medium">
-                <div className="w-[400px]">Username</div>
-                <div className="w-[150px]">Title</div>
-                <div className="flex-1">Access</div>
-                <div className="w-[150px]">Last active</div>
-                <div></div>
-              </div>
-            </div>
-
-            {/* Table Rows */}
-            <div className="divide-y divide-[#e1e1e1]">
-              {mockUsers.map((user) => (
-                <div
-                  key={user.id}
-                  className="px-10 py-4 hover:bg-gray-50 cursor-pointer"
-                  onClick={handleEditUser}
-                >
-                  <div className="grid grid-cols-5 gap-4 items-center">
-                    {/* User Info */}
-                    <div className="flex items-center gap-3 w-[400px]">
-                      <Avatar className="w-8 h-8">
-                        <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
-                          {user.username.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-base font-medium text-[#222526]">{user.username}</p>
-                        <p className="text-sm text-[#69737c] tracking-[0.01em]">{user.email}</p>
-                      </div>
-                    </div>
-
-                    {/* Title */}
-                    <div className="text-sm text-[#69737c] w-[150px]">{user.title}</div>
-
-                    {/* Access Tags */}
-                    <div className="flex flex-wrap gap-1">
-                      {user.access.map((access, idx) => (
-                        <Badge
-                          key={idx}
-                          variant="secondary"
-                          className={`text-xs px-2 py-1 rounded-full ${getAccessBadgeColor(access)}`}
-                        >
-                          {access}
-                        </Badge>
-                      ))}
-                    </div>
-
-                    {/* Last Active */}
-                    <div className="text-sm text-[#69737c] w-[150px]">{user.lastActive}</div>
-
-                    {/* Actions */}
-                    <div className="flex justify-center">
-                      <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Table Footer */}
-            <div className="px-10 py-4 bg-white border-t border-[#e1e1e1] flex items-center justify-between rounded-b-[25px]">
-              <div className="flex items-center gap-4 text-sm text-[#69737c]">
-                <span>Lines per page</span>
-                <Button variant="outline" size="sm" className="rounded-full border-[#e1e1e1] px-3">
-                  10
-                </Button>
-              </div>
-
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-[#222526] font-medium">1</span>
-                <span className="text-[#69737c]">2 3 ... 10 11 12</span>
-              </div>
-            </div>
-          </div>
-        </Card>
+        {/* Users List */}
+        <ListOnlyContainer
+          title="All users"
+          totalCount={mockUsers.length}
+          items={mockUsers}
+          columns={userColumns}
+          onItemClick={handleEditUser}
+          addItemText="Add your first user"
+          onMoreActionsClick={(user) => console.log('More actions for user:', user.id)}
+        />
       </div>
     </div>
   );

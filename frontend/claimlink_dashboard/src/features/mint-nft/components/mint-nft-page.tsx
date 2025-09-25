@@ -1,13 +1,13 @@
 import { useState } from "react";
 // import { useNavigate } from "@tanstack/react-router";
-import { Pagination } from "@/components/common";
+import { Pagination, StandardizedGridListContainer, type ViewMode } from "@/components/common";
 import { MintNFTActions } from "./mint-nft-actions";
-import { MintNFTGrid } from "./mint-nft-grid";
 import { useNFTs } from "../../nfts/api/nfts.queries";
 import type { NFT } from "../../nfts/types/nft.types";
 
 export function MintNFTPage() {
   // const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [rarityFilter, setRarityFilter] = useState('all');
@@ -83,11 +83,18 @@ export function MintNFTPage() {
       />
 
       {/* NFT Grid */}
-      <MintNFTGrid
-        nfts={paginatedNFTs}
+      <StandardizedGridListContainer
+        title="NFTs"
         totalCount={filteredNFTs.length}
-        onNFTClick={handleNFTClick}
-        onMintNFT={handleMintNFT}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        items={paginatedNFTs}
+        onItemClick={handleNFTClick}
+        onAddItem={handleMintNFT}
+        showCertifiedBadge={false}
+        addButtonText="Mint an NFT"
+        addButtonDescription="Create a new NFT"
+        listViewComingSoon={true}
       />
 
       {/* Pagination */}

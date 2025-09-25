@@ -1,14 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Pagination } from "@/components/common";
+import { Pagination, StandardizedGridListContainer, type ViewMode } from "@/components/common";
 import { CertificatesActions } from "./certificates-actions";
-import { CertificatesGrid } from "./certificates-grid";
 import { mockCertificates } from "@/shared/data/certificates";
 import type { Certificate } from "../../certificates/types/certificate.types";
 
 export function MintCertificatePage() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
@@ -36,7 +35,7 @@ export function MintCertificatePage() {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-  const handleViewModeChange = (mode: 'grid' | 'list') => {
+  const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
   };
 
@@ -71,12 +70,18 @@ export function MintCertificatePage() {
         onStatusChange={handleStatusChange}
         onMintCertificate={handleMintCertificate}
       />
-      <CertificatesGrid
-        certificates={paginatedCertificates}
+      <StandardizedGridListContainer
+        title="Certificate"
+        totalCount={filteredCertificates.length}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
-        onCertificateClick={handleCertificateClick}
-        onAddCertificate={handleAddCertificate}
+        items={paginatedCertificates}
+        onItemClick={handleCertificateClick}
+        onAddItem={handleAddCertificate}
+        showCertifiedBadge={true}
+        addButtonText="Create a certificate"
+        addButtonDescription="Create a campaign to distribute your NFTs via claim links"
+        listViewComingSoon={true}
       />
       <Pagination
         currentPage={currentPage}
