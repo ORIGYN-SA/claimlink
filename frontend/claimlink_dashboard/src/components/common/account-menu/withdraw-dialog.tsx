@@ -6,13 +6,15 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import icon from "@/assets/icon.svg";
 
 interface WithdrawDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
+  currentBalance?: number
 }
 
-export function WithdrawDialog({ isOpen, onOpenChange }: WithdrawDialogProps) {
+export function WithdrawDialog({ isOpen, onOpenChange, currentBalance = 0 }: WithdrawDialogProps) {
   const [amount, setAmount] = useState("")
   const [recipientAddress, setRecipientAddress] = useState("")
 
@@ -95,9 +97,7 @@ export function WithdrawDialog({ isOpen, onOpenChange }: WithdrawDialogProps) {
               </div>
               <div className="flex flex-col items-end gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 bg-[#615bff] rounded-full flex items-center justify-center">
-                    <span className="text-white text-[8px] font-bold">O</span>
-                  </div>
+                  <img src={icon} alt="logo" className="w-4 h-4" />
                   <span className="text-[#222526] text-base font-semibold">
                     {amount || "0"} OGY
                   </span>
@@ -124,11 +124,12 @@ export function WithdrawDialog({ isOpen, onOpenChange }: WithdrawDialogProps) {
               <span className="text-[#69737c] text-xs font-medium uppercase tracking-wide">
                 Current balance:
               </span>
-              <div className="w-2 h-2 bg-[#615bff] rounded-full flex items-center justify-center">
-                <span className="text-white text-[6px] font-bold">O</span>
-              </div>
+              <img src={icon} alt="logo" className="w-3 h-3" />
               <span className="text-[#69737c] text-sm font-semibold">
-                6,201.50 OGY
+                {currentBalance.toLocaleString(undefined, {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })} OGY
               </span>
             </div>
           </div>

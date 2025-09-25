@@ -218,6 +218,7 @@ export function AccountMenu({
       <WithdrawDialog
         isOpen={withdrawDialogOpen}
         onOpenChange={setWithdrawDialogOpen}
+        currentBalance={ogyBalance?.data?.balance || 0}
       />
     </Sheet>
   );
