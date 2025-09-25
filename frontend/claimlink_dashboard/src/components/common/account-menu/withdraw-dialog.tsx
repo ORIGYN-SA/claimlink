@@ -24,7 +24,7 @@ export function WithdrawDialog({ isOpen, onOpenChange }: WithdrawDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[400px] p-0 border-0 overflow-hidden"
+        className="w-[400px] p-0 border-0 overflow-hidden !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2 !z-[9999]"
         showCloseButton={false}
       >
         {/* Single container with proper sections */}
