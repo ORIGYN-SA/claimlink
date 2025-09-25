@@ -47,6 +47,7 @@ const TemplatesActions: React.FC<TemplatesActionsProps> = ({
 
       {/* Create Template Button */}
       <Button
+        size={"lg"}
         onClick={onCreateTemplate}
         className="bg-[#222526] hover:bg-[#222526]/90 text-white px-6 py-3 rounded-full font-semibold text-[14px]"
       >
