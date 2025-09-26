@@ -1,12 +1,8 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
 import { StatCard } from "./stat-card";
-import {
-  MintedCertificatesIcon,
-  AwaitingCertificatesIcon,
-  WalletCertificatesIcon,
-  TransferredCertificatesIcon
-} from "./icons";
+import { Wallet, ScrollText, Hourglass, ArrowLeftRight } from "lucide-react";
+
 
 interface StatusData {
   minted: {
@@ -52,7 +48,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             value={statusData.minted.value}
             trend={statusData.minted.trend}
             trendColor={statusData.minted.trendColor}
-            icon={<MintedCertificatesIcon />}
+            icon={<ScrollText className="w-4 h-4" />}
             className="flex-1"
           />
           <StatCard
@@ -60,7 +56,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             value={statusData.awaiting.value}
             trend={statusData.awaiting.trend}
             trendColor={statusData.awaiting.trendColor}
-            icon={<AwaitingCertificatesIcon />}
+            icon={<Hourglass className="w-4 h-4" />}
             className="flex-1"
           />
           <StatCard
@@ -68,7 +64,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             value={statusData.wallet.value}
             trend={statusData.wallet.trend}
             trendColor={statusData.wallet.trendColor}
-            icon={<WalletCertificatesIcon />}
+            icon={<Wallet className="w-4 h-4" />}
             className="flex-1"
           />
           <StatCard
@@ -76,7 +72,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             value={statusData.transferred.value}
             trend={statusData.transferred.trend}
             trendColor={statusData.transferred.trendColor}
-            icon={<TransferredCertificatesIcon />}
+            icon={<ArrowLeftRight className="w-4 h-4" />}
             className="flex-1"
           />
         </div>

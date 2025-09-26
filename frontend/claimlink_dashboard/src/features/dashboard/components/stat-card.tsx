@@ -1,7 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-// import { Badge } from "@/components/ui/badge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { StatCardProps } from "../types/dashboard.types";
+import { MoveDownRight, MoveUpRight, Info } from "lucide-react";
 
 // interface StatCardProps {
 //   title: string
@@ -21,8 +22,8 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <Card className={cn("border border-[#e8e8e8] rounded-2xl bg-white", className)}>
-      <CardContent className="p-4">
+    <Card className={cn("border border-[#e8e8e8] rounded-2xl bg-white py-4", className)}>
+      <CardContent >
         {/* Header with Icon and Title */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-1">
@@ -35,13 +36,15 @@ export function StatCard({
               {title}
             </div>
           </div>
-          {/* Info tooltip icon */}
-          <div className="w-3 h-3 opacity-50">
-            <svg viewBox="0 0 13 13" fill="none" className="w-full h-full">
-              <circle cx="6.5" cy="6.5" r="5.5" stroke="#69737c" strokeWidth="1"/>
-              <text x="6.5" y="9" fontSize="8" fill="#69737c" textAnchor="middle" fontFamily="General Sans">i</text>
-            </svg>
-          </div>
+          {/* Info tooltip */}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="w-3 h-3 text-[#69737c] opacity-50 cursor-help" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Additional information about {title}</p>
+            </TooltipContent>
+          </Tooltip>
         </div>
 
         {/* Value and Trend */}
@@ -58,17 +61,12 @@ export function StatCard({
             )}
           >
             {/* Trend Arrow */}
-            <div className="w-1.5 h-1.5 flex items-center justify-center">
-              <div 
-                className={cn(
-                  "transform",
-                  trendColor === "green" ? "rotate-180 scale-y-[-1]" : "rotate-180"
-                )}
-              >
-                <svg viewBox="0 0 6 6" fill="white" className="w-full h-full">
-                  <path d="M3 1L4.5 4H1.5L3 1Z" />
-                </svg>
-              </div>
+            <div className="w-3 h-3 flex items-center justify-center">
+              {trendColor === "green" ? (
+                <MoveUpRight className="w-full h-full text-white" />
+              ) : (
+                <MoveDownRight className="w-full h-full text-white" />
+              )}
             </div>
             <span className="font-sans font-medium text-white text-[10px] leading-normal">
               {trend}
