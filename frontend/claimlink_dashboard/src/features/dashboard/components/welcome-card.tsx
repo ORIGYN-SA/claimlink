@@ -10,7 +10,7 @@ interface WelcomeCardProps {
 export function WelcomeCard({ className }: WelcomeCardProps) {
   return (
     <div className={cn(
-      "p-8 rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.15),0_2px_4px_0_rgba(0,0,0,0.05)] text-white border-none w-[346px]",
+      "p-8 rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.15),0_2px_4px_0_rgba(0,0,0,0.05)] text-white border-none w-full",
       "bg-gradient-to-br from-[#061937] via-[#0b2d6a] to-[#1e3a8a]",
       className
     )}>

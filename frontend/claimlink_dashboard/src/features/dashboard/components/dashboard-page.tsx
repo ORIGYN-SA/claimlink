@@ -1,49 +1,76 @@
 import React from 'react';
-import { StatCard } from "./stat-card";
-import { WelcomeCard } from "./welcome-card";
-import { FeedCard } from "./feed-card";
-import {
-  MintedCertificatesIcon,
-  AwaitingCertificatesIcon,
-  WalletCertificatesIcon,
-  TransferredCertificatesIcon,
-  SearchIcon
-} from "./icons";
-import { Card } from "@/components/ui/card";
-import { ViewToggle, type ViewMode } from "@/components/common";
+import { useNavigate } from "@tanstack/react-router";
 import { cn } from "@/lib/utils";
+import { type ViewMode } from "@/components/common";
 import {
-  CertificateCard,
-  CertificateListView
-} from "@/features/certificates";
+  TotalStatusSection,
+  LastCertificateOwnersSection,
+  LastSentCertificatesSection,
+  LastMintedCertificatesSection,
+  WelcomeCard
+} from "./";
 import {
   mockCertificates,
   getMintedCertificates
 } from "@/shared/data/certificates";
+import type { Certificate } from "@/features/certificates/types/certificate.types";
 
 interface DashboardPageProps {
   className?: string;
 }
 
 export function DashboardPage({ className }: DashboardPageProps) {
-  // Use shared certificate data
-  const mintedCertificates = getMintedCertificates().slice(0, 9); // Get first 9 minted certificates
+  const navigate = useNavigate();
+  
+  // State management for all interactions
+  const [ownersSearchQuery, setOwnersSearchQuery] = React.useState('');
+  const [sentSearchQuery, setSentSearchQuery] = React.useState('');
+  const [viewMode, setViewMode] = React.useState<ViewMode>('grid');
 
-  // Mock certificate owners data (could be derived from certificates if needed)
+  // Data preparation
+  const mintedCertificates = getMintedCertificates().slice(0, 9);
+  
   const certificateOwners = [
     { title: "John Doe", date: "20 Feb, 2024" },
     { title: "Jane Smith", date: "19 Feb, 2024" },
     { title: "Bob Johnson", date: "18 Feb, 2024" },
   ];
 
-  // Use actual certificate data for sent certificates
   const sentCertificates = mockCertificates.slice(0, 2).map(cert => ({
     title: cert.title,
     date: cert.date
   }));
 
-  // Add view mode state for grid/list toggle
-  const [viewMode, setViewMode] = React.useState<ViewMode>('grid');
+  const statusData = {
+    minted: { value: "235", trend: "56%", trendColor: "green" as const },
+    awaiting: { value: "235", trend: "56%", trendColor: "green" as const },
+    wallet: { value: "235", trend: "11%", trendColor: "red" as const },
+    transferred: { value: "235", trend: "56%", trendColor: "green" as const },
+  };
+
+  const handleCertificateClick = (certificate: Certificate) => {
+    console.log('Certificate clicked:', certificate);
+  };
+
+  const handleAddCertificate = () => {
+    console.log('Add certificate clicked');
+  };
+
+  const handleViewAllOwners = () => {
+    console.log('View all owners clicked');
+  };
+
+  const handleViewAllSent = () => {
+    console.log('View all sent certificates clicked');
+  };
+
+  const handleViewAllMinted = () => {
+    navigate({ to: '/mint_certificate' });
+  };
+
+  const handleSentCertificateClick = (certificate: { title: string; date: string }) => {
+    console.log('Sent certificate clicked:', certificate);
+  };
 
   return (
     <div
@@ -52,50 +79,9 @@ export function DashboardPage({ className }: DashboardPageProps) {
         className,
       )}
     >
-      {/* Header - Using existing HeaderBar component */}
 
       {/* Stats Section */}
-      <div className="w-full">
-        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full">
-          <div className="font-sans font-medium text-black text-sm leading-4 mb-4">
-            Total certificate status
-          </div>
-          <div className="flex gap-4 items-start justify-start shadow-[0_3px_4px_0_rgba(0,0,0,0.05)] w-full">
-            <StatCard
-              title="Minted Certificates"
-              value="235"
-              trend="56%"
-              trendColor="green"
-              icon={<MintedCertificatesIcon />}
-              className="flex-1"
-            />
-            <StatCard
-              title="Awaiting Certificates"
-              value="235"
-              trend="56%"
-              trendColor="green"
-              icon={<AwaitingCertificatesIcon />}
-              className="flex-1"
-            />
-            <StatCard
-              title="Certificate in my wallet"
-              value="235"
-              trend="11%"
-              trendColor="red"
-              icon={<WalletCertificatesIcon />}
-              className="flex-1"
-            />
-            <StatCard
-              title="Transferred Certificates"
-              value="235"
-              trend="56%"
-              trendColor="green"
-              icon={<TransferredCertificatesIcon />}
-              className="flex-1"
-            />
-          </div>
-        </Card>
-      </div>
+      <TotalStatusSection statusData={statusData} />
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
@@ -103,120 +89,31 @@ export function DashboardPage({ className }: DashboardPageProps) {
         <div className="flex flex-col gap-6 items-start justify-start w-full lg:w-[346px] flex-shrink-0">
           <WelcomeCard />
 
-          {/* Last Certificate Owners */}
-          <div className="flex flex-col shadow-[0_2px_4px_0_rgba(0,0,0,0.05)]">
-            <Card className="bg-white border-[#f2f2f2] border-t border-l border-r border-b-0 rounded-t-2xl rounded-b-none p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex flex-col gap-1">
-                  <div className="font-sans font-medium text-[#222526] text-sm leading-4">
-                    Last Certificate Owners
-                  </div>
-                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
-                    Last 7 days
-                  </div>
-                </div>
-                <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
-                  View all
-                </button>
-              </div>
-              <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center justify-between">
-                <span className="font-sans font-light text-[#69737c] text-[13px] leading-normal">
-                  Search for an item
-                </span>
-                <div className="w-4 h-4">
-                  <SearchIcon />
-                </div>
-              </div>
-            </Card>
-            <div className="bg-white border-[#f2f2f2] border-l border-r border-b rounded-bl-2xl rounded-br-2xl px-4 pb-4">
-              {certificateOwners.map((owner, index) => (
-                <FeedCard key={index} title={owner.title} />
-              ))}
-            </div>
-          </div>
+          <LastCertificateOwnersSection
+            owners={certificateOwners}
+            searchQuery={ownersSearchQuery}
+            onSearchChange={setOwnersSearchQuery}
+            onViewAll={handleViewAllOwners}
+          />
 
-          {/* Last Sent Certificates */}
-          <div className="flex flex-col shadow-[0_2px_4px_0_rgba(0,0,0,0.05)]">
-            <Card className="bg-white border-[#f2f2f2] border-t border-l border-r border-b-0 rounded-t-2xl rounded-b-none p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex flex-col gap-1">
-                  <div className="font-sans font-medium text-[#222526] text-sm leading-4">
-                    Last Sent certificates
-                  </div>
-                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
-                    Last 7 days
-                  </div>
-                </div>
-                <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
-                  View all
-                </button>
-              </div>
-              <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center justify-between">
-                <span className="font-sans font-light text-[#69737c] text-[13px] leading-normal">
-                  Search for an item
-                </span>
-                <div className="w-4 h-4">
-                  <SearchIcon />
-                </div>
-              </div>
-            </Card>
-            <div className="bg-white border-[#f2f2f2] border-l border-r border-b rounded-bl-2xl rounded-br-2xl px-4 pb-4">
-              {sentCertificates.map((cert, index) => (
-                <div key={index} className="flex items-center justify-between py-2">
-                  <div className="font-sans font-normal text-[#222526] text-sm leading-4">
-                    {cert.title}
-                  </div>
-                  <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
-                    {cert.date}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <LastSentCertificatesSection
+            certificates={sentCertificates}
+            searchQuery={sentSearchQuery}
+            onSearchChange={setSentSearchQuery}
+            onViewAll={handleViewAllSent}
+            onCertificateClick={handleSentCertificateClick}
+          />
         </div>
 
         {/* Main Content Area */}
-        <Card className="bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full lg:flex-1 min-w-0">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex flex-col gap-1">
-              <div className="font-sans font-medium text-[#222526] text-sm leading-4">
-                Last minted Certificate
-              </div>
-              <div className="font-sans font-normal text-[#69737c] text-[13px] leading-normal">
-                Last 30 days
-              </div>
-            </div>
-            <div className="flex gap-2 items-center">
-              <button className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1">
-                View all
-              </button>
-              <ViewToggle
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                showListView={true}
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-4">
-            {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
-                {mintedCertificates.map((certificate) => (
-                  <CertificateCard
-                    key={certificate.id}
-                    certificate={certificate}
-                    onClick={() => console.log('Certificate clicked:', certificate)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <CertificateListView
-                certificates={mintedCertificates}
-                onCertificateClick={(certificate) => console.log('Certificate clicked:', certificate)}
-                onAddCertificate={() => console.log('Add certificate clicked')}
-              />
-            )}
-          </div>
-        </Card>
+        <LastMintedCertificatesSection
+          certificates={mintedCertificates}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onCertificateClick={handleCertificateClick}
+          onAddCertificate={handleAddCertificate}
+          onViewAll={handleViewAllMinted}
+        />
       </div>
     </div>
   );
