@@ -113,7 +113,7 @@ export function CollectionsPage() {
   }));
 
   return (
-    <div className="bg-[#fcfafa] rounded-b-[20px] p-6 w-full">
+    <div className="bg-[#fcfafa] rounded-b-[20px] w-full">
       {/* Search and Filter Actions */}
       <div className="flex gap-4 items-center w-full mb-6">
         {/* Search and Dropdown Actions */}
