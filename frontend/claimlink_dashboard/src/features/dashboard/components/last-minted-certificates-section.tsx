@@ -62,7 +62,8 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
             addButtonText="Create a certificate"
             addButtonDescription="Create your first certificate"
             showAddButton={certificates.length === 0}
-            gridCols="grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+            gridCols="grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+            compact={true}
           />
         ) : (
           <div className="text-center py-8 text-[#69737c]">

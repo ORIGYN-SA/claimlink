@@ -15,4 +15,5 @@ export interface TokenCardProps {
   showCertifiedBadge?: boolean;
   onClick?: (token: BaseToken) => void;
   className?: string;
+  compact?: boolean; // For smaller containers like dashboard
 }

@@ -13,6 +13,7 @@ interface StandardizedGridViewProps {
   showAddButton?: boolean; // Controls whether add button is shown
   gridCols?: string; // Allow customization of grid columns
   className?: string;
+  compact?: boolean; // For smaller containers like dashboard
 }
 
 export function StandardizedGridView({
@@ -24,7 +25,8 @@ export function StandardizedGridView({
   addButtonDescription = "Create a new item",
   showAddButton = true,
   gridCols = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
-  className
+  className,
+  compact = false
 }: StandardizedGridViewProps) {
   return (
     <div className={cn(
@@ -47,6 +49,7 @@ export function StandardizedGridView({
           token={item}
           showCertifiedBadge={showCertifiedBadge}
           onClick={onItemClick}
+          compact={compact}
         />
       ))}
     </div>

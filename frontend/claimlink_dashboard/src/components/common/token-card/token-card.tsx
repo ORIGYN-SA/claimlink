@@ -7,20 +7,23 @@ export function TokenCard({
   token,
   showCertifiedBadge = false,
   onClick,
-  className
+  className,
+  compact = false
 }: TokenCardProps) {
   return (
     <Card
       className={cn(
         "bg-white border border-[#e1e1e1] rounded-[16px] p-3 gap-4",
-        "flex flex-col items-start justify-center w-[257.5px] h-[320px]",
+        compact 
+          ? "flex flex-col items-start justify-center w-full min-w-[180px] h-[280px]"
+          : "flex flex-col items-start justify-center w-full min-w-[200px] max-w-[257.5px] h-[320px]",
         "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
       onClick={() => onClick?.(token)}
     >
       {/* Image Container */}
-      <div className="relative w-[233.5px] h-[233.434px] rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]">
+      <div className="relative w-full aspect-square rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]">
         <img
           src={token.imageUrl}
           alt={token.title}
