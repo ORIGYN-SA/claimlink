@@ -23,7 +23,10 @@ export function TokenCard({
       onClick={() => onClick?.(token)}
     >
       {/* Image Container */}
-      <div className="relative w-full aspect-square rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]">
+      <div className={cn(
+        "relative w-full rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]",
+        compact ? "h-40" : "h-48"
+      )}>
         <img
           src={token.imageUrl}
           alt={token.title}
