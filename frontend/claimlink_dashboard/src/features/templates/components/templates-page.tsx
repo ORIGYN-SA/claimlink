@@ -74,7 +74,7 @@ const TemplatesPage: React.FC = () => {
               onClick={() => handleTemplateClick({} as Template)}
             >
               <div className="absolute border border-[#e1e1e1] border-dashed inset-0 pointer-events-none rounded-[16px]" />
-              <div className="content-stretch flex flex-col gap-[14px] items-center relative shrink-0 w-[226px]">
+              <div className="content-stretch flex flex-col gap-[14px] items-center relative shrink-0 w-full px-4">
                 <div className="relative shrink-0 size-[40px]">
                   <div className="absolute inset-0 flex items-center justify-center">
                     <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-[#222526]">
@@ -82,9 +82,9 @@ const TemplatesPage: React.FC = () => {
                     </svg>
                   </div>
                 </div>
-                <div className="content-stretch flex flex-col items-start relative shrink-0 w-full">
-                  <div className="font-['General_Sans:Medium',_sans-serif] leading-[0] not-italic relative shrink-0 text-[#061937] text-[14px] text-center tracking-[0.7px] uppercase w-full">
-                    <p className="leading-[23px]">Create a template</p>
+                <div className="content-stretch flex flex-col items-start relative min-w-0 w-full">
+                  <div className="font-sans font-medium leading-[0] not-italic relative min-w-0 text-[#061937] text-[14px] text-center tracking-[0.7px] uppercase w-full">
+                    <p className="leading-[23px] truncate" title="Create a template">Create a template</p>
                   </div>
                 </div>
               </div>

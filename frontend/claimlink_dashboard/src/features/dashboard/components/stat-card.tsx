@@ -25,21 +25,21 @@ export function StatCard({
     <Card className={cn("border border-[#e8e8e8] rounded-2xl bg-white py-4", className)}>
       <CardContent >
         {/* Header with Icon and Title */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-1">
+        <div className="flex items-center justify-between mb-4 gap-2">
+          <div className="flex items-center gap-1 min-w-0 flex-1">
             {icon && (
-              <div className="w-4 h-4 text-[#69737c]">
+              <div className="w-4 h-4 text-[#69737c] flex-shrink-0">
                 {icon}
               </div>
             )}
-            <div className="font-sans font-medium text-[#69737c] text-[13px] leading-normal">
+            <div className="font-sans font-medium text-[#69737c] text-[13px] leading-normal truncate">
               {title}
             </div>
           </div>
           {/* Info tooltip */}
           <Tooltip>
             <TooltipTrigger asChild>
-              <Info className="w-3 h-3 text-[#69737c] opacity-50 cursor-help" />
+              <Info className="w-3 h-3 text-[#69737c] opacity-50 cursor-help flex-shrink-0" />
             </TooltipTrigger>
             <TooltipContent>
               <p>Additional information about {title}</p>

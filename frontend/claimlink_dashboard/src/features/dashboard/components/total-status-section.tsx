@@ -42,14 +42,13 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
         <div className="font-sans font-medium text-black text-sm leading-4 mb-4">
           Total certificate status
         </div>
-        <div className="flex gap-4 items-start justify-start shadow-[0_3px_4px_0_rgba(0,0,0,0.05)] w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           <StatCard
             title="Minted Certificates"
             value={statusData.minted.value}
             trend={statusData.minted.trend}
             trendColor={statusData.minted.trendColor}
             icon={<ScrollText className="w-4 h-4" />}
-            className="flex-1"
           />
           <StatCard
             title="Awaiting Certificates"
@@ -57,7 +56,6 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.awaiting.trend}
             trendColor={statusData.awaiting.trendColor}
             icon={<Hourglass className="w-4 h-4" />}
-            className="flex-1"
           />
           <StatCard
             title="Certificate in my wallet"
@@ -65,7 +63,6 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.wallet.trend}
             trendColor={statusData.wallet.trendColor}
             icon={<Wallet className="w-4 h-4" />}
-            className="flex-1"
           />
           <StatCard
             title="Transferred Certificates"
@@ -73,7 +70,6 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.transferred.trend}
             trendColor={statusData.transferred.trendColor}
             icon={<ArrowLeftRight className="w-4 h-4" />}
-            className="flex-1"
           />
         </div>
       </Card>
