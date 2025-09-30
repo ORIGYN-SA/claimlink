@@ -35,14 +35,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
             {template.name}
           </h3>
           {template.certificateCount && (
-            <div className="bg-white box-border content-stretch flex gap-[4px] items-center px-0 py-[4px] relative rounded-[100px] shrink-0" data-name="certificates">
-              <div className="opacity-40 relative shrink-0 size-[14px]" data-name="certif_ic_2">
+            <div className="bg-white box-border content-stretch flex gap-[4px] items-center px-0 py-[4px] relative rounded-[100px] min-w-0" data-name="certificates">
+              <div className="opacity-40 relative size-[14px]" data-name="certif_ic_2">
                 <div className="absolute contents inset-0">
                   <ScrollText className="w-full h-full"/>
                 </div>
               </div>
-              <div className="flex flex-col font-['General_Sans:Medium',_sans-serif] justify-center leading-[0] not-italic relative shrink-0 text-[#061937] text-[10px] text-nowrap uppercase">
-                <p className="leading-[24px] whitespace-pre">used on {template.certificateCount} certificates</p>
+              <div className="flex flex-col font-sans font-medium justify-center leading-[0] not-italic relative min-w-0 text-[#061937] text-[10px] uppercase">
+                <p className="leading-[24px] truncate">used on {template.certificateCount} certificates</p>
               </div>
             </div>
           )}
