@@ -19,23 +19,21 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
       <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[16px]" />
       <div className="h-[76px] relative shrink-0 w-[76px]" data-name="IMG">
         {template.thumbnail ? (
-          // <img
-          //   alt=""
-          //   className="block max-w-none size-full rounded-lg object-cover"
-          //   src={template.thumbnail}
-          // />
           <img src="template.svg" alt="" />
         ) : (
-          <div className="block max-w-none size-full rounded-lg bg-gray-100 flex items-center justify-center">
+          <div className="max-w-none size-full rounded-lg bg-gray-100 flex items-center justify-center">
             <span className="text-gray-400 text-xs">IMG</span>
           </div>
         )}
       </div>
       <div className="flex flex-row items-center self-stretch min-w-0 flex-1">
         <div className="content-stretch flex flex-col h-full items-start relative shrink-0 min-w-0 flex-1" data-name="Description">
-          <div className="font-['General_Sans:Regular',_sans-serif] leading-[0] min-w-full not-italic relative shrink-0 text-[#222526] text-[18px]" style={{ width: "min-content" }}>
-            <p className="leading-[normal] truncate">{template.name}</p>
-          </div>
+          <h3 
+            className="w-full text-[18px] font-normal text-[#222526] leading-normal truncate" 
+            title={template.name}
+          >
+            {template.name}
+          </h3>
           {template.certificateCount && (
             <div className="bg-white box-border content-stretch flex gap-[4px] items-center px-0 py-[4px] relative rounded-[100px] shrink-0" data-name="certificates">
               <div className="opacity-40 relative shrink-0 size-[14px]" data-name="certif_ic_2">
