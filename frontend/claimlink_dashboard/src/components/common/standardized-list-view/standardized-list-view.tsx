@@ -1,6 +1,14 @@
 import { MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 
 interface ListColumn {
@@ -31,53 +39,43 @@ export function StandardizedListView({
   onMoreActionsClick,
   className
 }: StandardizedListViewProps) {
-  // Generate grid columns based on column configuration
-  const gridCols = columns.map(col => col.width || 'auto').join(' ');
-  const gridColsWithActions = showMoreActions 
-    ? `${gridCols} 40px`
-    : gridCols;
-
   return (
     <Card className={cn(
       "bg-white border border-[#e1e1e1] rounded-[25px] overflow-hidden shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)]",
       className
     )}>
-      {/* Table Header */}
-      <div className="bg-[#222526] border-b border-[#e1e1e1] px-6 py-4">
-        <div 
-          className="grid gap-4 items-center"
-          style={{ gridTemplateColumns: gridColsWithActions }}
-        >
-          {columns.map((column) => (
-            <div 
-              key={column.key}
-              className="text-[13px] font-medium text-white"
-            >
-              {column.label}
-            </div>
-          ))}
-          {showMoreActions && (
-            <div className="flex justify-center">
-              {/* More actions header - empty for now */}
-            </div>
-          )}
-        </div>
-      </div>
+      <Table>
+        <TableHeader className="bg-[#222526] border-b border-[#e1e1e1] [&_tr]:border-b-0">
+          <TableRow className="hover:bg-transparent">
+            {columns.map((column) => (
+              <TableHead 
+                key={column.key}
+                className="text-[13px] font-medium text-white h-[56px] px-6"
+                style={{ width: column.width }}
+              >
+                {column.label}
+              </TableHead>
+            ))}
+            {showMoreActions && (
+              <TableHead className="w-[40px] px-6">
+                {/* More actions header - empty for now */}
+              </TableHead>
+            )}
+          </TableRow>
+        </TableHeader>
 
-      {/* Table Body */}
-      <div className="divide-y divide-[#e1e1e1]">
-        {items.map((item, index) => (
-          <div
-            key={item.id || index}
-            className="px-6 py-4 hover:bg-[#f9f9f9] cursor-pointer transition-colors"
-            onClick={() => onItemClick(item)}
-          >
-            <div 
-              className="grid gap-4 items-center"
-              style={{ gridTemplateColumns: gridColsWithActions }}
+        <TableBody>
+          {items.map((item, index) => (
+            <TableRow
+              key={item.id || index}
+              className="cursor-pointer hover:bg-[#f9f9f9] border-b border-[#e1e1e1] last:border-b-0"
+              onClick={() => onItemClick(item)}
             >
               {columns.map((column) => (
-                <div key={column.key}>
+                <TableCell 
+                  key={column.key}
+                  className="px-6 py-4"
+                >
                   {column.render ? (
                     column.render(item)
                   ) : (
@@ -85,29 +83,31 @@ export function StandardizedListView({
                       {item[column.key]}
                     </div>
                   )}
-                </div>
+                </TableCell>
               ))}
 
               {/* More Actions */}
               {showMoreActions && (
-                <div className="flex justify-center">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="w-10 h-10 rounded-full hover:bg-[#f0f0f0]"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onMoreActionsClick?.(item);
-                    }}
-                  >
-                    <MoreHorizontal className="w-4 h-4 text-[#69737c]" />
-                  </Button>
-                </div>
+                <TableCell className="px-6 py-4 w-[40px]">
+                  <div className="flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="w-10 h-10 rounded-full hover:bg-[#f0f0f0]"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMoreActionsClick?.(item);
+                      }}
+                    >
+                      <MoreHorizontal className="w-4 h-4 text-[#69737c]" />
+                    </Button>
+                  </div>
+                </TableCell>
               )}
-            </div>
-          </div>
-        ))}
-      </div>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
 
       {/* Empty State */}
       {items.length === 0 && (

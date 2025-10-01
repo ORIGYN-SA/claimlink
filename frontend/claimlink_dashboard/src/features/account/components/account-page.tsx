@@ -1,12 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Search, Edit } from "lucide-react";
-import { ListOnlyContainer, type ListColumn } from "@/components/common";
+import { ListOnlyContainer, SearchInput, type ListColumn } from "@/components/common";
 import { mockUsers } from "@/shared/data";
 import { useNavigate } from "@tanstack/react-router";
+import type { User } from "../types/account.types";
+import { CompanyRecapCard } from "./company-recap-card";
+
 
 const getAccessBadgeColor = (access: string) => {
   switch (access) {
@@ -49,7 +49,7 @@ export function AccountPage() {
       key: 'user', 
       label: 'Username', 
       width: '400px',
-      render: (user) => (
+      render: (user: User) => (
         <div className="flex items-center gap-3 w-[400px]">
           <Avatar className="w-8 h-8">
             <AvatarFallback className="bg-gray-200 text-gray-600 text-sm">
@@ -67,7 +67,7 @@ export function AccountPage() {
       key: 'title', 
       label: 'Title', 
       width: '150px',
-      render: (user) => (
+      render: (user: User) => (
         <div className="text-sm text-[#69737c] w-[150px]">{user.title}</div>
       )
     },
@@ -75,7 +75,7 @@ export function AccountPage() {
       key: 'access', 
       label: 'Access', 
       width: '1fr',
-      render: (user) => (
+      render: (user: User) => (
         <div className="flex flex-wrap gap-1">
           {user.access.map((access: string, idx: number) => (
             <Badge
@@ -93,7 +93,7 @@ export function AccountPage() {
       key: 'lastActive', 
       label: 'Last active', 
       width: '150px',
-      render: (user) => (
+      render: (user: User) => (
         <div className="text-sm text-[#69737c] w-[150px]">{user.lastActive}</div>
       )
     }
@@ -101,72 +101,28 @@ export function AccountPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h1 className="text-2xl font-medium text-[#222526]">
-            Account <span className="text-[#69737c]">– Audemars Piguet</span>
-          </h1>
-          <p className="text-sm text-[#69737c] mt-1">
-            Manage your organization's user roles and permissions
-          </p>
-        </div>
-
-        {/* Wallet buttons would be handled by HeaderBar */}
-      </div>
-
       {/* Company Recap Card */}
-      <Card className="bg-white border border-[#e1e1e1] shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)] rounded-lg">
-        <CardContent className="p-4">
-          <div className="flex items-center gap-6">
-            {/* Company Logo */}
-            <div className="w-36 h-36 bg-gray-900 rounded-lg flex items-center justify-center">
-              <span className="text-white text-2xl font-bold">AP</span>
-            </div>
-
-            {/* Company Info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-2">
-                <h2 className="text-2xl font-medium text-[#222526]">Audemars Piguet</h2>
-                {/* Verified badge placeholder */}
-                <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-xs">✓</span>
-                </div>
-              </div>
-              <p className="text-base text-[#69737c] leading-relaxed max-w-2xl">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae est velit.
-                Cras sed tortor iaculis dolor sollicitudin sollicitudin eu eu dolor. Nunc bibendum at sem eget egestas.
-              </p>
-            </div>
-
-            {/* Edit Button */}
-            <Button
-              onClick={handleEditBiography}
-              variant="outline"
-              className="bg-white border border-[#e1e1e1] hover:bg-gray-50 text-[#222526] rounded-2xl px-4 py-2 h-auto"
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit biography
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+      <CompanyRecapCard
+        companyName="Audemars Piguet"
+        companyInitials="AP"
+        description="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas vitae est velit. Cras sed tortor iaculis dolor sollicitudin sollicitudin eu eu dolor. Nunc bibendum at sem eget egestas."
+        isVerified={true}
+        onEditClick={handleEditBiography}
+      />
 
       {/* Users Table */}
       <div className="space-y-4">
         {/* Search and Add User */}
         <div className="flex items-center gap-4">
-          <div className="relative w-80">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#69737c] w-4 h-4" />
-            <Input
-              placeholder="Search for an item"
-              className="pl-10 bg-white border border-[#e1e1e1] rounded-full"
-            />
-          </div>
+          <SearchInput 
+            placeholder="Search for a user"
+            className="w-80"
+          />
 
           <Button
             onClick={handleCreateUser}
             className="bg-[#222526] hover:bg-[#1a1a1a] text-white rounded-full px-6"
+            size="lg"
           >
             Add user
           </Button>
