@@ -48,7 +48,7 @@ export function StatCard({
         </div>
 
         {/* Value and Trend */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className="font-sans font-medium text-[#222526] text-[48px] leading-[56px]">
             {value}
           </div>

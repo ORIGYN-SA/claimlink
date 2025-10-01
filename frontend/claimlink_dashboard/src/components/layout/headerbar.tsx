@@ -50,162 +50,105 @@ export function HeaderBar({
 
     return (
         <div
-            className={cn(
-                "flex items-center justify-between px-6 py-0",
-                className,
+        className={cn(
+            "flex items-center justify-between px-6 py-0 gap-4",
+            className,
+        )}
+    >
+        <div className="flex items-center gap-3 min-w-0">
+            {showBackButton && (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="w-6 h-6 text-[#222526] hover:bg-[#f0f0f0] shrink-0"
+                    onClick={handleBack}
+                >
+                    <ArrowLeft className="w-4 h-4" />
+                </Button>
             )}
-        >
-            <div className="flex items-center gap-3">
-                {showBackButton && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="w-6 h-6 text-[#222526] hover:bg-[#f0f0f0]"
-                        onClick={handleBack}
-                    >
-                        <ArrowLeft className="w-4 h-4" />
-                    </Button>
+            <div className="flex flex-col min-w-0">
+                <h1 className="font-sans font-medium text-[#222526] text-2xl truncate">
+                    {title}
+                </h1>
+                {subtitle && (
+                    <p className="font-sans font-light text-[#69737c] text-base truncate mt-1">
+                        {subtitle}
+                    </p>
                 )}
-                <div className="flex flex-col">
-                    <h1 className="font-sans font-medium leading-[0] not-italic relative shrink-0 text-[#222526] text-2xl text-nowrap">
-                        <p className="leading-[32px] whitespace-pre">{title}</p>
-                    </h1>
-                    {subtitle && (
-                        <p className="font-sans font-light leading-[0] not-italic relative shrink-0 text-[#69737c] text-base text-nowrap mt-1">
-                            <span className="leading-[32px] whitespace-pre">
-                                {subtitle}
-                            </span>
-                        </p>
-                    )}
-                </div>
-            </div>
-            <div className="flex items-center gap-2">
-                {/* Wallet Button */}
-                {isConnected ? (
-                    <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
-                        <div
-                            aria-hidden="true"
-                            className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]"
-                        />
-                        <div className="relative shrink-0 size-4">
-                            <div className="absolute inset-0">
-                                <img
-                                    src={icon}
-                                    // className="h-[40vmin] pointer-events-none animate-[spin_20s_linear_infinite]"
-                                    alt="logo"
-                                />
-                            </div>
-                        </div>
-                        <div className="font-sans font-semibold leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-                            <div className="text-sm whitespace-pre">
-                                <span className="font-sans font-medium leading-[16px] not-italic">
-                                    {ogyBalance?.isLoading ? (
-                                        <div className="flex items-center gap-2">
-                                            <RefreshCw className=" animate-spin text-[#69737c]" />
-                                            <span className="text-[#69737c] ">
-                                                Loading...
-                                            </span>
-                                        </div>
-                                    ) : ogyBalance?.isError ? (
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-red-500 text-lg">
-                                                Error
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            {ogyBalance?.data?.balance.toLocaleString(
-                                                undefined,
-                                                {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                },
-                                            ) || "99"}
-                                        </>
-                                    )}
-                                </span>
-                                <span className="leading-[16px]"> </span>
-                                <span className="font-sans font-normal leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">
-                                    OGY
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
-                        <div
-                            aria-hidden="true"
-                            className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]"
-                        />
-                        <div className="relative shrink-0 size-4">
-                            <div className="absolute inset-0">
-                                {/* OGY Icon placeholder */}
-                                <div className="w-full h-full bg-[#615bff] rounded-full flex items-center justify-center">
-                                    <span className="text-white text-xs font-bold">
-                                        O
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="font-sans font-semibold leading-[0] not-italic relative shrink-0 text-[#061937] text-[0px] text-nowrap">
-                            <p className="text-sm whitespace-pre">
-                                <span className="font-sans font-medium leading-[16px] not-italic">
-                                    Connect
-                                </span>
-                                <span className="leading-[16px]"> </span>
-                                <span className="font-sans font-normal leading-[24px] not-italic text-[#69737c] tracking-[0.7px]">
-                                    Wallet
-                                </span>
-                            </p>
-                        </div>
-                    </div>
-                )}
-
-                {/* Account Button */}
-                <AccountMenu
-                    isOpen={isAccountMenuOpen}
-                    onOpenChange={setIsAccountMenuOpen}
-                    trigger={
-                        <button className="bg-white box-border content-stretch cursor-pointer flex gap-2 h-[47px] items-center justify-start overflow-visible pl-1 pr-4 py-2 relative rounded-[100px] shrink-0 border border-[#e1e1e1]">
-                            <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-                                <div className="[grid-area:1_/_1] ml-0 mt-0 relative size-[39px]">
-                                    <div className="w-full h-full bg-gray-300 rounded-full"></div>
-                                </div>
-                                <div className="[grid-area:1_/_1] ml-3 mt-3 relative size-4">
-                                    <div className="absolute inset-[14.29%_17.17%_7.14%_14.29%]">
-                                        <div className="absolute inset-[-6.82%_-7.82%]">
-                                            {/* Certificate owner icon placeholder */}
-                                            <div className="w-full h-full bg-[#69737c] rounded-full flex items-center justify-center">
-                                                <span className="text-white text-xs">
-                                                    C
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div
-                                className="font-display font-semibold leading-[0] relative shrink-0 text-[#222526] text-[0px] text-nowrap"
-                                style={{ fontVariationSettings: "'opsz' 14" }}
-                            >
-                                <p className="not-italic text-sm whitespace-pre">
-                                    <span className="font-sans font-medium leading-[16px] text-[#061937]">
-                                        My Account:
-                                    </span>
-                                    <span className="font-sans font-semibold leading-[16px]">
-                                        {" "}
-                                    </span>
-                                    <span className="font-sans font-normal leading-[24px] text-[#69737c] tracking-[0.7px]">
-                                        {principalId
-                                            ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}`
-                                            : "Connected"}
-                                    </span>
-                                </p>
-                            </div>
-                        </button>
-                    }
-                />
             </div>
         </div>
+        <div className="flex items-center gap-2 shrink-0">
+            {/* Wallet Button */}
+            {isConnected ? (
+                <div className="bg-white box-border content-stretch flex gap-2 items-center justify-start px-4 py-2 relative rounded-[100px] h-[47px] shrink-0">
+                    <div
+                        aria-hidden="true"
+                        className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[100px]"
+                    />
+                    <div className="relative shrink-0 size-4">
+                        <img src={icon} alt="logo" className="w-full h-full" />
+                    </div>
+                    <div className="text-sm whitespace-nowrap">
+                        {ogyBalance?.isLoading ? (
+                            <div className="flex items-center gap-2">
+                                <RefreshCw className="w-4 h-4 animate-spin text-[#69737c]" />
+                                <span className="text-[#69737c] hidden sm:inline">Loading...</span>
+                            </div>
+                        ) : ogyBalance?.isError ? (
+                            <span className="text-red-500">Error</span>
+                        ) : (
+                            <>
+                                <span className="font-medium text-[#061937]">
+                                    {ogyBalance?.data?.balance.toLocaleString(undefined, {
+                                        minimumFractionDigits: 2,
+                                        maximumFractionDigits: 2,
+                                    }) || "99"}
+                                </span>
+                                <span className="text-[#69737c] ml-1">OGY</span>
+                            </>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <div className="bg-white hidden sm:flex gap-2 items-center px-4 py-2 rounded-[100px] h-[47px] border border-[#e1e1e1]">
+                    <div className="relative shrink-0 size-4">
+                        <div className="w-full h-full bg-[#615bff] rounded-full flex items-center justify-center">
+                            <span className="text-white text-xs font-bold">O</span>
+                        </div>
+                    </div>
+                    <div className="text-sm whitespace-nowrap">
+                        <span className="font-medium text-[#061937]">Connect</span>
+                        <span className="text-[#69737c] ml-1">Wallet</span>
+                    </div>
+                </div>
+            )}
+    
+            {/* Account Button */}
+            <AccountMenu
+                isOpen={isAccountMenuOpen}
+                onOpenChange={setIsAccountMenuOpen}
+                trigger={
+                    <button className="bg-white flex gap-2 h-[47px] cursor-pointer items-center px-2 sm:px-4 py-2 rounded-[100px] border border-[#e1e1e1]">
+                        <div className="relative size-[39px] shrink-0">
+                            <div className="w-full h-full bg-gray-300 rounded-full"></div>
+                            <div className="absolute bottom-0 right-0 size-4">
+                                <div className="w-full h-full bg-[#69737c] rounded-full flex items-center justify-center">
+                                    <span className="text-white text-xs">C</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="text-sm whitespace-nowrap hidden md:block">
+                            <span className="font-medium text-[#061937]">My Account:</span>
+                            <span className="text-[#69737c] ml-1">
+                                {principalId
+                                    ? `${principalId.slice(0, 6)}...${principalId.slice(-4)}`
+                                    : "Connected"}
+                            </span>
+                        </div>
+                    </button>
+                }
+            />
+        </div>
+    </div>
     );
 }
