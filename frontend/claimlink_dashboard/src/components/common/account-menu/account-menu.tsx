@@ -1,5 +1,5 @@
 // AccountMenu.tsx
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { WithdrawDialog } from "./withdraw-dialog";
 import { AccountHeaderSection } from "./account-header-section";
@@ -7,6 +7,7 @@ import { UserProfileSection } from "./user-profile-section";
 import { WalletBalanceSection } from "./wallet-balance-section";
 import { LastTransactionSection } from "./last-transaction-section";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useNavigate } from "@tanstack/react-router";
 import {
   useMultiTokenBalance,
   SUPPORTED_TOKENS,
@@ -16,7 +17,6 @@ import {
   useFetchLedgerDecimals,
 } from "@/shared";
 import { OGY_LEDGER_INDEX_CANISTER_ID } from "@/shared/constants";
-import type { Transaction } from "@services/ledger-index/utils/interfaces";
 
 interface AccountMenuProps {
   isOpen: boolean;
@@ -30,6 +30,7 @@ export function AccountMenu({
   trigger,
 }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
+  const navigate = useNavigate();
   const {
     disconnect,
     principalId,
@@ -87,13 +88,9 @@ export function AccountMenu({
       ledger: ogyToken?.name || "OGY",
     },
   );
-  console.log("Transactions:", txs);
 
   // Get the transactions data
-  const transactionData = useMemo<Transaction[]>(
-    () => (txs.data ? txs.data.pages.flatMap((page) => page.data) : []),
-    [txs],
-  );
+  const transactionData = txs.data ? txs.data.pages.flatMap((page) => page.data) : [];
 
   // Get the most recent transaction
   const lastTransaction = transactionData[0];
@@ -112,10 +109,11 @@ export function AccountMenu({
     setWithdrawDialogOpen(true);
   };
 
-  // TODO: Move these functions to a utils or helpers file
   const handleSeeAllTransactions = () => {
-    // Navigate to transactions page or open transactions modal
-    console.log("Navigate to all transactions");
+    // Close the account menu
+    onOpenChange(false);
+    // Navigate to transaction history page
+    navigate({ to: '/account/transaction-history' });
   };
 
   const formatTransactionDate = (timestamp: string) => {
@@ -164,7 +162,6 @@ export function AccountMenu({
           backgroundColor: "#051936",
         }}
       >
-        {/* Remove the nested relative div and simplify structure */}
         <div className="h-full overflow-y-auto">
           {/* Background with blur effect */}
           <div className="min-h-full bg-[#051936]/95 backdrop-blur-xl">

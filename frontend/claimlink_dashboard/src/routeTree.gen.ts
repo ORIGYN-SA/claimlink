@@ -20,6 +20,7 @@ import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as Mint_certificateNewRouteImport } from './routes/mint_certificate/new'
 import { Route as CollectionsNewRouteImport } from './routes/collections/new'
 import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
+import { Route as AccountTransactionHistoryRouteImport } from './routes/account/transaction-history'
 import { Route as AccountNewRouteImport } from './routes/account/new'
 import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
 import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_company'
@@ -79,6 +80,12 @@ const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
   path: '/collections/$collectionId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountTransactionHistoryRoute =
+  AccountTransactionHistoryRouteImport.update({
+    id: '/account/transaction-history',
+    path: '/account/transaction-history',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AccountNewRoute = AccountNewRouteImport.update({
   id: '/account/new',
   path: '/account/new',
@@ -104,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
+  '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
@@ -120,6 +128,7 @@ export interface FileRoutesByTo {
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
+  '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
@@ -137,6 +146,7 @@ export interface FileRoutesById {
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
+  '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
@@ -155,6 +165,7 @@ export interface FileRouteTypes {
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
+    | '/account/transaction-history'
     | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
+    | '/account/transaction-history'
     | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
@@ -187,6 +199,7 @@ export interface FileRouteTypes {
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
+    | '/account/transaction-history'
     | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
@@ -204,6 +217,7 @@ export interface RootRouteChildren {
   AccountEdit_companyRoute: typeof AccountEdit_companyRoute
   AccountEdit_userRoute: typeof AccountEdit_userRoute
   AccountNewRoute: typeof AccountNewRoute
+  AccountTransactionHistoryRoute: typeof AccountTransactionHistoryRoute
   CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
   CollectionsNewRoute: typeof CollectionsNewRoute
   Mint_certificateNewRoute: typeof Mint_certificateNewRoute
@@ -291,6 +305,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsCollectionIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/transaction-history': {
+      id: '/account/transaction-history'
+      path: '/account/transaction-history'
+      fullPath: '/account/transaction-history'
+      preLoaderRoute: typeof AccountTransactionHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account/new': {
       id: '/account/new'
       path: '/account/new'
@@ -324,6 +345,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountEdit_companyRoute: AccountEdit_companyRoute,
   AccountEdit_userRoute: AccountEdit_userRoute,
   AccountNewRoute: AccountNewRoute,
+  AccountTransactionHistoryRoute: AccountTransactionHistoryRoute,
   CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
   CollectionsNewRoute: CollectionsNewRoute,
   Mint_certificateNewRoute: Mint_certificateNewRoute,

@@ -35,7 +35,7 @@ const navItems: {
     title: "Account",
     url: "/account",
     icon: <UserPlus />,
-  },
+  }
 ];
 
 export default navItems;
