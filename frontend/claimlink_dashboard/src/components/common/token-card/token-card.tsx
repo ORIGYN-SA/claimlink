@@ -16,7 +16,7 @@ export function TokenCard({
         "bg-white border border-[#e1e1e1] rounded-[16px] p-3 gap-4",
         compact 
           ? "flex flex-col items-start justify-center w-full min-w-[180px] h-[280px]"
-          : "flex flex-col items-start justify-center w-full min-w-[200px] max-w-[257.5px] h-[320px]",
+          : "flex flex-col items-start justify-center w-full min-w-[200px] h-[320px]",
         "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
