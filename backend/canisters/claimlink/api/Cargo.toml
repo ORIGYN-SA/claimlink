@@ -8,10 +8,23 @@ edition = "2021"
 inttest = []
 
 [dependencies]
-candid = { workspace = true }
 bity-ic-canister-logger = { workspace = true }
 bity-ic-canister-state-macros = { workspace = true }
 bity-ic-canister-time = { workspace = true }
 bity-ic-canister-tracing-macros = { workspace = true }
-serde = { workspace = true, features = ["derive"] }
+bity-ic-subcanister-manager = { workspace = true }
+bity-ic-utils = { workspace = true }
+bity-ic-canister-client = { workspace = true }
+icrc-ledger-types = { workspace = true }
+
 types = { path = '../../../libraries/types' }
+origyn-nft-canister-api = { path = '../../../external_canisters/origyn_nft/api' }
+icrc_ledger_canister = { path = '../../../external_canisters/icrc_ledger/api' }
+
+ic-cdk = { workspace = true }
+candid = { workspace = true }
+canfund = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+bity-ic-types = { workspace = true }
+
+

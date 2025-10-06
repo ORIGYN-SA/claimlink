@@ -39,7 +39,7 @@ impl Environment for CanisterEnv {
 
     #[cfg(target_arch = "wasm32")]
     fn caller(&self) -> Principal {
-        ic_cdk::caller()
+        ic_cdk::api::msg_caller()
     }
     #[cfg(not(target_arch = "wasm32"))]
     fn caller(&self) -> Principal {
@@ -48,7 +48,7 @@ impl Environment for CanisterEnv {
 
     #[cfg(target_arch = "wasm32")]
     fn canister_id(&self) -> CanisterId {
-        ic_cdk::id()
+        ic_cdk::api::canister_self()
     }
     #[cfg(not(target_arch = "wasm32"))]
     fn canister_id(&self) -> CanisterId {
@@ -57,7 +57,7 @@ impl Environment for CanisterEnv {
 
     #[cfg(target_arch = "wasm32")]
     fn cycles_balance(&self) -> Cycles {
-        ic_cdk::api::canister_balance().into()
+        ic_cdk::api::canister_cycle_balance()
     }
     #[cfg(not(target_arch = "wasm32"))]
     fn cycles_balance(&self) -> Cycles {

@@ -15,7 +15,7 @@ fn post_upgrade() {
     let reader = get_reader(&memory);
 
     // NOTE: uncomment these lines if you want to do a normal upgrade
-    let (mut state, logs, traces): (RuntimeState, Vec<LogEntry>, Vec<LogEntry>) =
+    let (state, logs, traces): (RuntimeState, Vec<LogEntry>, Vec<LogEntry>) =
         bity_ic_serializer::deserialize(reader).unwrap();
 
     // let (runtime_state_v0, logs, traces): (RuntimeStateV0, Vec<LogEntry>, Vec<LogEntry>) =
