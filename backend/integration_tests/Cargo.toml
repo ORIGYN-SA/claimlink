@@ -5,21 +5,24 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dev-dependencies]
+[dependencies]
 candid = { workspace = true }
 ic-cdk = { workspace = true }
-icrc_ledger_canister = { path = "../external_canisters/icrc_ledger/api" }
 ic-ledger-types = { workspace = true }
 icrc-ledger-types = { workspace = true }
 lazy_static = { workspace = true }
 serde_bytes = { workspace = true }
-claimlink_api = { path = "../canisters/claimlink/api" }
+bity-ic-canister-time = { workspace = true }
 pocket-ic = { workspace = true }
-rand = "0.8.5"
 serde = { workspace = true }
+
+claimlink_api = { path = "../canisters/claimlink/api" }
+icrc_ledger_canister = { path = "../external_canisters/icrc_ledger/api" }
+origyn-nft-canister-api = { path = "../external_canisters/origyn_nft/api" }
 types = { path = "../libraries/types" }
+utils = { path = '../libraries/utils' }
+
+rand = "0.8.5"
 sha2 = "0.10.8"
 hex = "0.4"
-bity-ic-canister-time = { workspace = true }
-utils = { path = '../libraries/utils' }
 

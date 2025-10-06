@@ -1,5 +1,5 @@
 [package]
-name = "origyn_nft_canister"
+name = "origyn-nft-canister-api"
 version = "0.1.0"
 edition = "2021"
 

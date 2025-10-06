@@ -1,0 +1,39 @@
+type CreateCollectionArgs = record {
+  name : text;
+  description : text;
+  symbol : text;
+};
+type CreateCollectionError = variant {
+  InsufficientCycles;
+  ExternalCanisterError : text;
+  Generic : GenericError;
+  CreateOrigynNftCanisterError;
+  TransferFromError : TransferFromError;
+};
+type CreateCollectionResult = record { origyn_nft_canister_id : principal };
+type GenericError = variant { Other : text };
+type InitArgs = record {
+  origyn_nft_commit_hash : text;
+  test_mode : bool;
+  authorized_principals : vec principal;
+  bank_principal_id : principal;
+  ledger_canister_id : principal;
+};
+type Result = variant {
+  Ok : CreateCollectionResult;
+  Err : CreateCollectionError;
+};
+type TransferFromError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  InsufficientAllowance : record { allowance : nat };
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+service : (InitArgs) -> {
+  create_collection : (CreateCollectionArgs) -> (Result);
+}
