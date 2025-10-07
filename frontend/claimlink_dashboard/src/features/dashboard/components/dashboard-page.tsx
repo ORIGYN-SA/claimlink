@@ -72,6 +72,10 @@ export function DashboardPage({ className }: DashboardPageProps) {
     console.log('Sent certificate clicked:', certificate);
   };
 
+  const handleNFTClick = () => {
+    navigate({ to: '/mint_nft' });
+  };
+
   return (
     <div
       className={cn(
@@ -87,7 +91,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
       <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
         {/* Left Sidebar */}
         <div className="flex flex-col gap-6 items-start justify-start w-full lg:w-[346px] flex-shrink-0">
-          <WelcomeCard />
+          <WelcomeCard onNFTClick={handleNFTClick} />
 
           <LastCertificateOwnersSection
             owners={certificateOwners}
