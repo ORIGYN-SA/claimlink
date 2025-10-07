@@ -94,56 +94,54 @@ code {
     --radius: 1rem;
 
     /* Figma Design Variables */
-    --background: 252 98% 98%; /* #fcfafa */
-    --foreground: 213 13% 16%; /* #222526 - Charcoal */
-    --card: 0 0% 100%; /* #ffffff - White */
-    --card-foreground: 213 13% 16%; /* #222526 - Charcoal */
-    /*--popover: 0 0% 100%;*/
+    --background: hsl(252 98% 98%); /* #fcfafa */
+    --foreground: hsl(213 13% 16%); /* #222526 - Charcoal */
+    --card: hsl(0 0% 100%); /* #ffffff - White */
+    --card-foreground: hsl(213 13% 16%); /* #222526 - Charcoal */
     --popover: oklch(1 0 0);
-    --popover-foreground: 213 13% 16%;
-    --primary: 217 77% 13%; /* #061937 - Cobalt */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 249 87% 68%; /* #615bff */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 96%; /* #f2f2f2 */
-    --muted-foreground: 206 8% 48%; /* #69737c - Slate */
-    --accent: 249 87% 68%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 11 79% 53%; /* #e84c25 */
-    /*--border: 0 0% 88%; /* #e1e1e1 - Mouse */
+    --popover-foreground: hsl(213 13% 16%);
+    --primary: hsl(217 77% 13%); /* #061937 - Cobalt */
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(249 87% 68%); /* #615bff */
+    --secondary-foreground: hsl(0 0% 100%);
+    --muted: hsl(0 0% 96%); /* #f2f2f2 */
+    --muted-foreground: hsl(206 8% 48%); /* #69737c - Slate */
+    --accent: hsl(249 87% 68%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(11 79% 53%); /* #e84c25 */
     --border: oklch(0.922 0 0);
-    --input: 0 0% 88%;
-    --ring: 217 77% 13%;
+    --input: hsl(0 0% 88%);
+    --ring: hsl(217 77% 13%);
 
     /* Figma Design System Colors */
-    --slate: 206 8% 48%; /* #69737c - Neutral/Slate */
-    --cobalt: 217 77% 13%; /* #061937 - Contrast/Cobalt */
-    --charcoal: 213 13% 16%; /* #222526 - Neutral/Charcoal */
-    --mouse: 0 0% 88%; /* #e1e1e1 - Neutral/Mouse */
-    --paper: 252 98% 98%; /* #fcfafa - Neutral/Paper */
-    --azure: 186 100% 76%; /* #85f1ff - Contrast/Azure */
-    --space-purple: 249 87% 68%; /* #615bff - Space Purple */
-    --jade: 153 47% 55%; /* #50be8f - Jade */
-    --jade-90: 153 47% 89%; /* #c7f2e0 - Jade/JD90 */
-    --candy-floss: 323 100% 66%; /* #ff55c5 - Candy Floss */
-    --candy-floss-95: 323 100% 94%; /* #ffd4f0 - Candy Floss/CF95 */
-    --celeste: 183 64% 79%; /* #cde9ec - Contrast/Celeste */
-    --celeste-40: 183 64% 79% / 0.4; /* #cde9ec66 - Contrast/Celeste40 */
+    --slate: hsl(206 8% 48%); /* #69737c - Neutral/Slate */
+    --cobalt: hsl(217 77% 13%); /* #061937 - Contrast/Cobalt */
+    --charcoal: hsl(213 13% 16%); /* #222526 - Neutral/Charcoal */
+    --mouse: hsl(0 0% 88%); /* #e1e1e1 - Neutral/Mouse */
+    --paper: hsl(252 98% 98%); /* #fcfafa - Neutral/Paper */
+    --azure: hsl(186 100% 76%); /* #85f1ff - Contrast/Azure */
+    --space-purple: hsl(249 87% 68%); /* #615bff - Space Purple */
+    --jade: hsl(153 47% 55%); /* #50be8f - Jade */
+    --jade-90: hsl(153 47% 89%); /* #c7f2e0 - Jade/JD90 */
+    --candy-floss: hsl(323 100% 66%); /* #ff55c5 - Candy Floss */
+    --candy-floss-95: hsl(323 100% 94%); /* #ffd4f0 - Candy Floss/CF95 */
+    --celeste: hsl(183 64% 79%); /* #cde9ec - Contrast/Celeste */
+    --celeste-40: hsl(183 64% 79% / 0.4); /* #cde9ec66 - Contrast/Celeste40 */
 
-    --chart-1: 153 47% 55%;
-    --chart-2: 249 87% 68%;
-    --chart-3: 217 77% 13%;
-    --chart-4: 11 79% 53%;
-    --chart-5: 206 8% 48%;
-    --sidebar: 0 0% 100%;
-    --sidebar-foreground: 213 13% 16%;
-    --sidebar-primary: 217 77% 13%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 213 13% 16%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 217 77% 13%;
-    --success: 153 47% 55%;
+    --chart-1: hsl(153 47% 55%);
+    --chart-2: hsl(249 87% 68%);
+    --chart-3: hsl(217 77% 13%);
+    --chart-4: hsl(11 79% 53%);
+    --chart-5: hsl(206 8% 48%);
+    --sidebar: hsl(0 0% 100%);
+    --sidebar-foreground: hsl(213 13% 16%);
+    --sidebar-primary: hsl(217 77% 13%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(0 0% 96%);
+    --sidebar-accent-foreground: hsl(213 13% 16%);
+    --sidebar-border: hsl(0 0% 88%);
+    --sidebar-ring: hsl(217 77% 13%);
+    --success: hsl(153 47% 55%);
 }
 
 .dark {
