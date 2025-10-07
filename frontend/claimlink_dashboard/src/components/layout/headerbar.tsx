@@ -102,7 +102,7 @@ export function HeaderBar({
                                     {ogyBalance?.data?.balance.toLocaleString(undefined, {
                                         minimumFractionDigits: 2,
                                         maximumFractionDigits: 2,
-                                    }) || "99"}
+                                    }) || ""}
                                 </span>
                                 <span className="text-[#69737c] ml-1">OGY</span>
                             </>

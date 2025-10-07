@@ -3,7 +3,7 @@ import type { Template } from "@/shared/data/templates"
 export interface CreateTemplateInput {
   name: string
   description: string
-  category: 'manual' | 'ai' | 'existing'
+  category: 'manual' | 'ai' | 'existing' | 'preset'
   metadata?: Record<string, any>
 }
 

@@ -1,12 +1,12 @@
-// Template data types
+// Template data type - unified for all use cases
 export interface Template {
   id: string
   name: string
   description: string
-  category: 'manual' | 'ai' | 'existing'
+  category: 'manual' | 'ai' | 'existing' | 'preset'
   certificateCount?: number
-  createdAt: Date
-  updatedAt: Date
+  createdAt?: Date
+  updatedAt?: Date
   thumbnail?: string
   metadata?: Record<string, any>
 }
@@ -118,4 +118,72 @@ export const getFreeTemplates = (): Template[] => {
 
 export const getPremiumTemplates = (): Template[] => {
   return mockTemplates.filter((template) => template.metadata?.premium);
+};
+
+// Template options for the choose template page
+export const templateOptions: Template[] = [
+  {
+    id: "art",
+    name: "Art",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "diamond",
+    name: "Diamond",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "gold",
+    name: "Gold",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "watches",
+    name: "Watches",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "cars",
+    name: "Cars",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "spirit",
+    name: "Spirit",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "luxury_good",
+    name: "Luxury good",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  },
+  {
+    id: "made_in",
+    name: "Made in",
+    description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    category: "preset"
+  }
+];
+
+// Manual template option
+export const manualTemplateOption: Template = {
+  id: "code_it",
+  name: "Code it",
+  description: "Create manually your template with your developers",
+  category: "manual"
 };

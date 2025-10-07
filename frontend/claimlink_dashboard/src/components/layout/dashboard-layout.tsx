@@ -15,6 +15,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname === '/') return 'Dashboard';
     if (pathname === '/collections/new') return 'Create Collection';
     if (pathname.startsWith('/templates')) return 'Templates';
+    if (pathname.startsWith('/templates/new')) return 'New Template';
     if (pathname.startsWith('/collections')) return 'Collections';
     if (pathname.startsWith('/mint_certificate')) return 'Mint Certificate';
     if (pathname.startsWith('/mint_nft')) return 'NFTs';
@@ -32,6 +33,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/account/new')) return "Create and manage your organization's user roles and permissions";
     if (pathname.startsWith('/account/edit_company')) return "Create and manage your organization's user roles and permissions";
     if (pathname.startsWith('/account/edit_user')) return "Create and manage your organization's user roles and permissions";
+    if (pathname.startsWith('/templates/new')) return "Create a new certificate template in 3 simple steps";
     return undefined;
   };
 
@@ -45,6 +47,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     }
     if (pathname.startsWith('/collections/new')) {
       return { showBackButton: true, backTo: '/collections' };
+    }
+    if (pathname.startsWith('/templates/new')) {
+      return { showBackButton: true, backTo: '/templates' };
     }
     if (pathname.startsWith('/account/new')) {
       return { showBackButton: true, backTo: '/account' };

@@ -19,7 +19,11 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
       <div aria-hidden="true" className="absolute border border-[#e1e1e1] border-solid inset-0 pointer-events-none rounded-[16px]" />
       <div className="h-[76px] relative shrink-0 w-[76px]" data-name="IMG">
         {template.thumbnail ? (
-          <img src="template.svg" alt="" />
+          <img 
+            src={template.thumbnail} 
+            alt={template.name}
+            className="w-full h-full object-cover rounded-lg"
+          />
         ) : (
           <div className="max-w-none size-full rounded-lg bg-gray-100 flex items-center justify-center">
             <span className="text-gray-400 text-xs">IMG</span>
@@ -27,14 +31,14 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
         )}
       </div>
       <div className="flex flex-row items-center self-stretch min-w-0 flex-1">
-        <div className="content-stretch flex flex-col h-full items-start relative shrink-0 min-w-0 flex-1" data-name="Description">
+        <div className="content-stretch flex flex-col h-full items-start justify-center relative shrink-0 min-w-0 flex-1 gap-1" data-name="Description">
           <h3 
             className="w-full text-[18px] font-normal text-[#222526] leading-normal truncate" 
             title={template.name}
           >
             {template.name}
           </h3>
-          {template.certificateCount && (
+          {template.certificateCount ? (
             <div className="bg-white box-border flex gap-[4px] items-center px-0 py-[4px] relative rounded-[100px] min-w-0 w-full" data-name="certificates">
               <div className="opacity-40 relative shrink-0 size-[14px]" data-name="certif_ic_2">
                 <ScrollText className="w-full h-full"/>
@@ -48,11 +52,18 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
                 </h4>
               </div>
             </div>
-          )}
+          ) : template.description ? (
+            <p 
+              className="w-full text-[12px] font-normal text-[#69737c] leading-normal line-clamp-2" 
+              title={template.description}
+            >
+              {template.description}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>
   )
 }
-
 export { TemplateCard }
+

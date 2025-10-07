@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { TemplatesActions } from "./templates-actions";
 import { Pagination, GridOnlyContainer } from "@/components/common";
 import { TemplateCard } from "./template-card";
@@ -6,6 +7,7 @@ import type { Template } from "@/shared/data/templates";
 import { mockTemplates } from "@/shared/data/templates";
 
 const TemplatesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
@@ -26,7 +28,7 @@ const TemplatesPage: React.FC = () => {
   };
 
   const handleCreateTemplate = () => {
-    console.log("Create template clicked");
+    navigate({ to: '/templates/new' });
   };
 
   const handlePageChange = (page: number) => {
@@ -71,7 +73,7 @@ const TemplatesPage: React.FC = () => {
           <div className="md:col-span-1">
             <div
               className="bg-white box-border content-stretch flex flex-col gap-[16px] items-center justify-center px-[12px] py-[9px] relative rounded-[16px] cursor-pointer hover:shadow-md transition-all duration-200 min-h-[94px]"
-              onClick={() => handleTemplateClick({} as Template)}
+              onClick={handleCreateTemplate}
             >
               <div className="absolute border border-[#e1e1e1] border-dashed inset-0 pointer-events-none rounded-[16px]" />
               <div className="content-stretch flex flex-col gap-[14px] items-center relative shrink-0 w-full px-4">
