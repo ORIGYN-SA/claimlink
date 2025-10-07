@@ -6,11 +6,14 @@ interface ImageUploadSectionProps {
   onRemove: () => void;
   onUploadClick: () => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
+  uploadText?: string;
+  acceptedFormats?: string;
 }
 
 /**
  * DUMB COMPONENT - Pure presentation
  * Receives all data and handlers via props
+ * Reusable across collections, certificates, and other features
  */
 export function ImageUploadSection({
   previewUrl,
@@ -18,6 +21,8 @@ export function ImageUploadSection({
   onRemove,
   onUploadClick,
   fileInputRef,
+  uploadText = "Upload your image",
+  acceptedFormats = "JPEG, PNG, SVG, PDF",
 }: ImageUploadSectionProps) {
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -25,14 +30,14 @@ export function ImageUploadSection({
   };
 
   return (
-    <div className="flex gap-4">
+    <div className="flex gap-4 w-full">
       {/* Preview Card */}
-      <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group">
+      <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
         {previewUrl ? (
           <>
             <img
               src={previewUrl}
-              alt="Collection cover preview"
+              alt="Preview"
               className="w-full h-full object-cover"
             />
             <button
@@ -57,10 +62,10 @@ export function ImageUploadSection({
           <Upload className="w-4 h-4 text-[#615bff]" />
         </div>
         <p className="text-[#615bff] font-medium mb-2">
-          Upload your Collection cover
+          {uploadText}
         </p>
         <p className="text-[#69737c] text-sm">
-          JPEG, PNG, SVG, PDF
+          {acceptedFormats}
         </p>
         <input
           ref={fileInputRef}
