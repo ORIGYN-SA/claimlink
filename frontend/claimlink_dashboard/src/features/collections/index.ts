@@ -6,5 +6,8 @@ export { CollectionListView } from './components/collection-list-view'
 export { AddCollectionCard } from './components/add-collection-card'
 export { CollectionStatusBadge } from './components/collection-status-badge'
 export { NewCollectionPage } from './components/new-collection-page'
+export { CollectionFormSection } from './components/collection-form-section'
+export { PricingSidebar } from './components/pricing-sidebar'
+export { ImageUploadSection } from './components/image-upload-section'
 
 export type { Collection, ViewMode, CollectionStatus } from './types/collection.types'

@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { SearchInput } from "@/components/common/search-input";
 import { FeedCard } from "./feed-card";
 
@@ -39,12 +40,13 @@ export const LastCertificateOwnersSection: React.FC<LastCertificateOwnersSection
               Last 7 days
             </div>
           </div>
-          <button 
-            className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1"
+          <Button 
+            variant="link"
+            className="h-auto p-0 font-sans font-medium text-[#615bff] text-[13px] leading-normal"
             onClick={onViewAll}
           >
             View all
-          </button>
+          </Button>
         </div>
         <SearchInput
           value={searchQuery}

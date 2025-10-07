@@ -1,5 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { StandardizedGridView, ViewToggle, type ViewMode } from "@/components/common";
 import type { Certificate } from "@/features/certificates/types/certificate.types";
 
@@ -36,12 +37,13 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
         </div>
         <div className="flex gap-2 items-center">
           {onViewAll && (
-            <button 
-              className="font-sans font-medium text-[#615bff] text-[13px] leading-normal pb-1 hover:underline"
+            <Button 
+              variant="link"
+              className="h-auto p-0 font-sans font-medium text-[#615bff] text-[13px] leading-normal hover:underline"
               onClick={onViewAll}
             >
               View all
-            </button>
+            </Button>
           )}
           <ViewToggle
             viewMode={viewMode}
