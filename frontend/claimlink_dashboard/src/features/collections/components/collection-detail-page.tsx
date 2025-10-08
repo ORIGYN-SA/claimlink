@@ -1,6 +1,5 @@
 // src/features/collections/components/collection-detail-page.tsx
 import React from 'react'
-import { AddCertificateCard } from '@/features/certificates'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
@@ -9,7 +8,9 @@ import { Badge } from '@/components/ui/badge'
 import { Search, Grid, List, Info, Edit, Wallet, User } from 'lucide-react'
 import { getCollectionById, mockCollections } from '@/shared/data/collections'
 import { getCertificatesForCollection, mockCertificates } from '@/shared/data/certificates'
-import { CertificateCard, CertificateListView } from '@/features/certificates'
+import { StandardizedGridView, StandardizedListView, type ListColumn } from '@/components/common'
+import { CertificateStatusBadge } from '@/features/certificates'
+import type { Certificate } from '@/features/certificates/types/certificate.types'
 
 interface CollectionDetailPageProps {
   collectionId: string
@@ -40,6 +41,72 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
     console.log('Add certificate clicked')
     // TODO: Navigate to create certificate page or open modal
   }
+
+  // List view columns configuration for certificates
+  const certificateListColumns: ListColumn[] = [
+    { key: 'ref', label: 'Ref', width: '50px' },
+    { key: 'date', label: 'Date', width: '100px' },
+    { 
+      key: 'title', 
+      label: 'Name', 
+      width: '1fr',
+      render: (certificate: Certificate) => (
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
+            <img
+              src={certificate.imageUrl}
+              alt={certificate.title}
+              className="w-full h-full object-cover"
+            />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-base font-medium text-[#222526] truncate">
+              {certificate.title}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    { 
+      key: 'collectionName', 
+      label: 'Collection', 
+      width: '1fr',
+      render: (certificate: Certificate) => (
+        <div className="text-[14px] font-medium text-[#69737c] truncate">
+          {certificate.collectionName}
+        </div>
+      )
+    },
+    { 
+      key: 'id', 
+      label: 'Token ID', 
+      width: '150px',
+      render: (certificate: Certificate) => (
+        <div className="text-[14px] font-normal text-[#69737c] font-mono">
+          {certificate.id.length > 12
+            ? `${certificate.id.slice(0, 12)}...`
+            : certificate.id
+          }
+        </div>
+      )
+    },
+    { 
+      key: 'status', 
+      label: 'Status', 
+      width: '150px',
+      render: (certificate: Certificate) => (
+        <div className="flex items-center">
+          <CertificateStatusBadge status={certificate.status} />
+        </div>
+      )
+    }
+  ]
+
+  // Add reference numbers to certificates for list view
+  const certificatesWithRef = certificatesToShow.map((cert, index) => ({
+    ...cert,
+    ref: `#${String(index + 1).padStart(3, '0')}`
+  }))
 
   return (
     <div className="space-y-6">
@@ -201,21 +268,22 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           {/* Certificates Grid/List */}
           <div className="space-y-4">
             {viewMode === 'grid' ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <AddCertificateCard />
-                {certificatesToShow.map((certificate) => (
-                  <CertificateCard
-                    key={certificate.id}
-                    certificate={certificate}
-                    onClick={handleCertificateClick}
-                  />
-                ))}
-              </div>
+              <StandardizedGridView
+                items={certificatesToShow}
+                showCertifiedBadge={true}
+                onItemClick={handleCertificateClick}
+                onAddItem={handleAddCertificate}
+                addButtonText="Create a certificate"
+                addButtonDescription="Create a new certificate"
+                showAddButton={true}
+              />
             ) : (
-              <CertificateListView
-                certificates={certificatesToShow}
-                onCertificateClick={handleCertificateClick}
-                onAddCertificate={handleAddCertificate}
+              <StandardizedListView
+                items={certificatesWithRef}
+                columns={certificateListColumns}
+                onItemClick={handleCertificateClick}
+                onAddItem={handleAddCertificate}
+                addItemText="Create your first certificate"
               />
             )}
           </div>

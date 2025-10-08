@@ -44,25 +44,72 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
           {templateOptions.map((template) => (
             <div
               key={template.id}
-              className={`rounded-[16px] ${
-                selectedTemplate?.id === template.id ? 'ring-2 ring-[#615bff]' : ''
+              className={`rounded-[16px] transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
+                selectedTemplate?.id === template.id 
+                  ? 'ring-2 ring-[#615bff] shadow-lg' 
+                  : 'ring-0 hover:shadow-md'
               }`}
+              onClick={() => handleTemplateSelect(template)}
             >
-              <TemplateCard
-                template={template}
-                onClick={() => handleTemplateSelect(template)}
-              />
+              <div className="relative pointer-events-none">
+                <TemplateCard
+                  template={template}
+                  onClick={() => {}}
+                />
+                {/* Checkmark overlay for selected state */}
+                {selectedTemplate?.id === template.id && (
+                  <div className="absolute top-2 right-2 bg-[#615bff] rounded-full p-1 shadow-md animate-in fade-in zoom-in duration-200">
+                    <svg 
+                      width="16" 
+                      height="16" 
+                      viewBox="0 0 16 16" 
+                      fill="none" 
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path 
+                        d="M13.3334 4L6.00002 11.3333L2.66669 8" 
+                        stroke="white" 
+                        strokeWidth="2" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Code It Option */}
         <div
-          className={`bg-[rgba(205,223,236,0.15)] border border-[#cde9ec] border-solid box-border content-stretch flex flex-col gap-[4px] items-center justify-center leading-[normal] not-italic p-[16px] relative rounded-[16px] shrink-0 text-center w-full cursor-pointer hover:bg-[rgba(205,223,236,0.25)] transition-colors ${
-            selectedTemplate?.id === manualTemplateOption.id ? 'ring-2 ring-[#615bff]' : ''
+          className={`bg-[rgba(205,223,236,0.15)] border border-[#cde9ec] border-solid box-border content-stretch flex flex-col gap-[4px] items-center justify-center leading-[normal] not-italic p-[16px] relative rounded-[16px] shrink-0 text-center w-full cursor-pointer transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] ${
+            selectedTemplate?.id === manualTemplateOption.id 
+              ? 'ring-2 ring-[#615bff] bg-[rgba(205,223,236,0.3)] shadow-lg' 
+              : 'hover:bg-[rgba(205,223,236,0.25)] hover:shadow-md'
           }`}
           onClick={() => handleTemplateSelect(manualTemplateOption)}
         >
+          {/* Checkmark for manual option */}
+          {selectedTemplate?.id === manualTemplateOption.id && (
+            <div className="absolute top-2 right-2 bg-[#615bff] rounded-full p-1 shadow-md animate-in fade-in zoom-in duration-200">
+              <svg 
+                width="16" 
+                height="16" 
+                viewBox="0 0 16 16" 
+                fill="none" 
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path 
+                  d="M13.3334 4L6.00002 11.3333L2.66669 8" 
+                  stroke="white" 
+                  strokeWidth="2" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+          )}
           <p className="[text-underline-position:from-font] decoration-solid font-['General_Sans:Medium',_sans-serif] h-[19px] relative shrink-0 text-[#615bff] text-[14px] underline w-[280px]">
             {manualTemplateOption.name}
           </p>

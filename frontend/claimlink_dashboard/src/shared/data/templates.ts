@@ -21,7 +21,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 12,
     createdAt: new Date('2024-01-15'),
     updatedAt: new Date('2024-02-20'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "classic", premium: false }
   },
   {
@@ -32,7 +32,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 8,
     createdAt: new Date('2024-01-20'),
     updatedAt: new Date('2024-02-15'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "modern", premium: false }
   },
   {
@@ -43,7 +43,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 15,
     createdAt: new Date('2024-01-25'),
     updatedAt: new Date('2024-02-25'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "artistic", premium: true, price: 9.99 }
   },
   {
@@ -54,7 +54,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 22,
     createdAt: new Date('2024-02-01'),
     updatedAt: new Date('2024-02-28'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "corporate", premium: false }
   },
   {
@@ -65,7 +65,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 6,
     createdAt: new Date('2024-02-05'),
     updatedAt: new Date('2024-02-22'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "vintage", premium: true, price: 14.99 }
   },
   {
@@ -76,7 +76,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 9,
     createdAt: new Date('2024-02-10'),
     updatedAt: new Date('2024-02-26'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "tech", premium: false }
   },
   {
@@ -87,7 +87,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 18,
     createdAt: new Date('2024-02-12'),
     updatedAt: new Date('2024-02-27'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "award", premium: true, price: 19.99 }
   },
   {
@@ -98,7 +98,7 @@ export const mockTemplates: Template[] = [
     certificateCount: 11,
     createdAt: new Date('2024-02-14'),
     updatedAt: new Date('2024-02-29'),
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop",
+    thumbnail: "/template.svg",
     metadata: { style: "education", premium: false }
   },
 ];
@@ -126,56 +126,56 @@ export const templateOptions: Template[] = [
     id: "art",
     name: "Art",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-art.svg",
     category: "preset"
   },
   {
     id: "diamond",
     name: "Diamond",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-diamond.svg",
     category: "preset"
   },
   {
     id: "gold",
     name: "Gold",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-gold.svg",
     category: "preset"
   },
   {
     id: "watches",
     name: "Watches",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-watches.svg",
     category: "preset"
   },
   {
     id: "cars",
     name: "Cars",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-cars.svg",
     category: "preset"
   },
   {
     id: "spirit",
     name: "Spirit",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-spirit.svg",
     category: "preset"
   },
   {
     id: "luxury_good",
     name: "Luxury good",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-luxury.svg",
     category: "preset"
   },
   {
     id: "made_in",
     name: "Made in",
     description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-    thumbnail: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=76&h=76&fit=crop",
+    thumbnail: "/template-madein.svg",
     category: "preset"
   }
 ];

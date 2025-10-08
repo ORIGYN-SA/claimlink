@@ -22,7 +22,7 @@ const TemplateCard: React.FC<TemplateCardProps> = ({
           <img 
             src={template.thumbnail} 
             alt={template.name}
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full"
           />
         ) : (
           <div className="max-w-none size-full rounded-lg bg-gray-100 flex items-center justify-center">
