@@ -94,7 +94,7 @@ export function EditTemplateStep({ onNext, onBack }: EditTemplateStepProps) {
               <Icon.Mint className="w-4 h-4" />
               Save as draft
             </Button>
-            <Button>Preview changes</Button>
+            <Button onClick={onNext}>Preview changes</Button>
           </div>
         </div>
       </Card>
