@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ChooseTemplateStep } from './choose-template-step';
-import { EditTemplateStep } from './edit-template-step';
+// import { EditTemplateStep } from './edit-template-step'; // OLD: Commented out - using V2 version
+import { EditTemplateStepV2 } from './edit-template-step-v2'; // NEW: Data-driven template editor
 import { PreviewDeployStep } from './preview-deploy-step';
 import { type Template } from '@/shared/data';
 
@@ -69,10 +70,19 @@ export function NewTemplatePage() {
           </TabsContent>
 
           <TabsContent value="edit" className="mt-0 w-full flex justify-center">
-            <EditTemplateStep
+            {/* OLD: Static hard-coded template editor */}
+            {/* <EditTemplateStep
               selectedTemplate={selectedTemplate}
               onNext={() => setCurrentStep('preview')}
               onBack={() => setCurrentStep('choose')}
+            /> */}
+            
+            {/* NEW: Dynamic data-driven template editor with sections and items */}
+            <EditTemplateStepV2
+              selectedTemplate={selectedTemplate}
+              onNext={() => setCurrentStep('preview')}
+              onBack={() => setCurrentStep('choose')}
+              onTemplateChange={(updatedTemplate) => setSelectedTemplate(updatedTemplate)}
             />
           </TabsContent>
 

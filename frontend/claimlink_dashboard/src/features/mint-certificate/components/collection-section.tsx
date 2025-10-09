@@ -2,21 +2,38 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getActiveCollections } from "@/shared/data/collections";
-import { mockTemplates } from "@/shared/data/templates";
+import { mockTemplates, templateOptions } from "@/shared/data/templates";
+import type { Template } from "@/shared/data/templates";
 
-export function CollectionSection() {
+interface CollectionSectionProps {
+  onTemplateChange?: (template: Template | null) => void;
+  onCollectionChange?: (collectionId: string) => void;
+}
+
+export function CollectionSection({ 
+  onTemplateChange,
+  onCollectionChange 
+}: CollectionSectionProps) {
   const [selectedCollection, setSelectedCollection] = useState<string>("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
 
   // Only show active collections in the dropdown
   const activeCollections = getActiveCollections();
+  
+  // Use templateOptions (industry-specific templates) for the dropdown
+  const availableTemplates = [...templateOptions, ...mockTemplates];
 
   const handleCollectionChange = (value: string) => {
     setSelectedCollection(value);
+    onCollectionChange?.(value);
   };
 
   const handleTemplateChange = (value: string) => {
     setSelectedTemplate(value);
+    
+    // Find the selected template and pass it to parent
+    const template = availableTemplates.find(t => t.id === value);
+    onTemplateChange?.(template || null);
   };
 
   return (
@@ -77,7 +94,7 @@ export function CollectionSection() {
               <SelectValue placeholder="Select a template" />
             </SelectTrigger>
             <SelectContent className="bg-white border border-[#e1e1e1] rounded-[16px]">
-              {mockTemplates.map((template) => (
+              {availableTemplates.map((template) => (
                 <SelectItem
                   key={template.id}
                   value={template.id}

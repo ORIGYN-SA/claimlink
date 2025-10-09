@@ -22,3 +22,24 @@ export interface PaginationState {
   pageSize: number
   total: number
 }
+
+// Re-export template structure types
+export type {
+  TemplateStructure,
+  TemplateSection,
+  TemplateItem,
+  TemplateItemType,
+  TitleItem,
+  InputItem,
+  BadgeItem,
+  ImageItem,
+  TemplateLanguage,
+  TemplateTranslations,
+  CertificateFormData,
+  ValidationResult,
+  CreateItemInput,
+  SectionSummary,
+  TemplateSectionName,
+  BaseTemplateItem,
+  ItemValidation,
+} from './template-structure.types';

@@ -1,5 +1,7 @@
 export { MintCertificatePage } from './components/mint-certificate-page';
 export { CreateCertificatePage } from './components/create-certificate-page';
+export { CreateCertificatePageV2 } from './components/create-certificate-page-v2';
+export { DynamicTemplateForm } from './components/dynamic-template-form';
 export { CertificatesActions } from './components/certificates-actions';
 export { CertificatesGrid } from './components/certificates-grid';
 export { CollectionSection } from './components/collection-section';
