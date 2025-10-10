@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { CampaignsActions } from "./campaigns-actions";
-import { Pagination, GridOnlyContainer } from "@/components/common";
+import { Pagination, StandardizedGridListContainer, type ListColumn, type ViewMode } from "@/components/common";
 import { CampaignCard } from "./campaign-card";
 import type { Campaign, CampaignFilters } from "../types/campaign.types";
 import { mockCampaigns, getFilteredCampaigns } from "@/shared/data/campaigns";
 
 const CampaignsPage: React.FC = () => {
   const navigate = useNavigate();
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [filters, setFilters] = useState<CampaignFilters>({
     search: "",
     status: "all",
@@ -35,6 +36,90 @@ const CampaignsPage: React.FC = () => {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  // Define columns for list view
+  const listColumns: ListColumn[] = [
+    {
+      key: 'name',
+      label: 'Campaign',
+      width: 'w-[40%]',
+      render: (campaign: Campaign) => {
+        if (!campaign) return null;
+
+        return (
+          <div className="flex items-center gap-3">
+            <img
+              src={campaign.imageUrl || '/placeholder-image.jpg'}
+              alt={campaign.name || 'Campaign'}
+              className="w-12 h-12 rounded-lg object-cover"
+            />
+            <div>
+              <div className="font-medium text-[#222526] text-sm">{campaign.name || 'Untitled Campaign'}</div>
+              <div className="text-xs text-[#69737c]">
+                {campaign.claimedCount || 0} / {campaign.totalCount || 0} claimed NFTs
+              </div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 'w-[20%]',
+      render: (campaign: Campaign) => {
+        if (!campaign) return null;
+
+        return (
+          <div className="flex items-center gap-2">
+            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+              campaign.status === 'Active' ? 'bg-[#c7f2e0] text-[#50be8f]' :
+              campaign.status === 'Ready' ? 'bg-[#ffd4f0] text-[#ff55c5]' :
+              campaign.status === 'Finished' ? 'bg-[#ccedff] text-[#00a2f7]' :
+              'bg-[#f0f0f0] text-[#69737c]'
+            }`}>
+              {campaign.status || 'Active'}
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'timer',
+      label: 'Timer',
+      width: 'w-[25%]',
+      render: (campaign: Campaign) => {
+        if (!campaign) return null;
+
+        return (
+          <div className="flex items-center gap-2">
+            {campaign.timerText && campaign.timerType && (
+              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                campaign.timerType === 'Urgent' ? 'bg-[#ffe2db] text-[#e84c25]' :
+                campaign.timerType === 'Ongoing' ? 'bg-[#c7f2e0] text-[#50be8f]' :
+                campaign.timerType === 'Starting Soon' ? 'bg-[#ffedf9] text-[#993376]' :
+                'bg-[#fcfafa] text-[#69737c]'
+              }`}>
+                {campaign.timerText}
+              </span>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      width: 'w-[15%]',
+      render: (campaign: Campaign) => {
+        if (!campaign) return null;
+
+        return (
+          <div className="text-sm text-[#69737c]">{campaign.createdAt || 'Unknown'}</div>
+        );
+      },
+    },
+  ];
+
   // Filter campaigns based on current filters
   const filteredCampaigns = getFilteredCampaigns(mockCampaigns, filters);
 
@@ -51,49 +136,24 @@ const CampaignsPage: React.FC = () => {
         onFiltersChange={setFilters}
         onCreateCampaign={handleCreateCampaign}
       />
-      <GridOnlyContainer
+      <StandardizedGridListContainer
         title="Campaigns"
         totalCount={filteredCampaigns.length}
-      >
-        {/* Grid with standardized spacing */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Create Campaign Card */}
-          <div className="md:col-span-1">
-            <div
-              className="bg-white box-border content-stretch flex flex-col gap-[16px] items-center justify-center px-[12px] py-[9px] relative rounded-[16px] cursor-pointer hover:shadow-md transition-all duration-200 min-h-[94px]"
-              onClick={handleCreateCampaign}
-            >
-              <div className="absolute border border-[#e1e1e1] border-dashed inset-0 pointer-events-none rounded-[16px]" />
-              <div className="content-stretch flex flex-col gap-[14px] items-center relative shrink-0 w-full px-4">
-                <div className="relative shrink-0 size-[40px]">
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-[#222526]">
-                      <path d="M12 4V20M20 12H4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="content-stretch flex flex-col items-start relative min-w-0 w-full">
-                  <div className="font-sans font-medium leading-[0] not-italic relative min-w-0 text-[#061937] text-[14px] text-center tracking-[0.7px] uppercase w-full">
-                    <p className="leading-[23px] truncate" title="Launch campaign">Launch campaign</p>
-                  </div>
-                  <div className="font-sans font-light leading-[normal] not-italic relative min-w-0 text-[#69737c] text-[13px] text-center w-full">
-                    <p className="leading-[normal]">Distribute your NFTs via claim links</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Campaign Cards */}
-          {paginatedCampaigns.map((campaign) => (
-            <CampaignCard
-              key={campaign.id}
-              campaign={campaign}
-              onClick={() => handleCampaignClick(campaign)}
-            />
-          ))}
-        </div>
-      </GridOnlyContainer>
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        showViewToggle={true}
+        items={paginatedCampaigns}
+        onItemClick={handleCampaignClick}
+        onAddItem={handleCreateCampaign}
+        addButtonText="Launch campaign"
+        addButtonDescription="Distribute your NFTs via claim links"
+        gridCols="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+        cardVariant="horizontal"
+        customCardComponent={CampaignCard}
+        listColumns={listColumns}
+        addItemText="Create your first campaign"
+        showMoreActions={true}
+      />
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}

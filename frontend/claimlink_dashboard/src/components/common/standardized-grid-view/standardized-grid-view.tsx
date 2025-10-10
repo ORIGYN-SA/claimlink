@@ -14,6 +14,11 @@ interface StandardizedGridViewProps {
   gridCols?: string; // Allow customization of grid columns
   className?: string;
   compact?: boolean; // For smaller containers like dashboard
+  // New prop for custom card component
+  customCardComponent?: React.ComponentType<any>;
+  customCardProps?: Record<string, any>;
+  // Card style variant
+  cardVariant?: 'vertical' | 'horizontal'; // For AddTokenCard styling
 }
 
 export function StandardizedGridView({
@@ -26,7 +31,10 @@ export function StandardizedGridView({
   showAddButton = true,
   gridCols = "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
   className,
-  compact = false
+  compact = false,
+  customCardComponent: CustomCardComponent,
+  customCardProps = {},
+  cardVariant = 'vertical'
 }: StandardizedGridViewProps) {
   return (
     <div className={cn(
@@ -39,19 +47,38 @@ export function StandardizedGridView({
           onClick={onAddItem}
           title={addButtonText}
           description={addButtonDescription}
+          variant={cardVariant}
         />
       )}
 
       {/* Item Cards */}
-      {items.map((item) => (
-        <TokenCard
-          key={item.id}
-          token={item}
-          showCertifiedBadge={showCertifiedBadge}
-          onClick={onItemClick}
-          compact={compact}
-        />
-      ))}
+      {items.map((item) => {
+        if (CustomCardComponent) {
+          // Use custom card component - pass the item as the main data prop
+          // The prop name depends on the component (e.g., 'campaign', 'template', 'token')
+          return (
+            <CustomCardComponent
+              key={item.id}
+              campaign={item}
+              template={item}
+              token={item}
+              {...customCardProps}
+              onClick={() => onItemClick(item)}
+            />
+          );
+        } else {
+          // Use default TokenCard
+          return (
+            <TokenCard
+              key={item.id}
+              token={item}
+              showCertifiedBadge={showCertifiedBadge}
+              onClick={onItemClick}
+              compact={compact}
+            />
+          );
+        }
+      })}
     </div>
   );
 }

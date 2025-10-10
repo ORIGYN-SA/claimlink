@@ -25,6 +25,10 @@ function TimerBadge({ timerText, timerType }: { timerText: string; timerType: Ca
 }
 
 export function CampaignCard({ campaign, onClick, className }: CampaignCardProps) {
+  if (!campaign) {
+    return null;
+  }
+
   return (
     <div
       className={`cursor-pointer transition-all duration-200 hover:shadow-md bg-white box-border content-stretch flex gap-[16px] items-center px-[12px] py-[9px] relative rounded-[16px] ${className}`}
@@ -39,8 +43,8 @@ export function CampaignCard({ campaign, onClick, className }: CampaignCardProps
       {/* Campaign Image - exactly matching template card dimensions */}
       <div className="relative w-[76px] h-[76px] shrink-0">
         <img
-          src={campaign.imageUrl}
-          alt={campaign.name}
+          src={campaign.imageUrl || '/placeholder-image.jpg'}
+          alt={campaign.name || 'Campaign'}
           className="w-full h-full object-cover rounded-lg"
         />
       </div>
@@ -53,7 +57,7 @@ export function CampaignCard({ campaign, onClick, className }: CampaignCardProps
             className="w-full text-[18px] font-normal text-[#222526] leading-normal truncate"
             title={campaign.name}
           >
-            {campaign.name}
+            {campaign.name || 'Untitled Campaign'}
           </h3>
 
           {/* Claimed NFTs Info - similar to certificate count in template */}
@@ -68,7 +72,7 @@ export function CampaignCard({ campaign, onClick, className }: CampaignCardProps
             </div>
             <div className="flex-1 min-w-0 font-sans font-medium text-[#061937] text-[10px] uppercase leading-[24px]">
               <span className="truncate">
-                {campaign.claimedCount} / {campaign.totalCount} claimed nfts
+                {campaign.claimedCount || 0} / {campaign.totalCount || 0} claimed nfts
               </span>
             </div>
           </div>
@@ -78,7 +82,7 @@ export function CampaignCard({ campaign, onClick, className }: CampaignCardProps
             {campaign.timerText && campaign.timerType && (
               <TimerBadge timerText={campaign.timerText} timerType={campaign.timerType} />
             )}
-            <CampaignStatusBadge status={campaign.status} />
+            <CampaignStatusBadge status={campaign.status || 'Active'} />
           </div>
         </div>
       </div>
