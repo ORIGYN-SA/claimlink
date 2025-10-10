@@ -1,9 +1,15 @@
 import { createFileRoute } from '@tanstack/react-router'
+import { DashboardLayout } from '@/components/layout'
+import { NewCampaignPage } from '@/features/campaigns'
 
 export const Route = createFileRoute('/campaigns/new')({
   component: RouteComponent,
 })
 
 function RouteComponent() {
-  return <div>Hello "/campaigns/new"!</div>
+  return (
+    <DashboardLayout>
+      <NewCampaignPage />
+    </DashboardLayout>
+  )
 }
