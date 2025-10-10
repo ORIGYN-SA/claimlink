@@ -32,6 +32,11 @@ const navItems: {
     icon: <ImagePlus />,
   },
   {
+    title: "Campaigns",
+    url: "/campaigns",
+    icon: <Timer />,
+  },
+  {
     title: "Account",
     url: "/account",
     icon: <UserPlus />,
