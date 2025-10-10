@@ -24,6 +24,7 @@ import { Route as Mint_certificateNewRouteImport } from './routes/mint_certifica
 import { Route as CollectionsNewRouteImport } from './routes/collections/new'
 import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
 import { Route as CampaignsNewRouteImport } from './routes/campaigns/new'
+import { Route as CampaignsCampaignsRouteImport } from './routes/campaigns/$campaigns'
 import { Route as AccountTransactionHistoryRouteImport } from './routes/account/transaction-history'
 import { Route as AccountNewRouteImport } from './routes/account/new'
 import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
@@ -104,6 +105,11 @@ const CampaignsNewRoute = CampaignsNewRouteImport.update({
   path: '/campaigns/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CampaignsCampaignsRoute = CampaignsCampaignsRouteImport.update({
+  id: '/campaigns/$campaigns',
+  path: '/campaigns/$campaigns',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AccountTransactionHistoryRoute =
   AccountTransactionHistoryRouteImport.update({
     id: '/account/transaction-history',
@@ -134,6 +140,7 @@ export interface FileRoutesByFullPath {
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
+  '/campaigns/$campaigns': typeof CampaignsCampaignsRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
@@ -155,6 +162,7 @@ export interface FileRoutesByTo {
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
+  '/campaigns/$campaigns': typeof CampaignsCampaignsRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
@@ -177,6 +185,7 @@ export interface FileRoutesById {
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
+  '/campaigns/$campaigns': typeof CampaignsCampaignsRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
@@ -200,6 +209,7 @@ export interface FileRouteTypes {
     | '/account/edit_user'
     | '/account/new'
     | '/account/transaction-history'
+    | '/campaigns/$campaigns'
     | '/campaigns/new'
     | '/collections/$collectionId'
     | '/collections/new'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/account/edit_user'
     | '/account/new'
     | '/account/transaction-history'
+    | '/campaigns/$campaigns'
     | '/campaigns/new'
     | '/collections/$collectionId'
     | '/collections/new'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/account/edit_user'
     | '/account/new'
     | '/account/transaction-history'
+    | '/campaigns/$campaigns'
     | '/campaigns/new'
     | '/collections/$collectionId'
     | '/collections/new'
@@ -264,6 +276,7 @@ export interface RootRouteChildren {
   AccountEdit_userRoute: typeof AccountEdit_userRoute
   AccountNewRoute: typeof AccountNewRoute
   AccountTransactionHistoryRoute: typeof AccountTransactionHistoryRoute
+  CampaignsCampaignsRoute: typeof CampaignsCampaignsRoute
   CampaignsNewRoute: typeof CampaignsNewRoute
   CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
   CollectionsNewRoute: typeof CollectionsNewRoute
@@ -385,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/campaigns/$campaigns': {
+      id: '/campaigns/$campaigns'
+      path: '/campaigns/$campaigns'
+      fullPath: '/campaigns/$campaigns'
+      preLoaderRoute: typeof CampaignsCampaignsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/account/transaction-history': {
       id: '/account/transaction-history'
       path: '/account/transaction-history'
@@ -424,6 +444,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountEdit_userRoute: AccountEdit_userRoute,
   AccountNewRoute: AccountNewRoute,
   AccountTransactionHistoryRoute: AccountTransactionHistoryRoute,
+  CampaignsCampaignsRoute: CampaignsCampaignsRoute,
   CampaignsNewRoute: CampaignsNewRoute,
   CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
   CollectionsNewRoute: CollectionsNewRoute,

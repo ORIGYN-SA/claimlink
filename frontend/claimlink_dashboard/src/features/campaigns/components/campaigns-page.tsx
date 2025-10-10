@@ -18,9 +18,7 @@ const CampaignsPage: React.FC = () => {
   const [linesPerPage, setLinesPerPage] = useState(10);
 
   const handleCampaignClick = (campaign: Campaign) => {
-    console.log("Campaign clicked:", campaign);
-    // TODO: Navigate to campaign detail page when implemented
-    // navigate({ to: `/campaigns/${campaign.id}` });
+    navigate({ to: `/campaigns/${campaign.id}` });
   };
 
   const handleCreateCampaign = () => {

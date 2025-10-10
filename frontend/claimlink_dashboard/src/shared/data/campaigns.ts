@@ -10,7 +10,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Active",
     timerText: "13 days left",
     timerType: "Ongoing",
-    createdAt: "20 Feb, 2024"
+    createdAt: "20 Feb, 2024",
+    collectionId: "1",
+    claimDuration: 30,
+    description: "Launch campaign for gold bar certificates"
   },
   {
     id: "2",
@@ -21,7 +24,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Active",
     timerText: "1 hour left",
     timerType: "Urgent",
-    createdAt: "20 Feb, 2024"
+    createdAt: "20 Feb, 2024",
+    collectionId: "2",
+    claimDuration: 1,
+    description: "Verification campaign for luxury watches"
   },
   {
     id: "3",
@@ -32,7 +38,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Ready",
     timerText: "Starts in 2 days",
     timerType: "Starting Soon",
-    createdAt: "20 Feb, 2024"
+    createdAt: "20 Feb, 2024",
+    collectionId: "3",
+    claimDuration: 60,
+    description: "Art authenticity verification collection"
   },
   {
     id: "4",
@@ -43,7 +52,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Finished",
     timerText: "Ended",
     timerType: "Finished",
-    createdAt: "10 Jan, 2024"
+    createdAt: "10 Jan, 2024",
+    collectionId: "4",
+    claimDuration: 30,
+    description: "Classic car NFT collection drop"
   },
   {
     id: "5",
@@ -54,7 +66,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Active",
     timerText: "21 days left",
     timerType: "Ongoing",
-    createdAt: "18 Feb, 2024"
+    createdAt: "18 Feb, 2024",
+    collectionId: "5",
+    claimDuration: 30,
+    description: "Premium diamond verification registry"
   },
   {
     id: "6",
@@ -65,7 +80,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Active",
     timerText: "7 days left",
     timerType: "Ongoing",
-    createdAt: "15 Feb, 2024"
+    createdAt: "15 Feb, 2024",
+    collectionId: "6",
+    claimDuration: 14,
+    description: "Summer spirits collection campaign"
   },
   {
     id: "7",
@@ -76,7 +94,10 @@ export const mockCampaigns: Campaign[] = [
     status: "Ready",
     timerText: "Starts tomorrow",
     timerType: "Starting Soon",
-    createdAt: "22 Feb, 2024"
+    createdAt: "22 Feb, 2024",
+    collectionId: "7",
+    claimDuration: 7,
+    description: "Swiss timepiece authentication campaign"
   }
 ];
 

@@ -26,11 +26,11 @@ const navItems: {
     url: "/mint_certificate",
     icon: <ScrollText />,
   },
-  {
-    title: "Mint NFT",
-    url: "/mint_nft",
-    icon: <ImagePlus />,
-  },
+  // {
+  //   title: "Mint NFT",
+  //   url: "/mint_nft",
+  //   icon: <ImagePlus />,
+  // },
   {
     title: "Campaigns",
     url: "/campaigns",
