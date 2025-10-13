@@ -1,5 +1,6 @@
 
 import { Button } from '@/components/ui/button'
+import { useNavigate } from '@tanstack/react-router'
 
 interface Campaign {
   id: string
@@ -19,6 +20,12 @@ interface CampaignStatsProps {
 }
 
 export function CampaignStats({ campaign }: CampaignStatsProps) {
+  const navigate = useNavigate()
+
+  const handleSeeClaimers = () => {
+    navigate({ to: '/campaigns/$campaigns/claimers', params: { campaigns: campaign.id } })
+  }
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       {/* Statistics Card */}
@@ -78,7 +85,7 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
               </div>
             </div>
           </Button>
-          <Button variant="outline" className="flex-1 h-14 rounded-xl shadow-sm">
+          <Button variant="outline" className="flex-1 h-14 rounded-xl shadow-sm" onClick={handleSeeClaimers}>
             <div className="flex items-center gap-2">
               <span className="text-[14px]">See claimers</span>
               <div className="w-4 h-4 bg-[#222526] rounded flex items-center justify-center">
