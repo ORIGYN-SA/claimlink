@@ -16,7 +16,9 @@ export interface Template {
 }
 
 // Mock templates data - shared across the application
-export const mockTemplates: Template[] = [
+// NOTE: These templates will be replaced with the structured templates below
+// Keeping for backwards compatibility during migration
+const mockTemplatesLegacy: Template[] = [
   {
     id: "1",
     name: "Classic Certificate Template",
@@ -1647,6 +1649,10 @@ export const templateOptions: Template[] = [
   luxuryGoodCertificateTemplate,
   madeInItalyTemplate
 ];
+
+// Export mockTemplates as the structured templates for use throughout the app
+// This replaces the old mockTemplatesLegacy array with templates that have full structure
+export const mockTemplates: Template[] = templateOptions;
 
 // Manual template option
 export const manualTemplateOption: Template = {

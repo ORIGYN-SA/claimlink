@@ -2,6 +2,7 @@
 export { TemplatesPage } from './components/templates-page'
 export { TemplateCard } from './components/template-card'
 export { NewTemplatePage } from './components/new-template-page'
+export { EditTemplatePage } from './components/edit-template-page'
 export { ChooseTemplateStep } from './components/choose-template-step'
 export { EditTemplateStep } from './components/edit-template-step' // OLD: Keep for backwards compatibility
 export { EditTemplateStepV2 } from './components/edit-template-step-v2' // NEW: Data-driven template editor

@@ -14,7 +14,7 @@ const TemplatesPage: React.FC = () => {
   const [linesPerPage, setLinesPerPage] = useState(10);
 
   const handleTemplateClick = (template: Template) => {
-    console.log("Template clicked:", template);
+    navigate({ to: '/templates/$templateId', params: { templateId: template.id } });
   };
 
   const handleSearchChange = (query: string) => {

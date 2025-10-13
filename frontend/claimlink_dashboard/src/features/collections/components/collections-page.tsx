@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Pagination, SearchInput, FilterSelect, StandardizedGridListContainer, type ViewMode, type ListColumn } from "@/components/common";
+import { Pagination, SearchInput, FilterSelect, StandardizedGridListContainer, type ViewMode, type ListColumn, type ListAction } from "@/components/common";
 import type { FilterOption } from "@/components/common";
 import { CollectionStatusBadge } from "./collection-status-badge";
 import { mockCollections } from "@/shared/data/collections";
 import type { Collection, CollectionStatus } from "../types/collection.types";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function CollectionsPage() {
   const navigate = useNavigate();
@@ -92,6 +94,42 @@ export function CollectionsPage() {
     navigate({ to: '/collections/new' });
   };
 
+  const handleViewCollection = (collection: Collection) => {
+    navigate({ to: `/collections/${collection.id}` });
+  };
+
+  const handleEditCollection = (collection: Collection) => {
+    // TODO: Navigate to edit page when implemented
+    toast.info(`Edit collection: ${collection.title}`);
+    console.log('Edit collection:', collection);
+  };
+
+  const handleDeleteCollection = (collection: Collection) => {
+    // TODO: Implement delete confirmation dialog
+    toast.info(`Delete collection: ${collection.title}`);
+    console.log('Delete collection:', collection);
+  };
+
+  // Define actions for list view dropdown menu
+  const listActions: ListAction[] = [
+    {
+      label: 'View Collection',
+      icon: Eye,
+      onClick: handleViewCollection,
+    },
+    {
+      label: 'Edit Collection',
+      icon: Edit,
+      onClick: handleEditCollection,
+    },
+    {
+      label: 'Delete Collection',
+      icon: Trash2,
+      onClick: handleDeleteCollection,
+      variant: 'destructive',
+    },
+  ];
+
   // Filter collections based on search and status
   const filteredCollections = mockCollections.filter(collection => {
     const matchesSearch = collection.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -158,8 +196,9 @@ export function CollectionsPage() {
         addButtonText="Create a collection"
         addButtonDescription="Create a new collection"
         listColumns={listColumns}
+        listActions={listActions}
         addItemText="Create your first collection"
-        onMoreActionsClick={(collection) => console.log('More actions for collection:', collection.id)}
+        showMoreActions={true}
       />
 
       {/* Footer - Pagination */}
