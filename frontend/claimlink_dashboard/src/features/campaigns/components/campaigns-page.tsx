@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { CampaignsActions } from "./campaigns-actions";
-import { Pagination, StandardizedGridListContainer, type ListColumn, type ViewMode } from "@/components/common";
+import { Pagination, StandardizedGridListContainer, type ListColumn, type ListAction, type ViewMode } from "@/components/common";
 import { CampaignCard } from "./campaign-card";
 import type { Campaign, CampaignFilters } from "../types/campaign.types";
 import { mockCampaigns, getFilteredCampaigns } from "@/shared/data/campaigns";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 const CampaignsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -32,6 +34,22 @@ const CampaignsPage: React.FC = () => {
   const handleLinesPerPageChange = (lines: number) => {
     setLinesPerPage(lines);
     setCurrentPage(1); // Reset to first page when changing page size
+  };
+
+  const handleViewCampaign = (campaign: Campaign) => {
+    navigate({ to: `/campaigns/${campaign.id}` });
+  };
+
+  const handleEditCampaign = (campaign: Campaign) => {
+    // TODO: Navigate to edit page when implemented
+    toast.info(`Edit campaign: ${campaign.name}`);
+    console.log('Edit campaign:', campaign);
+  };
+
+  const handleDeleteCampaign = (campaign: Campaign) => {
+    // TODO: Implement delete confirmation dialog
+    toast.info(`Delete campaign: ${campaign.name}`);
+    console.log('Delete campaign:', campaign);
   };
 
   // Define columns for list view
@@ -118,6 +136,26 @@ const CampaignsPage: React.FC = () => {
     },
   ];
 
+  // Define actions for list view dropdown menu
+  const listActions: ListAction[] = [
+    {
+      label: 'View Campaign',
+      icon: Eye,
+      onClick: handleViewCampaign,
+    },
+    {
+      label: 'Edit Campaign',
+      icon: Edit,
+      onClick: handleEditCampaign,
+    },
+    {
+      label: 'Delete Campaign',
+      icon: Trash2,
+      onClick: handleDeleteCampaign,
+      variant: 'destructive',
+    },
+  ];
+
   // Filter campaigns based on current filters
   const filteredCampaigns = getFilteredCampaigns(mockCampaigns, filters);
 
@@ -149,6 +187,7 @@ const CampaignsPage: React.FC = () => {
         cardVariant="horizontal"
         customCardComponent={CampaignCard}
         listColumns={listColumns}
+        listActions={listActions}
         addItemText="Create your first campaign"
         showMoreActions={true}
       />

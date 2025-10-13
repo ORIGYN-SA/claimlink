@@ -1,5 +1,5 @@
 import { StandardizedGridView } from "../standardized-grid-view";
-import { StandardizedListView, type ListColumn } from "../standardized-list-view";
+import { StandardizedListView, type ListColumn, type ListAction } from "../standardized-list-view";
 import { ContentContainer } from "./content-container";
 import { type ViewMode } from "../view-toggle";
 import type { BaseToken } from "../token-card/token.types";
@@ -33,7 +33,8 @@ interface StandardizedGridListContainerProps {
   listColumns?: ListColumn[];
   addItemText?: string;
   showMoreActions?: boolean;
-  onMoreActionsClick?: (item: any) => void;
+  listActions?: ListAction[]; // New: actions for dropdown menu
+  onMoreActionsClick?: (item: any) => void; // Deprecated: kept for backward compatibility
 
   // Coming soon placeholder for list view
   listViewComingSoon?: boolean;
@@ -70,6 +71,7 @@ export function StandardizedGridListContainer({
   listColumns = [],
   addItemText = "Create your first item",
   showMoreActions = true,
+  listActions = [],
   onMoreActionsClick,
 
   // Coming soon placeholder
@@ -114,6 +116,7 @@ export function StandardizedGridListContainer({
             onAddItem={onAddItem}
             addItemText={addItemText}
             showMoreActions={showMoreActions}
+            actions={listActions}
             onMoreActionsClick={onMoreActionsClick}
           />
         )

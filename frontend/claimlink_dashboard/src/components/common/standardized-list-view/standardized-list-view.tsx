@@ -1,6 +1,12 @@
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -18,6 +24,13 @@ interface ListColumn {
   render?: (item: any) => React.ReactNode;
 }
 
+interface ListAction {
+  label: string;
+  icon: LucideIcon;
+  onClick: (item: any) => void;
+  variant?: 'default' | 'destructive'; // For styling (e.g., delete action in red)
+}
+
 interface StandardizedListViewProps {
   items: any[];
   columns: ListColumn[];
@@ -25,7 +38,8 @@ interface StandardizedListViewProps {
   onAddItem?: () => void;
   addItemText?: string;
   showMoreActions?: boolean;
-  onMoreActionsClick?: (item: any) => void;
+  actions?: ListAction[]; // New: pass actions as props
+  onMoreActionsClick?: (item: any) => void; // Deprecated: kept for backward compatibility
   className?: string;
 }
 
@@ -36,9 +50,12 @@ export function StandardizedListView({
   onAddItem,
   addItemText = "Create your first item",
   showMoreActions = true,
+  actions = [],
   onMoreActionsClick,
   className
 }: StandardizedListViewProps) {
+  // If actions are provided, use them; otherwise fall back to onMoreActionsClick for backward compatibility
+  const hasActions = actions.length > 0 || !!onMoreActionsClick;
   return (
     <Card className={cn(
       "bg-white border border-[#e1e1e1] rounded-[25px] overflow-hidden shadow-[0px_2px_4px_0px_rgba(0,0,0,0.05)]",
@@ -56,7 +73,7 @@ export function StandardizedListView({
                 {column.label}
               </TableHead>
             ))}
-            {showMoreActions && (
+            {showMoreActions && hasActions && (
               <TableHead className="w-[40px] px-6">
                 {/* More actions header - empty for now */}
               </TableHead>
@@ -87,20 +104,57 @@ export function StandardizedListView({
               ))}
 
               {/* More Actions */}
-              {showMoreActions && (
+              {showMoreActions && hasActions && (
                 <TableCell className="px-6 py-4 w-[40px]">
-                  <div className="flex justify-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="w-10 h-10 rounded-full hover:bg-[#f0f0f0]"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onMoreActionsClick?.(item);
-                      }}
-                    >
-                      <MoreHorizontal className="w-4 h-4 text-[#69737c]" />
-                    </Button>
+                  <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
+                    {actions.length > 0 ? (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="w-10 h-10 rounded-full hover:bg-[#f0f0f0]"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <MoreHorizontal className="w-4 h-4 text-[#69737c]" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          {actions.map((action, actionIndex) => {
+                            const Icon = action.icon;
+                            return (
+                              <DropdownMenuItem
+                                key={actionIndex}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  action.onClick(item);
+                                }}
+                                className={cn(
+                                  "cursor-pointer",
+                                  action.variant === 'destructive' && "text-red-600 focus:text-red-600"
+                                )}
+                              >
+                                <Icon className="mr-2 h-4 w-4" />
+                                <span>{action.label}</span>
+                              </DropdownMenuItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    ) : (
+                      // Backward compatibility: use onMoreActionsClick if no actions provided
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="w-10 h-10 rounded-full hover:bg-[#f0f0f0]"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onMoreActionsClick?.(item);
+                        }}
+                      >
+                        <MoreHorizontal className="w-4 h-4 text-[#69737c]" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               )}
@@ -128,3 +182,5 @@ export function StandardizedListView({
     </Card>
   );
 }
+
+export type { ListColumn, ListAction };
