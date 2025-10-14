@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { InfoIcon, ArrowRightIcon } from "./wallet-icons"
+import { Link } from "@tanstack/react-router"
 
 export function IntegratorLoginSection() {
   return (
@@ -39,9 +40,12 @@ export function IntegratorLoginSection() {
         </Button>
         
         <div className="text-center">
-          <button className="text-gray-300 text-sm hover:text-white transition-colors">
+          <Link 
+            to="/forgot-password"
+            className="text-gray-300 text-sm hover:text-white transition-colors"
+          >
             Forgot your password?
-          </button>
+          </Link>
         </div>
       </div>
     </div>

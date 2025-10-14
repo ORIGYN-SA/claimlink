@@ -1,5 +1,7 @@
 // Auth feature exports
 export { LoginPage } from "./components/login-page"
+export { ForgotPasswordPage } from "./components/forgot-password-page"
+export { NewPasswordPage } from "./components/new-password-page"
 export { WalletConnectionSection } from "./components/wallet-connection-section"
 export { IntegratorLoginSection } from "./components/integrator-login-section"
 export { LoginFooter } from "./components/login-footer"

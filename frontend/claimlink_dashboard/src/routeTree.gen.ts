@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as NewPasswordRouteImport } from './routes/new-password'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TemplatesIndexRouteImport } from './routes/templates/index'
@@ -32,9 +34,19 @@ import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_c
 import { Route as CampaignsCampaignsIndexRouteImport } from './routes/campaigns/$campaigns/index'
 import { Route as CampaignsCampaignsClaimersRouteImport } from './routes/campaigns/$campaigns/claimers'
 
+const NewPasswordRoute = NewPasswordRouteImport.update({
+  id: '/new-password',
+  path: '/new-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -148,7 +160,9 @@ const CampaignsCampaignsClaimersRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/new-password': typeof NewPasswordRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -172,7 +186,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/new-password': typeof NewPasswordRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -197,7 +213,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard': typeof DashboardRoute
+  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
+  '/new-password': typeof NewPasswordRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -223,7 +241,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
+    | '/new-password'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -247,7 +267,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
+    | '/new-password'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -271,7 +293,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/dashboard'
+    | '/forgot-password'
     | '/login'
+    | '/new-password'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -296,7 +320,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardRoute: typeof DashboardRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
+  NewPasswordRoute: typeof NewPasswordRoute
   AccountEdit_companyRoute: typeof AccountEdit_companyRoute
   AccountEdit_userRoute: typeof AccountEdit_userRoute
   AccountNewRoute: typeof AccountNewRoute
@@ -320,11 +346,25 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/new-password': {
+      id: '/new-password'
+      path: '/new-password'
+      fullPath: '/new-password'
+      preLoaderRoute: typeof NewPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -480,7 +520,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardRoute: DashboardRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
+  NewPasswordRoute: NewPasswordRoute,
   AccountEdit_companyRoute: AccountEdit_companyRoute,
   AccountEdit_userRoute: AccountEdit_userRoute,
   AccountNewRoute: AccountNewRoute,
