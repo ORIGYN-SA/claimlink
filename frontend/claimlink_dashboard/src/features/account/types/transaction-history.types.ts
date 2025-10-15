@@ -19,9 +19,9 @@ export interface DisplayTransaction extends LedgerTransaction {
 export interface TransactionHistoryProps {
   accountOverview: AccountOverview;
   transactions: DisplayTransaction[];
-  isLoading?: boolean;
   onCopyTransactionId?: (id: string) => void;
   onCopyAccountId?: (id: string) => void;
+  onTransactionClick?: (transaction: DisplayTransaction) => void;
   onSearch?: (query: string) => void;
   onDateFilter?: (dateRange: { start: Date | undefined; end: Date | undefined }) => void;
   onExport?: () => void;
@@ -30,6 +30,5 @@ export interface TransactionHistoryProps {
   currentPage?: number;
   totalPages?: number;
   itemsPerPage?: number;
-  totalItems?: number;
 }
 

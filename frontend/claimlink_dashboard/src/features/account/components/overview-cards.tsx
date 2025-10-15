@@ -34,7 +34,7 @@ export function OverviewCards({ accountOverview, onCopyAccountId }: OverviewCard
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Account ID Card */}
       <Card className="border border-[#e8e8e8]">
-        <CardContent className="p-6">
+        <CardContent className="">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-4 h-4 rounded bg-[#69737c] flex items-center justify-center">
@@ -74,7 +74,7 @@ export function OverviewCards({ accountOverview, onCopyAccountId }: OverviewCard
 
       {/* Balance Card */}
       <Card className="border border-[#e8e8e8]">
-        <CardContent className="p-6">
+        <CardContent className="">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Wallet className="h-4 w-4 text-[#69737c]" />

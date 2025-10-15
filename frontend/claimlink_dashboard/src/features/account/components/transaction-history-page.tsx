@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { TransactionHistory } from "./transaction-history";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import {
@@ -13,6 +14,7 @@ import { OGY_LEDGER_INDEX_CANISTER_ID } from "@/shared/constants";
 import type { DisplayTransaction } from "../types/transaction-history.types";
 
 export function TransactionHistoryPage() {
+  const navigate = useNavigate();
   const {
     principalId,
     authenticatedAgent,
@@ -135,6 +137,29 @@ export function TransactionHistoryPage() {
     console.log('Items per page:', items);
   };
 
+  const handleTransactionClick = (transaction: DisplayTransaction) => {
+    // Convert BigInt values to strings for serialization
+    const serializableTransaction = {
+      ...transaction,
+      amount: transaction.amount?.toString(),
+      fee: transaction.fee?.toString(),
+    };
+    
+    // Store the transaction in sessionStorage for the detail page to access
+    sessionStorage.setItem(`transaction-${transaction.index}`, JSON.stringify({
+      transaction: serializableTransaction,
+      accountId: principalId,
+      balance: ogyBalance?.data?.balance,
+      currency: 'OGY'
+    }));
+    
+    // Navigate to transaction detail page
+    navigate({
+      to: '/account/$transactionId',
+      params: { transactionId: transaction.index.toString() }
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -154,9 +179,9 @@ export function TransactionHistoryPage() {
           currency: 'OGY',
         }}
         transactions={formattedTransactions}
-        isLoading={txs.isPending}
         onCopyTransactionId={handleCopyTransactionId}
         onCopyAccountId={handleCopyAccountId}
+        onTransactionClick={handleTransactionClick}
         onSearch={handleSearch}
         onDateFilter={handleDateFilter}
         onExport={handleExport}
@@ -164,8 +189,7 @@ export function TransactionHistoryPage() {
         onItemsPerPageChange={handleItemsPerPageChange}
         currentPage={1}
         totalPages={1}
-        itemsPerPage={formattedTransactions.length}
-        totalItems={formattedTransactions.length}
+        itemsPerPage={10}
       />
     </div>
   );

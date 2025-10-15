@@ -38,7 +38,7 @@ export function HeaderBar({
         },
     );
 
-    console.log("ogy", ogyBalance);
+    // console.log("ogy", ogyBalance);
 
     const handleBack = () => {
         if (backTo) {

@@ -31,6 +31,7 @@ import { Route as AccountTransactionHistoryRouteImport } from './routes/account/
 import { Route as AccountNewRouteImport } from './routes/account/new'
 import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
 import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_company'
+import { Route as AccountTransactionIdRouteImport } from './routes/account/$transactionId'
 import { Route as CampaignsCampaignsIndexRouteImport } from './routes/campaigns/$campaigns/index'
 import { Route as CampaignsCampaignsClaimersRouteImport } from './routes/campaigns/$campaigns/claimers'
 
@@ -145,6 +146,11 @@ const AccountEdit_companyRoute = AccountEdit_companyRouteImport.update({
   path: '/account/edit_company',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountTransactionIdRoute = AccountTransactionIdRouteImport.update({
+  id: '/account/$transactionId',
+  path: '/account/$transactionId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CampaignsCampaignsIndexRoute = CampaignsCampaignsIndexRouteImport.update({
   id: '/campaigns/$campaigns/',
   path: '/campaigns/$campaigns/',
@@ -163,6 +169,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -189,6 +196,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -216,6 +224,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -244,6 +253,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -270,6 +280,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -296,6 +307,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -323,6 +335,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewPasswordRoute: typeof NewPasswordRoute
+  AccountTransactionIdRoute: typeof AccountTransactionIdRoute
   AccountEdit_companyRoute: typeof AccountEdit_companyRoute
   AccountEdit_userRoute: typeof AccountEdit_userRoute
   AccountNewRoute: typeof AccountNewRoute
@@ -500,6 +513,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountEdit_companyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/$transactionId': {
+      id: '/account/$transactionId'
+      path: '/account/$transactionId'
+      fullPath: '/account/$transactionId'
+      preLoaderRoute: typeof AccountTransactionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/campaigns/$campaigns/': {
       id: '/campaigns/$campaigns/'
       path: '/campaigns/$campaigns'
@@ -523,6 +543,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewPasswordRoute: NewPasswordRoute,
+  AccountTransactionIdRoute: AccountTransactionIdRoute,
   AccountEdit_companyRoute: AccountEdit_companyRoute,
   AccountEdit_userRoute: AccountEdit_userRoute,
   AccountNewRoute: AccountNewRoute,

@@ -1,6 +1,6 @@
 // AccountMenu.tsx
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { WithdrawDialog } from "./withdraw-dialog";
 import { AccountHeaderSection } from "./account-header-section";
 import { UserProfileSection } from "./user-profile-section";
@@ -162,6 +162,12 @@ export function AccountMenu({
           backgroundColor: "#051936",
         }}
       >
+        {/* Accessible title and description for screen readers */}
+        <SheetTitle className="sr-only">Account Menu</SheetTitle>
+        <SheetDescription className="sr-only">
+          View your account balance, transaction history, and manage your wallet
+        </SheetDescription>
+        
         <div className="h-full overflow-y-auto">
           {/* Background with blur effect */}
           <div className="min-h-full bg-[#051936]/95 backdrop-blur-xl">

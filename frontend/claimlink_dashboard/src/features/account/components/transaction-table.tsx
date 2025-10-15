@@ -2,15 +2,16 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Copy } from 'lucide-react';
 import { StandardizedListView } from '@/components/common/standardized-list-view';
+import { Pagination } from '@/components/common/pagination';
 import type { DisplayTransaction } from '../types/transaction-history.types';
 
 interface TransactionTableProps {
   transactions: DisplayTransaction[];
   onCopyTransactionId?: (id: string) => void;
+  onTransactionClick?: (transaction: DisplayTransaction) => void;
   currentPage: number;
   totalPages: number;
   itemsPerPage: number;
-  totalItems: number;
   onPageChange?: (page: number) => void;
   onItemsPerPageChange?: (items: number) => void;
 }
@@ -18,10 +19,10 @@ interface TransactionTableProps {
 export function TransactionTable({
   transactions,
   onCopyTransactionId,
+  onTransactionClick,
   currentPage,
   totalPages,
   itemsPerPage,
-  totalItems,
   onPageChange,
   onItemsPerPageChange,
 }: TransactionTableProps) {
@@ -98,7 +99,7 @@ export function TransactionTable({
             </Badge>
             {transaction.formattedAmountUSD && (
               <span className="text-sm text-[#69737c]">
-                ({transaction.formattedAmountUSD})
+                {transaction.formattedAmountUSD}
               </span>
             )}
           </div>
@@ -113,60 +114,20 @@ export function TransactionTable({
       <StandardizedListView
         items={transactions}
         columns={columns}
-        onItemClick={() => {}} // No action needed for transaction rows
+        onItemClick={(transaction) => onTransactionClick?.(transaction)}
         showMoreActions={false} // Hide the more actions column for transactions
         className="rounded-t-3xl rounded-b-none"
       />
 
-      {/* Custom Pagination Footer */}
-      <div className="flex items-center justify-between px-10 py-4 bg-white border-x border-b border-[#e1e1e1] rounded-b-3xl">
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-[#69737c]">Lines per page</span>
-          <select
-            value={itemsPerPage}
-            onChange={(e) => onItemsPerPageChange?.(Number(e.target.value))}
-            className="px-3 py-1 border border-[#e1e1e1] rounded-full text-sm focus:outline-none focus:ring-1 focus:ring-[#061937]"
-          >
-            <option value={10}>10</option>
-            <option value={25}>25</option>
-            <option value={50}>50</option>
-            <option value={100}>100</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-[#69737c]">
-            {Math.min((currentPage - 1) * itemsPerPage + 1, totalItems)}-
-            {Math.min(currentPage * itemsPerPage, totalItems)} of {totalItems}
-          </span>
-
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onPageChange?.(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="h-8 w-8 p-0"
-            >
-              <span className="text-lg leading-none">‹</span>
-            </Button>
-
-            <span className="px-3 py-1 text-sm font-medium text-[#222526]">
-              {currentPage}
-            </span>
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onPageChange?.(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="h-8 w-8 p-0"
-            >
-              <span className="text-lg leading-none">›</span>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        itemsPerPage={itemsPerPage}
+        onPageChange={(page) => onPageChange?.(page)}
+        onItemsPerPageChange={(items) => onItemsPerPageChange?.(items)}
+        itemsPerPageOptions={[10, 25, 50, 100]}
+        className="rounded-b-3xl"
+      />
     </div>
   );
 }
