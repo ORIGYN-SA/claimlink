@@ -38,9 +38,8 @@ export function AccountPage() {
     navigate({ to: "/account/edit_company" });
   };
 
-  const handleEditUser = () => {
-    // TODO: Navigate to edit user page with user ID
-    navigate({ to: "/account/edit_user" });
+  const handleEditUser = (user: User) => {
+    navigate({ to: "/account/users/$userId", params: { userId: user.id.toString() } });
   };
 
   // User list columns configuration

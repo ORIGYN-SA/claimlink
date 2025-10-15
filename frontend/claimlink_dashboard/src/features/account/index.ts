@@ -3,6 +3,7 @@ export { CreateUserPage } from './components/create-user-page';
 export { EditUserPage } from './components/edit-user-page';
 export { EditCompanyPage } from './components/edit-company-page';
 export { CompanyRecapCard } from './components/company-recap-card';
+export { DeleteUserDialog } from './components/delete-user-dialog';
 export { TransactionHistoryPage } from './components/transaction-history-page';
 export { TransactionHistory } from './components/transaction-history';
 export { TransactionDetailPage } from './components/transaction-detail-page';

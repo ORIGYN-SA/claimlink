@@ -12,7 +12,7 @@ interface TransactionData {
   currency?: string;
 }
 
-export const Route = createFileRoute('/account/$transactionId')({
+export const Route = createFileRoute('/account/transactions/$transactionId')({
   component: TransactionDetailRoute,
 });
 
@@ -85,3 +85,4 @@ function TransactionDetailRoute() {
     </DashboardLayout>
   );
 }
+

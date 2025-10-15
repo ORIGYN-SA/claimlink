@@ -31,9 +31,10 @@ import { Route as AccountTransactionHistoryRouteImport } from './routes/account/
 import { Route as AccountNewRouteImport } from './routes/account/new'
 import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
 import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_company'
-import { Route as AccountTransactionIdRouteImport } from './routes/account/$transactionId'
 import { Route as CampaignsCampaignsIndexRouteImport } from './routes/campaigns/$campaigns/index'
 import { Route as CampaignsCampaignsClaimersRouteImport } from './routes/campaigns/$campaigns/claimers'
+import { Route as AccountUsersUserIdRouteImport } from './routes/account/users.$userId'
+import { Route as AccountTransactionsTransactionIdRouteImport } from './routes/account/transactions.$transactionId'
 
 const NewPasswordRoute = NewPasswordRouteImport.update({
   id: '/new-password',
@@ -146,11 +147,6 @@ const AccountEdit_companyRoute = AccountEdit_companyRouteImport.update({
   path: '/account/edit_company',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AccountTransactionIdRoute = AccountTransactionIdRouteImport.update({
-  id: '/account/$transactionId',
-  path: '/account/$transactionId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CampaignsCampaignsIndexRoute = CampaignsCampaignsIndexRouteImport.update({
   id: '/campaigns/$campaigns/',
   path: '/campaigns/$campaigns/',
@@ -162,6 +158,17 @@ const CampaignsCampaignsClaimersRoute =
     path: '/campaigns/$campaigns/claimers',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AccountUsersUserIdRoute = AccountUsersUserIdRouteImport.update({
+  id: '/account/users/$userId',
+  path: '/account/users/$userId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountTransactionsTransactionIdRoute =
+  AccountTransactionsTransactionIdRouteImport.update({
+    id: '/account/transactions/$transactionId',
+    path: '/account/transactions/$transactionId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -169,7 +176,6 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -187,6 +193,8 @@ export interface FileRoutesByFullPath {
   '/mint_certificate': typeof Mint_certificateIndexRoute
   '/mint_nft': typeof Mint_nftIndexRoute
   '/templates': typeof TemplatesIndexRoute
+  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
+  '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
   '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
 }
@@ -196,7 +204,6 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -214,6 +221,8 @@ export interface FileRoutesByTo {
   '/mint_certificate': typeof Mint_certificateIndexRoute
   '/mint_nft': typeof Mint_nftIndexRoute
   '/templates': typeof TemplatesIndexRoute
+  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
+  '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
   '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
 }
@@ -224,7 +233,6 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/$transactionId': typeof AccountTransactionIdRoute
   '/account/edit_company': typeof AccountEdit_companyRoute
   '/account/edit_user': typeof AccountEdit_userRoute
   '/account/new': typeof AccountNewRoute
@@ -242,6 +250,8 @@ export interface FileRoutesById {
   '/mint_certificate/': typeof Mint_certificateIndexRoute
   '/mint_nft/': typeof Mint_nftIndexRoute
   '/templates/': typeof TemplatesIndexRoute
+  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
+  '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
   '/campaigns/$campaigns/': typeof CampaignsCampaignsIndexRoute
 }
@@ -253,7 +263,6 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
-    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -271,6 +280,8 @@ export interface FileRouteTypes {
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
+    | '/account/transactions/$transactionId'
+    | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
     | '/campaigns/$campaigns'
   fileRoutesByTo: FileRoutesByTo
@@ -280,7 +291,6 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
-    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -298,6 +308,8 @@ export interface FileRouteTypes {
     | '/mint_certificate'
     | '/mint_nft'
     | '/templates'
+    | '/account/transactions/$transactionId'
+    | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
     | '/campaigns/$campaigns'
   id:
@@ -307,7 +319,6 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
-    | '/account/$transactionId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -325,6 +336,8 @@ export interface FileRouteTypes {
     | '/mint_certificate/'
     | '/mint_nft/'
     | '/templates/'
+    | '/account/transactions/$transactionId'
+    | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
     | '/campaigns/$campaigns/'
   fileRoutesById: FileRoutesById
@@ -335,7 +348,6 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewPasswordRoute: typeof NewPasswordRoute
-  AccountTransactionIdRoute: typeof AccountTransactionIdRoute
   AccountEdit_companyRoute: typeof AccountEdit_companyRoute
   AccountEdit_userRoute: typeof AccountEdit_userRoute
   AccountNewRoute: typeof AccountNewRoute
@@ -353,6 +365,8 @@ export interface RootRouteChildren {
   Mint_certificateIndexRoute: typeof Mint_certificateIndexRoute
   Mint_nftIndexRoute: typeof Mint_nftIndexRoute
   TemplatesIndexRoute: typeof TemplatesIndexRoute
+  AccountTransactionsTransactionIdRoute: typeof AccountTransactionsTransactionIdRoute
+  AccountUsersUserIdRoute: typeof AccountUsersUserIdRoute
   CampaignsCampaignsClaimersRoute: typeof CampaignsCampaignsClaimersRoute
   CampaignsCampaignsIndexRoute: typeof CampaignsCampaignsIndexRoute
 }
@@ -513,13 +527,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountEdit_companyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/account/$transactionId': {
-      id: '/account/$transactionId'
-      path: '/account/$transactionId'
-      fullPath: '/account/$transactionId'
-      preLoaderRoute: typeof AccountTransactionIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/campaigns/$campaigns/': {
       id: '/campaigns/$campaigns/'
       path: '/campaigns/$campaigns'
@@ -534,6 +541,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CampaignsCampaignsClaimersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/users/$userId': {
+      id: '/account/users/$userId'
+      path: '/account/users/$userId'
+      fullPath: '/account/users/$userId'
+      preLoaderRoute: typeof AccountUsersUserIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/transactions/$transactionId': {
+      id: '/account/transactions/$transactionId'
+      path: '/account/transactions/$transactionId'
+      fullPath: '/account/transactions/$transactionId'
+      preLoaderRoute: typeof AccountTransactionsTransactionIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -543,7 +564,6 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewPasswordRoute: NewPasswordRoute,
-  AccountTransactionIdRoute: AccountTransactionIdRoute,
   AccountEdit_companyRoute: AccountEdit_companyRoute,
   AccountEdit_userRoute: AccountEdit_userRoute,
   AccountNewRoute: AccountNewRoute,
@@ -561,6 +581,8 @@ const rootRouteChildren: RootRouteChildren = {
   Mint_certificateIndexRoute: Mint_certificateIndexRoute,
   Mint_nftIndexRoute: Mint_nftIndexRoute,
   TemplatesIndexRoute: TemplatesIndexRoute,
+  AccountTransactionsTransactionIdRoute: AccountTransactionsTransactionIdRoute,
+  AccountUsersUserIdRoute: AccountUsersUserIdRoute,
   CampaignsCampaignsClaimersRoute: CampaignsCampaignsClaimersRoute,
   CampaignsCampaignsIndexRoute: CampaignsCampaignsIndexRoute,
 }

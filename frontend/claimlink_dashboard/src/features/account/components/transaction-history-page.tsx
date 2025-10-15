@@ -155,7 +155,7 @@ export function TransactionHistoryPage() {
     
     // Navigate to transaction detail page
     navigate({
-      to: '/account/$transactionId',
+      to: '/account/transactions/$transactionId',
       params: { transactionId: transaction.index.toString() }
     });
   };
