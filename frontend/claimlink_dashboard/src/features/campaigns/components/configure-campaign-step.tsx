@@ -160,19 +160,18 @@ export function ConfigureCampaignStep({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--charcoal)]">Start date</label>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="bg-white border border-[var(--mouse)] rounded-full px-4 py-3 h-12 flex items-center gap-3">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "flex-1 rounded-full border-[var(--mouse)] px-4 py-3 h-12 justify-start text-left font-normal",
-                            !startDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-[var(--slate)]" />
-                          {startDate ? format(startDate, "PPP") : <span>DD/MM/YYYY</span>}
-                        </Button>
+                        <button className="flex items-center gap-2 flex-1 text-left">
+                          <CalendarIcon className="h-4 w-4 text-[var(--slate)]" />
+                          <span className={cn(
+                            "text-sm",
+                            startDate ? "text-[var(--charcoal)]" : "text-muted-foreground"
+                          )}>
+                            {startDate ? format(startDate, "dd/MM/yyyy") : "DD/MM/YYYY"}
+                          </span>
+                        </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
@@ -183,7 +182,8 @@ export function ConfigureCampaignStep({
                         />
                       </PopoverContent>
                     </Popover>
-                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-full px-4 py-3 flex items-center gap-2">
+                    <div className="h-6 w-px bg-[var(--mouse)]"></div>
+                    <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-[var(--slate)]" />
                       <span className="text-[var(--charcoal)] text-sm">HH:MM CEST</span>
                     </div>
@@ -191,19 +191,18 @@ export function ConfigureCampaignStep({
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--charcoal)]">End date</label>
-                  <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="bg-white border border-[var(--mouse)] rounded-full px-4 py-3 h-12 flex items-center gap-3">
                     <Popover>
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "flex-1 rounded-full border-[var(--mouse)] px-4 py-3 h-12 justify-start text-left font-normal",
-                            !endDate && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4 text-[var(--slate)]" />
-                          {endDate ? format(endDate, "PPP") : <span>DD/MM/YYYY</span>}
-                        </Button>
+                        <button className="flex items-center gap-2 flex-1 text-left">
+                          <CalendarIcon className="h-4 w-4 text-[var(--slate)]" />
+                          <span className={cn(
+                            "text-sm",
+                            endDate ? "text-[var(--charcoal)]" : "text-muted-foreground"
+                          )}>
+                            {endDate ? format(endDate, "dd/MM/yyyy") : "DD/MM/YYYY"}
+                          </span>
+                        </button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
@@ -214,7 +213,8 @@ export function ConfigureCampaignStep({
                         />
                       </PopoverContent>
                     </Popover>
-                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-full px-4 py-3 flex items-center gap-2">
+                    <div className="h-6 w-px bg-[var(--mouse)]"></div>
+                    <div className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-[var(--slate)]" />
                       <span className="text-[var(--charcoal)] text-sm">HH:MM CEST</span>
                     </div>

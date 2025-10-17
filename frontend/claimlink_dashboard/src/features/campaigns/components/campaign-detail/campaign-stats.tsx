@@ -1,6 +1,12 @@
-
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Calendar } from '@/components/ui/calendar'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useNavigate } from '@tanstack/react-router'
+import { Calendar as CalendarIcon, Clock, Pencil } from 'lucide-react'
+import { format } from 'date-fns'
+import { cn } from '@/lib/utils'
 
 interface Campaign {
   id: string
@@ -21,9 +27,23 @@ interface CampaignStatsProps {
 
 export function CampaignStats({ campaign }: CampaignStatsProps) {
   const navigate = useNavigate()
+  const [isEditDateOpen, setIsEditDateOpen] = useState(false)
+  const [isCloseCampaignOpen, setIsCloseCampaignOpen] = useState(false)
+  const [endDate, setEndDate] = useState<Date>(new Date(2024, 3, 31)) // Default: 31.04.2024
 
   const handleSeeClaimers = () => {
     navigate({ to: '/campaigns/$campaigns/claimers', params: { campaigns: campaign.id } })
+  }
+
+  const handleSaveEndDate = () => {
+    // TODO: Save the end date to backend
+    setIsEditDateOpen(false)
+  }
+
+  const handleCloseCampaign = () => {
+    // TODO: Close the campaign on backend
+    console.log('Closing campaign:', campaign.id)
+    setIsCloseCampaignOpen(false)
   }
 
   return (
@@ -122,7 +142,7 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
         <div className="space-y-2">
           <div className="flex justify-between">
             <span className="text-[13px] text-[#84818a]">Status</span>
-            <span className="text-[14px] font-semibold text-[#2e2c34]">Active</span>
+            <span className="text-[14px] font-semibold text-[#2e2c34]">{campaign.status}</span>
           </div>
           <div className="flex justify-between items-start">
             <span className="text-[13px] text-[#84818a]">Start date</span>
@@ -133,9 +153,19 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
           </div>
           <div className="flex justify-between items-start">
             <span className="text-[13px] text-[#84818a]">End date</span>
-            <div className="text-right">
-              <div className="text-[14px] font-semibold text-[#222526]">31.04.2024</div>
-              <div className="text-[13px] text-[#84818a]">23:59</div>
+            <div className="text-right flex items-start gap-2">
+              <div>
+                <div className="text-[14px] font-semibold text-[#222526]">{format(endDate, 'dd.MM.yyyy')}</div>
+                <div className="text-[13px] text-[#84818a]">23:59</div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-5 w-5 hover:bg-[#e1e1e1] rounded"
+                onClick={() => setIsEditDateOpen(true)}
+              >
+                <Pencil className="h-3 w-3 text-[#69737c]" />
+              </Button>
             </div>
           </div>
         </div>
@@ -152,7 +182,11 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
               </div>
             </div>
           </Button>
-          <Button variant="outline" className="flex-1 h-14 rounded-xl shadow-sm">
+          <Button 
+            variant="outline" 
+            className="flex-1 h-14 rounded-xl shadow-sm"
+            onClick={() => setIsCloseCampaignOpen(true)}
+          >
             <div className="flex items-center gap-2">
               <span className="text-[14px]">Close</span>
               <div className="w-4 h-4">
@@ -207,6 +241,129 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
           </div>
         </Button>
       </div>
+
+      {/* Edit End Date Modal */}
+      <Dialog open={isEditDateOpen} onOpenChange={setIsEditDateOpen}>
+        <DialogContent className="sm:max-w-[425px] !fixed !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
+          <DialogHeader>
+            <DialogTitle>Edit End Date</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[#222526]">Select new end date</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full rounded-full border-[#e1e1e1] px-4 py-3 h-12 justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4 text-[#69737c]" />
+                      {endDate ? format(endDate, "PPP") : <span>DD/MM/YYYY</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={(date) => date && setEndDate(date)}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-[#222526]">Time</label>
+                <div className="bg-white border border-[#e1e1e1] rounded-full px-4 py-3 flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-[#69737c]" />
+                  <span className="text-[#222526] text-sm">23:59 CEST</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsEditDateOpen(false)}
+              className="rounded-full"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveEndDate}
+              className="bg-[#222526] hover:bg-[#061937] rounded-full"
+            >
+              Save changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Close Campaign Modal */}
+      <Dialog open={isCloseCampaignOpen} onOpenChange={setIsCloseCampaignOpen}>
+        <DialogContent className="sm:max-w-[500px] !fixed !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
+          <DialogHeader>
+            <DialogTitle className="text-[#222526]">Close Campaign</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              {/* Warning Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-[#fef3f2] flex items-center justify-center">
+                  <svg className="w-8 h-8 text-[#d92d20]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="text-center space-y-2">
+                <p className="text-[15px] font-semibold text-[#222526]">
+                  Are you sure you want to close this campaign?
+                </p>
+                <p className="text-[14px] text-[#69737c]">
+                  Once closed, users will no longer be able to claim NFTs from this campaign. This action cannot be undone.
+                </p>
+              </div>
+
+              {/* Campaign Info */}
+              <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={campaign.imageUrl}
+                    alt={campaign.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h4 className="text-[14px] font-semibold text-[#222526]">{campaign.name}</h4>
+                    <p className="text-[13px] text-[#69737c]">
+                      {campaign.claimedCount} of {campaign.totalCount} claimed
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsCloseCampaignOpen(false)}
+              className="rounded-full flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCloseCampaign}
+              className="bg-[#d92d20] hover:bg-[#b42318] text-white rounded-full flex-1"
+            >
+              Close Campaign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
