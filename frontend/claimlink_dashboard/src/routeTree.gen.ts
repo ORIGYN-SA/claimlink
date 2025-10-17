@@ -25,13 +25,14 @@ import { Route as TemplatesTemplateIdRouteImport } from './routes/templates/$tem
 import { Route as Mint_nftNewRouteImport } from './routes/mint_nft/new'
 import { Route as Mint_certificateNewRouteImport } from './routes/mint_certificate/new'
 import { Route as CollectionsNewRouteImport } from './routes/collections/new'
-import { Route as CollectionsCollectionIdRouteImport } from './routes/collections/$collectionId'
 import { Route as CampaignsNewRouteImport } from './routes/campaigns/new'
 import { Route as AccountTransactionHistoryRouteImport } from './routes/account/transaction-history'
 import { Route as AccountNewRouteImport } from './routes/account/new'
 import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
 import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_company'
+import { Route as CollectionsCollectionIdIndexRouteImport } from './routes/collections/$collectionId/index'
 import { Route as CampaignsCampaignsIndexRouteImport } from './routes/campaigns/$campaigns/index'
+import { Route as CollectionsCollectionIdEditRouteImport } from './routes/collections/$collectionId/edit'
 import { Route as CampaignsCampaignsClaimersRouteImport } from './routes/campaigns/$campaigns/claimers'
 import { Route as AccountUsersUserIdRouteImport } from './routes/account/users.$userId'
 import { Route as AccountTransactionsTransactionIdRouteImport } from './routes/account/transactions.$transactionId'
@@ -116,11 +117,6 @@ const CollectionsNewRoute = CollectionsNewRouteImport.update({
   path: '/collections/new',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsCollectionIdRoute = CollectionsCollectionIdRouteImport.update({
-  id: '/collections/$collectionId',
-  path: '/collections/$collectionId',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CampaignsNewRoute = CampaignsNewRouteImport.update({
   id: '/campaigns/new',
   path: '/campaigns/new',
@@ -147,11 +143,23 @@ const AccountEdit_companyRoute = AccountEdit_companyRouteImport.update({
   path: '/account/edit_company',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CollectionsCollectionIdIndexRoute =
+  CollectionsCollectionIdIndexRouteImport.update({
+    id: '/collections/$collectionId/',
+    path: '/collections/$collectionId/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CampaignsCampaignsIndexRoute = CampaignsCampaignsIndexRouteImport.update({
   id: '/campaigns/$campaigns/',
   path: '/campaigns/$campaigns/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CollectionsCollectionIdEditRoute =
+  CollectionsCollectionIdEditRouteImport.update({
+    id: '/collections/$collectionId/edit',
+    path: '/collections/$collectionId/edit',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CampaignsCampaignsClaimersRoute =
   CampaignsCampaignsClaimersRouteImport.update({
     id: '/campaigns/$campaigns/claimers',
@@ -181,7 +189,6 @@ export interface FileRoutesByFullPath {
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
@@ -196,7 +203,9 @@ export interface FileRoutesByFullPath {
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
+  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
   '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -209,7 +218,6 @@ export interface FileRoutesByTo {
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
@@ -224,7 +232,9 @@ export interface FileRoutesByTo {
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
+  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
   '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
+  '/collections/$collectionId': typeof CollectionsCollectionIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -238,7 +248,6 @@ export interface FileRoutesById {
   '/account/new': typeof AccountNewRoute
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdRoute
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
@@ -253,7 +262,9 @@ export interface FileRoutesById {
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
+  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
   '/campaigns/$campaigns/': typeof CampaignsCampaignsIndexRoute
+  '/collections/$collectionId/': typeof CollectionsCollectionIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -268,7 +279,6 @@ export interface FileRouteTypes {
     | '/account/new'
     | '/account/transaction-history'
     | '/campaigns/new'
-    | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
     | '/mint_nft/new'
@@ -283,7 +293,9 @@ export interface FileRouteTypes {
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
+    | '/collections/$collectionId/edit'
     | '/campaigns/$campaigns'
+    | '/collections/$collectionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -296,7 +308,6 @@ export interface FileRouteTypes {
     | '/account/new'
     | '/account/transaction-history'
     | '/campaigns/new'
-    | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
     | '/mint_nft/new'
@@ -311,7 +322,9 @@ export interface FileRouteTypes {
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
+    | '/collections/$collectionId/edit'
     | '/campaigns/$campaigns'
+    | '/collections/$collectionId'
   id:
     | '__root__'
     | '/'
@@ -324,7 +337,6 @@ export interface FileRouteTypes {
     | '/account/new'
     | '/account/transaction-history'
     | '/campaigns/new'
-    | '/collections/$collectionId'
     | '/collections/new'
     | '/mint_certificate/new'
     | '/mint_nft/new'
@@ -339,7 +351,9 @@ export interface FileRouteTypes {
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
+    | '/collections/$collectionId/edit'
     | '/campaigns/$campaigns/'
+    | '/collections/$collectionId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -353,7 +367,6 @@ export interface RootRouteChildren {
   AccountNewRoute: typeof AccountNewRoute
   AccountTransactionHistoryRoute: typeof AccountTransactionHistoryRoute
   CampaignsNewRoute: typeof CampaignsNewRoute
-  CollectionsCollectionIdRoute: typeof CollectionsCollectionIdRoute
   CollectionsNewRoute: typeof CollectionsNewRoute
   Mint_certificateNewRoute: typeof Mint_certificateNewRoute
   Mint_nftNewRoute: typeof Mint_nftNewRoute
@@ -368,7 +381,9 @@ export interface RootRouteChildren {
   AccountTransactionsTransactionIdRoute: typeof AccountTransactionsTransactionIdRoute
   AccountUsersUserIdRoute: typeof AccountUsersUserIdRoute
   CampaignsCampaignsClaimersRoute: typeof CampaignsCampaignsClaimersRoute
+  CollectionsCollectionIdEditRoute: typeof CollectionsCollectionIdEditRoute
   CampaignsCampaignsIndexRoute: typeof CampaignsCampaignsIndexRoute
+  CollectionsCollectionIdIndexRoute: typeof CollectionsCollectionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -485,13 +500,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CollectionsNewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/$collectionId': {
-      id: '/collections/$collectionId'
-      path: '/collections/$collectionId'
-      fullPath: '/collections/$collectionId'
-      preLoaderRoute: typeof CollectionsCollectionIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/campaigns/new': {
       id: '/campaigns/new'
       path: '/campaigns/new'
@@ -527,11 +535,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountEdit_companyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/collections/$collectionId/': {
+      id: '/collections/$collectionId/'
+      path: '/collections/$collectionId'
+      fullPath: '/collections/$collectionId'
+      preLoaderRoute: typeof CollectionsCollectionIdIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/campaigns/$campaigns/': {
       id: '/campaigns/$campaigns/'
       path: '/campaigns/$campaigns'
       fullPath: '/campaigns/$campaigns'
       preLoaderRoute: typeof CampaignsCampaignsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collections/$collectionId/edit': {
+      id: '/collections/$collectionId/edit'
+      path: '/collections/$collectionId/edit'
+      fullPath: '/collections/$collectionId/edit'
+      preLoaderRoute: typeof CollectionsCollectionIdEditRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/campaigns/$campaigns/claimers': {
@@ -569,7 +591,6 @@ const rootRouteChildren: RootRouteChildren = {
   AccountNewRoute: AccountNewRoute,
   AccountTransactionHistoryRoute: AccountTransactionHistoryRoute,
   CampaignsNewRoute: CampaignsNewRoute,
-  CollectionsCollectionIdRoute: CollectionsCollectionIdRoute,
   CollectionsNewRoute: CollectionsNewRoute,
   Mint_certificateNewRoute: Mint_certificateNewRoute,
   Mint_nftNewRoute: Mint_nftNewRoute,
@@ -584,7 +605,9 @@ const rootRouteChildren: RootRouteChildren = {
   AccountTransactionsTransactionIdRoute: AccountTransactionsTransactionIdRoute,
   AccountUsersUserIdRoute: AccountUsersUserIdRoute,
   CampaignsCampaignsClaimersRoute: CampaignsCampaignsClaimersRoute,
+  CollectionsCollectionIdEditRoute: CollectionsCollectionIdEditRoute,
   CampaignsCampaignsIndexRoute: CampaignsCampaignsIndexRoute,
+  CollectionsCollectionIdIndexRoute: CollectionsCollectionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -6,5 +6,8 @@ export { CollectionStatusBadge } from './components/collection-status-badge'
 export { NewCollectionPage } from './components/new-collection-page'
 export { CollectionFormSection } from './components/collection-form-section'
 export { PricingSidebar } from './components/pricing-sidebar'
+export { EditCollectionPage } from './components/edit-collection-page'
+export { EditCollectionFormSection } from './components/edit-collection-form-section'
+export { EditCollectionSidebar } from './components/edit-collection-sidebar'
 
 export type { Collection, ViewMode, CollectionStatus } from './types/collection.types'

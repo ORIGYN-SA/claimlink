@@ -1,14 +1,13 @@
 // src/features/collections/components/collection-detail-page.tsx
 import React from 'react'
+import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Search, Grid, List, Info, Edit, Wallet, User } from 'lucide-react'
+import { Grid, List, Info, Edit } from 'lucide-react'
 import { getCollectionById, mockCollections } from '@/shared/data/collections'
 import { getCertificatesForCollection, mockCertificates } from '@/shared/data/certificates'
-import { StandardizedGridView, StandardizedListView, type ListColumn } from '@/components/common'
+import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog } from '@/components/common'
 import { CertificateStatusBadge } from '@/features/certificates'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
 
@@ -17,20 +16,61 @@ interface CollectionDetailPageProps {
 }
 
 export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps) {
+  const navigate = useNavigate()
+  const [isAddStorageDialogOpen, setIsAddStorageDialogOpen] = React.useState(false)
+  
   // Get collection data from shared mock data
   const collection = getCollectionById(collectionId) || mockCollections[0] // fallback to first collection if not found
 
   // Get certificates for this specific collection from shared data
   const collectionCertificates = getCertificatesForCollection(collectionId, mockCollections)
 
-  // Fallback to first few certificates if no specific collection certificates found
-  const certificatesToShow = collectionCertificates.length > 0
-    ? collectionCertificates.slice(0, 4) // Show first 4 certificates for the collection
-    : mockCertificates.slice(0, 4) // Fallback to first 4 general certificates
+  // Use all certificates for the collection (no artificial limit)
+  const allCertificates = collectionCertificates.length > 0
+    ? collectionCertificates
+    : mockCertificates
 
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = React.useState('')
   const [statusFilter, setStatusFilter] = React.useState<string>('all')
+  const [currentPage, setCurrentPage] = React.useState(1)
+  const [itemsPerPage, setItemsPerPage] = React.useState(10)
+
+  // Status filter options
+  const statusFilterOptions: FilterOption[] = [
+    { value: 'all', label: 'All Status' },
+    { value: 'minted', label: 'Minted' },
+    { value: 'waiting', label: 'Waiting' },
+    { value: 'transferred', label: 'Transferred' },
+    { value: 'burned', label: 'Burned' }
+  ]
+
+  // Apply filters (search and status)
+  const filteredCertificates = React.useMemo(() => {
+    return allCertificates.filter((cert) => {
+      // Status filter
+      const matchesStatus = statusFilter === 'all' || cert.status.toLowerCase() === statusFilter.toLowerCase()
+      
+      // Search filter
+      const matchesSearch = searchQuery === '' || 
+        cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cert.collectionName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        cert.id.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      return matchesStatus && matchesSearch
+    })
+  }, [allCertificates, statusFilter, searchQuery])
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1)
+  }, [statusFilter, searchQuery])
+
+  // Calculate pagination
+  const totalPages = Math.ceil(filteredCertificates.length / itemsPerPage) || 1
+  const startIndex = (currentPage - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedCertificates = filteredCertificates.slice(startIndex, endIndex)
 
   const handleCertificateClick = (certificate: any) => {
     console.log('Certificate clicked:', certificate)
@@ -102,10 +142,10 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
     }
   ]
 
-  // Add reference numbers to certificates for list view
-  const certificatesWithRef = certificatesToShow.map((cert, index) => ({
+  // Add reference numbers to certificates for list view (based on actual position, not paginated position)
+  const certificatesWithRef = paginatedCertificates.map((cert, index) => ({
     ...cert,
-    ref: `#${String(index + 1).padStart(3, '0')}`
+    ref: `#${String(startIndex + index + 1).padStart(3, '0')}`
   }))
 
   return (
@@ -119,16 +159,6 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           <h1 className="text-2xl font-medium text-foreground">
             {collection.title}
           </h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" size="sm" className="gap-2">
-            <Wallet className="w-4 h-4" />
-            1,256 OGY
-          </Button>
-          <Button variant="outline" size="sm" className="gap-2">
-            <User className="w-4 h-4" />
-            My Account: 55vo...3dfa
-          </Button>
         </div>
       </div>
 
@@ -193,7 +223,12 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
                 <p className="text-xs font-medium text-foreground">
                   1.56 / 2.0 GB
                 </p>
-                <Button variant="default" size="sm" className="w-full">
+                <Button 
+                  variant="default" 
+                  size="sm" 
+                  className="w-full"
+                  onClick={() => setIsAddStorageDialogOpen(true)}
+                >
                   Add more storage
                 </Button>
               </div>
@@ -208,27 +243,19 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           {/* Header with search and controls */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4 flex-1">
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-                <Input
-                  placeholder="Search for an item"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-32">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="minted">Minted</SelectItem>
-                  <SelectItem value="waiting">Waiting</SelectItem>
-                  <SelectItem value="transferred">Transferred</SelectItem>
-                  <SelectItem value="burned">Burned</SelectItem>
-                </SelectContent>
-              </Select>
+              <SearchInput
+                placeholder="Search for an item"
+                value={searchQuery}
+                onChange={setSearchQuery}
+                className="max-w-md"
+              />
+              <FilterSelect
+                placeholder="Status"
+                value={statusFilter}
+                options={statusFilterOptions}
+                onValueChange={setStatusFilter}
+                width="w-[180px]"
+              />
             </div>
 
             <div className="flex items-center gap-3">
@@ -251,9 +278,13 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
                 </Button>
               </div>
 
-              <Button variant="outline" className="gap-2">
+              <Button 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => navigate({ to: '/collections/$collectionId/edit', params: { collectionId } })}
+              >
                 <Edit className="w-4 h-4" />
-                Edit template
+                Edit collection
               </Button>
             </div>
           </div>
@@ -261,7 +292,7 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           {/* Certificates Count */}
           <div className="mb-4">
             <h3 className="text-lg font-medium text-foreground">
-              Certificate <span className="text-muted-foreground">({collection.itemCount})</span>
+              Certificate <span className="text-muted-foreground">({filteredCertificates.length})</span>
             </h3>
           </div>
 
@@ -269,7 +300,7 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           <div className="space-y-4">
             {viewMode === 'grid' ? (
               <StandardizedGridView
-                items={certificatesToShow}
+                items={paginatedCertificates}
                 showCertifiedBadge={true}
                 onItemClick={handleCertificateClick}
                 onAddItem={handleAddCertificate}
@@ -289,39 +320,29 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-between mt-6 pt-4 border-t">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Lines per page</span>
-              <Select defaultValue="10">
-                <SelectTrigger className="w-16">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm">
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                <Button variant="default" size="sm" className="w-8 h-8 p-0">1</Button>
-                <Button variant="ghost" size="sm" className="w-8 h-8 p-0">2</Button>
-                <Button variant="ghost" size="sm" className="w-8 h-8 p-0">3</Button>
-                <span className="text-muted-foreground">...</span>
-                <Button variant="ghost" size="sm" className="w-8 h-8 p-0">12</Button>
-              </div>
-              <Button variant="outline" size="sm">
-                Next
-              </Button>
-            </div>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+            onItemsPerPageChange={setItemsPerPage}
+            itemsPerPageOptions={[10, 25, 50]}
+            className="mt-6"
+          />
         </CardContent>
       </Card>
+
+      {/* Add Storage Dialog */}
+      <AddStorageDialog
+        isOpen={isAddStorageDialogOpen}
+        onOpenChange={setIsAddStorageDialogOpen}
+        currentBalance={3800.02}
+        currentStorage={{
+          used: '1.56',
+          total: '2.0',
+          percentage: 78
+        }}
+      />
     </div>
   )
 }

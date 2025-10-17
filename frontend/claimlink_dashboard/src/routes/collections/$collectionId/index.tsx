@@ -3,7 +3,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { DashboardLayout } from '@/components/layout'
 import { CollectionDetailPage } from '@/features/collections'
 
-export const Route = createFileRoute('/collections/$collectionId')({
+export const Route = createFileRoute('/collections/$collectionId/')({
   component: CollectionDetailRoute,
   // Optional: Add a loader for data fetching
   loader: async ({ params }) => {

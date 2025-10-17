@@ -1,12 +1,20 @@
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ImageUploadSection } from '@/components/common/image-upload-section';
 import { CsvUploadSection } from '@/components/common/csv-upload-section';
+import { Calendar as CalendarIcon, Clock } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import type { Collection } from '@/features/collections/types/collection.types';
 import type { CampaignFormData } from '../types/campaign.types';
+import icon from "@/assets/icon.svg";
 
 interface ConfigureCampaignStepProps {
   // Data
@@ -65,6 +73,13 @@ export function ConfigureCampaignStep({
   onBack,
   onSubmit,
 }: ConfigureCampaignStepProps) {
+  const [startDate, setStartDate] = useState<Date | undefined>(undefined);
+  const [endDate, setEndDate] = useState<Date | undefined>(undefined);
+  const [whitelistEnabled, setWhitelistEnabled] = useState(false);
+  const [redirectEnabled, setRedirectEnabled] = useState(false);
+  const [claimMethod, setClaimMethod] = useState<'multi-scan' | 'unique-links'>('multi-scan');
+  const [redirectMethod, setRedirectMethod] = useState<'custom' | 'default'>('custom');
+
   if (!selectedCollection) {
     return (
       <div className="bg-white border border-[var(--mouse)] rounded-[16px] p-[40px] text-center">
@@ -142,29 +157,65 @@ export function ConfigureCampaignStep({
               />
 
               {/* Date Inputs */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--charcoal)]">Start date</label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-l-full rounded-r-none px-4 py-3 flex items-center gap-2">
-                      <div className="w-4 h-4 bg-[var(--cobalt)] rounded"></div>
-                      <span className="text-[var(--charcoal)] text-sm">DD/MM/YYYY</span>
-                    </div>
-                    <div className="flex-1 bg-white border border-[var(--mouse)] border-l-0 rounded-r-full rounded-l-none px-4 py-3 flex items-center gap-2">
-                      <div className="w-4 h-4 bg-[var(--cobalt)] rounded"></div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "flex-1 rounded-full border-[var(--mouse)] px-4 py-3 h-12 justify-start text-left font-normal",
+                            !startDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-[var(--slate)]" />
+                          {startDate ? format(startDate, "PPP") : <span>DD/MM/YYYY</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={startDate}
+                          onSelect={setStartDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-full px-4 py-3 flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-[var(--slate)]" />
                       <span className="text-[var(--charcoal)] text-sm">HH:MM CEST</span>
                     </div>
                   </div>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-[var(--charcoal)]">End date</label>
-                  <div className="flex gap-2">
-                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-l-full rounded-r-none px-4 py-3 flex items-center gap-2">
-                      <div className="w-4 h-4 bg-[var(--cobalt)] rounded"></div>
-                      <span className="text-[var(--charcoal)] text-sm">DD/MM/YYYY</span>
-                    </div>
-                    <div className="flex-1 bg-white border border-[var(--mouse)] border-l-0 rounded-r-full rounded-l-none px-4 py-3 flex items-center gap-2">
-                      <div className="w-4 h-4 bg-[var(--cobalt)] rounded"></div>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "flex-1 rounded-full border-[var(--mouse)] px-4 py-3 h-12 justify-start text-left font-normal",
+                            !endDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4 text-[var(--slate)]" />
+                          {endDate ? format(endDate, "PPP") : <span>DD/MM/YYYY</span>}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={endDate}
+                          onSelect={setEndDate}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <div className="flex-1 bg-white border border-[var(--mouse)] rounded-full px-4 py-3 flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-[var(--slate)]" />
                       <span className="text-[var(--charcoal)] text-sm">HH:MM CEST</span>
                     </div>
                   </div>
@@ -191,32 +242,68 @@ export function ConfigureCampaignStep({
               {/* Claim Method Selection */}
               <div className="space-y-4">
                 <label className="text-sm font-medium text-[var(--charcoal)]">Claim Method</label>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card className="border-2 border-[var(--jade)] bg-white cursor-pointer">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card 
+                    className={cn(
+                      "bg-white cursor-pointer transition-all",
+                      claimMethod === 'multi-scan' 
+                        ? "border-2 border-[var(--jade)]" 
+                        : "border border-[var(--mouse)] hover:border-[var(--jade)]"
+                    )}
+                    onClick={() => setClaimMethod('multi-scan')}
+                  >
                     <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-[76px] h-[76px] bg-[var(--jade-90)] rounded-lg flex items-center justify-center">
-                          <div className="w-8 h-8 bg-[var(--jade)] rounded"></div>
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-[76px] h-[76px] rounded-lg flex items-center justify-center flex-shrink-0",
+                          claimMethod === 'multi-scan' 
+                            ? "bg-[var(--jade-90)]" 
+                            : "bg-[var(--paper)] border border-[var(--mouse)]"
+                        )}>
+                          <div className={cn(
+                            "w-8 h-8 rounded",
+                            claimMethod === 'multi-scan' 
+                              ? "bg-[var(--jade)]" 
+                              : "bg-[var(--slate)] opacity-50"
+                          )}></div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-[var(--charcoal)] text-lg mb-1">Multi-scan QR Code</h3>
-                          <p className="text-sm text-[var(--slate)] mb-1">One QR code for multiple users.</p>
-                          <p className="text-sm text-[var(--slate)]">Ideal for events and screens.</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-[var(--charcoal)] text-base md:text-lg mb-1">Multi-scan QR Code</h3>
+                          <p className="text-xs md:text-sm text-[var(--slate)] mb-1">One QR code for multiple users.</p>
+                          <p className="text-xs md:text-sm text-[var(--slate)]">Ideal for events and screens.</p>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="border border-[var(--mouse)] bg-white cursor-pointer">
+                  <Card 
+                    className={cn(
+                      "bg-white cursor-pointer transition-all",
+                      claimMethod === 'unique-links' 
+                        ? "border-2 border-[var(--jade)]" 
+                        : "border border-[var(--mouse)] hover:border-[var(--jade)]"
+                    )}
+                    onClick={() => setClaimMethod('unique-links')}
+                  >
                     <CardContent className="p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-[76px] h-[76px] bg-[var(--paper)] border border-[var(--mouse)] rounded-lg flex items-center justify-center">
-                          <div className="w-8 h-8 bg-[var(--slate)] rounded opacity-50"></div>
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-[76px] h-[76px] rounded-lg flex items-center justify-center flex-shrink-0",
+                          claimMethod === 'unique-links' 
+                            ? "bg-[var(--jade-90)]" 
+                            : "bg-[var(--paper)] border border-[var(--mouse)]"
+                        )}>
+                          <div className={cn(
+                            "w-8 h-8 rounded",
+                            claimMethod === 'unique-links' 
+                              ? "bg-[var(--jade)]" 
+                              : "bg-[var(--slate)] opacity-50"
+                          )}></div>
                         </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-[var(--charcoal)] text-lg mb-1">Unique Claim Links</h3>
-                          <p className="text-sm text-[var(--slate)] mb-1">One NFT per unique URL.</p>
-                          <p className="text-sm text-[var(--slate)]">Ideal for 1:1 distribution.</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-[var(--charcoal)] text-base md:text-lg mb-1">Unique Claim Links</h3>
+                          <p className="text-xs md:text-sm text-[var(--slate)] mb-1">One NFT per unique URL.</p>
+                          <p className="text-xs md:text-sm text-[var(--slate)]">Ideal for 1:1 distribution.</p>
                         </div>
                       </div>
                     </CardContent>
@@ -241,38 +328,41 @@ export function ConfigureCampaignStep({
         {/* Whitelist Section */}
         <Card className="bg-white border border-[var(--mouse)] rounded-[25px]">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-[22px] font-semibold text-[var(--charcoal)] mb-2">
-                  Whitelist set up <span className="text-[var(--slate)] text-lg font-normal">(Optional)</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-[22px] font-semibold text-[var(--charcoal)] mb-2">
+                  Whitelist set up <span className="text-[var(--slate)] text-base sm:text-lg font-normal">(Optional)</span>
                 </h3>
                 <p className="text-sm text-[var(--slate)]">
                   Limit access to your campaign by allowing only selected email addresses or Principal IDs to claim the NFT/certificate.
                 </p>
               </div>
-              <Button variant="outline" className="rounded-full">
-                <div className="w-4 h-4 bg-[var(--jade)] rounded-full mr-2"></div>
-              </Button>
+              <Switch
+                checked={whitelistEnabled}
+                onCheckedChange={setWhitelistEnabled}
+                className="data-[state=checked]:bg-[var(--jade)]"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <Input
-                    value={whitelistInput}
-                    onChange={(e) => onWhitelistInputChange(e.target.value)}
-                    placeholder="Enter a wallet address or an email"
-                    className="rounded-full"
-                  />
+            {whitelistEnabled && (
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <Input
+                      value={whitelistInput}
+                      onChange={(e) => onWhitelistInputChange(e.target.value)}
+                      placeholder="Enter a wallet address or an email"
+                      className="rounded-full"
+                    />
+                  </div>
+                  <Button
+                    onClick={onAddToWhitelist}
+                    disabled={!whitelistInput.trim()}
+                    className="bg-[var(--charcoal)] hover:bg-[var(--cobalt)] rounded-full px-6 whitespace-nowrap"
+                  >
+                    add to whitelist
+                  </Button>
                 </div>
-                <Button
-                  onClick={onAddToWhitelist}
-                  disabled={!whitelistInput.trim()}
-                  className="bg-[var(--charcoal)] hover:bg-[var(--cobalt)] rounded-full px-6"
-                >
-                  add to whitelist
-                </Button>
-              </div>
 
               {/* Show addresses if manually added */}
               {whitelistAddresses.length > 0 && !whitelistCsvFileName && (
@@ -291,84 +381,125 @@ export function ConfigureCampaignStep({
                 </div>
               )}
 
-              {/* CSV Uploader */}
-              <CsvUploadSection
-                fileName={whitelistCsvFileName}
-                onFileSelect={onWhitelistCsvSelect}
-                onRemove={onWhitelistCsvRemove}
-                onUploadClick={onWhitelistCsvUploadClick}
-                fileInputRef={whitelistCsvInputRef}
-                uploadText="Upload your sheet"
-                acceptedFormats="CSV"
-                displayedAddresses={whitelistCsvFileName ? whitelistAddresses : []}
-              />
-            </div>
+                {/* CSV Uploader */}
+                <CsvUploadSection
+                  fileName={whitelistCsvFileName}
+                  onFileSelect={onWhitelistCsvSelect}
+                  onRemove={onWhitelistCsvRemove}
+                  onUploadClick={onWhitelistCsvUploadClick}
+                  fileInputRef={whitelistCsvInputRef}
+                  uploadText="Upload your sheet"
+                  acceptedFormats="CSV"
+                  displayedAddresses={whitelistCsvFileName ? whitelistAddresses : []}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Custom URL Section */}
         <Card className="bg-white border border-[var(--mouse)] rounded-[25px]">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-[22px] font-semibold text-[var(--charcoal)] mb-2">
-                  Post campaign redirection <span className="text-[var(--slate)] text-lg font-normal">(Optional)</span>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+              <div className="flex-1">
+                <h3 className="text-lg sm:text-[22px] font-semibold text-[var(--charcoal)] mb-2">
+                  Post campaign redirection <span className="text-[var(--slate)] text-base sm:text-lg font-normal">(Optional)</span>
                 </h3>
                 <p className="text-sm text-[var(--slate)]">
                   Choose where users are sent after the campaign ends, so they don't land on an expired link page.
                 </p>
               </div>
-              <Button variant="outline" className="rounded-full">
-                <div className="w-4 h-4 bg-[var(--jade)] rounded-full mr-2"></div>
-              </Button>
+              <Switch
+                checked={redirectEnabled}
+                onCheckedChange={setRedirectEnabled}
+                className="data-[state=checked]:bg-[var(--jade)]"
+              />
             </div>
 
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <Card className="border-2 border-[var(--jade)] bg-white cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-[54px] h-[54px] bg-[var(--jade-90)] rounded-lg flex items-center justify-center">
-                        <div className="w-6 h-6 bg-[var(--jade)] rounded"></div>
+            {redirectEnabled && (
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <Card 
+                    className={cn(
+                      "bg-white cursor-pointer transition-all",
+                      redirectMethod === 'custom' 
+                        ? "border-2 border-[var(--jade)]" 
+                        : "border border-[var(--mouse)] hover:border-[var(--jade)]"
+                    )}
+                    onClick={() => setRedirectMethod('custom')}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-[54px] h-[54px] rounded-lg flex items-center justify-center flex-shrink-0",
+                          redirectMethod === 'custom' 
+                            ? "bg-[var(--jade-90)]" 
+                            : "bg-[var(--paper)] border border-[var(--mouse)]"
+                        )}>
+                          <div className={cn(
+                            "w-6 h-6 rounded",
+                            redirectMethod === 'custom' 
+                              ? "bg-[var(--jade)]" 
+                              : "bg-[var(--slate)] opacity-50"
+                          )}></div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-[var(--charcoal)] text-base md:text-lg mb-1">Custom URL</h4>
+                          <p className="text-xs md:text-sm text-[var(--slate)]">Be redirected to a custom URL (e.g., your website)</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[var(--charcoal)] text-lg mb-1">Custom URL</h4>
-                        <p className="text-sm text-[var(--slate)]">Be redirected to a custom URL (e.g., your website)</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
 
-                <Card className="border border-[var(--mouse)] bg-white cursor-pointer">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-[54px] h-[54px] bg-[var(--paper)] border border-[var(--mouse)] rounded-lg flex items-center justify-center">
-                        <div className="w-6 h-6 bg-[var(--slate)] rounded opacity-50"></div>
+                  <Card 
+                    className={cn(
+                      "bg-white cursor-pointer transition-all",
+                      redirectMethod === 'default' 
+                        ? "border-2 border-[var(--jade)]" 
+                        : "border border-[var(--mouse)] hover:border-[var(--jade)]"
+                    )}
+                    onClick={() => setRedirectMethod('default')}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-start gap-3">
+                        <div className={cn(
+                          "w-[54px] h-[54px] rounded-lg flex items-center justify-center flex-shrink-0",
+                          redirectMethod === 'default' 
+                            ? "bg-[var(--jade-90)]" 
+                            : "bg-[var(--paper)] border border-[var(--mouse)]"
+                        )}>
+                          <div className={cn(
+                            "w-6 h-6 rounded",
+                            redirectMethod === 'default' 
+                              ? "bg-[var(--jade)]" 
+                              : "bg-[var(--slate)] opacity-50"
+                          )}></div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-[var(--charcoal)] text-base md:text-lg mb-1">Default message</h4>
+                          <p className="text-xs md:text-sm text-[var(--slate)]">"This campaign has ended."</p>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-[var(--charcoal)] text-lg mb-1">Default message</h4>
-                        <p className="text-sm text-[var(--slate)]">"This campaign has ended."</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
+                    </CardContent>
+                  </Card>
+                </div>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--charcoal)]">Redirect link</label>
-                <Input
-                  value={redirectUrl}
-                  onChange={(e) => onRedirectUrlChange(e.target.value)}
-                  placeholder="https://yourwebsite.com"
-                  className="rounded-full"
-                />
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-[var(--charcoal)]">Redirect link</label>
+                  <Input
+                    value={redirectUrl}
+                    onChange={(e) => onRedirectUrlChange(e.target.value)}
+                    placeholder="https://yourwebsite.com"
+                    className="rounded-full"
+                  />
+                </div>
               </div>
-            </div>
+            )}
           </CardContent>
         </Card>
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Button
             variant="outline"
             onClick={onBack}
@@ -387,7 +518,7 @@ export function ConfigureCampaignStep({
       </div>
 
       {/* Sidebar */}
-      <Card className="bg-white border border-[var(--mouse)] rounded-[25px] sticky top-0">
+      <Card className="bg-white border border-[var(--mouse)] rounded-[25px] lg:sticky lg:top-6 h-fit">
         <CardContent className="p-6">
           <div className="space-y-6">
             {/* General Information */}
@@ -417,7 +548,7 @@ export function ConfigureCampaignStep({
                   <span className="text-sm text-[var(--slate)]">Certificate cost:</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="w-5 h-5 bg-[var(--cobalt)] rounded"></div>
+                  <img src={icon} className="w-5 h-5" alt="logo" />
                   <span className="text-lg font-semibold text-[var(--charcoal)]">
                     8800 OGY <span className="text-sm text-[var(--slate)]">(2500$)</span>
                   </span>
@@ -430,7 +561,7 @@ export function ConfigureCampaignStep({
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 variant="outline"
                 className="flex-1 rounded-full bg-[var(--mouse)] text-[var(--charcoal)] hover:bg-[var(--mouse)]"
@@ -438,7 +569,7 @@ export function ConfigureCampaignStep({
                 Save draft
               </Button>
               <Button
-                className="flex-1 bg-[var(--charcoal)] hover:bg-[var(--cobalt)] rounded-full"
+                className="flex-1 bg-[var(--charcoal)] hover:bg-[var(--cobalt)] rounded-full whitespace-nowrap"
               >
                 Mint for 8800 OGY
               </Button>

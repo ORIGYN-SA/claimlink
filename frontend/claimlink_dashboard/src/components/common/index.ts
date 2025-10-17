@@ -1,5 +1,7 @@
 export * from "./account-menu"
+export * from "./add-storage-dialog"
 export * from "./add-token-card"
+export * from "./delete-collection-dialog"
 export * from "./filter-select"
 export * from "./pagination"
 export * from "./search-input"

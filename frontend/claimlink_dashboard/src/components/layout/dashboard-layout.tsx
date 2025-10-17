@@ -48,6 +48,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     if (pathname.startsWith('/collections/new')) {
       return { showBackButton: true, backTo: '/collections' };
     }
+    // Collection detail page (e.g., /collections/1, /collections/2)
+    if (pathname.startsWith('/collections/') && pathname !== '/collections/new') {
+      return { showBackButton: true, backTo: '/collections' };
+    }
     if (pathname.startsWith('/templates/new')) {
       return { showBackButton: true, backTo: '/templates' };
     }
