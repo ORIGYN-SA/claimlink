@@ -1,5 +1,5 @@
 // Campaign status types
-export type CampaignStatus = 'Active' | 'Ready' | 'Finished' | 'Draft';
+export type CampaignStatus = 'Active' | 'Ready' | 'Finished' | 'Draft' | 'Closed';
 
 // Campaign timer/badge types
 export type CampaignTimer = 'Urgent' | 'Ongoing' | 'Starting Soon' | 'Finished';

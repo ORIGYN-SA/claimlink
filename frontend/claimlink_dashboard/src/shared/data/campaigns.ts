@@ -98,6 +98,20 @@ export const mockCampaigns: Campaign[] = [
     collectionId: "7",
     claimDuration: 7,
     description: "Swiss timepiece authentication campaign"
+  },
+  {
+    id: "8",
+    name: "Vintage Wine Collection",
+    imageUrl: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=400&fit=crop",
+    claimedCount: 65,
+    totalCount: 100,
+    status: "Closed",
+    timerText: "Closed",
+    timerType: "Finished",
+    createdAt: "01 Jan, 2024",
+    collectionId: "8",
+    claimDuration: 30,
+    description: "Vintage wine authentication - closed campaign"
   }
 ];
 

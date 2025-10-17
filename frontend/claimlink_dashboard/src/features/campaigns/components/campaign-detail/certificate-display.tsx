@@ -6,7 +6,7 @@ interface Campaign {
   imageUrl: string
   claimedCount: number
   totalCount: number
-  status: 'Active' | 'Ready' | 'Finished' | 'Draft'
+  status: 'Active' | 'Ready' | 'Finished' | 'Draft' | 'Closed'
   description?: string
   companyName?: string
   isVerified?: boolean

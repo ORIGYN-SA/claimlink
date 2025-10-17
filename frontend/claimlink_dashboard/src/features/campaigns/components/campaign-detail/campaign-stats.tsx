@@ -14,7 +14,7 @@ interface Campaign {
   imageUrl: string
   claimedCount: number
   totalCount: number
-  status: 'Active' | 'Ready' | 'Finished' | 'Draft'
+  status: 'Active' | 'Ready' | 'Finished' | 'Draft' | 'Closed'
   description?: string
   companyName?: string
   isVerified?: boolean
@@ -29,7 +29,11 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
   const navigate = useNavigate()
   const [isEditDateOpen, setIsEditDateOpen] = useState(false)
   const [isCloseCampaignOpen, setIsCloseCampaignOpen] = useState(false)
+  const [isReclaimNFTsOpen, setIsReclaimNFTsOpen] = useState(false)
+  const [isBurnNFTsOpen, setIsBurnNFTsOpen] = useState(false)
   const [endDate, setEndDate] = useState<Date>(new Date(2024, 3, 31)) // Default: 31.04.2024
+
+  const isClosed = campaign.status === 'Closed'
 
   const handleSeeClaimers = () => {
     navigate({ to: '/campaigns/$campaigns/claimers', params: { campaigns: campaign.id } })
@@ -44,6 +48,18 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
     // TODO: Close the campaign on backend
     console.log('Closing campaign:', campaign.id)
     setIsCloseCampaignOpen(false)
+  }
+
+  const handleReclaimNFTs = () => {
+    // TODO: Reclaim NFTs on backend
+    console.log('Reclaiming NFTs from campaign:', campaign.id)
+    setIsReclaimNFTsOpen(false)
+  }
+
+  const handleBurnNFTs = () => {
+    // TODO: Burn NFTs on backend
+    console.log('Burning NFTs from campaign:', campaign.id)
+    setIsBurnNFTsOpen(false)
   }
 
   return (
@@ -158,44 +174,85 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
                 <div className="text-[14px] font-semibold text-[#222526]">{format(endDate, 'dd.MM.yyyy')}</div>
                 <div className="text-[13px] text-[#84818a]">23:59</div>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-5 w-5 hover:bg-[#e1e1e1] rounded"
-                onClick={() => setIsEditDateOpen(true)}
-              >
-                <Pencil className="h-3 w-3 text-[#69737c]" />
-              </Button>
+              {!isClosed && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-5 w-5 hover:bg-[#e1e1e1] rounded"
+                  onClick={() => setIsEditDateOpen(true)}
+                >
+                  <Pencil className="h-3 w-3 text-[#69737c]" />
+                </Button>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex gap-2 mt-4">
-          <Button variant="outline" className="flex-1 h-14 rounded-xl shadow-sm">
-            <div className="flex items-center gap-2">
-              <span className="text-[14px]">Pause</span>
-              <div className="w-4 h-4">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <rect x="6" y="4" width="4" height="16" fill="currentColor" />
-                  <rect x="14" y="4" width="4" height="16" fill="currentColor" />
-                </svg>
-              </div>
-            </div>
-          </Button>
-          <Button 
-            variant="outline" 
-            className="flex-1 h-14 rounded-xl shadow-sm"
-            onClick={() => setIsCloseCampaignOpen(true)}
-          >
-            <div className="flex items-center gap-2">
-              <span className="text-[14px]">Close</span>
-              <div className="w-4 h-4">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-            </div>
-          </Button>
+          {!isClosed ? (
+            <>
+              <Button variant="outline" className="flex-1 h-14 rounded-xl shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px]">Pause</span>
+                  <div className="w-4 h-4">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <rect x="6" y="4" width="4" height="16" fill="currentColor" />
+                      <rect x="14" y="4" width="4" height="16" fill="currentColor" />
+                    </svg>
+                  </div>
+                </div>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 rounded-xl shadow-sm"
+                onClick={() => setIsCloseCampaignOpen(true)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px]">Close</span>
+                  <div className="w-4 h-4">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 rounded-xl shadow-sm"
+                onClick={() => setIsReclaimNFTsOpen(true)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px]">Reclaim NFTs</span>
+                  <div className="w-4 h-4">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M3 12C3 12 5.5 7 12 7S21 12 21 12 18.5 17 12 17 3 12 3 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+                      <path d="M12 5V2M12 22V19M5 5L3 3M21 21L19 19M5 19L3 21M21 3L19 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </Button>
+              <Button 
+                variant="outline" 
+                className="flex-1 h-14 rounded-xl shadow-sm"
+                onClick={() => setIsBurnNFTsOpen(true)}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-[14px]">Burn NFTs</span>
+                  <div className="w-4 h-4">
+                    <svg viewBox="0 0 24 24" fill="none">
+                      <path d="M8.5 14.5C8.5 14.5 9.5 13.5 11 13.5C12.5 13.5 13.5 14.5 13.5 14.5M15 9H15.01M9 9H9.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M8.23 3.5C7.85 3.9 7.5 4.34 7.19 4.82C5.48 7.26 4.89 10.26 5.56 13.11C6.23 15.96 8.09 18.43 10.69 19.82C11.96 20.45 13.38 20.79 14.82 20.79C16.26 20.79 17.68 20.45 18.95 19.82C19.58 19.5 20.17 19.1 20.69 18.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      <path d="M20.79 10.9C20.69 9.93 20.43 8.98 20.01 8.11C19.21 6.38 17.89 4.95 16.25 4.01C15.43 3.54 14.54 3.2 13.61 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </div>
+                </div>
+              </Button>
+            </>
+          )}
         </div>
       </div>
 
@@ -360,6 +417,134 @@ export function CampaignStats({ campaign }: CampaignStatsProps) {
               className="bg-[#d92d20] hover:bg-[#b42318] text-white rounded-full flex-1"
             >
               Close Campaign
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reclaim NFTs Modal */}
+      <Dialog open={isReclaimNFTsOpen} onOpenChange={setIsReclaimNFTsOpen}>
+        <DialogContent className="sm:max-w-[500px] !fixed !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
+          <DialogHeader>
+            <DialogTitle className="text-[#222526]">Reclaim NFTs</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              {/* Info Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-[#eff8ff] flex items-center justify-center">
+                  <svg className="w-8 h-8 text-[#0086c9]" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="text-center space-y-2">
+                <p className="text-[15px] font-semibold text-[#222526]">
+                  Reclaim unclaimed NFTs?
+                </p>
+                <p className="text-[14px] text-[#69737c]">
+                  This will transfer all unclaimed NFTs back to your account. The campaign will remain closed.
+                </p>
+              </div>
+
+              {/* Campaign Info */}
+              <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={campaign.imageUrl}
+                    alt={campaign.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h4 className="text-[14px] font-semibold text-[#222526]">{campaign.name}</h4>
+                    <p className="text-[13px] text-[#69737c]">
+                      {campaign.totalCount - campaign.claimedCount} NFTs available to reclaim
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsReclaimNFTsOpen(false)}
+              className="rounded-full flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleReclaimNFTs}
+              className="bg-[#0086c9] hover:bg-[#0077b6] text-white rounded-full flex-1"
+            >
+              Reclaim NFTs
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Burn NFTs Modal */}
+      <Dialog open={isBurnNFTsOpen} onOpenChange={setIsBurnNFTsOpen}>
+        <DialogContent className="sm:max-w-[500px] !fixed !top-[50%] !left-[50%] !translate-x-[-50%] !translate-y-[-50%] !z-[100]">
+          <DialogHeader>
+            <DialogTitle className="text-[#222526]">Burn NFTs</DialogTitle>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="space-y-4">
+              {/* Warning Icon */}
+              <div className="flex justify-center">
+                <div className="w-16 h-16 rounded-full bg-[#fef3f2] flex items-center justify-center">
+                  <svg className="w-8 h-8 text-[#d92d20]" viewBox="0 0 24 24" fill="none">
+                    <path d="M8.5 14.5C8.5 14.5 9.5 13.5 11 13.5C12.5 13.5 13.5 14.5 13.5 14.5M15 9H15.01M9 9H9.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M8.23 3.5C7.85 3.9 7.5 4.34 7.19 4.82C5.48 7.26 4.89 10.26 5.56 13.11C6.23 15.96 8.09 18.43 10.69 19.82C11.96 20.45 13.38 20.79 14.82 20.79C16.26 20.79 17.68 20.45 18.95 19.82C19.58 19.5 20.17 19.1 20.69 18.65" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                    <path d="M20.79 10.9C20.69 9.93 20.43 8.98 20.01 8.11C19.21 6.38 17.89 4.95 16.25 4.01C15.43 3.54 14.54 3.2 13.61 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </div>
+              </div>
+
+              {/* Message */}
+              <div className="text-center space-y-2">
+                <p className="text-[15px] font-semibold text-[#222526]">
+                  Are you sure you want to burn these NFTs?
+                </p>
+                <p className="text-[14px] text-[#69737c]">
+                  This will permanently destroy all unclaimed NFTs. This action cannot be undone and the NFTs cannot be recovered.
+                </p>
+              </div>
+
+              {/* Campaign Info */}
+              <div className="bg-[#fcfafa] border border-[#e1e1e1] rounded-lg p-4">
+                <div className="flex items-center gap-3">
+                  <img
+                    src={campaign.imageUrl}
+                    alt={campaign.name}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div className="flex-1">
+                    <h4 className="text-[14px] font-semibold text-[#222526]">{campaign.name}</h4>
+                    <p className="text-[13px] text-[#69737c]">
+                      {campaign.totalCount - campaign.claimedCount} NFTs will be burned
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              onClick={() => setIsBurnNFTsOpen(false)}
+              className="rounded-full flex-1"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleBurnNFTs}
+              className="bg-[#d92d20] hover:bg-[#b42318] text-white rounded-full flex-1"
+            >
+              Burn NFTs
             </Button>
           </DialogFooter>
         </DialogContent>
