@@ -4,6 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { getActiveCollections } from "@/shared/data/collections";
 import { mockTemplates, templateOptions } from "@/shared/data/templates";
 import type { Template } from "@/shared/data/templates";
+import { BulkImportDialog } from "@/components/common";
 
 interface CollectionSectionProps {
   onTemplateChange?: (template: Template | null) => void;
@@ -16,6 +17,7 @@ export function CollectionSection({
 }: CollectionSectionProps) {
   const [selectedCollection, setSelectedCollection] = useState<string>("");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   // Only show active collections in the dropdown
   const activeCollections = getActiveCollections();
@@ -130,10 +132,15 @@ export function CollectionSection({
 
         {/* Bulk Import Button */}
         <div className="content-stretch flex gap-2 items-center justify-center relative shrink-0">
-          <Button className="bg-[#69737c] hover:bg-[#5a5a5a] text-white rounded-[100px] px-[25px] h-12">
+          <Button
+            className="bg-[#69737c] hover:bg-[#5a5a5a] text-white rounded-[100px] px-[25px] h-12"
+            onClick={() => setBulkOpen(true)}
+          >
             Bulk import
           </Button>
         </div>
+
+        <BulkImportDialog open={bulkOpen} onOpenChange={setBulkOpen} />
       </div>
     </div>
   );

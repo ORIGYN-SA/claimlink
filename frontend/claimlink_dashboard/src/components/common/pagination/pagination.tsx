@@ -11,6 +11,7 @@ export interface PaginationProps {
   itemsPerPageOptions?: number[];
   showItemsPerPage?: boolean;
   className?: string;
+  contentClassName?: string; // forwarded to SelectContent for z-index overrides per instance
 }
 
 export function Pagination({
@@ -22,6 +23,7 @@ export function Pagination({
   itemsPerPageOptions = [5, 10, 20, 50],
   showItemsPerPage = true,
   className,
+  contentClassName,
 }: PaginationProps) {
   const handlePreviousPage = () => {
     onPageChange(Math.max(1, currentPage - 1));
@@ -98,7 +100,7 @@ export function Pagination({
             <SelectTrigger size="sm" className="cursor-pointer w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white hover:bg-[#f9f9f9] transition-colors">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className={contentClassName}>
               {itemsPerPageOptions.map((option) => (
                 <SelectItem 
                   key={option} 

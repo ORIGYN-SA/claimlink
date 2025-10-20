@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Pagination, StandardizedGridListContainer, type ViewMode } from "@/components/common";
+import { Pagination, StandardizedGridListContainer, type ViewMode, type ListColumn, type ListAction, TokenStatusBadge } from "@/components/common";
 import { CertificatesActions } from "./certificates-actions";
 import { mockCertificates } from "@/shared/data/certificates";
 import type { Certificate } from "../../certificates/types/certificate.types";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
 export function MintCertificatePage() {
   const navigate = useNavigate();
@@ -50,6 +52,80 @@ export function MintCertificatePage() {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  // Define columns for list view
+  const listColumns: ListColumn[] = [
+    {
+      key: 'title',
+      label: 'Certificate',
+      width: 'w-[45%]',
+      render: (certificate: Certificate) => {
+        if (!certificate) return null;
+
+        return (
+          <div className="flex items-center gap-3">
+            <img
+              src={certificate.imageUrl || '/placeholder-image.jpg'}
+              alt={certificate.title || 'Certificate'}
+              className="w-12 h-12 rounded-lg object-cover"
+            />
+            <div>
+              <div className="font-medium text-[#222526] text-sm">{certificate.title || 'Untitled Certificate'}</div>
+              <div className="text-xs text-[#69737c]">{certificate.collectionName || 'Unknown Collection'}</div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      width: 'w-[25%]',
+      render: (certificate: Certificate) => {
+        if (!certificate) return null;
+        return (
+          <TokenStatusBadge status={certificate.status} />
+        );
+      },
+    },
+    {
+      key: 'date',
+      label: 'Created',
+      width: 'w-[15%]',
+      render: (certificate: Certificate) => {
+        if (!certificate) return null;
+        return (
+          <div className="text-sm text-[#69737c]">{certificate.date || 'Unknown'}</div>
+        );
+      },
+    },
+  ];
+
+  // Define actions for list view dropdown menu
+  const listActions: ListAction[] = [
+    {
+      label: 'View Details',
+      icon: Eye,
+      onClick: (certificate: Certificate) => {
+        handleCertificateClick(certificate);
+      },
+    },
+    {
+      label: 'Create from Template',
+      icon: Edit,
+      onClick: () => {
+        handleMintCertificate();
+      },
+    },
+    {
+      label: 'Delete',
+      icon: Trash2,
+      onClick: (certificate: Certificate) => {
+        toast.info(`Delete certificate: ${certificate.title}`);
+      },
+      variant: 'destructive',
+    },
+  ];
+
   // Filter certificates based on search and status
   const filteredCertificates = mockCertificates.filter(cert => {
     const matchesSearch = cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,13 +153,16 @@ export function MintCertificatePage() {
         totalCount={filteredCertificates.length}
         viewMode={viewMode}
         onViewModeChange={handleViewModeChange}
+        showViewToggle={true}
         items={paginatedCertificates}
         onItemClick={handleCertificateClick}
         onAddItem={handleAddCertificate}
         showCertifiedBadge={true}
         addButtonText="Create a certificate"
         addButtonDescription="Create a campaign to distribute your NFTs via claim links"
-        listViewComingSoon={true}
+        listColumns={listColumns}
+        listActions={listActions}
+        showMoreActions={true}
       />
       <Pagination
         currentPage={currentPage}
