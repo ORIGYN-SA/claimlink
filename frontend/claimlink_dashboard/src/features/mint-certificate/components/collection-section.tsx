@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getActiveCollections } from "@/shared/data/collections";
-import { mockTemplates, templateOptions } from "@/shared/data/templates";
+import { templateOptions } from "@/shared/data/templates";
 import type { Template } from "@/shared/data/templates";
 import { BulkImportDialog } from "@/components/common";
 
@@ -23,7 +23,7 @@ export function CollectionSection({
   const activeCollections = getActiveCollections();
   
   // Use templateOptions (industry-specific templates) for the dropdown
-  const availableTemplates = [...templateOptions, ...mockTemplates];
+  const availableTemplates = templateOptions;
 
   const handleCollectionChange = (value: string) => {
     setSelectedCollection(value);

@@ -17,6 +17,8 @@ export function MintCertificatePage() {
 
   const handleCertificateClick = (certificate: Certificate) => {
     console.log('Certificate clicked:', certificate);
+    // Navigate to certificate detail page
+    navigate({ to: `/mint_certificate/${certificate.id}` });
   };
 
   const handleAddCertificate = () => {

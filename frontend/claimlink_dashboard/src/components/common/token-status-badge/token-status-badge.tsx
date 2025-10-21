@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 import type { TokenStatus } from "../token-card/token.types";
 
 interface TokenStatusBadgeProps {
-  status: TokenStatus;
+  status: TokenStatus | 'Unclaimed';
   className?: string;
 }
 
 export function TokenStatusBadge({ status, className }: TokenStatusBadgeProps) {
-  const getStatusConfig = (status: TokenStatus) => {
+  const getStatusConfig = (status: TokenStatus | 'Unclaimed') => {
     switch (status) {
       case 'Minted':
         return {
@@ -29,6 +29,13 @@ export function TokenStatusBadge({ status, className }: TokenStatusBadgeProps) {
           className: 'bg-white border-[rgba(225,225,225,0.5)] text-[#222526]',
           dotColor: 'bg-[#ff55c5]',
           dotBorder: 'border-[#ffd4f0]'
+        };
+      case 'Unclaimed':
+        return {
+          text: 'Unclaimed',
+          className: 'bg-white border-[rgba(225,225,225,0.5)] text-[#222526]',
+          dotColor: 'bg-[#00a2f7]',
+          dotBorder: 'border-[#e5f6ff]'
         };
       case 'Burned':
         return {

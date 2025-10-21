@@ -24,6 +24,7 @@ import { Route as TemplatesNewRouteImport } from './routes/templates/new'
 import { Route as TemplatesTemplateIdRouteImport } from './routes/templates/$templateId'
 import { Route as Mint_nftNewRouteImport } from './routes/mint_nft/new'
 import { Route as Mint_certificateNewRouteImport } from './routes/mint_certificate/new'
+import { Route as Mint_certificateCertificateIdRouteImport } from './routes/mint_certificate/$certificateId'
 import { Route as CollectionsNewRouteImport } from './routes/collections/new'
 import { Route as CampaignsNewRouteImport } from './routes/campaigns/new'
 import { Route as AccountTransactionHistoryRouteImport } from './routes/account/transaction-history'
@@ -112,6 +113,12 @@ const Mint_certificateNewRoute = Mint_certificateNewRouteImport.update({
   path: '/mint_certificate/new',
   getParentRoute: () => rootRouteImport,
 } as any)
+const Mint_certificateCertificateIdRoute =
+  Mint_certificateCertificateIdRouteImport.update({
+    id: '/mint_certificate/$certificateId',
+    path: '/mint_certificate/$certificateId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const CollectionsNewRoute = CollectionsNewRouteImport.update({
   id: '/collections/new',
   path: '/collections/new',
@@ -190,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/new': typeof CollectionsNewRoute
+  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
@@ -219,6 +227,7 @@ export interface FileRoutesByTo {
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/new': typeof CollectionsNewRoute
+  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
@@ -249,6 +258,7 @@ export interface FileRoutesById {
   '/account/transaction-history': typeof AccountTransactionHistoryRoute
   '/campaigns/new': typeof CampaignsNewRoute
   '/collections/new': typeof CollectionsNewRoute
+  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
   '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
@@ -280,6 +290,7 @@ export interface FileRouteTypes {
     | '/account/transaction-history'
     | '/campaigns/new'
     | '/collections/new'
+    | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
     | '/mint_nft/new'
     | '/templates/$templateId'
@@ -309,6 +320,7 @@ export interface FileRouteTypes {
     | '/account/transaction-history'
     | '/campaigns/new'
     | '/collections/new'
+    | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
     | '/mint_nft/new'
     | '/templates/$templateId'
@@ -338,6 +350,7 @@ export interface FileRouteTypes {
     | '/account/transaction-history'
     | '/campaigns/new'
     | '/collections/new'
+    | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
     | '/mint_nft/new'
     | '/templates/$templateId'
@@ -368,6 +381,7 @@ export interface RootRouteChildren {
   AccountTransactionHistoryRoute: typeof AccountTransactionHistoryRoute
   CampaignsNewRoute: typeof CampaignsNewRoute
   CollectionsNewRoute: typeof CollectionsNewRoute
+  Mint_certificateCertificateIdRoute: typeof Mint_certificateCertificateIdRoute
   Mint_certificateNewRoute: typeof Mint_certificateNewRoute
   Mint_nftNewRoute: typeof Mint_nftNewRoute
   TemplatesTemplateIdRoute: typeof TemplatesTemplateIdRoute
@@ -493,6 +507,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof Mint_certificateNewRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/mint_certificate/$certificateId': {
+      id: '/mint_certificate/$certificateId'
+      path: '/mint_certificate/$certificateId'
+      fullPath: '/mint_certificate/$certificateId'
+      preLoaderRoute: typeof Mint_certificateCertificateIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/collections/new': {
       id: '/collections/new'
       path: '/collections/new'
@@ -592,6 +613,7 @@ const rootRouteChildren: RootRouteChildren = {
   AccountTransactionHistoryRoute: AccountTransactionHistoryRoute,
   CampaignsNewRoute: CampaignsNewRoute,
   CollectionsNewRoute: CollectionsNewRoute,
+  Mint_certificateCertificateIdRoute: Mint_certificateCertificateIdRoute,
   Mint_certificateNewRoute: Mint_certificateNewRoute,
   Mint_nftNewRoute: Mint_nftNewRoute,
   TemplatesTemplateIdRoute: TemplatesTemplateIdRoute,
