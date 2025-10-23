@@ -2,6 +2,9 @@ import { CertificateDetailActions } from "./certificate-detail-actions";
 import { CertificateLaunchpad } from "./certificate-launchpad";
 import { CertificateViewer } from "./certificate-viewer";
 import type { Certificate } from "@/features/certificates";
+import { mockCertificateInformation } from "@/shared/data/certificate-information";
+import { mockCertificateEvents } from "@/shared/data/certificate-events";
+import { mockCertificateLedger } from "@/shared/data/certificate-ledger";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -69,6 +72,9 @@ export function CertificateDetailPage({ certificate }: CertificateDetailPageProp
         signatureImage="https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=178&h=100&fit=crop"
         signerName="CARLO VERDONE"
         signerTitle="President Federitaly"
+        informationData={mockCertificateInformation}
+        eventsData={mockCertificateEvents}
+        ledgerData={mockCertificateLedger}
       />
 
       {/* TODO: Add more certificate details sections here */}

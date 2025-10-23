@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { CertificateTabs, type CertificateTab } from "./certificate-tabs";
 import { CertificateDisplay } from "./certificate-display";
+import {
+  CertificateInformation,
+  type CertificateInformationData,
+} from "./certificate-information";
+import {
+  CertificateEvents,
+  type CertificateEventsData,
+} from "./certificate-events";
+import {
+  CertificateLedger,
+  type CertificateLedgerData,
+} from "./certificate-ledger";
 
 interface CertificateViewerProps {
   // Certificate data props
@@ -15,6 +27,12 @@ interface CertificateViewerProps {
   signerName: string;
   signerTitle: string;
   stampContent?: React.ReactNode;
+  // Information tab data
+  informationData?: CertificateInformationData;
+  // Events tab data
+  eventsData?: CertificateEventsData;
+  // Ledger tab data
+  ledgerData?: CertificateLedgerData;
   className?: string;
 }
 
@@ -26,21 +44,30 @@ export function CertificateViewer(props: CertificateViewerProps) {
       case "certificate":
         return <CertificateDisplay {...props} />;
       case "informations":
+        if (props.informationData) {
+          return <CertificateInformation data={props.informationData} />;
+        }
         return (
-          <div className="bg-[#222526] px-16 py-10 rounded-bl-4 rounded-br-4 w-full min-h-[400px] flex items-center justify-center">
-            <p className="text-[#e1e1e1] text-xl">Informations content coming soon</p>
+          <div className="bg-[#222526] px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[400px] flex items-center justify-center">
+            <p className="text-[#e1e1e1] text-xl">No information data available</p>
           </div>
         );
       case "events":
+        if (props.eventsData) {
+          return <CertificateEvents data={props.eventsData} />;
+        }
         return (
-          <div className="bg-[#222526] px-16 py-10 rounded-bl-4 rounded-br-4 w-full min-h-[400px] flex items-center justify-center">
-            <p className="text-[#e1e1e1] text-xl">Events content coming soon</p>
+          <div className="bg-[#222526] px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[400px] flex items-center justify-center">
+            <p className="text-[#e1e1e1] text-xl">No events data available</p>
           </div>
         );
       case "ledger":
+        if (props.ledgerData) {
+          return <CertificateLedger data={props.ledgerData} />;
+        }
         return (
-          <div className="bg-[#222526] px-16 py-10 rounded-bl-4 rounded-br-4 w-full min-h-[400px] flex items-center justify-center">
-            <p className="text-[#e1e1e1] text-xl">Ledger content coming soon</p>
+          <div className="bg-[#222526] px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[400px] flex items-center justify-center">
+            <p className="text-[#e1e1e1] text-xl">No ledger data available</p>
           </div>
         );
       default:
