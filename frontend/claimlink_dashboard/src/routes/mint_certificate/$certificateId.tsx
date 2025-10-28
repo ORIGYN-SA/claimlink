@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { DashboardLayout } from '@/components/layout';
-import { CertificateDetailPage } from '@/features/mint-certificate';
+import { CertificateDetailPage } from '@/features/certificates';
 import { getCertificateById } from '@/shared/data';
 
 export const Route = createFileRoute('/mint_certificate/$certificateId')({

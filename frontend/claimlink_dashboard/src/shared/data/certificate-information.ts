@@ -1,4 +1,4 @@
-import type { CertificateInformationData } from "@/features/mint-certificate/components/certificate-information";
+import type { CertificateInformationData } from "@/features/certificates";
 
 // Mock gallery images from Figma
 const img1 = "http://localhost:3845/assets/7b23aa3e55b219a62b21e3e531746b4c4dd9dc1c.png";

@@ -1,4 +1,4 @@
-import type { CertificateEventsData } from "@/features/mint-certificate/components/certificate-events";
+import type { CertificateEventsData } from "@/features/certificates";
 
 export const mockCertificateEvents: CertificateEventsData = {
   events: [

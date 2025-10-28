@@ -1,4 +1,4 @@
-import type { CertificateLedgerData } from "@/features/mint-certificate/components/certificate-ledger";
+import type { CertificateLedgerData } from "@/features/certificates";
 
 export const mockCertificateLedger: CertificateLedgerData = {
   transactions: [

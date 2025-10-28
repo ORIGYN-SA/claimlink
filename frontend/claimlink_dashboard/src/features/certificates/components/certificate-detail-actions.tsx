@@ -1,10 +1,12 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link2, Info, Pencil, Plus, Copy, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import type { TokenStatus } from "@/components/common/token-card/token.types";
 import { cn } from "@/lib/utils";
+import { TransferOwnershipDialog } from "@/features/mint-certificate";
+import type { TransferOwnershipData } from "@/features/mint-certificate";
 
 interface CertificateDetailActionsProps {
   certificateId: string;
@@ -30,6 +32,7 @@ export function CertificateDetailActions({
   className,
 }: CertificateDetailActionsProps) {
   const [copySuccess, setCopySuccess] = useState(false);
+  const [transferDialogOpen, setTransferDialogOpen] = useState(false);
 
   const handleCopyLink = async () => {
     try {
@@ -39,6 +42,19 @@ export function CertificateDetailActions({
     } catch (err) {
       console.error("Failed to copy:", err);
     }
+  };
+
+  const handleTransferClick = () => {
+    setTransferDialogOpen(true);
+  };
+
+  const handleTransfer = async (data: TransferOwnershipData) => {
+    // Call the parent callback if provided
+    if (onTransferOwnership) {
+      await onTransferOwnership();
+    }
+    // Here you would implement the actual transfer logic
+    console.log("Transfer data:", data);
   };
 
   return (
@@ -167,13 +183,21 @@ export function CertificateDetailActions({
 
           {/* Transfer Ownership Button */}
           <Button
-            onClick={onTransferOwnership}
+            onClick={handleTransferClick}
             className="flex-1 bg-[#222526] text-white rounded-full h-12 hover:bg-[#222526]/90 font-semibold text-[14px] font-['DM_Sans',_sans-serif]"
           >
             Transfer ownership
           </Button>
         </div>
       </div>
+
+      {/* Transfer Ownership Dialog */}
+      <TransferOwnershipDialog
+        open={transferDialogOpen}
+        onOpenChange={setTransferDialogOpen}
+        certificateId={certificateId}
+        onTransfer={handleTransfer}
+      />
     </div>
   );
 }

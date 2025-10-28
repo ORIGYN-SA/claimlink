@@ -1,6 +1,9 @@
+// Minting Pages
 export { MintCertificatePage } from './components/mint-certificate-page';
 export { CreateCertificatePage } from './components/create-certificate-page';
 export { CreateCertificatePageV2 } from './components/create-certificate-page-v2';
+
+// Minting Components
 export { DynamicTemplateForm } from './components/dynamic-template-form';
 export { CertificatesActions } from './components/certificates-actions';
 export { CertificatesGrid } from './components/certificates-grid';
@@ -8,26 +11,13 @@ export { CollectionSection } from './components/collection-section';
 export { CompanyForm } from './components/company-form';
 export { PricingSidebar } from './components/pricing-sidebar';
 export { FormField } from './components/form-field';
-export { CertificateDetailActions } from './components/certificate-detail-actions';
-export { CertificateDetailPage } from './components/certificate-detail-page';
-export { CertificateLaunchpad } from './components/certificate-launchpad';
-export { CertificateTabs } from './components/certificate-tabs';
-export { CertificateDisplay } from './components/certificate-display';
-export { CertificateViewer } from './components/certificate-viewer';
-export { CertificateInformation } from './components/certificate-information';
-export { CertificateMetadataRow } from './components/certificate-metadata-row';
-export { CertificateGallery } from './components/certificate-gallery';
-export { CertificateEvents } from './components/certificate-events';
-export { CertificateEventRow } from './components/certificate-event-row';
-export { CertificateLedger } from './components/certificate-ledger';
-export { CertificateLedgerTable } from './components/certificate-ledger-table';
-export { CertificateLedgerRow } from './components/certificate-ledger-row';
-export { CertificateLedgerPagination } from './components/certificate-ledger-pagination';
-export { CertificateCard } from '../certificates/components/certificate-card';
-export { AddCertificateCard } from '../certificates/components/add-certificate-card';
-export { CertificateStatusBadge } from '../certificates/components/certificate-status-badge';
-export type { Certificate, CertificateStatus, CertificateGridProps, CertificateCardProps, AddCertificateCardProps } from '../certificates/types/certificate.types';
-export type { CertificateTab } from './components/certificate-tabs';
-export type { CertificateInformationData } from './components/certificate-information';
-export type { CertificateEventsData, CertificateEvent } from './components/certificate-events';
-export type { CertificateLedgerData, LedgerTransaction, LedgerTransactionType } from './components/certificate-ledger';
+
+// Transfer Ownership Components
+export { TransferOwnershipDialog } from './components/transfer-ownership-dialog';
+export { TransferOwnershipForm } from './components/transfer-ownership-form';
+export { TransferOwnershipLoading } from './components/transfer-ownership-loading';
+export { TransferOwnershipSuccess } from './components/transfer-ownership-success';
+export { TransferOwnershipError } from './components/transfer-ownership-error';
+
+// Types
+export type { TransferOwnershipData, TransferType, TransferState } from './components/transfer-ownership-dialog';

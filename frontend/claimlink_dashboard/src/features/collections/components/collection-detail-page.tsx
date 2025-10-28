@@ -7,8 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Grid, List, Info, Edit } from 'lucide-react'
 import { getCollectionById, mockCollections } from '@/shared/data/collections'
 import { getCertificatesForCollection, mockCertificates } from '@/shared/data/certificates'
-import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog } from '@/components/common'
-import { CertificateStatusBadge } from '@/features/certificates'
+import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog, TokenStatusBadge } from '@/components/common'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
 
 interface CollectionDetailPageProps {
@@ -136,7 +135,7 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
       width: '150px',
       render: (certificate: Certificate) => (
         <div className="flex items-center">
-          <CertificateStatusBadge status={certificate.status} />
+          <TokenStatusBadge status={certificate.status} />
         </div>
       )
     }
