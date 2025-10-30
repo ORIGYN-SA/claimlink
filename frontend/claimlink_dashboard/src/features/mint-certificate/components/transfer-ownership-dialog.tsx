@@ -39,15 +39,27 @@ export function TransferOwnershipDialog({
 
   const handleTransfer = async (data: TransferOwnershipData) => {
     setState("loading");
-    try {
-      await onTransfer?.(data);
-      setState("success");
-    } catch (error) {
-      setErrorMessage(
-        error instanceof Error ? error.message : "Transfer failed. Please try again."
-      );
-      setState("error");
-    }
+    
+    // Simulate processing time with random success/error (matching withdraw-dialog behavior)
+    setTimeout(() => {
+      try {
+        // Randomly choose success or error for testing (70% success rate)
+        const isSuccess = Math.random() > 0.3;
+        
+        if (isSuccess) {
+          // Call the parent callback if provided
+          onTransfer?.(data);
+          setState("success");
+        } else {
+          throw new Error("Transfer failed. Please try again.");
+        }
+      } catch (error) {
+        setErrorMessage(
+          error instanceof Error ? error.message : "Transfer failed. Please try again."
+        );
+        setState("error");
+      }
+    }, 3000); // 3 second delay matching withdraw-dialog
   };
 
   const handleClose = () => {
@@ -65,7 +77,7 @@ export function TransferOwnershipDialog({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent
-        className="p-0 gap-0 max-w-[400px] rounded-[20px] border-0 overflow-hidden"
+        className="w-[400px] p-0 gap-0 border-0 overflow-hidden !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2 !z-[9999]"
         showCloseButton={false}
       >
         {/* Custom Close Button */}
