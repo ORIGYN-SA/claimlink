@@ -3,14 +3,19 @@ import { type Template } from '@/shared/data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
+interface TemplateWithBackground extends Template {
+  backgroundType?: 'standard' | 'custom';
+  customBackgroundImage?: string;
+}
+
 interface PreviewDeployStepProps {
-  selectedTemplate: Template | null;
+  selectedTemplate: TemplateWithBackground | null;
   onBack?: () => void;
   onComplete?: () => void;
 }
 
 // Template Preview Section Component
-function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: Template | null }) {
+function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: TemplateWithBackground | null }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Image Preview */}
@@ -69,6 +74,40 @@ function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: Templa
           </div>
         </div>
 
+        {/* Background Type */}
+        <div className="bg-[#fcfafa] rounded-lg p-4">
+          <p className="text-xs text-[#69737c] uppercase tracking-wide mb-2">Background Type</p>
+          <div className="flex items-center gap-2">
+            {selectedTemplate?.backgroundType === 'custom' ? (
+              <>
+                <Badge variant="outline" className="text-xs">
+                  Custom
+                </Badge>
+                <span className="text-sm text-[#222526]">Custom background image uploaded</span>
+              </>
+            ) : (
+              <>
+                <Badge variant="outline" className="text-xs">
+                  Standard
+                </Badge>
+                <span className="text-sm text-[#222526]">Default ORIGYN background</span>
+              </>
+            )}
+          </div>
+          {selectedTemplate?.backgroundType === 'custom' && selectedTemplate.customBackgroundImage && (
+            <div className="mt-3">
+              <p className="text-xs text-[#69737c] mb-1">Preview</p>
+              <div className="w-full h-24 rounded border border-[#e1e1e1] overflow-hidden">
+                <img 
+                  src={selectedTemplate.customBackgroundImage} 
+                  alt="Custom background" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Company Info (if available) */}
         {selectedTemplate?.metadata?.company && (
           <div className="bg-[#fcfafa] rounded-lg p-4">
@@ -91,7 +130,7 @@ function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: Templa
 }
 
 // Certificate Preview Component
-function CertificatePreview() {
+function CertificatePreview({ selectedTemplate }: { selectedTemplate: TemplateWithBackground | null }) {
   const [activeTab, setActiveTab] = useState('certificate');
 
   const tabs = [
@@ -100,6 +139,21 @@ function CertificatePreview() {
     { id: 'experience', label: 'Experience' },
     { id: 'history', label: 'History' },
   ];
+
+  // Determine background style for certificate preview
+  const getBackgroundStyle = () => {
+    if (selectedTemplate?.backgroundType === 'custom' && selectedTemplate.customBackgroundImage) {
+      return {
+        backgroundImage: `url(${selectedTemplate.customBackgroundImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      };
+    }
+    // Default standard background
+    return {
+      background: 'linear-gradient(to bottom right, #f8f9fa, #e9ecef)'
+    };
+  };
 
   return (
     <div className="space-y-6">
@@ -131,8 +185,11 @@ function CertificatePreview() {
               <p className="text-[#69737c]">Certificate Preview</p>
             </div>
 
-            {/* Certificate mockup */}
-            <div className="relative bg-gradient-to-br from-[#f8f9fa] to-[#e9ecef] rounded-lg p-8 border-2 border-dashed border-[#e1e1e1]">
+            {/* Certificate mockup with selected background */}
+            <div 
+              className="relative rounded-lg p-8 border-2 border-dashed border-[#e1e1e1]"
+              style={getBackgroundStyle()}
+            >
               <div className="text-center space-y-4">
                 <div className="w-20 h-20 mx-auto bg-[#50be8f] rounded-full flex items-center justify-center">
                   <span className="text-white text-2xl font-bold">C</span>
@@ -208,7 +265,7 @@ export function PreviewDeployStep({ selectedTemplate, onBack, onComplete }: Prev
       <TemplatePreviewSection selectedTemplate={selectedTemplate} />
 
       {/* Certificate Preview Section */}
-      <CertificatePreview />
+      <CertificatePreview selectedTemplate={selectedTemplate} />
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center pt-6">

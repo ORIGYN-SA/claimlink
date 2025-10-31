@@ -2,20 +2,37 @@ import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ChooseTemplateStep } from './choose-template-step';
+import { ChooseBackgroundStep } from './choose-background-step';
 // import { EditTemplateStep } from './edit-template-step'; // OLD: Commented out - using V2 version
 import { EditTemplateStepV2 } from './edit-template-step-v2'; // NEW: Data-driven template editor
 import { PreviewDeployStep } from './preview-deploy-step';
 import { type Template } from '@/shared/data';
 
-type Step = 'choose' | 'edit' | 'preview';
+type Step = 'choose' | 'background' | 'edit' | 'preview';
+
+interface TemplateWithBackground extends Template {
+  backgroundType?: 'standard' | 'custom';
+  customBackgroundImage?: string;
+}
 
 export function NewTemplatePage() {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState<Step>('choose');
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateWithBackground | null>(null);
 
   const handleTemplateSelect = (template: Template) => {
-    setSelectedTemplate(template);
+    setSelectedTemplate({ ...template });
+    setCurrentStep('background');
+  };
+
+  const handleBackgroundSelect = (backgroundType: 'standard' | 'custom', customImage?: string) => {
+    if (selectedTemplate) {
+      setSelectedTemplate({
+        ...selectedTemplate,
+        backgroundType,
+        customBackgroundImage: customImage
+      });
+    }
     setCurrentStep('edit');
   };
 
@@ -23,6 +40,8 @@ export function NewTemplatePage() {
     // Only allow navigation to completed steps or current step
     if (value === 'choose') {
       setCurrentStep('choose');
+    } else if (value === 'background' && (currentStep === 'background' || currentStep === 'edit' || currentStep === 'preview')) {
+      setCurrentStep('background');
     } else if (value === 'edit' && (currentStep === 'edit' || currentStep === 'preview')) {
       setCurrentStep('edit');
     } else if (value === 'preview' && currentStep === 'preview') {
@@ -31,6 +50,7 @@ export function NewTemplatePage() {
   };
 
   // Determine which steps are accessible
+  const isBackgroundAccessible = currentStep === 'background' || currentStep === 'edit' || currentStep === 'preview';
   const isEditAccessible = currentStep === 'edit' || currentStep === 'preview';
   const isPreviewAccessible = currentStep === 'preview';
 
@@ -45,6 +65,13 @@ export function NewTemplatePage() {
               className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2"
             >
               Choose template
+            </TabsTrigger>
+            <TabsTrigger 
+              value="background" 
+              disabled={!isBackgroundAccessible}
+              className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2 disabled:opacity-40"
+            >
+              Choose your background
             </TabsTrigger>
             <TabsTrigger 
               value="edit" 
@@ -69,6 +96,14 @@ export function NewTemplatePage() {
             <ChooseTemplateStep onNext={handleTemplateSelect} />
           </TabsContent>
 
+          <TabsContent value="background" className="mt-0 w-full flex justify-center">
+            <ChooseBackgroundStep
+              selectedTemplate={selectedTemplate}
+              onNext={handleBackgroundSelect}
+              onBack={() => setCurrentStep('choose')}
+            />
+          </TabsContent>
+
           <TabsContent value="edit" className="mt-0 w-full flex justify-center">
             {/* OLD: Static hard-coded template editor */}
             {/* <EditTemplateStep
@@ -81,7 +116,7 @@ export function NewTemplatePage() {
             <EditTemplateStepV2
               selectedTemplate={selectedTemplate}
               onNext={() => setCurrentStep('preview')}
-              onBack={() => setCurrentStep('choose')}
+              onBack={() => setCurrentStep('background')}
               onTemplateChange={(updatedTemplate) => setSelectedTemplate(updatedTemplate)}
             />
           </TabsContent>
