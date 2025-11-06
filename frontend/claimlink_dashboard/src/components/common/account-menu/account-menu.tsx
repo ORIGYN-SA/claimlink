@@ -1,7 +1,7 @@
 // AccountMenu.tsx
 import { useState } from "react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
-import { WithdrawDialog } from "./withdraw-dialog";
+import { WithdrawDialog } from "./withdraw-dialog/index";
 import { AccountHeaderSection } from "./account-header-section";
 import { UserProfileSection } from "./user-profile-section";
 import { WalletBalanceSection } from "./wallet-balance-section";

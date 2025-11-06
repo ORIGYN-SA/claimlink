@@ -1,10 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
-import { ActorSubclass } from "@dfinity/agent";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import type { ActorSubclass } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
+// @ts-expect-error: later will be fixed
 import { idlFactory } from "../idlFactory";
+// @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryICP } from "../idlFactoryICP";
-import { Result } from "../interfaces/ledger";
+import type { Result } from "../interfaces/ledger";
 
 const icrc1_transfer = async (
   actor: ActorSubclass,
