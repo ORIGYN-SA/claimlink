@@ -6,6 +6,7 @@ import useTransfer from "@/services/ledger/hooks/useTransfer"
 import useFetchTransferFee from "@/services/ledger/hooks/useFetchTransferFee"
 import { OGY_LEDGER_CANISTER_ID } from "@/shared/constants"
 import { WithdrawForm } from "./withdraw-form"
+import { WithdrawConfirm } from "./withdraw-confirm"
 import { WithdrawLoading } from "./withdraw-loading"
 import { WithdrawSuccess } from "./withdraw-success"
 import { WithdrawError } from "./withdraw-error"
@@ -25,6 +26,7 @@ export function WithdrawDialog({
   currentBalance = 0,
 }: WithdrawDialogProps) {
   const [dialogState, setDialogState] = useState<DialogState>("form")
+  const [formData, setFormData] = useState<WithdrawFormData | null>(null)
   const [successData, setSuccessData] = useState<WithdrawSuccessData | null>(
     null
   )
@@ -58,26 +60,39 @@ export function WithdrawDialog({
     }
   )
 
-  const handleFormSubmit = async (data: WithdrawFormData) => {
+  const handleFormSubmit = (data: WithdrawFormData) => {
+    // Save form data and move to confirmation screen
+    setFormData(data)
+    setDialogState("confirm")
+  }
+
+  const handleBackToForm = () => {
+    setDialogState("form")
+  }
+
+  const handleConfirmTransfer = async () => {
+    if (!formData) return
+
     setDialogState("processing")
 
     try {
       const amountInE8s = BigInt(
-        Math.floor(parseFloat(data.amount) * Number(OGY_TO_E8S))
+        Math.floor(parseFloat(formData.amount) * Number(OGY_TO_E8S))
       )
       const feeInE8s = transferFeeData || BigInt(Math.floor(0.002 * Number(OGY_TO_E8S)))
 
-      await transferMutation.mutateAsync({
+      const blockIndex = await transferMutation.mutateAsync({
         amount: amountInE8s,
-        account: data.recipientAddress.trim(),
+        account: formData.recipientAddress.trim(),
         fee: feeInE8s,
       })
 
       // Transfer successful
       setSuccessData({
-        recipientAddress: data.recipientAddress.trim(),
-        amount: data.amount,
+        recipientAddress: formData.recipientAddress.trim(),
+        amount: formData.amount,
         fee: transferFee.toString(),
+        transactionIndex: blockIndex ? blockIndex.toString() : undefined,
       })
       setDialogState("success")
     } catch (error) {
@@ -94,18 +109,33 @@ export function WithdrawDialog({
     // Reset state after dialog closes
     setTimeout(() => {
       setDialogState("form")
+      setFormData(null)
       setSuccessData(null)
       setErrorData(null)
     }, 200)
   }
 
   const handleRetry = () => {
+    // Go back to form to allow user to edit their transaction
     setDialogState("form")
     setErrorData(null)
+    // Keep formData so user can see their previous input
   }
 
   const renderCurrentState = () => {
     switch (dialogState) {
+      case "confirm":
+        return formData ? (
+          <WithdrawConfirm
+            data={formData}
+            currentBalance={currentBalance}
+            transferFee={transferFee}
+            onBack={handleBackToForm}
+            onConfirm={handleConfirmTransfer}
+            onClose={handleClose}
+          />
+        ) : null
+
       case "processing":
         return <WithdrawLoading />
 
@@ -135,6 +165,7 @@ export function WithdrawDialog({
             transferFee={transferFee}
             onSubmit={handleFormSubmit}
             onClose={handleClose}
+            initialData={formData}
           />
         )
     }

@@ -4,7 +4,7 @@ export interface WithdrawDialogProps {
   currentBalance?: number
 }
 
-export type DialogState = 'form' | 'processing' | 'success' | 'error'
+export type DialogState = 'form' | 'confirm' | 'processing' | 'success' | 'error'
 
 export interface WithdrawFormData {
   amount: string

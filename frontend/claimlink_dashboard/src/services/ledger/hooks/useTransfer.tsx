@@ -61,7 +61,11 @@ const useTransfer = (
 ) => {
   const queryClient = useQueryClient();
   const { ledger, is_principal_standard = true } = options;
-  return useMutation({
+  return useMutation<bigint | undefined, Error, {
+    amount: bigint;
+    account: string;
+    fee: bigint;
+  }>({
     mutationFn: async ({
       amount,
       account,
@@ -88,6 +92,7 @@ const useTransfer = (
             account,
             fee,
           });
+          return undefined; // send_dfx doesn't return block index
         } else {
           const icrc1Transfer = (await icrc1_transfer(actorLedger, {
             amount,
@@ -99,6 +104,10 @@ const useTransfer = (
             "Err" in icrc1Transfer
           ) {
             throw new Error(Object.keys(icrc1Transfer.Err).toString());
+          }
+          // Return the block index from Ok variant
+          if ("Ok" in icrc1Transfer) {
+            return icrc1Transfer.Ok;
           }
         }
       } catch (err) {

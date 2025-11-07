@@ -10,6 +10,7 @@ interface WithdrawFormProps {
   transferFee: number;
   onSubmit: (data: WithdrawFormData) => void;
   onClose: () => void;
+  initialData?: WithdrawFormData | null;
 }
 
 export function WithdrawForm({
@@ -17,11 +18,12 @@ export function WithdrawForm({
   transferFee,
   onSubmit,
   onClose,
+  initialData,
 }: WithdrawFormProps) {
   const form = useForm({
     defaultValues: {
-      amount: "",
-      recipientAddress: "",
+      amount: initialData?.amount || "",
+      recipientAddress: initialData?.recipientAddress || "",
     },
     onSubmit: async ({ value }) => {
       onSubmit(value);
@@ -95,9 +97,16 @@ export function WithdrawForm({
                   return "Amount must be greater than 0";
                 }
 
+                // Check if amount is greater than transfer fee
+                if (numValue <= transferFee) {
+                  return `Amount must be greater than the transaction fee (${transferFee.toFixed(4)} OGY)`;
+                }
+
+                // Check if total (amount + fee) doesn't exceed balance
                 const total = numValue + transferFee;
                 if (total > currentBalance) {
-                  return `Insufficient balance. You need ${total.toFixed(2)} OGY (including ${transferFee} OGY fee)`;
+                  const availableToSend = Math.max(0, currentBalance - transferFee);
+                  return `Insufficient balance. Maximum you can send is ${availableToSend.toFixed(2)} OGY (balance minus ${transferFee.toFixed(4)} OGY fee)`;
                 }
 
                 return undefined;
@@ -107,8 +116,19 @@ export function WithdrawForm({
           >
             {(field) => (
               <div className="w-full">
-                <label className="text-[#6f6d66] text-sm font-medium mb-2 block">
-                  Amount
+                <label className="text-[#6f6d66] text-sm font-medium mb-2 flex items-center justify-between">
+                  <span>Amount</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const maxAmount = Math.max(0, currentBalance - transferFee);
+                      field.handleChange(maxAmount.toFixed(8));
+                    }}
+                    disabled={currentBalance <= transferFee}
+                    className="text-[#222526] text-xs font-semibold px-3 py-1 rounded-full border border-[#e1e1e1] hover:bg-[#fcfafa] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    MAX
+                  </button>
                 </label>
                 <Input
                   type="text"
@@ -124,6 +144,9 @@ export function WithdrawForm({
                     {field.state.meta.errors[0]}
                   </p>
                 )}
+                <p className="text-[#69737c] text-xs mt-2 px-4">
+                  Available: {(currentBalance - transferFee).toFixed(2)} OGY (after fee)
+                </p>
               </div>
             )}
           </form.Field>
