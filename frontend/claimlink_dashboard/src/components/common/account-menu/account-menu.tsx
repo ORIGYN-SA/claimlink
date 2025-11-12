@@ -157,7 +157,7 @@ export function AccountMenu({
       {trigger && <SheetTrigger asChild>{trigger}</SheetTrigger>}
       <SheetContent
         side="right"
-        className="w-[502px] sm:w-[502px] p-0 border-0 h-full"
+        className="w-full sm:w-[502px] max-w-[502px] p-0 border-0 h-full"
         style={{
           backgroundColor: "#051936",
         }}
@@ -171,12 +171,11 @@ export function AccountMenu({
         <div className="h-full overflow-y-auto">
           {/* Background with blur effect */}
           <div className="min-h-full bg-[#051936]/95 backdrop-blur-xl">
-            <div className="flex flex-col h-full p-10 gap-8">
-              {/* Header with refresh and sign out buttons */}
+            <div className="flex flex-col h-full p-6 sm:p-8 lg:p-10 gap-6 sm:gap-8">
+              {/* Header with close and sign out buttons */}
               <AccountHeaderSection
-                onRefresh={() => refetchAll()}
+                onClose={() => onOpenChange(false)}
                 onSignOut={handleSignOut}
-                isRefreshing={summary.loadingCount > 0}
               />
 
               {/* User profile section */}

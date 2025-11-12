@@ -1,27 +1,24 @@
-import { RefreshCw, LogOut } from "lucide-react";
+import { X, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface AccountHeaderSectionProps {
-  onRefresh: () => void;
+  onClose: () => void;
   onSignOut: () => void;
-  isRefreshing: boolean;
 }
 
 export function AccountHeaderSection({
-  onRefresh,
+  onClose,
   onSignOut,
-  isRefreshing,
 }: AccountHeaderSectionProps) {
   return (
     <div className="flex justify-between items-center">
       <Button
         variant="ghost"
         size="icon"
-        onClick={onRefresh}
-        disabled={isRefreshing}
+        onClick={onClose}
         className="text-[#e8e8e8] hover:bg-[#e8e8e8]/10 rounded-full"
       >
-        <RefreshCw className={`w-5 h-5 ${isRefreshing ? "animate-spin" : ""}`} />
+        <X className="w-5 h-5" />
       </Button>
       <Button
         variant="ghost"
