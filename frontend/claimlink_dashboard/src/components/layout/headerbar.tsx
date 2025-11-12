@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, RefreshCw } from "lucide-react";
+import { ArrowLeft, RefreshCw, Menu } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,8 @@ import { useAuth } from "@/features/auth";
 import icon from "@/assets/icon.svg";
 import { useFetchLedgerBalance } from "@/shared";
 import { OGY_LEDGER_CANISTER_ID } from "@/shared/constants";
+import { useAtom } from "jotai";
+import { mobileMenuOpenAtom } from "@/shared/stores/ui-atoms";
 
 interface HeaderBarProps {
     title?: string;
@@ -26,6 +28,7 @@ export function HeaderBar({
 }: HeaderBarProps) {
     const navigate = useNavigate();
     const [isAccountMenuOpen, setIsAccountMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useAtom(mobileMenuOpenAtom);
     const { isConnected, principalId, unauthenticatedAgent } = useAuth();
 
     const ogyBalance = useFetchLedgerBalance(
@@ -51,11 +54,21 @@ export function HeaderBar({
     return (
         <div
         className={cn(
-            "flex items-center justify-between px-6 py-0 gap-4",
+            "flex items-center justify-between px-4 sm:px-6 py-0 gap-2 sm:gap-4",
             className,
         )}
     >
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+            {/* Mobile Menu Button */}
+            <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden w-8 h-8 text-[#222526] hover:bg-[#f0f0f0] shrink-0"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+                <Menu className="w-5 h-5" />
+            </Button>
+
             {showBackButton && (
                 <Button
                     variant="ghost"
@@ -67,11 +80,11 @@ export function HeaderBar({
                 </Button>
             )}
             <div className="flex flex-col min-w-0">
-                <h1 className="font-sans font-medium text-[#222526] text-2xl truncate">
+                <h1 className="font-sans font-medium text-[#222526] text-xl sm:text-2xl truncate">
                     {title}
                 </h1>
                 {subtitle && (
-                    <p className="font-sans font-light text-[#69737c] text-base truncate mt-1">
+                    <p className="font-sans font-light text-[#69737c] text-sm sm:text-base truncate mt-1">
                         {subtitle}
                     </p>
                 )}

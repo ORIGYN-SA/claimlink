@@ -74,20 +74,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Blur background overlay */}
       <div className="absolute backdrop-blur-[100px] backdrop-filter bg-[rgba(19,19,19,0.4)] h-full w-full" />
       <div className="relative flex">
-        <div className="w-[250px]">
+        {/* Desktop Sidebar Container - Only visible on desktop, for layout purposes */}
+        <div className="w-0 lg:w-[250px]">
           <div className="sticky top-0 h-screen p-0">
             <Sidebar />
           </div>
         </div>
-        <main className="flex-1 px-6 py-6 min-w-0">
-          <div className="bg-[#fcfafa] rounded-[20px] p-[24px] w-full max-w-none">
+
+        {/* Main Content Area */}
+        <main className="flex-1 px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6 min-w-0">
+          <div className="bg-[#fcfafa] rounded-[12px] sm:rounded-[16px] lg:rounded-[20px] p-4 sm:p-5 lg:p-[24px] w-full max-w-none">
             <HeaderBar
               title={getPageTitle(location.pathname)}
               subtitle={getPageSubtitle(location.pathname)}
               showBackButton={showBackButton}
               backTo={backTo}
             />
-            <div className="mt-6">
+            <div className="mt-4 sm:mt-5 lg:mt-6">
               {children}
             </div>
           </div>

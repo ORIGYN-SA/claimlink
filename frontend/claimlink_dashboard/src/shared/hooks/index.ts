@@ -5,3 +5,4 @@ export { useMultiTokenBalance } from "./useMultiTokenBalance";
 export { default as useFetchTokenPrice } from "./useFetchTokenPrice";
 export { useCopyToClipboard } from "./useCopyToClipboard";
 export { default as useFetchLedgerDecimals } from "./useFetchLedgerDecimals";
+export { useMediaQuery, useIsDesktop, useIsMobile, BREAKPOINTS } from "./useMediaQuery";

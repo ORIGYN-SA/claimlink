@@ -3,6 +3,9 @@ import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 import clsx from "clsx";
 import icon from "@/assets/icon.svg";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useAtom } from "jotai";
+import { mobileMenuOpenAtom } from "@/shared/stores/ui-atoms";
 
 const Brand = () => {
   return (
@@ -63,15 +66,13 @@ const NavLink = ({
   );
 };
 
-const SideNav = ({ className }: { className?: string }) => {
+// Shared navigation content component
+const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
   const location = useLocation();
   const active = location.pathname;
 
   return (
-    <div className={clsx(
-      "box-border content-stretch flex flex-col items-center justify-between p-[40px] relative w-[250px] h-full",
-      className
-    )} data-name="Sidebar">
+    <div className="box-border content-stretch flex flex-col items-center justify-between p-[40px] relative w-[250px] h-full" data-name="Sidebar">
       {/* Content */}
       <div className="content-stretch flex flex-col gap-10 items-center justify-start relative shrink-0" data-name="Content">
         <Brand />
@@ -80,7 +81,7 @@ const SideNav = ({ className }: { className?: string }) => {
         <div className="box-border content-stretch flex flex-col gap-1 items-center justify-start px-2 py-0 relative shrink-0 w-[250px]" data-name="Menus">
           <ul className="flex flex-col gap-1 w-full">
             {navItems.map(({ title, url, icon }, i) => (
-              <li key={i} className="w-full">
+              <li key={i} className="w-full" onClick={onLinkClick}>
                 <NavLink
                   title={title}
                   url={url}
@@ -109,6 +110,29 @@ const SideNav = ({ className }: { className?: string }) => {
         </div>
       </div>
     </div>
+  );
+};
+
+const SideNav = ({ className }: { className?: string }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useAtom(mobileMenuOpenAtom);
+
+  return (
+    <>
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className={clsx("hidden lg:block", className)}>
+        <SidebarContent />
+      </div>
+
+      {/* Mobile Drawer - Hidden on desktop */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent
+          side="left"
+          className="p-0 w-[250px] bg-gradient-to-b from-[#615bff] to-[#5045e4] border-none"
+        >
+          <SidebarContent onLinkClick={() => setMobileMenuOpen(false)} />
+        </SheetContent>
+      </Sheet>
+    </>
   );
 };
 
