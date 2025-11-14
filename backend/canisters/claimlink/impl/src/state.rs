@@ -1,13 +1,14 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use types::{CanisterId, TimestampMillis};
 use utils::{
     env::{CanisterEnv, Environment},
     memory::MemorySize,
 };
 
-use claimlink_api::types::sub_canister::OrigynSubCanisterManager;
+use claimlink_api::types::{collection::CollectionInfo, sub_canister::OrigynSubCanisterManager};
 
 canister_state!(RuntimeState);
 
@@ -72,6 +73,15 @@ pub struct Data {
     pub bank_principal_id: Principal,
     /// Manages the ORIGYN NFT canister (create_canister)
     pub sub_canister_manager: OrigynSubCanisterManager,
+    /// Collection registry: canister_id -> collection info
+    #[serde(default)]
+    pub collections: HashMap<Principal, CollectionInfo>,
+    /// Secondary index: owner -> list of collection canister IDs
+    #[serde(default)]
+    pub collections_by_owner: HashMap<Principal, Vec<Principal>>,
+    /// Ordered list of collection canister IDs (creation order)
+    #[serde(default)]
+    pub collections_ordered: Vec<Principal>,
 }
 
 impl Data {
@@ -92,6 +102,9 @@ impl Data {
                 origyn_nft_commit_hash,
                 include_bytes!("../wasm/origyn_nft_canister.wasm.gz").to_vec(),
             ),
+            collections: HashMap::new(),
+            collections_by_owner: HashMap::new(),
+            collections_ordered: Vec::new(),
         }
     }
 }
