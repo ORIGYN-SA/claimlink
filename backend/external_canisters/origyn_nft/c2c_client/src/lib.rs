@@ -47,9 +47,8 @@ generate_candid_c2c_call!(icrc7_supply_cap);
 generate_candid_c2c_call!(icrc7_symbol);
 generate_candid_c2c_call!(icrc7_total_supply);
 generate_candid_c2c_call!(icrc7_tx_window);
-
-// icrc7_tokens_of
-// icrc7_tokens
+generate_candid_c2c_call!(icrc7_tokens_of);
+generate_candid_c2c_call!(icrc7_tokens);
 
 // Management methods
 generate_candid_c2c_call!(mint);

@@ -84,6 +84,7 @@ pub mod icrc7_owner_of {
 
 pub mod icrc7_tokens {
     use super::*;
+    pub type Args = (Option<candid::Nat>, Option<candid::Nat>);
     pub type Args0 = Option<candid::Nat>;
     pub type Args1 = Option<candid::Nat>;
     pub type Response = Vec<candid::Nat>;
@@ -97,6 +98,7 @@ pub mod icrc7_token_metadata {
 
 pub mod icrc7_tokens_of {
     use super::*;
+    pub type Args = (Account, Option<candid::Nat>, Option<candid::Nat>);
     pub type Args0 = Account;
     pub type Args1 = Option<candid::Nat>;
     pub type Args2 = Option<candid::Nat>;

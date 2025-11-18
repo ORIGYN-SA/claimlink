@@ -573,3 +573,235 @@ fn test_update_create_collection_stores_in_registry() {
     assert_eq!(my_collections.collections.len(), 1);
     assert_eq!(my_collections.collections[0].canister_id, canister_id);
 }
+
+/// Helper function to mint an NFT
+fn mint_nft(
+    pic: &mut pocket_ic::PocketIc,
+    caller: Principal,
+    collection_canister: Principal,
+    token_id: u128,
+) {
+    use icrc_ledger_types::icrc::generic_value::ICRC3Value;
+
+    let mint_args = origyn_nft_canister_api::types::management::mint::Args {
+        token_owner: Account {
+            owner: caller,
+            subaccount: None,
+        },
+        metadata: vec![
+            ("icrc7:token_id".to_string(), ICRC3Value::Nat(Nat::from(token_id))),
+            ("icrc7:name".to_string(), ICRC3Value::Text(format!("NFT #{}", token_id))),
+            ("icrc7:description".to_string(), ICRC3Value::Text(format!("Test NFT #{}", token_id))),
+        ],
+        memo: None,
+    };
+
+    crate::client::origyn_nft::mint(pic, caller, collection_canister, &mint_args)
+        .expect("Failed to mint NFT");
+}
+
+#[test]
+fn test_get_collection_nfts_empty() {
+    let env = init();
+    let TestEnv {
+        mut pic,
+        canister_ids,
+        principal_ids,
+    } = env;
+
+    // Create a collection
+    let collection_canister = create_test_collection(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+        canister_ids.ogy_sns_ledger,
+        "Test Collection",
+        "TC",
+        "Test Description",
+    );
+
+    // Query NFTs in the empty collection
+    let nfts = crate::client::claimlink::get_collection_nfts(
+        &pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
+        &claimlink_api::queries::get_collection_nfts::Args {
+            canister_id: collection_canister,
+            prev: None,
+            take: None,
+        },
+    );
+
+    assert_eq!(nfts.len(), 0, "Empty collection should have no NFTs");
+}
+
+#[test]
+fn test_get_collection_nfts_with_nfts() {
+    let env = init();
+    let TestEnv {
+        mut pic,
+        canister_ids,
+        principal_ids,
+    } = env;
+
+    // Create a collection
+    let collection_canister = create_test_collection(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+        canister_ids.ogy_sns_ledger,
+        "Test Collection",
+        "TC",
+        "Test Description",
+    );
+
+    // Mint 3 NFTs
+    for i in 1..=3 {
+        mint_nft(&mut pic, principal_ids.principal_100k_ogy, collection_canister, i);
+    }
+
+    // Query NFTs in the collection
+    let nfts = crate::client::claimlink::get_collection_nfts(
+        &pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
+        &claimlink_api::queries::get_collection_nfts::Args {
+            canister_id: collection_canister,
+            prev: None,
+            take: None,
+        },
+    );
+
+    assert_eq!(nfts.len(), 3, "Collection should have 3 NFTs");
+    assert_eq!(nfts[0], Nat::from(1u128));
+    assert_eq!(nfts[1], Nat::from(2u128));
+    assert_eq!(nfts[2], Nat::from(3u128));
+}
+
+#[test]
+fn test_get_nft_details() {
+    let env = init();
+    let TestEnv {
+        mut pic,
+        canister_ids,
+        principal_ids,
+    } = env;
+
+    // Create a collection
+    let collection_canister = create_test_collection(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+        canister_ids.ogy_sns_ledger,
+        "Test Collection",
+        "TC",
+        "Test Description",
+    );
+
+    // Mint 2 NFTs
+    mint_nft(&mut pic, principal_ids.principal_100k_ogy, collection_canister, 1);
+    mint_nft(&mut pic, principal_ids.principal_100k_ogy, collection_canister, 2);
+
+    // Get details for both NFTs
+    let details = crate::client::claimlink::get_nft_details(
+        &pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
+        &claimlink_api::queries::get_nft_details::Args {
+            canister_id: collection_canister,
+            token_ids: vec![Nat::from(1u128), Nat::from(2u128)],
+        },
+    );
+
+    assert_eq!(details.len(), 2, "Should return details for 2 NFTs");
+
+    // Verify first NFT
+    assert_eq!(details[0].token_id, Nat::from(1u128));
+    assert!(details[0].metadata.is_some(), "NFT should have metadata");
+    assert!(details[0].owner.is_some(), "NFT should have an owner");
+    assert_eq!(
+        details[0].owner.as_ref().unwrap().owner,
+        principal_ids.principal_100k_ogy
+    );
+
+    // Verify second NFT
+    assert_eq!(details[1].token_id, Nat::from(2u128));
+    assert!(details[1].metadata.is_some(), "NFT should have metadata");
+    assert!(details[1].owner.is_some(), "NFT should have an owner");
+    assert_eq!(
+        details[1].owner.as_ref().unwrap().owner,
+        principal_ids.principal_100k_ogy
+    );
+}
+
+#[test]
+fn test_get_user_nfts() {
+    let env = init();
+    let TestEnv {
+        mut pic,
+        canister_ids,
+        principal_ids,
+    } = env;
+
+    // Create a collection
+    let collection_canister = create_test_collection(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+        canister_ids.ogy_sns_ledger,
+        "Test Collection",
+        "TC",
+        "Test Description",
+    );
+
+    let user1 = principal_ids.principal_100k_ogy;
+    let user2 = random_principal();
+
+    // Mint 3 NFTs to user1
+    mint_nft(&mut pic, user1, collection_canister, 1);
+    mint_nft(&mut pic, user1, collection_canister, 2);
+    mint_nft(&mut pic, user1, collection_canister, 3);
+
+    // Mint 1 NFT to user2
+    mint_nft(&mut pic, user2, collection_canister, 4);
+
+    // Query NFTs owned by user1
+    let user1_nfts = crate::client::claimlink::get_user_nfts(
+        &pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
+        &claimlink_api::queries::get_user_nfts::Args {
+            canister_id: collection_canister,
+            account: Account {
+                owner: user1,
+                subaccount: None,
+            },
+            prev: None,
+            take: None,
+        },
+    );
+
+    assert_eq!(user1_nfts.len(), 3, "User1 should own 3 NFTs");
+    assert!(user1_nfts.contains(&Nat::from(1u128)));
+    assert!(user1_nfts.contains(&Nat::from(2u128)));
+    assert!(user1_nfts.contains(&Nat::from(3u128)));
+
+    // Query NFTs owned by user2
+    let user2_nfts = crate::client::claimlink::get_user_nfts(
+        &pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
+        &claimlink_api::queries::get_user_nfts::Args {
+            canister_id: collection_canister,
+            account: Account {
+                owner: user2,
+                subaccount: None,
+            },
+            prev: None,
+            take: None,
+        },
+    );
+
+    assert_eq!(user2_nfts.len(), 1, "User2 should own 1 NFT");
+    assert_eq!(user2_nfts[0], Nat::from(4u128));
+}
