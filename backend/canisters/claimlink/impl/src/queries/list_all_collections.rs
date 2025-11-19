@@ -11,16 +11,18 @@ pub fn list_all_collections(args: ListAllCollectionsArgs) -> ListAllCollectionsR
         let offset = args.get_offset();
         let limit = args.get_limit();
 
-        let total_count = state.data.collections_ordered.len() as u64;
+        let total_count = state.data.collections_ordered.borrow().len() as u64;
 
         // Use ordered list for pagination (maintains creation order)
+        // Iterate over the StableBTreeMap, extract the values (Principal canister_ids)
         let collections = state
             .data
             .collections_ordered
+            .borrow()
             .iter()
             .skip(offset)
             .take(limit)
-            .filter_map(|canister_id| state.data.collections.get(canister_id).cloned())
+            .filter_map(|(_index, canister_id)| state.data.collections.borrow().get(&canister_id))
             .collect();
 
         CollectionsResult {

@@ -15,8 +15,9 @@ pub fn get_collections_by_owner(args: GetCollectionsByOwnerArgs) -> GetCollectio
         let owned_collection_ids = state
             .data
             .collections_by_owner
+            .borrow()
             .get(&args.owner)
-            .cloned()
+            .map(|list| list.0.clone())
             .unwrap_or_default();
 
         let total_count = owned_collection_ids.len() as u64;
@@ -26,7 +27,7 @@ pub fn get_collections_by_owner(args: GetCollectionsByOwnerArgs) -> GetCollectio
             .iter()
             .skip(offset)
             .take(limit)
-            .filter_map(|canister_id| state.data.collections.get(canister_id).cloned())
+            .filter_map(|canister_id| state.data.collections.borrow().get(canister_id))
             .collect();
 
         CollectionsResult {

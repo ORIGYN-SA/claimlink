@@ -6,5 +6,5 @@ pub use claimlink_api::queries::collection_exists::{
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn collection_exists(args: CollectionExistsArgs) -> CollectionExistsResponse {
-    read_state(|state| state.data.collections.contains_key(&args.canister_id))
+    read_state(|state| state.data.collections.borrow().contains_key(&args.canister_id))
 }

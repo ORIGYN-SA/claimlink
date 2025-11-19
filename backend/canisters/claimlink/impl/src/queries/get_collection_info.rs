@@ -6,5 +6,5 @@ pub use claimlink_api::queries::get_collection_info::{
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn get_collection_info(args: GetCollectionInfoArgs) -> GetCollectionInfoResponse {
-    read_state(|state| state.data.collections.get(&args.canister_id).cloned())
+    read_state(|state| state.data.collections.borrow().get(&args.canister_id))
 }

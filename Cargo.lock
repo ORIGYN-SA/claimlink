@@ -549,6 +549,7 @@ dependencies = [
  "candid",
  "canfund",
  "ic-cdk",
+ "ic-stable-structures",
  "icrc-ledger-types",
  "icrc_ledger_canister",
  "origyn-nft-canister-api",

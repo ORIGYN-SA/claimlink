@@ -1,18 +1,24 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
+use ic_stable_structures::StableBTreeMap;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::cell::RefCell;
 use types::{CanisterId, TimestampMillis};
 use utils::{
     env::{CanisterEnv, Environment},
     memory::MemorySize,
 };
 
-use claimlink_api::types::{collection::CollectionInfo, sub_canister::OrigynSubCanisterManager};
+use crate::memory::{
+    get_collections_by_owner_memory, get_collections_memory, get_collections_ordered_memory, VM,
+};
+use claimlink_api::types::{
+    collection::{CollectionInfo, OwnerCollectionList},
+    sub_canister::OrigynSubCanisterManager,
+};
 
 canister_state!(RuntimeState);
 
-#[derive(Serialize, Deserialize)]
 pub struct RuntimeState {
     /// Runtime environment
     pub env: CanisterEnv,
@@ -20,10 +26,32 @@ pub struct RuntimeState {
     pub data: Data,
 }
 
+// Serializable version of RuntimeState for upgrades
+#[derive(Serialize, Deserialize)]
+pub struct RuntimeStateToSerialize {
+    pub env: CanisterEnv,
+    pub data: DataToSerialize,
+}
+
 impl RuntimeState {
     pub fn new(env: CanisterEnv, data: Data) -> Self {
         Self { env, data }
     }
+
+    pub fn to_serializable(&self) -> RuntimeStateToSerialize {
+        RuntimeStateToSerialize {
+            env: self.env.clone(),
+            data: self.data.to_serializable(),
+        }
+    }
+
+    pub fn from_serializable(serializable: RuntimeStateToSerialize) -> Self {
+        Self {
+            env: serializable.env,
+            data: Data::from_serializable(serializable.data),
+        }
+    }
+
     pub fn metrics(&self) -> Metrics {
         Metrics {
             canister_info: CanisterInfo {
@@ -61,7 +89,6 @@ pub struct CanisterInfo {
     pub cycles_balance_in_tc: f64,
 }
 
-#[derive(Serialize, Deserialize)]
 pub struct Data {
     /// Origyn NFT commit hash
     pub origyn_nft_commit_hash: String,
@@ -74,14 +101,24 @@ pub struct Data {
     /// Manages the ORIGYN NFT canister (create_canister)
     pub sub_canister_manager: OrigynSubCanisterManager,
     /// Collection registry: canister_id -> collection info
-    #[serde(default)]
-    pub collections: HashMap<Principal, CollectionInfo>,
+    pub collections: RefCell<StableBTreeMap<Principal, CollectionInfo, VM>>,
     /// Secondary index: owner -> list of collection canister IDs
-    #[serde(default)]
-    pub collections_by_owner: HashMap<Principal, Vec<Principal>>,
+    pub collections_by_owner: RefCell<StableBTreeMap<Principal, OwnerCollectionList, VM>>,
     /// Ordered list of collection canister IDs (creation order)
-    #[serde(default)]
-    pub collections_ordered: Vec<Principal>,
+    pub collections_ordered: RefCell<StableBTreeMap<u64, Principal, VM>>,
+    /// Counter for maintaining insertion order
+    pub next_collection_index: u64,
+}
+
+// Serializable version of Data for upgrades
+#[derive(Serialize, Deserialize)]
+pub struct DataToSerialize {
+    pub origyn_nft_commit_hash: String,
+    pub ledger_canister_id: Principal,
+    pub authorized_principals: Vec<Principal>,
+    pub bank_principal_id: Principal,
+    pub sub_canister_manager: OrigynSubCanisterManager,
+    pub next_collection_index: u64,
 }
 
 impl Data {
@@ -102,9 +139,43 @@ impl Data {
                 origyn_nft_commit_hash,
                 include_bytes!("../wasm/origyn_nft_canister.wasm.gz").to_vec(),
             ),
-            collections: HashMap::new(),
-            collections_by_owner: HashMap::new(),
-            collections_ordered: Vec::new(),
+            collections: RefCell::new(StableBTreeMap::init(get_collections_memory())),
+            collections_by_owner: RefCell::new(StableBTreeMap::init(
+                get_collections_by_owner_memory(),
+            )),
+            collections_ordered: RefCell::new(StableBTreeMap::init(
+                get_collections_ordered_memory(),
+            )),
+            next_collection_index: 0,
+        }
+    }
+
+    pub fn to_serializable(&self) -> DataToSerialize {
+        DataToSerialize {
+            origyn_nft_commit_hash: self.origyn_nft_commit_hash.clone(),
+            ledger_canister_id: self.ledger_canister_id,
+            authorized_principals: self.authorized_principals.clone(),
+            bank_principal_id: self.bank_principal_id,
+            sub_canister_manager: self.sub_canister_manager.clone(),
+            next_collection_index: self.next_collection_index,
+        }
+    }
+
+    pub fn from_serializable(serializable: DataToSerialize) -> Self {
+        Self {
+            origyn_nft_commit_hash: serializable.origyn_nft_commit_hash,
+            ledger_canister_id: serializable.ledger_canister_id,
+            authorized_principals: serializable.authorized_principals,
+            bank_principal_id: serializable.bank_principal_id,
+            sub_canister_manager: serializable.sub_canister_manager,
+            collections: RefCell::new(StableBTreeMap::init(get_collections_memory())),
+            collections_by_owner: RefCell::new(StableBTreeMap::init(
+                get_collections_by_owner_memory(),
+            )),
+            collections_ordered: RefCell::new(StableBTreeMap::init(
+                get_collections_ordered_memory(),
+            )),
+            next_collection_index: serializable.next_collection_index,
         }
     }
 }
