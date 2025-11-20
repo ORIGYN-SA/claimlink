@@ -1,3 +1,9 @@
+// TODO: Temporarily commented out due to Candid encoding issues with icrc7_tokens_of.
+// The c2c call needs custom implementation to properly encode multiple Candid arguments.
+// Clients can call icrc7_tokens_of directly on the NFT canister for now.
+// Can be revisited later when the encoding issue is resolved.
+
+/*
 pub use claimlink_api::queries::get_user_nfts::{
     Args as GetUserNftsArgs, Response as GetUserNftsResponse,
 };
@@ -12,3 +18,4 @@ pub async fn get_user_nfts(args: GetUserNftsArgs) -> GetUserNftsResponse {
     .await
     .unwrap_or_default()
 }
+*/

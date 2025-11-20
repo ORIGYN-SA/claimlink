@@ -50,12 +50,6 @@ type GetNftDetailsArgs = record {
   canister_id : principal;
   token_ids : vec nat;
 };
-type GetUserNftsArgs = record {
-  prev : opt nat;
-  take : opt nat;
-  canister_id : principal;
-  account : Account;
-};
 type ICRC3Value = variant {
   Int : int;
   Map : BTreeMap;
@@ -110,7 +104,6 @@ service : (InitArgs) -> {
       CollectionsResult,
     ) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
-  get_user_nfts : (GetUserNftsArgs) -> (vec nat) composite_query;
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
   list_my_collections : (PaginationArgs) -> (CollectionsResult) query;
 }
