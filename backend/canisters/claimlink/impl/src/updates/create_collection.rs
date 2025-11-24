@@ -6,6 +6,7 @@ use bity_ic_canister_time::timestamp_nanos;
 use bity_ic_subcanister_manager::Canister;
 use candid::{Nat, Principal};
 use claimlink_api::errors::{CreateCollectionError, GenericError};
+use claimlink_api::types::collection::{CollectionInfo, OwnerCollectionList};
 pub use claimlink_api::updates::create_collection::{
     Args as CreateCollectionArgs, Response as CreateCollectionResponse,
 };
@@ -70,14 +71,44 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
                 logo: None,
                 name: args.name.clone(),
                 symbol: args.symbol.clone(),
-                description: Some(args.description),
+                description: Some(args.description.clone()),
             },
         )
         .await?;
 
-    mutate_state(|state| state.data.sub_canister_manager = sub_canister_manager);
+    let canister_id = origyn_nft_canister.canister_id();
+
+    // Store collection info in registry
+    mutate_state(|state| {
+        state.data.sub_canister_manager = sub_canister_manager;
+
+        let collection_info = CollectionInfo {
+            canister_id,
+            creator: caller,
+            name: args.name,
+            symbol: args.symbol,
+            description: args.description,
+            created_at: state.env.now(),
+        };
+
+        // Store in main registry
+        state.data.collections.borrow_mut().insert(canister_id, collection_info);
+
+        // Store in owner index
+        let mut collections_by_owner = state.data.collections_by_owner.borrow_mut();
+        let mut owner_collections = collections_by_owner
+            .get(&caller)
+            .unwrap_or(OwnerCollectionList(Vec::new()));
+        owner_collections.0.push(canister_id);
+        collections_by_owner.insert(caller, owner_collections);
+
+        // Store in ordered list using counter
+        let index = state.data.next_collection_index;
+        state.data.collections_ordered.borrow_mut().insert(index, canister_id);
+        state.data.next_collection_index += 1;
+    });
 
     Ok(claimlink_api::create_collection::CreateCollectionResult {
-        origyn_nft_canister_id: origyn_nft_canister.canister_id(),
+        origyn_nft_canister_id: canister_id,
     })
 }

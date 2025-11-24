@@ -8,7 +8,7 @@ use canfund::manager::options::{CyclesThreshold, FundManagerOptions, FundStrateg
 use origyn_nft_canister_api::lifecycle::{
     Args as OrigynNftSetupArgs, InitArgs as OrigynNftInitArgs,
 };
-use origyn_nft_canister_api::{InitApprovalsArg, PermissionManager};
+use origyn_nft_canister_api::{InitApprovalsArg, Permission, PermissionManager};
 use serde::{Deserialize, Serialize};
 
 pub const INITIAL_CYCLES_BALANCE: u128 = 2_000_000_000_000; // 2T cycles
@@ -98,11 +98,14 @@ impl OrigynSubCanisterManager {
                 .with_fund_cycles(INITIAL_CYCLES_BALANCE),
         ));
 
+        let mut permissions_map = HashMap::new();
+        permissions_map.insert(data.creator, vec![Permission::Minting]);
+
         let init_args = OrigynNftInitArgs {
             test_mode: self.test_mode,
             version: BuildVersion::default(),
             commit_hash: self.commit_hash.clone(),
-            permissions: PermissionManager::new(HashMap::new()),
+            permissions: PermissionManager::new(permissions_map),
             description: data.description,
             symbol: data.symbol,
             name: data.name,

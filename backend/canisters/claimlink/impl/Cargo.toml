@@ -29,6 +29,7 @@ icrc_ledger_canister_c2c_client = { path = '../../../external_canisters/icrc_led
 ic_management_canister_api = { path = '../../../external_canisters/ic_management/api' }
 ic_management_canister_c2c_client = { path = '../../../external_canisters/ic_management/c2c_client' }
 origyn-nft-canister-api = { path = '../../../external_canisters/origyn_nft/api' }
+origyn-nft-canister-c2c-client = { path = '../../../external_canisters/origyn_nft/c2c_client' }
 types = { path = "../../../libraries/types" }
 utils = { path = "../../../libraries/utils" }
 

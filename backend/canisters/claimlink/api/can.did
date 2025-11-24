@@ -1,3 +1,28 @@
+type Account = record { owner : principal; subaccount : opt blob };
+type BTreeMap = vec record {
+  text;
+  variant {
+    Int : int;
+    Map : BTreeMap;
+    Nat : nat;
+    Blob : blob;
+    Text : text;
+    Array : vec ICRC3Value;
+  };
+};
+type CollectionExistsArgs = record { canister_id : principal };
+type CollectionInfo = record {
+  creator : principal;
+  name : text;
+  canister_id : principal;
+  description : text;
+  created_at : nat64;
+  symbol : text;
+};
+type CollectionsResult = record {
+  collections : vec CollectionInfo;
+  total_count : nat64;
+};
 type CreateCollectionArgs = record {
   name : text;
   description : text;
@@ -12,6 +37,35 @@ type CreateCollectionError = variant {
 };
 type CreateCollectionResult = record { origyn_nft_canister_id : principal };
 type GenericError = variant { Other : text };
+type GetCollectionNftsArgs = record {
+  prev : opt nat;
+  take : opt nat;
+  canister_id : principal;
+};
+type GetCollectionsByOwnerArgs = record {
+  owner : principal;
+  pagination : PaginationArgs;
+};
+type GetNftDetailsArgs = record {
+  canister_id : principal;
+  token_ids : vec nat;
+};
+type ICRC3Value = variant {
+  Int : int;
+  Map : BTreeMap;
+  Nat : nat;
+  Blob : blob;
+  Text : text;
+  Array : vec ICRC3Value;
+};
+type ICRC3Value_1 = variant {
+  Int : int;
+  Map : vec record { text; ICRC3Value };
+  Nat : nat;
+  Blob : blob;
+  Text : text;
+  Array : vec ICRC3Value;
+};
 type InitArgs = record {
   origyn_nft_commit_hash : text;
   test_mode : bool;
@@ -19,6 +73,12 @@ type InitArgs = record {
   bank_principal_id : principal;
   ledger_canister_id : principal;
 };
+type NftDetails = record {
+  token_id : nat;
+  owner : opt Account;
+  metadata : opt vec record { text; ICRC3Value_1 };
+};
+type PaginationArgs = record { offset : opt nat64; limit : opt nat64 };
 type Result = variant {
   Ok : CreateCollectionResult;
   Err : CreateCollectionError;
@@ -35,5 +95,15 @@ type TransferFromError = variant {
   InsufficientFunds : record { balance : nat };
 };
 service : (InitArgs) -> {
+  collection_exists : (CollectionExistsArgs) -> (bool) query;
   create_collection : (CreateCollectionArgs) -> (Result);
+  get_collection_count : (null) -> (nat64) query;
+  get_collection_info : (CollectionExistsArgs) -> (opt CollectionInfo) query;
+  get_collection_nfts : (GetCollectionNftsArgs) -> (vec nat) composite_query;
+  get_collections_by_owner : (GetCollectionsByOwnerArgs) -> (
+      CollectionsResult,
+    ) query;
+  get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
+  list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
+  list_my_collections : (PaginationArgs) -> (CollectionsResult) query;
 }

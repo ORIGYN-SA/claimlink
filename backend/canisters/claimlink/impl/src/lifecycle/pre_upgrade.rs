@@ -9,11 +9,12 @@ fn pre_upgrade() {
     info!("Pre upgrade.");
 
     let runtime_state = take_state();
+    let serializable_state = runtime_state.to_serializable();
 
     let logs = bity_ic_canister_logger::export_logs();
     let traces = bity_ic_canister_logger::export_traces();
 
-    let stable_state = (runtime_state, logs, traces);
+    let stable_state = (serializable_state, logs, traces);
 
     let mut memory = get_upgrades_memory();
     let writer = get_writer(&mut memory);
