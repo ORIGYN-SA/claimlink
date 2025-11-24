@@ -1,38 +1,59 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Pagination, SearchInput, FilterSelect, StandardizedGridListContainer, type ViewMode, type ListColumn, type ListAction } from "@/components/common";
+import {
+  Pagination,
+  SearchInput,
+  FilterSelect,
+  StandardizedGridListContainer,
+  type ViewMode,
+  type ListColumn,
+  type ListAction,
+} from "@/components/common";
 import type { FilterOption } from "@/components/common";
 import { CollectionStatusBadge } from "./collection-status-badge";
-import { mockCollections } from "@/shared/data/collections";
+import { useListMyCollections } from "@services/claimlink";
 import type { Collection, CollectionStatus } from "../types/collection.types";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function CollectionsPage() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<CollectionStatus>('all');
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<CollectionStatus>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  // Fetch collections from backend
+  const { data, isLoading, isError, error } = useListMyCollections({
+    offset: (currentPage - 1) * itemsPerPage,
+    limit: itemsPerPage,
+  });
+
+  // Show error toast if fetch fails
+  if (isError) {
+    toast.error(
+      `Failed to load collections: ${error?.message || "Unknown error"}`,
+    );
+  }
+
   // Status filter options
   const statusOptions: FilterOption[] = [
-    { value: 'all', label: 'All Status' },
-    { value: 'Active', label: 'Active' },
-    { value: 'Inactive', label: 'Inactive' },
-    { value: 'Draft', label: 'Draft' }
+    { value: "all", label: "All Status" },
+    { value: "Active", label: "Active" },
+    { value: "Inactive", label: "Inactive" },
+    { value: "Draft", label: "Draft" },
   ];
 
   // List view columns configuration
   const listColumns: ListColumn[] = [
-    { key: 'ref', label: 'Ref', width: '50px' },
-    { key: 'createdDate', label: 'Created', width: '120px' },
-    { 
-      key: 'name', 
-      label: 'Name', 
-      width: '1fr',
+    { key: "ref", label: "Ref", width: "50px" },
+    { key: "createdDate", label: "Created", width: "120px" },
+    {
+      key: "name",
+      label: "Name",
+      width: "1fr",
       render: (collection: Collection) => (
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
@@ -48,50 +69,50 @@ export function CollectionsPage() {
             </div>
           </div>
         </div>
-      )
+      ),
     },
-    { 
-      key: 'description', 
-      label: 'Description', 
-      width: '1fr',
+    {
+      key: "description",
+      label: "Description",
+      width: "1fr",
       render: (collection: Collection) => (
         <div className="text-[14px] font-normal text-[#69737c] truncate">
           {collection.description}
         </div>
-      )
+      ),
     },
-    { 
-      key: 'itemCount', 
-      label: 'Items', 
-      width: '100px',
+    {
+      key: "itemCount",
+      label: "Items",
+      width: "100px",
       render: (collection: Collection) => (
         <div className="text-[14px] font-medium text-[#69737c]">
           {collection.itemCount}
         </div>
-      )
+      ),
     },
-    { 
-      key: 'status', 
-      label: 'Status', 
-      width: '120px',
+    {
+      key: "status",
+      label: "Status",
+      width: "120px",
       render: (collection: Collection) => (
         <div className="flex items-center">
           <CollectionStatusBadge status={collection.status} />
         </div>
-      )
-    }
+      ),
+    },
   ];
 
   const handleCollectionClick = (collection: Collection) => {
-    console.log('Collection clicked:', collection);
+    console.log("Collection clicked:", collection);
     // Navigate to collection detail page
     navigate({ to: `/collections/${collection.id}` });
   };
 
   const handleCreateCollection = () => {
-    console.log('Create collection clicked');
+    console.log("Create collection clicked");
     // Navigate to create collection page
-    navigate({ to: '/collections/new' });
+    navigate({ to: "/collections/new" });
   };
 
   const handleViewCollection = (collection: Collection) => {
@@ -101,54 +122,65 @@ export function CollectionsPage() {
   const handleEditCollection = (collection: Collection) => {
     // TODO: Navigate to edit page when implemented
     toast.info(`Edit collection: ${collection.title}`);
-    console.log('Edit collection:', collection);
+    console.log("Edit collection:", collection);
   };
 
   const handleDeleteCollection = (collection: Collection) => {
     // TODO: Implement delete confirmation dialog
     toast.info(`Delete collection: ${collection.title}`);
-    console.log('Delete collection:', collection);
+    console.log("Delete collection:", collection);
   };
 
   // Define actions for list view dropdown menu
   const listActions: ListAction[] = [
     {
-      label: 'View Collection',
+      label: "View Collection",
       icon: Eye,
       onClick: handleViewCollection,
     },
     {
-      label: 'Edit Collection',
+      label: "Edit Collection",
       icon: Edit,
       onClick: handleEditCollection,
     },
     {
-      label: 'Delete Collection',
+      label: "Delete Collection",
       icon: Trash2,
       onClick: handleDeleteCollection,
-      variant: 'destructive',
+      variant: "destructive",
     },
   ];
 
-  // Filter collections based on search and status
-  const filteredCollections = mockCollections.filter(collection => {
-    const matchesSearch = collection.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         collection.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         collection.creator.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || collection.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+  // Get collections from API or use empty array
+  const collections = data?.collections || [];
+  const totalCount = data?.totalCount || 0;
+
+  // Filter collections based on search and status (client-side filtering)
+  const filteredCollections = useMemo(() => {
+    return collections.filter((collection) => {
+      const matchesSearch =
+        collection.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        collection.description
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        collection.creator.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || collection.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [collections, searchQuery, statusFilter]);
 
   // Pagination
-  const totalPages = Math.ceil(filteredCollections.length / itemsPerPage);
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCollections = filteredCollections.slice(startIndex, startIndex + itemsPerPage);
-  
+
   // Add reference numbers for list view
-  const paginatedCollectionsWithRef = paginatedCollections.map((collection, index) => ({
-    ...collection,
-    ref: `#${String(startIndex + index + 1).padStart(3, '0')}`
-  }));
+  const paginatedCollectionsWithRef = filteredCollections.map(
+    (collection, index) => ({
+      ...collection,
+      ref: `#${String(startIndex + index + 1).padStart(3, "0")}`,
+    }),
+  );
 
   return (
     <div className="bg-[#fcfafa] rounded-b-[20px] w-full">
@@ -168,7 +200,9 @@ export function CollectionsPage() {
             placeholder="Status"
             value={statusFilter}
             options={statusOptions}
-            onValueChange={(value) => setStatusFilter(value as CollectionStatus)}
+            onValueChange={(value) =>
+              setStatusFilter(value as CollectionStatus)
+            }
             width="w-[200px]"
           />
         </div>
@@ -189,7 +223,7 @@ export function CollectionsPage() {
         totalCount={filteredCollections.length}
         viewMode={viewMode}
         onViewModeChange={setViewMode}
-        items={paginatedCollectionsWithRef}
+        items={isLoading ? [] : paginatedCollectionsWithRef}
         onItemClick={handleCollectionClick}
         onAddItem={handleCreateCollection}
         showCertifiedBadge={false}
@@ -197,7 +231,7 @@ export function CollectionsPage() {
         addButtonDescription="Create a new collection"
         listColumns={listColumns}
         listActions={listActions}
-        addItemText="Create your first collection"
+        addItemText={isLoading ? "Loading collections..." : "Create your first collection"}
         showMoreActions={true}
       />
 
