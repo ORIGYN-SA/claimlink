@@ -12,10 +12,16 @@ interface Template {
 interface CollectionFormSectionProps {
   collectionName: string;
   onCollectionNameChange: (value: string) => void;
+  collectionSymbol: string;
+  onCollectionSymbolChange: (value: string) => void;
+  collectionDescription: string;
+  onCollectionDescriptionChange: (value: string) => void;
   selectedTemplate: string;
   onTemplateChange: (value: string) => void;
   templates: Template[];
   onSubmit: () => void;
+  isSubmitting?: boolean;
+  submitButtonText?: string;
   // Image upload props
   imagePreviewUrl: string | null;
   onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -31,10 +37,16 @@ interface CollectionFormSectionProps {
 export function CollectionFormSection({
   collectionName,
   onCollectionNameChange,
+  collectionSymbol,
+  onCollectionSymbolChange,
+  collectionDescription,
+  onCollectionDescriptionChange,
   selectedTemplate,
   onTemplateChange,
   templates,
   onSubmit,
+  isSubmitting = false,
+  submitButtonText = 'Create collection',
   imagePreviewUrl,
   onImageFileSelect,
   onImageRemove,
@@ -62,13 +74,46 @@ export function CollectionFormSection({
           {/* Collection Name Input */}
           <div className="space-y-2">
             <label className="text-[#69737c] font-medium text-sm">
-              Collection name
+              Collection name *
             </label>
             <Input
               value={collectionName}
               onChange={(e) => onCollectionNameChange(e.target.value)}
               placeholder="Enter collection name"
               className="rounded-full border-[#e1e1e1] h-11"
+              disabled={isSubmitting}
+            />
+          </div>
+
+          {/* Collection Symbol Input */}
+          <div className="space-y-2">
+            <label className="text-[#69737c] font-medium text-sm">
+              Collection symbol *
+            </label>
+            <Input
+              value={collectionSymbol}
+              onChange={(e) => onCollectionSymbolChange(e.target.value.toUpperCase())}
+              placeholder="e.g., MYCOL"
+              className="rounded-full border-[#e1e1e1] h-11"
+              maxLength={10}
+              disabled={isSubmitting}
+            />
+            <p className="text-xs text-[#69737c]">
+              Short identifier for your collection (max 10 characters)
+            </p>
+          </div>
+
+          {/* Collection Description */}
+          <div className="space-y-2">
+            <label className="text-[#69737c] font-medium text-sm">
+              Description *
+            </label>
+            <Input
+              value={collectionDescription}
+              onChange={(e) => onCollectionDescriptionChange(e.target.value)}
+              placeholder="Brief description of your collection"
+              className="rounded-full border-[#e1e1e1] h-11"
+              disabled={isSubmitting}
             />
           </div>
 
@@ -77,7 +122,7 @@ export function CollectionFormSection({
             <label className="text-[#69737c] font-medium text-sm">
               Select your template
             </label>
-            <Select value={selectedTemplate} onValueChange={onTemplateChange}>
+            <Select value={selectedTemplate} onValueChange={onTemplateChange} disabled={isSubmitting}>
               <SelectTrigger className="rounded-full border-[#e1e1e1] h-11 w-full">
                 <SelectValue placeholder="Choose a template" />
               </SelectTrigger>
@@ -93,11 +138,12 @@ export function CollectionFormSection({
 
           {/* Create Button */}
           <div className="flex justify-end pt-4">
-            <Button 
+            <Button
               onClick={onSubmit}
-              className="bg-[#222526] hover:bg-[#222526]/90 rounded-full px-6 py-3 text-white font-medium"
+              disabled={isSubmitting || !collectionName || !collectionSymbol || !collectionDescription}
+              className="bg-[#222526] hover:bg-[#222526]/90 rounded-full px-6 py-3 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Create collection
+              {isSubmitting ? submitButtonText : 'Create collection'}
             </Button>
           </div>
         </CardContent>

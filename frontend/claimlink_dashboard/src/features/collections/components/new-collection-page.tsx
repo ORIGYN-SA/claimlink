@@ -1,20 +1,65 @@
 import { useState, useRef } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import { mockTemplates } from '@/shared/data/templates';
 import { CollectionFormSection } from './collection-form-section';
 import { PricingSidebar } from './pricing-sidebar';
+import { useAuth } from '@/features/auth';
+import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
+import useApprove from '@services/ledger/hooks/useApprove';
+import { useCreateCollection } from '@services/claimlink';
 
 /**
  * SMART COMPONENT - Manages all business logic and state
  */
+const COLLECTION_CREATION_COST_OGY = 15000; // 15,000 OGY tokens required
+
 export function NewCollectionPage() {
+  const navigate = useNavigate();
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
+
   // Form state
   const [collectionName, setCollectionName] = useState('');
+  const [collectionSymbol, setCollectionSymbol] = useState('');
+  const [collectionDescription, setCollectionDescription] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState('');
-  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitButtonText, setSubmitButtonText] = useState('Create collection');
+
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Get OGY token info
+  const ogyToken = SUPPORTED_TOKENS.find((token) => token.id === 'ogy');
+  const claimlinkCanisterId = import.meta.env.VITE_CLAIMLINK_CANISTER_ID || '';
+
+  // Fetch OGY balance
+  const { balances } = useMultiTokenBalance(
+    [ogyToken!],
+    authenticatedAgent,
+    principalId || '',
+    {
+      enabled: !!principalId && !!authenticatedAgent && !!ogyToken,
+      refetchInterval: 30000,
+    }
+  );
+
+  const ogyBalance = balances.find(({ token }) => token.id === 'ogy')?.balance;
+
+  // Approval and creation hooks
+  const approveMutation = useApprove(ogyToken?.canister_id || '', authenticatedAgent);
+  const createCollectionMutation = useCreateCollection({
+    onSuccess: (canisterId) => {
+      toast.success('Collection created successfully!');
+      navigate({ to: `/collections/${canisterId}` });
+    },
+    onError: (error) => {
+      toast.error(error.message);
+      setIsSubmitting(false);
+    },
+  });
 
   // Validation constants
   const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
@@ -71,25 +116,82 @@ export function NewCollectionPage() {
     fileInputRef.current?.click();
   };
 
-  const handleSubmit = () => {
-    console.log('Creating collection:', {
-      name: collectionName,
-      template: selectedTemplate,
-      image: imageFile ? {
-        name: imageFile.name,
-        type: imageFile.type,
-        size: imageFile.size,
-      } : null,
-    });
-    // TODO: Implement actual collection creation logic
-    // This would typically upload the image and create the collection
+  const handleSubmit = async () => {
+    if (!isConnected || !authenticatedAgent || !principalId) {
+      toast.error('Please connect your wallet first');
+      return;
+    }
+
+    if (!collectionName || !collectionSymbol || !collectionDescription) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!ogyToken || !claimlinkCanisterId) {
+      toast.error('Configuration error. Please contact support.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Step 1: Check balance
+      const balance = ogyBalance?.data?.balance || 0;
+      const requiredBalance = COLLECTION_CREATION_COST_OGY;
+
+      if (balance < requiredBalance) {
+        toast.error(
+          `Insufficient OGY tokens. You need ${requiredBalance.toLocaleString()} OGY but have ${balance.toLocaleString()} OGY`
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Step 2: Approve spending
+      setSubmitButtonText('Approving OGY spending...');
+      toast.info('Requesting approval to spend OGY tokens...');
+
+      const approvalAmount = BigInt(COLLECTION_CREATION_COST_OGY) * BigInt(10 ** 8); // Convert to e8s
+      await approveMutation.mutateAsync({
+        amount: approvalAmount,
+        spender: {
+          owner: claimlinkCanisterId,
+        },
+      });
+
+      toast.success('Approval granted! Creating collection...');
+
+      // Step 3: Create collection
+      setSubmitButtonText('Creating collection...');
+      await createCollectionMutation.mutateAsync({
+        name: collectionName,
+        symbol: collectionSymbol,
+        description: collectionDescription,
+      });
+
+      // Success handling is in the onSuccess callback
+    } catch (error: any) {
+      console.error('Collection creation failed:', error);
+
+      // Handle specific error cases
+      if (error.message?.includes('approve')) {
+        toast.error('Failed to approve spending. Please try again.');
+      } else if (error.message?.includes('InsufficientAllowance')) {
+        toast.error('Approval was not sufficient. Please try again.');
+      } else {
+        toast.error(error.message || 'Failed to create collection. Please try again.');
+      }
+
+      setIsSubmitting(false);
+      setSubmitButtonText('Create collection');
+    }
   };
 
   // Pricing information
   const pricingInfo = {
     deploymentCost: {
-      amount: '1325 OGY',
-      usd: '$15',
+      amount: `${COLLECTION_CREATION_COST_OGY.toLocaleString()} OGY`,
+      usd: 'Variable',
     },
     certificateCost: {
       amount: '17 OGY + 17 OGY / 100mb',
@@ -109,10 +211,16 @@ export function NewCollectionPage() {
       <CollectionFormSection
         collectionName={collectionName}
         onCollectionNameChange={setCollectionName}
+        collectionSymbol={collectionSymbol}
+        onCollectionSymbolChange={setCollectionSymbol}
+        collectionDescription={collectionDescription}
+        onCollectionDescriptionChange={setCollectionDescription}
         selectedTemplate={selectedTemplate}
         onTemplateChange={setSelectedTemplate}
         templates={mockTemplates}
         onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        submitButtonText={submitButtonText}
         imagePreviewUrl={imagePreviewUrl}
         onImageFileSelect={handleImageFileSelect}
         onImageRemove={handleImageRemove}

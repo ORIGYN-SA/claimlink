@@ -3,13 +3,13 @@
   "canisters": {
     "claimlink_backend": {
       "type": "custom",
-      "candid": "backend/canisters/backend/canisters/claimlink/api/can.did",
+      "candid": "backend/canisters/claimlink/api/can.did",
       "package": "claimlink_backend",
-      "wasm": "backend/canisters/backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "wasm": "backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
       "declarations": {
         "bindings": ["js", "did", "ts"],
         "env_override": null,
-        "output": "backend/canisters/backend/canisters/claimlink/api/declarations"
+        "output": "backend/canisters/claimlink/api/declarations"
       }
     },
     "claimlink_frontend": {
