@@ -6,7 +6,9 @@ import { CollectionFormSection } from './collection-form-section';
 import { PricingSidebar } from './pricing-sidebar';
 import { useAuth } from '@/features/auth';
 import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
+import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
 import useApprove from '@services/ledger/hooks/useApprove';
+import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
 import { useCreateCollection } from '@services/claimlink';
 
 /**
@@ -47,6 +49,16 @@ export function NewCollectionPage() {
   );
 
   const ogyBalance = balances.find(({ token }) => token.id === 'ogy')?.balance;
+
+  // Fetch transfer fee from OGY ledger
+  const { data: transferFeeData } = useFetchTransferFee(
+    OGY_LEDGER_CANISTER_ID,
+    authenticatedAgent,
+    {
+      ledger: OGY_LEDGER_CANISTER_ID,
+      enabled: !!authenticatedAgent,
+    }
+  );
 
   // Approval and creation hooks
   const approveMutation = useApprove(ogyToken?.canister_id || '', authenticatedAgent);
@@ -151,7 +163,12 @@ export function NewCollectionPage() {
       setSubmitButtonText('Approving OGY spending...');
       toast.info('Requesting approval to spend OGY tokens...');
 
-      const approvalAmount = BigInt(COLLECTION_CREATION_COST_OGY) * BigInt(10 ** 8); // Convert to e8s
+      // Fallback to 200,000 e8s (0.002 OGY) if fee not loaded yet
+      const DEFAULT_FEE_E8S = 200_000n;
+      const transferFee = transferFeeData || DEFAULT_FEE_E8S;
+
+      // Calculate approval amount: base cost + transfer fee (backend requires allowance >= amount + fee)
+      const approvalAmount = BigInt(COLLECTION_CREATION_COST_OGY) * BigInt(10 ** 8) + transferFee;
       await approveMutation.mutateAsync({
         amount: approvalAmount,
         spender: {

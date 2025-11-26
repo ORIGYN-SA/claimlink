@@ -1,17 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
 import { DateTime } from "luxon";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
-import { ActorSubclass } from "@dfinity/agent";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import type { ActorSubclass } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
+// // @ts-expect-error: later will be fixed
 import { idlFactory } from "../idlFactory";
-import { Result_2 } from "../interfaces/ledger";
+import type { Result_2 } from "../interfaces/ledger";
 
 const icrc2_approve = async (
   actor: ActorSubclass,
   approveArgs: {
     amount: bigint;
     spender: { owner: string; subaccount?: Uint8Array<ArrayBufferLike> | [] };
-  }
+  },
 ): Promise<bigint> => {
   const { amount, spender } = approveArgs;
   const decodedAccount = decodeIcrcAccount(spender.owner);
@@ -45,7 +46,7 @@ const icrc2_approve = async (
 
 const useApprove = (
   canisterId: string,
-  agent: Agent | HttpAgent | undefined
+  agent: Agent | HttpAgent | undefined,
 ) => {
   return useMutation({
     mutationFn: async ({

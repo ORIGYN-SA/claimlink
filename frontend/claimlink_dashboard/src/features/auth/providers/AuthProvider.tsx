@@ -20,9 +20,11 @@ import type { Agent } from "@dfinity/agent";
 import authStateAtom from "../stores/atoms";
 import {
     IC_HOST,
+    APP_MODE,
     getNfidTargets,
     getDerivationOrigin,
 } from "@/shared/constants";
+import { isLocalICReplica } from "@/shared/utils/environment";
 
 // Internal component to handle auth state initialization
 const AuthProviderInit = ({ children }: { children: ReactNode }) => {
@@ -37,8 +39,32 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
 
     // Create unauthenticated agent for public queries
     useEffect(() => {
-        HttpAgent.create({ host: IC_HOST }).then(setUnauthenticatedAgent);
+        const initUnauthenticatedAgent = async () => {
+            const agent = await HttpAgent.create({ host: IC_HOST });
+
+            // Fetch root key for local development
+            if (isLocalICReplica(IC_HOST, APP_MODE)) {
+                await agent.fetchRootKey();
+                console.log('[AuthProvider] Fetched root key for local IC replica (unauthenticated agent)');
+            }
+
+            setUnauthenticatedAgent(agent);
+        };
+
+        initUnauthenticatedAgent();
     }, []);
+
+    // Fetch root key for authenticated agent in local development
+    useEffect(() => {
+        const initAuthenticatedAgent = async () => {
+            if (authenticatedAgent && isLocalICReplica(IC_HOST, APP_MODE)) {
+                await authenticatedAgent.fetchRootKey();
+                console.log('[AuthProvider] Fetched root key for local IC replica (authenticated agent)');
+            }
+        };
+
+        initAuthenticatedAgent();
+    }, [authenticatedAgent]);
 
     // Update agents in state
     useEffect(() => {

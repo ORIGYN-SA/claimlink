@@ -14,7 +14,9 @@ export const IC_HOST = import.meta.env.VITE_IC_HOST || "https://ic0.app";
 // Token Ledger Canister IDs
 export const ICP_LEDGER_CANISTER_ID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 export const GLDT_LEDGER_CANISTER_ID = "6c7su-kiaaa-aaaar-qaira-cai";
-export const OGY_LEDGER_CANISTER_ID = "lkwrt-vyaaa-aaaaq-aadhq-cai";
+// OGY Ledger: Use local canister in development, mainnet in production
+export const OGY_LEDGER_CANISTER_ID =
+  LEDGER_CANISTER_ID || "lkwrt-vyaaa-aaaaq-aadhq-cai";
 export const CKUSDT_LEDGER_CANISTER_ID = "xevnm-gaaaa-aaaar-qafnq-cai";
 
 // Token Ledger Index Canister IDs (for transaction history)
