@@ -9,13 +9,15 @@ import { BulkImportDialog } from "@/components/common";
 interface CollectionSectionProps {
   onTemplateChange?: (template: Template | null) => void;
   onCollectionChange?: (collectionId: string) => void;
+  initialCollectionId?: string;
 }
 
-export function CollectionSection({ 
+export function CollectionSection({
   onTemplateChange,
-  onCollectionChange 
+  onCollectionChange,
+  initialCollectionId
 }: CollectionSectionProps) {
-  const [selectedCollection, setSelectedCollection] = useState<string>("");
+  const [selectedCollection, setSelectedCollection] = useState<string>(initialCollectionId || "");
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [bulkOpen, setBulkOpen] = useState(false);
 

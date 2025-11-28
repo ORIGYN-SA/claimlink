@@ -156,11 +156,12 @@ export const artCertificateTemplate: Template = {
         items: [
           {
             id: "item_gallery_name",
-            type: "title",
+            type: "input",
             label: "Gallery/Artist Name",
             order: 1,
             required: true,
-            style: "h2"
+            inputType: "text",
+            placeholder: "Enter gallery or artist name"
           },
           {
             id: "item_artwork_title",

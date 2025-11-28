@@ -38,6 +38,7 @@ export interface CreateCollectionArgs {
   name: string;
   description: string;
   symbol: string;
+  logo?: string;
 }
 export type CreateCollectionError =
   | { InsufficientCycles: null }

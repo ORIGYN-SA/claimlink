@@ -24,6 +24,7 @@ type CollectionsResult = record {
   total_count : nat64;
 };
 type CreateCollectionArgs = record {
+  logo : opt text;
   name : text;
   description : text;
   symbol : text;

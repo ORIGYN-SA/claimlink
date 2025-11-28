@@ -1,34 +1,36 @@
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { Pagination, StandardizedGridListContainer, type ViewMode, type ListColumn, type ListAction, TokenStatusBadge } from "@/components/common";
+import {
+  Pagination,
+  StandardizedGridListContainer,
+  type ViewMode,
+  type ListColumn,
+  type ListAction,
+  TokenStatusBadge,
+} from "@/components/common";
 import { CertificatesActions } from "./certificates-actions";
-import { mockCertificates } from "@/shared/data/certificates";
 import type { Certificate } from "../../certificates/types/certificate.types";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { useAllUserNfts } from "@services/claimlink";
 
 export function MintCertificatePage() {
   const navigate = useNavigate();
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleCertificateClick = (certificate: Certificate) => {
-    console.log('Certificate clicked:', certificate);
+    console.log("Certificate clicked:", certificate);
     // Navigate to certificate detail page
     navigate({ to: `/mint_certificate/${certificate.id}` });
   };
 
-  const handleAddCertificate = () => {
-    console.log('Add certificate clicked');
-    // Navigate to create certificate page
-    navigate({ to: '/mint_certificate/new' });
-  };
-
   const handleMintCertificate = () => {
-    navigate({ to: '/mint_certificate/new' });
+    console.log("Mint certificate clicked");
+    navigate({ to: "/mint_certificate/new" });
   };
 
   const handleSearchChange = (query: string) => {
@@ -57,46 +59,50 @@ export function MintCertificatePage() {
   // Define columns for list view
   const listColumns: ListColumn[] = [
     {
-      key: 'title',
-      label: 'Certificate',
-      width: 'w-[45%]',
+      key: "title",
+      label: "Certificate",
+      width: "w-[45%]",
       render: (certificate: Certificate) => {
         if (!certificate) return null;
 
         return (
           <div className="flex items-center gap-3">
             <img
-              src={certificate.imageUrl || '/placeholder-image.jpg'}
-              alt={certificate.title || 'Certificate'}
+              src={certificate.imageUrl || "/placeholder-image.jpg"}
+              alt={certificate.title || "Certificate"}
               className="w-12 h-12 rounded-lg object-cover"
             />
             <div>
-              <div className="font-medium text-[#222526] text-sm">{certificate.title || 'Untitled Certificate'}</div>
-              <div className="text-xs text-[#69737c]">{certificate.collectionName || 'Unknown Collection'}</div>
+              <div className="font-medium text-[#222526] text-sm">
+                {certificate.title || "Untitled Certificate"}
+              </div>
+              <div className="text-xs text-[#69737c]">
+                {certificate.collectionName || "Unknown Collection"}
+              </div>
             </div>
           </div>
         );
       },
     },
     {
-      key: 'status',
-      label: 'Status',
-      width: 'w-[25%]',
+      key: "status",
+      label: "Status",
+      width: "w-[25%]",
       render: (certificate: Certificate) => {
         if (!certificate) return null;
-        return (
-          <TokenStatusBadge status={certificate.status} />
-        );
+        return <TokenStatusBadge status={certificate.status} />;
       },
     },
     {
-      key: 'date',
-      label: 'Created',
-      width: 'w-[15%]',
+      key: "date",
+      label: "Created",
+      width: "w-[15%]",
       render: (certificate: Certificate) => {
         if (!certificate) return null;
         return (
-          <div className="text-sm text-[#69737c]">{certificate.date || 'Unknown'}</div>
+          <div className="text-sm text-[#69737c]">
+            {certificate.date || "Unknown"}
+          </div>
         );
       },
     },
@@ -105,41 +111,71 @@ export function MintCertificatePage() {
   // Define actions for list view dropdown menu
   const listActions: ListAction[] = [
     {
-      label: 'View Details',
+      label: "View Details",
       icon: Eye,
       onClick: (certificate: Certificate) => {
         handleCertificateClick(certificate);
       },
     },
     {
-      label: 'Create from Template',
+      label: "Create from Template",
       icon: Edit,
       onClick: () => {
         handleMintCertificate();
       },
     },
     {
-      label: 'Delete',
+      label: "Delete",
       icon: Trash2,
       onClick: (certificate: Certificate) => {
         toast.info(`Delete certificate: ${certificate.title}`);
       },
-      variant: 'destructive',
+      variant: "destructive",
     },
   ];
 
+  // Fetch all user's NFTs
+  const { data: allNfts = [], isLoading, isError } = useAllUserNfts();
+
   // Filter certificates based on search and status
-  const filteredCertificates = mockCertificates.filter(cert => {
-    const matchesSearch = cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         cert.collectionName.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || cert.status === statusFilter;
+  const filteredCertificates = allNfts.filter((cert) => {
+    const matchesSearch =
+      cert.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cert.collectionName.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus =
+      statusFilter === "all" || cert.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
 
   // Pagination
   const totalPages = Math.ceil(filteredCertificates.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedCertificates = filteredCertificates.slice(startIndex, startIndex + itemsPerPage);
+  const paginatedCertificates = filteredCertificates.slice(
+    startIndex,
+    startIndex + itemsPerPage,
+  );
+
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-none">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading certificates...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state
+  if (isError) {
+    return (
+      <div className="space-y-6 max-w-none">
+        <div className="text-center py-12">
+          <p className="text-destructive">Failed to load certificates</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-none">
@@ -158,7 +194,7 @@ export function MintCertificatePage() {
         showViewToggle={true}
         items={paginatedCertificates}
         onItemClick={handleCertificateClick}
-        onAddItem={handleAddCertificate}
+        onAddItem={handleMintCertificate}
         showCertifiedBadge={true}
         addButtonText="Create a certificate"
         addButtonDescription="Create a campaign to distribute your NFTs via claim links"

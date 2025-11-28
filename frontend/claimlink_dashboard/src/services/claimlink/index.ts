@@ -3,6 +3,7 @@ export { useListMyCollections, collectionKeys } from './hooks/useListMyCollectio
 export { useListAllCollections } from './hooks/useListAllCollections';
 export { useFetchCollectionInfo } from './hooks/useFetchCollectionInfo';
 export { useCreateCollection } from './hooks/useCreateCollection';
+export { useAllUserNfts } from './hooks/useAllUserNfts';
 
 // Export service
 export { CollectionService } from './api/collection.service';

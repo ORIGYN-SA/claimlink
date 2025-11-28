@@ -1,0 +1,62 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/features/auth';
+import { OrigynNftService } from '../api/origyn-nft.service';
+import type { ICRC3Value } from '../interfaces';
+
+interface MintNftArgs {
+  collectionCanisterId: string;
+  name: string;
+  description: string;
+  imageUrl?: string;
+  attributes?: Record<string, string>;
+}
+
+interface UseMintNftOptions {
+  onSuccess?: (tokenId: bigint) => void;
+  onError?: (error: Error) => void;
+}
+
+export const useMintNft = (options?: UseMintNftOptions) => {
+  const { authenticatedAgent, principalId } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (args: MintNftArgs) => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error('Not authenticated');
+      }
+
+      // Build metadata (from reference MintingForm.js:345-361)
+      const metadata: Array<[string, ICRC3Value]> = [
+        ['name', { Text: args.name }],
+        ['description', { Text: args.description }],
+        ['minted_at', { Text: new Date().toISOString() }],
+      ];
+
+      if (args.imageUrl) {
+        metadata.push(['image', { Text: args.imageUrl }]);
+      }
+
+      if (args.attributes) {
+        Object.entries(args.attributes).forEach(([key, value]) => {
+          metadata.push([key, { Text: value }]);
+        });
+      }
+
+      const tokenId = await OrigynNftService.mint(
+        authenticatedAgent,
+        args.collectionCanisterId,
+        { owner: principalId, subaccount: [] },
+        metadata
+      );
+
+      return tokenId;
+    },
+    onSuccess: (tokenId) => {
+      queryClient.invalidateQueries({ queryKey: ['nfts'] });
+      queryClient.invalidateQueries({ queryKey: ['collections'] });
+      options?.onSuccess?.(tokenId);
+    },
+    onError: options?.onError,
+  });
+};

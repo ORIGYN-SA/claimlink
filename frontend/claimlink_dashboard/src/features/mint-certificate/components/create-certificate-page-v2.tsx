@@ -1,45 +1,81 @@
 /**
  * CreateCertificatePageV2 Component
- * 
+ *
  * Uses dynamic template form to generate certificate creation form
  * Based on selected template structure
  */
 
-import { useState } from 'react';
+import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
 import { PricingSidebar } from "./pricing-sidebar";
 import { DynamicTemplateForm } from "./dynamic-template-form";
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import type { Template } from '@/shared/data/templates';
-import type { CertificateFormData } from '@/features/templates/types/template-structure.types';
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import type { Template } from "@/shared/data/templates";
+import type { CertificateFormData } from "@/features/templates/types/template-structure.types";
 import {
   validateFormData,
   getTemplateProgress,
   isFormComplete,
-} from '@/features/templates/utils/template-utils';
+  getInitialFormData,
+} from "@/features/templates/utils/template-utils";
+import { useMintNft, useUploadImage } from "@services/origyn_nft";
 
 interface CreateCertificatePageV2Props {
   onSubmit?: (data: CertificateFormData) => void;
+  initialCollectionId?: string;
 }
 
 export function CreateCertificatePageV2({
   onSubmit,
+  initialCollectionId,
 }: CreateCertificatePageV2Props) {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const navigate = useNavigate();
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null,
+  );
+  const [selectedCollection, setSelectedCollection] = useState<string>(
+    initialCollectionId || "",
+  );
   const [formData, setFormData] = useState<CertificateFormData>({});
-  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [validationErrors, setValidationErrors] = useState<{
+    [key: string]: string;
+  }>({});
+
+  const {
+    uploadImage,
+    isUploading,
+    progress: uploadProgress,
+  } = useUploadImage();
+  const mintMutation = useMintNft({
+    onSuccess: (tokenId) => {
+      toast.success(`NFT minted successfully! Token ID: ${tokenId}`);
+      navigate({
+        to: "/collections/$collectionId",
+        params: { collectionId: selectedCollection },
+      });
+    },
+    onError: (error) => {
+      toast.error(`Minting failed: ${error.message}`);
+    },
+  });
 
   const handleTemplateChange = (template: Template | null) => {
     setSelectedTemplate(template);
-    // Reset form data when template changes
-    setFormData({});
+    // Initialize form data with template defaults when template changes
+    setFormData(template ? getInitialFormData(template) : {});
     setValidationErrors({});
   };
 
   // Calculate form progress (only if template is selected)
-  const progress = selectedTemplate ? getTemplateProgress(selectedTemplate, formData) : 0;
-  const isComplete = selectedTemplate ? isFormComplete(selectedTemplate, formData) : false;
+  const progress = selectedTemplate
+    ? getTemplateProgress(selectedTemplate, formData)
+    : 0;
+  const isComplete = selectedTemplate
+    ? isFormComplete(selectedTemplate, formData)
+    : false;
 
   const handleFormDataChange = (data: CertificateFormData) => {
     setFormData(data);
@@ -47,30 +83,85 @@ export function CreateCertificatePageV2({
     setValidationErrors({});
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!selectedTemplate) {
-      console.error('No template selected');
+      toast.error("No template selected");
       return;
     }
-    
+
+    if (!selectedCollection) {
+      toast.error("No collection selected");
+      return;
+    }
+
     // Validate form
     const validation = validateFormData(selectedTemplate, formData);
 
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
-      console.error('Validation errors:', validation.errors);
-      // TODO: Show toast notification
+      toast.error("Please fix validation errors");
       return;
     }
 
-    // Submit form
-    console.log('Submitting certificate form:', formData);
-    onSubmit?.(formData);
+    try {
+      // Extract NFT data from form
+      const nftName = formData.name?.toString() || selectedTemplate.name;
+      const nftDescription =
+        formData.description?.toString() || selectedTemplate.description;
+
+      // Extract image if present
+      let imageUrl: string | undefined;
+      const imageField = formData.image || formData.thumbnail || formData.photo;
+
+      if (
+        imageField &&
+        typeof imageField === "object" &&
+        "file" in imageField
+      ) {
+        toast.info("Uploading image...");
+        const file = (imageField as { file: File }).file;
+        imageUrl = await uploadImage(file, selectedCollection);
+        toast.success("Image uploaded!");
+      }
+
+      // Convert form data to attributes
+      const attributes: Record<string, string> = {};
+      Object.entries(formData).forEach(([key, value]) => {
+        // Skip special fields and complex objects
+        if (
+          key !== "name" &&
+          key !== "description" &&
+          key !== "image" &&
+          key !== "thumbnail" &&
+          key !== "photo"
+        ) {
+          if (typeof value === "string" || typeof value === "number") {
+            attributes[key] = value.toString();
+          }
+        }
+      });
+
+      // Mint NFT
+      toast.info("Minting NFT...");
+      await mintMutation.mutateAsync({
+        collectionCanisterId: selectedCollection,
+        name: nftName,
+        description: nftDescription,
+        imageUrl,
+        attributes,
+      });
+
+      // Call optional callback
+      onSubmit?.(formData);
+    } catch (error: unknown) {
+      console.error("Minting error:", error);
+      // Error toast is handled by mutation onError
+    }
   };
 
   const handleSaveDraft = () => {
     // Save as draft without validation
-    console.log('Saving draft:', formData);
+    console.log("Saving draft:", formData);
     // TODO: Implement draft saving
   };
 
@@ -111,7 +202,11 @@ export function CreateCertificatePageV2({
             )}
 
             {/* Collection Section */}
-            <CollectionSection onTemplateChange={handleTemplateChange} />
+            <CollectionSection
+              onTemplateChange={handleTemplateChange}
+              onCollectionChange={setSelectedCollection}
+              initialCollectionId={initialCollectionId}
+            />
 
             {/* Dynamic Template Form - Only show if template selected */}
             {selectedTemplate ? (
@@ -123,8 +218,12 @@ export function CreateCertificatePageV2({
             ) : (
               <Card className="p-12 text-center">
                 <div className="text-[#69737c]">
-                  <p className="text-lg font-medium mb-2">Please select a template</p>
-                  <p className="text-sm">Choose a template from the dropdown above to get started</p>
+                  <p className="text-lg font-medium mb-2">
+                    Please select a template
+                  </p>
+                  <p className="text-sm">
+                    Choose a template from the dropdown above to get started
+                  </p>
                 </div>
               </Card>
             )}
@@ -145,6 +244,26 @@ export function CreateCertificatePageV2({
               </Card>
             )}
 
+            {/* Upload Progress - Show if uploading */}
+            {isUploading && (
+              <Card className="p-6">
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-[#69737c]">Uploading image...</span>
+                    <span className="font-medium text-[#222526]">
+                      {Math.round(uploadProgress)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-[#e1e1e1] rounded-full h-2">
+                    <div
+                      className="bg-[#615bff] h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+                </div>
+              </Card>
+            )}
+
             {/* Action Buttons - Only show if template selected */}
             {selectedTemplate && (
               <Card className="p-6">
@@ -152,14 +271,25 @@ export function CreateCertificatePageV2({
                   <Button
                     variant="outline"
                     onClick={handleSaveDraft}
+                    disabled={mintMutation.isPending || isUploading}
                   >
                     Save as Draft
                   </Button>
                   <Button
                     onClick={handleSubmit}
-                    disabled={!isComplete}
+                    disabled={
+                      mintMutation.isPending ||
+                      isUploading ||
+                      !selectedCollection
+                    }
                   >
-                    {isComplete ? 'Mint Certificate' : `Complete Form (${progress}%)`}
+                    {mintMutation.isPending
+                      ? "Minting..."
+                      : isUploading
+                        ? "Uploading..."
+                        : isComplete
+                          ? "Mint Certificate"
+                          : `Complete Form (${progress}%)`}
                   </Button>
                 </div>
               </Card>
@@ -175,4 +305,3 @@ export function CreateCertificatePageV2({
     </div>
   );
 }
-

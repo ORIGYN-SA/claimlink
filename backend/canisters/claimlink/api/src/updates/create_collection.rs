@@ -9,6 +9,7 @@ pub struct CreateCollectionArgs {
     pub name: String,
     pub symbol: String,
     pub description: String,
+    pub logo: Option<String>,
 }
 
 #[derive(candid::CandidType, serde::Deserialize, serde::Serialize, Debug)]

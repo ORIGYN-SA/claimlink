@@ -16,6 +16,16 @@ import { useCreateCollection } from '@services/claimlink';
  */
 const COLLECTION_CREATION_COST_OGY = 15000; // 15,000 OGY tokens required
 
+// Utility to convert File to data URL
+const fileToDataUrl = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 export function NewCollectionPage() {
   const navigate = useNavigate();
   const { authenticatedAgent, principalId, isConnected } = useAuth();
@@ -75,7 +85,7 @@ export function NewCollectionPage() {
 
   // Validation constants
   const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
-  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
   const handleImageFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -89,7 +99,7 @@ export function NewCollectionPage() {
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      alert('File size must be less than 5MB');
+      toast.error('Image must be less than 2MB');
       return;
     }
 
@@ -178,12 +188,29 @@ export function NewCollectionPage() {
 
       toast.success('Approval granted! Creating collection...');
 
-      // Step 3: Create collection
+      // Step 3: Convert image to data URL if provided
+      let logoDataUrl: string | undefined = undefined;
+      if (imageFile) {
+        setSubmitButtonText('Processing image...');
+        try {
+          logoDataUrl = await fileToDataUrl(imageFile);
+          console.log('Image converted to data URL, size:', logoDataUrl.length);
+        } catch (error) {
+          console.error('Failed to convert image:', error);
+          toast.error('Failed to process image. Please try again.');
+          setIsSubmitting(false);
+          setSubmitButtonText('Create collection');
+          return;
+        }
+      }
+
+      // Step 4: Create collection
       setSubmitButtonText('Creating collection...');
       await createCollectionMutation.mutateAsync({
         name: collectionName,
         symbol: collectionSymbol,
         description: collectionDescription,
+        logo: logoDataUrl,
       });
 
       // Success handling is in the onSuccess callback
