@@ -1,11 +1,15 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { SortingState } from "@tanstack/react-table";
+import type { SortingState } from "@tanstack/react-table";
 
-import { fetchAllTransactions, Transactions, Transaction } from "../index";
+import {
+  fetchAllTransactions,
+  type Transactions,
+  type Transaction,
+} from "../index";
 import { getDateUTC } from "@shared/utils/dates";
 import { divideBy1e8, numberToLocaleString } from "@shared/utils/numbers";
 
@@ -17,7 +21,7 @@ const useFetchAllTransactions = (
     limit?: number;
     offset?: number;
     sorting?: SortingState;
-  } = {}
+  } = {},
 ) => {
   const {
     enabled = true,

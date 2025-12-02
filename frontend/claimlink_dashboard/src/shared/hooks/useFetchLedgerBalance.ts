@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 import { KONGSWAP_CANISTER_ID_IC } from "../constants";
-// @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryLedger } from "@/services/ledger/idlFactory";
 // @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryKongswap } from "@/services/kongswap/idlFactory";

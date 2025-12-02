@@ -109,7 +109,7 @@ function extractTextMetadata(
  * @internal Currently unused but kept for future metadata extraction needs
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-function extractNatMetadata(
+export function extractNatMetadata(
   metadata: Map<string, any>,
   key: string
 ): bigint | null {

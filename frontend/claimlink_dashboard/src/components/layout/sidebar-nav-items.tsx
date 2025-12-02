@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutGrid, Layers, Timer, ImagePlus, UserPlus, ScrollText, BookCopy } from "lucide-react";
+import { LayoutGrid, Layers, Timer, UserPlus, ScrollText, BookCopy } from "lucide-react";
 
 const navItems: {
   title: string;

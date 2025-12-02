@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Token } from "@shared/utils/tokens";
+import type { Token } from "@shared/utils/tokens";
 
 type UseSelectTokenReturn = [Token, (token: Token) => void];
 

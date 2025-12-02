@@ -1,12 +1,12 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 
 import { idlFactory } from "../idlFactory";
-import { ActivitySnapshot } from "../interfaces";
+import { type ActivitySnapshot } from "../interfaces";
 
 import get_activity_stats from "../get_activity_stats";
 
@@ -15,7 +15,7 @@ const useFetchHolders = (
   agent: Agent | HttpAgent | undefined,
   options: Omit<UseQueryOptions<ActivitySnapshot[]>, "queryKey" | "queryFn"> & {
     timestamp?: number;
-  } = {}
+  } = {},
 ) => {
   const {
     enabled = true,

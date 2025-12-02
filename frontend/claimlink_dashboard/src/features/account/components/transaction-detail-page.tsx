@@ -1,7 +1,6 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Copy } from 'lucide-react';
-import { useNavigate } from '@tanstack/react-router';
+import { Copy } from 'lucide-react';
 import type { Transaction } from '@/services/ledger-index/utils/interfaces';
 
 interface TransactionDetailPageProps {
@@ -15,17 +14,10 @@ interface TransactionDetailPageProps {
 
 export function TransactionDetailPage({
   transaction,
-  accountId,
-  balance,
   currency = 'OGY',
   onCopyTransactionId,
   onCopyAccountId,
 }: TransactionDetailPageProps) {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    navigate({ to: '/account/transaction-history' });
-  };
 
   const handleCopyTransactionId = () => {
     onCopyTransactionId?.(transaction.index.toString());

@@ -14,6 +14,9 @@ export const IC_HOST = import.meta.env.VITE_IC_HOST || "https://ic0.app";
 // Token Ledger Canister IDs
 export const ICP_LEDGER_CANISTER_ID = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 export const GLDT_LEDGER_CANISTER_ID = "6c7su-kiaaa-aaaar-qaira-cai";
+// Legacy alias for GLDT (Gold DAO)
+export const GOLDAO_LEDGER_CANISTER_ID = GLDT_LEDGER_CANISTER_ID;
+export const GOLDAO_LEDGER_CANISTER_ID_IC = GLDT_LEDGER_CANISTER_ID;
 // OGY Ledger: Use local canister in development, mainnet in production
 export const OGY_LEDGER_CANISTER_ID =
   LEDGER_CANISTER_ID || "lkwrt-vyaaa-aaaaq-aadhq-cai";

@@ -1,120 +1,122 @@
-import type { TemplateStructure } from '@/features/templates/types/template-structure.types';
+import type { TemplateStructure } from "@/features/templates/types/template-structure.types";
 
 // Template data type - unified for all use cases
 export interface Template {
-  id: string
-  name: string
-  description: string
-  category: 'manual' | 'ai' | 'existing' | 'preset'
-  certificateCount?: number
-  createdAt?: Date
-  updatedAt?: Date
-  thumbnail?: string
-  metadata?: Record<string, any>
+  id: string;
+  name: string;
+  description: string;
+  category: "manual" | "ai" | "existing" | "preset";
+  certificateCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  thumbnail?: string;
+  metadata?: Record<string, any>;
   // Template structure with sections and items
-  structure?: TemplateStructure
+  structure?: TemplateStructure;
 }
 
 // Mock templates data - shared across the application
 // NOTE: These templates will be replaced with the structured templates below
 // Keeping for backwards compatibility during migration
-const mockTemplatesLegacy: Template[] = [
-  {
-    id: "1",
-    name: "Classic Certificate Template",
-    description: "Traditional certificate design with elegant typography",
-    category: "existing",
-    certificateCount: 12,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-02-20'),
-    thumbnail: "/template.svg",
-    metadata: { style: "classic", premium: false }
-  },
-  {
-    id: "2",
-    name: "Modern Minimalist Template",
-    description: "Clean and modern certificate design",
-    category: "existing",
-    certificateCount: 8,
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date('2024-02-15'),
-    thumbnail: "/template.svg",
-    metadata: { style: "modern", premium: false }
-  },
-  {
-    id: "3",
-    name: "Artistic Frame Template",
-    description: "Certificate with artistic decorative elements",
-    category: "existing",
-    certificateCount: 15,
-    createdAt: new Date('2024-01-25'),
-    updatedAt: new Date('2024-02-25'),
-    thumbnail: "/template.svg",
-    metadata: { style: "artistic", premium: true, price: 9.99 }
-  },
-  {
-    id: "4",
-    name: "Corporate Professional Template",
-    description: "Professional certificate for corporate use",
-    category: "existing",
-    certificateCount: 22,
-    createdAt: new Date('2024-02-01'),
-    updatedAt: new Date('2024-02-28'),
-    thumbnail: "/template.svg",
-    metadata: { style: "corporate", premium: false }
-  },
-  {
-    id: "5",
-    name: "Vintage Style Template",
-    description: "Classic vintage certificate design",
-    category: "existing",
-    certificateCount: 6,
-    createdAt: new Date('2024-02-05'),
-    updatedAt: new Date('2024-02-22'),
-    thumbnail: "/template.svg",
-    metadata: { style: "vintage", premium: true, price: 14.99 }
-  },
-  {
-    id: "6",
-    name: "Digital Tech Template",
-    description: "Modern tech-inspired certificate design",
-    category: "existing",
-    certificateCount: 9,
-    createdAt: new Date('2024-02-10'),
-    updatedAt: new Date('2024-02-26'),
-    thumbnail: "/template.svg",
-    metadata: { style: "tech", premium: false }
-  },
-  {
-    id: "7",
-    name: "Award Certificate Template",
-    description: "Special award certificate design",
-    category: "existing",
-    certificateCount: 18,
-    createdAt: new Date('2024-02-12'),
-    updatedAt: new Date('2024-02-27'),
-    thumbnail: "/template.svg",
-    metadata: { style: "award", premium: true, price: 19.99 }
-  },
-  {
-    id: "8",
-    name: "Educational Standard Template",
-    description: "Standard educational certificate",
-    category: "existing",
-    certificateCount: 11,
-    createdAt: new Date('2024-02-14'),
-    updatedAt: new Date('2024-02-29'),
-    thumbnail: "/template.svg",
-    metadata: { style: "education", premium: false }
-  },
-];
+// const mockTemplatesLegacy: Template[] = [
+//   {
+//     id: "1",
+//     name: "Classic Certificate Template",
+//     description: "Traditional certificate design with elegant typography",
+//     category: "existing",
+//     certificateCount: 12,
+//     createdAt: new Date('2024-01-15'),
+//     updatedAt: new Date('2024-02-20'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "classic", premium: false }
+//   },
+//   {
+//     id: "2",
+//     name: "Modern Minimalist Template",
+//     description: "Clean and modern certificate design",
+//     category: "existing",
+//     certificateCount: 8,
+//     createdAt: new Date('2024-01-20'),
+//     updatedAt: new Date('2024-02-15'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "modern", premium: false }
+//   },
+//   {
+//     id: "3",
+//     name: "Artistic Frame Template",
+//     description: "Certificate with artistic decorative elements",
+//     category: "existing",
+//     certificateCount: 15,
+//     createdAt: new Date('2024-01-25'),
+//     updatedAt: new Date('2024-02-25'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "artistic", premium: true, price: 9.99 }
+//   },
+//   {
+//     id: "4",
+//     name: "Corporate Professional Template",
+//     description: "Professional certificate for corporate use",
+//     category: "existing",
+//     certificateCount: 22,
+//     createdAt: new Date('2024-02-01'),
+//     updatedAt: new Date('2024-02-28'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "corporate", premium: false }
+//   },
+//   {
+//     id: "5",
+//     name: "Vintage Style Template",
+//     description: "Classic vintage certificate design",
+//     category: "existing",
+//     certificateCount: 6,
+//     createdAt: new Date('2024-02-05'),
+//     updatedAt: new Date('2024-02-22'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "vintage", premium: true, price: 14.99 }
+//   },
+//   {
+//     id: "6",
+//     name: "Digital Tech Template",
+//     description: "Modern tech-inspired certificate design",
+//     category: "existing",
+//     certificateCount: 9,
+//     createdAt: new Date('2024-02-10'),
+//     updatedAt: new Date('2024-02-26'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "tech", premium: false }
+//   },
+//   {
+//     id: "7",
+//     name: "Award Certificate Template",
+//     description: "Special award certificate design",
+//     category: "existing",
+//     certificateCount: 18,
+//     createdAt: new Date('2024-02-12'),
+//     updatedAt: new Date('2024-02-27'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "award", premium: true, price: 19.99 }
+//   },
+//   {
+//     id: "8",
+//     name: "Educational Standard Template",
+//     description: "Standard educational certificate",
+//     category: "existing",
+//     certificateCount: 11,
+//     createdAt: new Date('2024-02-14'),
+//     updatedAt: new Date('2024-02-29'),
+//     thumbnail: "/template.svg",
+//     metadata: { style: "education", premium: false }
+//   },
+// ];
 
 // Helper functions for working with templates
 export const getTemplateById = (id: string): Template | undefined => {
   return mockTemplates.find((template) => template.id === id);
 };
 
-export const getTemplatesByCategory = (category: 'manual' | 'ai' | 'existing'): Template[] => {
+export const getTemplatesByCategory = (
+  category: "manual" | "ai" | "existing",
+): Template[] => {
   return mockTemplates.filter((template) => template.category === category);
 };
 
@@ -139,13 +141,13 @@ export const artCertificateTemplate: Template = {
   description: "Certificate template for artwork authentication and provenance",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-art.svg",
-  metadata: { 
-    style: "artistic", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-art.svg",
+  metadata: {
+    style: "artistic",
     premium: false,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -161,7 +163,7 @@ export const artCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "Enter gallery or artist name"
+            placeholder: "Enter gallery or artist name",
           },
           {
             id: "item_artwork_title",
@@ -170,7 +172,7 @@ export const artCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "Enter artwork title"
+            placeholder: "Enter artwork title",
           },
           {
             id: "item_description",
@@ -181,7 +183,7 @@ export const artCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "Brief description of the artwork"
+            placeholder: "Brief description of the artwork",
           },
           {
             id: "item_certified_by",
@@ -192,9 +194,9 @@ export const artCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "info",
             defaultValue: "ORIGYN - Art Authentication",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -208,7 +210,7 @@ export const artCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "Full name of the artist"
+            placeholder: "Full name of the artist",
           },
           {
             id: "item_creation_year",
@@ -217,7 +219,7 @@ export const artCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "number",
-            placeholder: "YYYY"
+            placeholder: "YYYY",
           },
           {
             id: "item_medium",
@@ -226,7 +228,7 @@ export const artCertificateTemplate: Template = {
             order: 3,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Oil on canvas, Digital art, Sculpture"
+            placeholder: "e.g., Oil on canvas, Digital art, Sculpture",
           },
           {
             id: "item_dimensions",
@@ -235,7 +237,7 @@ export const artCertificateTemplate: Template = {
             order: 4,
             required: false,
             inputType: "text",
-            placeholder: "e.g., 100 x 150 cm"
+            placeholder: "e.g., 100 x 150 cm",
           },
           {
             id: "item_artwork_images",
@@ -246,9 +248,9 @@ export const artCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 8
-          }
-        ]
+            maxImages: 8,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -264,7 +266,7 @@ export const artCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "History of ownership and exhibition"
+            placeholder: "History of ownership and exhibition",
           },
           {
             id: "item_condition",
@@ -274,9 +276,15 @@ export const artCertificateTemplate: Template = {
             required: false,
             badgeStyle: "default",
             allowCustomValue: true,
-            predefinedValues: ["Excellent", "Very Good", "Good", "Fair", "Poor"]
-          }
-        ]
+            predefinedValues: [
+              "Excellent",
+              "Very Good",
+              "Good",
+              "Fair",
+              "Poor",
+            ],
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -292,7 +300,7 @@ export const artCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Brief biography of the artist"
+            placeholder: "Brief biography of the artist",
           },
           {
             id: "item_exhibitions",
@@ -303,16 +311,14 @@ export const artCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "List of notable exhibitions"
-          }
-        ]
-      }
+            placeholder: "List of notable exhibitions",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_artwork_title"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_artwork_title",
+  },
 };
 
 /**
@@ -324,14 +330,14 @@ export const diamondCertificateTemplate: Template = {
   description: "Certificate template for diamond grading and authentication",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-diamond.svg",
-  metadata: { 
-    style: "luxury", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-diamond.svg",
+  metadata: {
+    style: "luxury",
     premium: true,
     price: 24.99,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -346,7 +352,7 @@ export const diamondCertificateTemplate: Template = {
             label: "Jeweler/Dealer Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -355,7 +361,7 @@ export const diamondCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Diamond Grading Certificate"
+            placeholder: "e.g., Diamond Grading Certificate",
           },
           {
             id: "item_verified_badge",
@@ -366,9 +372,9 @@ export const diamondCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "success",
             defaultValue: "ORIGYN - Diamond Certification",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -382,7 +388,7 @@ export const diamondCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "number",
-            placeholder: "e.g., 1.50"
+            placeholder: "e.g., 1.50",
           },
           {
             id: "item_cut_grade",
@@ -391,7 +397,13 @@ export const diamondCertificateTemplate: Template = {
             order: 2,
             required: true,
             allowCustomValue: false,
-            predefinedValues: ["Excellent", "Very Good", "Good", "Fair", "Poor"]
+            predefinedValues: [
+              "Excellent",
+              "Very Good",
+              "Good",
+              "Fair",
+              "Poor",
+            ],
           },
           {
             id: "item_color_grade",
@@ -400,7 +412,18 @@ export const diamondCertificateTemplate: Template = {
             order: 3,
             required: true,
             allowCustomValue: false,
-            predefinedValues: ["D", "E", "F", "G", "H", "I", "J", "K", "L", "M"]
+            predefinedValues: [
+              "D",
+              "E",
+              "F",
+              "G",
+              "H",
+              "I",
+              "J",
+              "K",
+              "L",
+              "M",
+            ],
           },
           {
             id: "item_clarity_grade",
@@ -409,7 +432,19 @@ export const diamondCertificateTemplate: Template = {
             order: 4,
             required: true,
             allowCustomValue: false,
-            predefinedValues: ["FL", "IF", "VVS1", "VVS2", "VS1", "VS2", "SI1", "SI2", "I1", "I2", "I3"]
+            predefinedValues: [
+              "FL",
+              "IF",
+              "VVS1",
+              "VVS2",
+              "VS1",
+              "VS2",
+              "SI1",
+              "SI2",
+              "I1",
+              "I2",
+              "I3",
+            ],
           },
           {
             id: "item_report_number",
@@ -418,7 +453,7 @@ export const diamondCertificateTemplate: Template = {
             order: 5,
             required: true,
             inputType: "text",
-            placeholder: "Unique grading report number"
+            placeholder: "Unique grading report number",
           },
           {
             id: "item_diamond_images",
@@ -429,9 +464,9 @@ export const diamondCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 6
-          }
-        ]
+            maxImages: 6,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -445,7 +480,18 @@ export const diamondCertificateTemplate: Template = {
             order: 1,
             required: false,
             allowCustomValue: false,
-            predefinedValues: ["Round", "Princess", "Cushion", "Emerald", "Oval", "Pear", "Marquise", "Radiant", "Asscher", "Heart"]
+            predefinedValues: [
+              "Round",
+              "Princess",
+              "Cushion",
+              "Emerald",
+              "Oval",
+              "Pear",
+              "Marquise",
+              "Radiant",
+              "Asscher",
+              "Heart",
+            ],
           },
           {
             id: "item_measurements",
@@ -454,9 +500,9 @@ export const diamondCertificateTemplate: Template = {
             order: 2,
             required: false,
             inputType: "text",
-            placeholder: "e.g., 6.50 x 6.45 x 4.05"
-          }
-        ]
+            placeholder: "e.g., 6.50 x 6.45 x 4.05",
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -472,16 +518,14 @@ export const diamondCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Any additional information about the diamond"
-          }
-        ]
-      }
+            placeholder: "Any additional information about the diamond",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_report_number"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_report_number",
+  },
 };
 
 /**
@@ -493,14 +537,14 @@ export const watchesCertificateTemplate: Template = {
   description: "Certificate template for luxury watch authentication",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-watches.svg",
-  metadata: { 
-    style: "luxury", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-watches.svg",
+  metadata: {
+    style: "luxury",
     premium: true,
     price: 19.99,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -515,7 +559,7 @@ export const watchesCertificateTemplate: Template = {
             label: "Authorized Dealer Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -524,7 +568,7 @@ export const watchesCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Luxury Watch Certificate of Authenticity"
+            placeholder: "e.g., Luxury Watch Certificate of Authenticity",
           },
           {
             id: "item_certified_badge",
@@ -535,9 +579,9 @@ export const watchesCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "info",
             defaultValue: "ORIGYN - Watch Authentication",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -551,7 +595,7 @@ export const watchesCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Rolex, Patek Philippe, Omega"
+            placeholder: "e.g., Rolex, Patek Philippe, Omega",
           },
           {
             id: "item_model",
@@ -560,7 +604,7 @@ export const watchesCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "Model name and reference number"
+            placeholder: "Model name and reference number",
           },
           {
             id: "item_serial_number",
@@ -569,7 +613,7 @@ export const watchesCertificateTemplate: Template = {
             order: 3,
             required: true,
             inputType: "text",
-            placeholder: "Unique serial number"
+            placeholder: "Unique serial number",
           },
           {
             id: "item_manufacture_year",
@@ -578,7 +622,7 @@ export const watchesCertificateTemplate: Template = {
             order: 4,
             required: false,
             inputType: "number",
-            placeholder: "YYYY"
+            placeholder: "YYYY",
           },
           {
             id: "item_watch_images",
@@ -589,9 +633,9 @@ export const watchesCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 8
-          }
-        ]
+            maxImages: 8,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -605,7 +649,7 @@ export const watchesCertificateTemplate: Template = {
             order: 1,
             required: false,
             inputType: "text",
-            placeholder: "e.g., Automatic, Manual, Quartz"
+            placeholder: "e.g., Automatic, Manual, Quartz",
           },
           {
             id: "item_case_material",
@@ -614,7 +658,7 @@ export const watchesCertificateTemplate: Template = {
             order: 2,
             required: false,
             inputType: "text",
-            placeholder: "e.g., Stainless Steel, Gold, Platinum"
+            placeholder: "e.g., Stainless Steel, Gold, Platinum",
           },
           {
             id: "item_condition",
@@ -623,9 +667,9 @@ export const watchesCertificateTemplate: Template = {
             order: 3,
             required: false,
             allowCustomValue: false,
-            predefinedValues: ["New", "Excellent", "Very Good", "Good", "Fair"]
-          }
-        ]
+            predefinedValues: ["New", "Excellent", "Very Good", "Good", "Fair"],
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -641,7 +685,8 @@ export const watchesCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "List any complications (e.g., chronograph, date, moon phase)"
+            placeholder:
+              "List any complications (e.g., chronograph, date, moon phase)",
           },
           {
             id: "item_service_history",
@@ -652,16 +697,14 @@ export const watchesCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "Service and maintenance history"
-          }
-        ]
-      }
+            placeholder: "Service and maintenance history",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_serial_number"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_serial_number",
+  },
 };
 
 /**
@@ -673,14 +716,14 @@ export const carsCertificateTemplate: Template = {
   description: "Certificate template for classic and luxury car authentication",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-cars.svg",
-  metadata: { 
-    style: "automotive", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-cars.svg",
+  metadata: {
+    style: "automotive",
     premium: true,
     price: 29.99,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -695,7 +738,7 @@ export const carsCertificateTemplate: Template = {
             label: "Dealer/Collector Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -704,7 +747,7 @@ export const carsCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Classic Car Certificate of Authenticity"
+            placeholder: "e.g., Classic Car Certificate of Authenticity",
           },
           {
             id: "item_certified_badge",
@@ -715,9 +758,9 @@ export const carsCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "success",
             defaultValue: "ORIGYN - Automotive Certification",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -731,7 +774,7 @@ export const carsCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Ferrari, Porsche, Mercedes-Benz"
+            placeholder: "e.g., Ferrari, Porsche, Mercedes-Benz",
           },
           {
             id: "item_model",
@@ -740,7 +783,7 @@ export const carsCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "Model name"
+            placeholder: "Model name",
           },
           {
             id: "item_year",
@@ -749,7 +792,7 @@ export const carsCertificateTemplate: Template = {
             order: 3,
             required: true,
             inputType: "number",
-            placeholder: "YYYY"
+            placeholder: "YYYY",
           },
           {
             id: "item_vin",
@@ -758,7 +801,7 @@ export const carsCertificateTemplate: Template = {
             order: 4,
             required: true,
             inputType: "text",
-            placeholder: "17-character VIN"
+            placeholder: "17-character VIN",
           },
           {
             id: "item_mileage",
@@ -767,7 +810,7 @@ export const carsCertificateTemplate: Template = {
             order: 5,
             required: false,
             inputType: "number",
-            placeholder: "Current mileage"
+            placeholder: "Current mileage",
           },
           {
             id: "item_car_images",
@@ -778,9 +821,9 @@ export const carsCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 15
-          }
-        ]
+            maxImages: 15,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -794,7 +837,7 @@ export const carsCertificateTemplate: Template = {
             order: 1,
             required: false,
             inputType: "text",
-            placeholder: "Original/current exterior color"
+            placeholder: "Original/current exterior color",
           },
           {
             id: "item_interior",
@@ -803,7 +846,7 @@ export const carsCertificateTemplate: Template = {
             order: 2,
             required: false,
             inputType: "text",
-            placeholder: "Interior color and material"
+            placeholder: "Interior color and material",
           },
           {
             id: "item_transmission",
@@ -812,9 +855,9 @@ export const carsCertificateTemplate: Template = {
             order: 3,
             required: false,
             allowCustomValue: true,
-            predefinedValues: ["Manual", "Automatic", "Semi-Automatic"]
-          }
-        ]
+            predefinedValues: ["Manual", "Automatic", "Semi-Automatic"],
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -830,7 +873,7 @@ export const carsCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Previous owners and history"
+            placeholder: "Previous owners and history",
           },
           {
             id: "item_restoration",
@@ -841,16 +884,14 @@ export const carsCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Any restoration or modification work"
-          }
-        ]
-      }
+            placeholder: "Any restoration or modification work",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_vin"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_vin",
+  },
 };
 
 /**
@@ -862,13 +903,13 @@ export const spiritCertificateTemplate: Template = {
   description: "Certificate template for rare spirits and wine authentication",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-spirit.svg",
-  metadata: { 
-    style: "luxury", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-spirit.svg",
+  metadata: {
+    style: "luxury",
     premium: false,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -883,7 +924,7 @@ export const spiritCertificateTemplate: Template = {
             label: "Distillery/Producer Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -892,7 +933,7 @@ export const spiritCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Rare Spirit Certificate of Authenticity"
+            placeholder: "e.g., Rare Spirit Certificate of Authenticity",
           },
           {
             id: "item_certified_badge",
@@ -903,9 +944,9 @@ export const spiritCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "info",
             defaultValue: "ORIGYN - Spirit Authentication",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -919,7 +960,7 @@ export const spiritCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Macallan 25 Year Single Malt"
+            placeholder: "e.g., Macallan 25 Year Single Malt",
           },
           {
             id: "item_type",
@@ -928,7 +969,16 @@ export const spiritCertificateTemplate: Template = {
             order: 2,
             required: true,
             allowCustomValue: true,
-            predefinedValues: ["Whisky", "Wine", "Cognac", "Rum", "Vodka", "Gin", "Tequila", "Brandy"]
+            predefinedValues: [
+              "Whisky",
+              "Wine",
+              "Cognac",
+              "Rum",
+              "Vodka",
+              "Gin",
+              "Tequila",
+              "Brandy",
+            ],
           },
           {
             id: "item_vintage_year",
@@ -937,7 +987,7 @@ export const spiritCertificateTemplate: Template = {
             order: 3,
             required: false,
             inputType: "number",
-            placeholder: "YYYY"
+            placeholder: "YYYY",
           },
           {
             id: "item_bottle_number",
@@ -946,7 +996,7 @@ export const spiritCertificateTemplate: Template = {
             order: 4,
             required: false,
             inputType: "text",
-            placeholder: "e.g., 456/1000 for limited editions"
+            placeholder: "e.g., 456/1000 for limited editions",
           },
           {
             id: "item_spirit_images",
@@ -957,9 +1007,9 @@ export const spiritCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 6
-          }
-        ]
+            maxImages: 6,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -973,7 +1023,7 @@ export const spiritCertificateTemplate: Template = {
             order: 1,
             required: false,
             inputType: "text",
-            placeholder: "e.g., Speyside, Bordeaux, Kentucky"
+            placeholder: "e.g., Speyside, Bordeaux, Kentucky",
           },
           {
             id: "item_abv",
@@ -982,7 +1032,7 @@ export const spiritCertificateTemplate: Template = {
             order: 2,
             required: false,
             inputType: "text",
-            placeholder: "e.g., 43%"
+            placeholder: "e.g., 43%",
           },
           {
             id: "item_bottle_size",
@@ -991,9 +1041,9 @@ export const spiritCertificateTemplate: Template = {
             order: 3,
             required: false,
             inputType: "text",
-            placeholder: "e.g., 750ml, 1L"
-          }
-        ]
+            placeholder: "e.g., 750ml, 1L",
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -1009,7 +1059,7 @@ export const spiritCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Flavor profile and tasting notes"
+            placeholder: "Flavor profile and tasting notes",
           },
           {
             id: "item_storage_notes",
@@ -1020,16 +1070,14 @@ export const spiritCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "Storage conditions and ownership history"
-          }
-        ]
-      }
+            placeholder: "Storage conditions and ownership history",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_bottle_number"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_bottle_number",
+  },
 };
 
 /**
@@ -1041,14 +1089,14 @@ export const luxuryGoodCertificateTemplate: Template = {
   description: "Certificate template for luxury goods and fashion items",
   category: "preset",
   certificateCount: 0,
-  createdAt: new Date('2024-03-01'),
-  updatedAt: new Date('2024-03-01'),
-    thumbnail: "/template-luxury.svg",
-  metadata: { 
-    style: "luxury", 
+  createdAt: new Date("2024-03-01"),
+  updatedAt: new Date("2024-03-01"),
+  thumbnail: "/template-luxury.svg",
+  metadata: {
+    style: "luxury",
     premium: true,
     price: 19.99,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -1063,7 +1111,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             label: "Brand/Retailer Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -1072,7 +1120,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Luxury Item Certificate of Authenticity"
+            placeholder: "e.g., Luxury Item Certificate of Authenticity",
           },
           {
             id: "item_certified_badge",
@@ -1083,9 +1131,9 @@ export const luxuryGoodCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "success",
             defaultValue: "ORIGYN - Luxury Authentication",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -1099,7 +1147,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "text",
-            placeholder: "e.g., Louis Vuitton, Hermès, Chanel"
+            placeholder: "e.g., Louis Vuitton, Hermès, Chanel",
           },
           {
             id: "item_item_name",
@@ -1108,7 +1156,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "Product name or model number"
+            placeholder: "Product name or model number",
           },
           {
             id: "item_category",
@@ -1117,7 +1165,14 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 3,
             required: true,
             allowCustomValue: true,
-            predefinedValues: ["Handbag", "Wallet", "Shoes", "Clothing", "Accessory", "Jewelry"]
+            predefinedValues: [
+              "Handbag",
+              "Wallet",
+              "Shoes",
+              "Clothing",
+              "Accessory",
+              "Jewelry",
+            ],
           },
           {
             id: "item_serial_number",
@@ -1126,7 +1181,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 4,
             required: false,
             inputType: "text",
-            placeholder: "Unique identifier or serial number"
+            placeholder: "Unique identifier or serial number",
           },
           {
             id: "item_luxury_images",
@@ -1137,9 +1192,9 @@ export const luxuryGoodCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
             multiple: true,
-            maxImages: 10
-          }
-        ]
+            maxImages: 10,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -1153,7 +1208,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 1,
             required: false,
             inputType: "text",
-            placeholder: "e.g., Leather, Canvas, Silk"
+            placeholder: "e.g., Leather, Canvas, Silk",
           },
           {
             id: "item_color",
@@ -1162,7 +1217,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 2,
             required: false,
             inputType: "text",
-            placeholder: "Product color"
+            placeholder: "Product color",
           },
           {
             id: "item_condition",
@@ -1171,9 +1226,15 @@ export const luxuryGoodCertificateTemplate: Template = {
             order: 3,
             required: false,
             allowCustomValue: false,
-            predefinedValues: ["Brand New", "Excellent", "Very Good", "Good", "Fair"]
-          }
-        ]
+            predefinedValues: [
+              "Brand New",
+              "Excellent",
+              "Very Good",
+              "Good",
+              "Fair",
+            ],
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -1189,7 +1250,7 @@ export const luxuryGoodCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "Original purchase location and date"
+            placeholder: "Original purchase location and date",
           },
           {
             id: "item_additional_details",
@@ -1200,16 +1261,14 @@ export const luxuryGoodCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 3,
-            placeholder: "Any additional information about the item"
-          }
-        ]
-      }
+            placeholder: "Any additional information about the item",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
-    searchIndexField: "item_serial_number"
-  }
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
+    searchIndexField: "item_serial_number",
+  },
 };
 
 // ============================================================================
@@ -1222,16 +1281,17 @@ export const luxuryGoodCertificateTemplate: Template = {
 export const madeInItalyTemplate: Template = {
   id: "made_in_italy_1",
   name: "Made In Italy Certificate",
-  description: "Complete certificate template for Italian product certification",
+  description:
+    "Complete certificate template for Italian product certification",
   category: "preset",
   certificateCount: 24,
-  createdAt: new Date('2024-01-10'),
-  updatedAt: new Date('2024-02-28'),
+  createdAt: new Date("2024-01-10"),
+  updatedAt: new Date("2024-02-28"),
   thumbnail: "/template-madein.svg",
-  metadata: { 
-    style: "professional", 
+  metadata: {
+    style: "professional",
     premium: false,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -1248,7 +1308,7 @@ export const madeInItalyTemplate: Template = {
             order: 1,
             required: true,
             style: "h2",
-            alignment: "left"
+            alignment: "left",
           },
           {
             id: "item_certificate_title",
@@ -1261,8 +1321,8 @@ export const madeInItalyTemplate: Template = {
             validation: {
               minLength: 3,
               maxLength: 100,
-              errorMessage: "Title must be between 3 and 100 characters"
-            }
+              errorMessage: "Title must be between 3 and 100 characters",
+            },
           },
           {
             id: "item_short_description",
@@ -1276,8 +1336,8 @@ export const madeInItalyTemplate: Template = {
             rows: 3,
             validation: {
               maxLength: 500,
-              errorMessage: "Description cannot exceed 500 characters"
-            }
+              errorMessage: "Description cannot exceed 500 characters",
+            },
           },
           {
             id: "item_issued_by",
@@ -1290,9 +1350,9 @@ export const madeInItalyTemplate: Template = {
             icon: "CircleStack",
             defaultValue: "ORIGYN Foundation",
             allowCustomValue: false,
-            predefinedValues: ["ORIGYN Foundation"]
-          }
-        ]
+            predefinedValues: ["ORIGYN Foundation"],
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -1309,7 +1369,7 @@ export const madeInItalyTemplate: Template = {
             immutable: true,
             style: "h1",
             alignment: "center",
-            defaultValue: "100% Made in Italy Certificate"
+            defaultValue: "100% Made in Italy Certificate",
           },
           {
             id: "item_company_name_input",
@@ -1322,8 +1382,8 @@ export const madeInItalyTemplate: Template = {
             validation: {
               minLength: 2,
               maxLength: 200,
-              errorMessage: "Company name must be between 2 and 200 characters"
-            }
+              errorMessage: "Company name must be between 2 and 200 characters",
+            },
           },
           {
             id: "item_vat_number",
@@ -1335,8 +1395,9 @@ export const madeInItalyTemplate: Template = {
             placeholder: "IT12345678901",
             validation: {
               pattern: "^[A-Z]{2}[0-9]{11}$",
-              errorMessage: "VAT number must be in format: IT followed by 11 digits"
-            }
+              errorMessage:
+                "VAT number must be in format: IT followed by 11 digits",
+            },
           },
           {
             id: "item_image_gallery",
@@ -1348,9 +1409,9 @@ export const madeInItalyTemplate: Template = {
             maxFileSize: 5242880, // 5MB
             aspectRatio: "16:9",
             multiple: true,
-            maxImages: 5
-          }
-        ]
+            maxImages: 5,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -1364,7 +1425,7 @@ export const madeInItalyTemplate: Template = {
             label: "About the Company",
             order: 1,
             style: "h3",
-            alignment: "left"
+            alignment: "left",
           },
           {
             id: "item_company_description",
@@ -1378,8 +1439,8 @@ export const madeInItalyTemplate: Template = {
             rows: 5,
             validation: {
               maxLength: 1000,
-              errorMessage: "Description cannot exceed 1000 characters"
-            }
+              errorMessage: "Description cannot exceed 1000 characters",
+            },
           },
           {
             id: "item_founding_year",
@@ -1391,8 +1452,8 @@ export const madeInItalyTemplate: Template = {
             placeholder: "YYYY",
             validation: {
               pattern: "^[0-9]{4}$",
-              errorMessage: "Please enter a valid 4-digit year"
-            }
+              errorMessage: "Please enter a valid 4-digit year",
+            },
           },
           {
             id: "item_website",
@@ -1401,9 +1462,9 @@ export const madeInItalyTemplate: Template = {
             order: 4,
             required: false,
             inputType: "url",
-            placeholder: "https://example.com"
-          }
-        ]
+            placeholder: "https://example.com",
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -1417,7 +1478,7 @@ export const madeInItalyTemplate: Template = {
             label: "Product Experience",
             order: 1,
             style: "h3",
-            alignment: "left"
+            alignment: "left",
           },
           {
             id: "item_craftsmanship",
@@ -1426,9 +1487,10 @@ export const madeInItalyTemplate: Template = {
             order: 2,
             required: false,
             inputType: "textarea",
-            placeholder: "Describe the craftsmanship and traditional techniques...",
+            placeholder:
+              "Describe the craftsmanship and traditional techniques...",
             multiline: true,
-            rows: 4
+            rows: 4,
           },
           {
             id: "item_materials",
@@ -1439,7 +1501,7 @@ export const madeInItalyTemplate: Template = {
             inputType: "textarea",
             placeholder: "List the Italian materials and their origins...",
             multiline: true,
-            rows: 3
+            rows: 3,
           },
           {
             id: "item_certifications",
@@ -1453,25 +1515,25 @@ export const madeInItalyTemplate: Template = {
               "ISO 9001",
               "ISO 14001",
               "Made in Italy Certified",
-              "European Quality Mark"
-            ]
-          }
-        ]
-      }
+              "European Quality Mark",
+            ],
+          },
+        ],
+      },
     ],
     languages: [
       { id: "en", code: "EN", name: "English", isDefault: true },
       { id: "it", code: "IT", name: "Italian" },
-      { id: "fr", code: "FR", name: "French" }
+      { id: "fr", code: "FR", name: "French" },
     ],
     searchIndexField: "item_vat_number",
     metadata: {
       version: "1.0.0",
       createdBy: "system",
-      lastModified: new Date('2024-02-28'),
-      certificateCount: 24
-    }
-  }
+      lastModified: new Date("2024-02-28"),
+      certificateCount: 24,
+    },
+  },
 };
 
 /**
@@ -1483,14 +1545,14 @@ export const goldCertificateTemplate: Template = {
   description: "Certificate template for gold product verification",
   category: "preset",
   certificateCount: 18,
-  createdAt: new Date('2024-01-15'),
-  updatedAt: new Date('2024-02-25'),
+  createdAt: new Date("2024-01-15"),
+  updatedAt: new Date("2024-02-25"),
   thumbnail: "/template-gold.svg",
-  metadata: { 
-    style: "luxury", 
+  metadata: {
+    style: "luxury",
     premium: true,
     price: 19.99,
-    version: "1.0.0"
+    version: "1.0.0",
   },
   structure: {
     sections: [
@@ -1505,7 +1567,7 @@ export const goldCertificateTemplate: Template = {
             label: "Gold Dealer Name",
             order: 1,
             required: true,
-            style: "h2"
+            style: "h2",
           },
           {
             id: "item_cert_title",
@@ -1514,7 +1576,7 @@ export const goldCertificateTemplate: Template = {
             order: 2,
             required: true,
             inputType: "text",
-            placeholder: "e.g., 24K Gold Bar Certificate"
+            placeholder: "e.g., 24K Gold Bar Certificate",
           },
           {
             id: "item_issued_badge",
@@ -1525,9 +1587,9 @@ export const goldCertificateTemplate: Template = {
             immutable: true,
             badgeStyle: "success",
             defaultValue: "ORIGYN - Gold Standard",
-            allowCustomValue: false
-          }
-        ]
+            allowCustomValue: false,
+          },
+        ],
       },
       {
         id: "section_certificate",
@@ -1541,7 +1603,7 @@ export const goldCertificateTemplate: Template = {
             order: 1,
             required: true,
             inputType: "number",
-            placeholder: "e.g., 31.1035 (1 troy oz)"
+            placeholder: "e.g., 31.1035 (1 troy oz)",
           },
           {
             id: "item_purity",
@@ -1553,8 +1615,8 @@ export const goldCertificateTemplate: Template = {
             placeholder: "e.g., 24K, 22K, 18K",
             validation: {
               pattern: "^(9|10|14|18|22|24)K$",
-              errorMessage: "Common purities: 9K, 10K, 14K, 18K, 22K, 24K"
-            }
+              errorMessage: "Common purities: 9K, 10K, 14K, 18K, 22K, 24K",
+            },
           },
           {
             id: "item_serial_number",
@@ -1563,7 +1625,7 @@ export const goldCertificateTemplate: Template = {
             order: 3,
             required: true,
             inputType: "text",
-            placeholder: "Unique identifier"
+            placeholder: "Unique identifier",
           },
           {
             id: "item_gold_images",
@@ -1574,9 +1636,9 @@ export const goldCertificateTemplate: Template = {
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760, // 10MB
             multiple: true,
-            maxImages: 10
-          }
-        ]
+            maxImages: 10,
+          },
+        ],
       },
       {
         id: "section_about",
@@ -1590,7 +1652,7 @@ export const goldCertificateTemplate: Template = {
             order: 1,
             required: false,
             inputType: "text",
-            placeholder: "Country or mine of origin"
+            placeholder: "Country or mine of origin",
           },
           {
             id: "item_refiner",
@@ -1600,9 +1662,9 @@ export const goldCertificateTemplate: Template = {
             required: false,
             inputType: "textarea",
             multiline: true,
-            rows: 3
-          }
-        ]
+            rows: 3,
+          },
+        ],
       },
       {
         id: "section_experience",
@@ -1618,21 +1680,19 @@ export const goldCertificateTemplate: Template = {
             inputType: "textarea",
             multiline: true,
             rows: 4,
-            placeholder: "Provenance and historical significance..."
-          }
-        ]
-      }
+            placeholder: "Provenance and historical significance...",
+          },
+        ],
+      },
     ],
-    languages: [
-      { id: "en", code: "EN", name: "English", isDefault: true }
-    ],
+    languages: [{ id: "en", code: "EN", name: "English", isDefault: true }],
     searchIndexField: "item_serial_number",
     metadata: {
       version: "1.0.0",
-      lastModified: new Date('2024-02-25'),
-      certificateCount: 18
-    }
-  }
+      lastModified: new Date("2024-02-25"),
+      certificateCount: 18,
+    },
+  },
 };
 
 // ============================================================================
@@ -1648,7 +1708,7 @@ export const templateOptions: Template[] = [
   carsCertificateTemplate,
   spiritCertificateTemplate,
   luxuryGoodCertificateTemplate,
-  madeInItalyTemplate
+  madeInItalyTemplate,
 ];
 
 // Export mockTemplates as the structured templates for use throughout the app
@@ -1660,5 +1720,5 @@ export const manualTemplateOption: Template = {
   id: "code_it",
   name: "Code it",
   description: "Create manually your template with your developers",
-  category: "manual"
+  category: "manual",
 };

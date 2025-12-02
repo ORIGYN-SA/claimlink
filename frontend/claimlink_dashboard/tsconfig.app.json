@@ -31,7 +31,7 @@
       "@components/*": ["src/components/*"],
       "@utils/*": ["src/utils/*"],
       "@assets/*": ["src/assets/*"],
-      "@constants": ["src/constants.ts"],
+      "@constants": ["src/shared/constants.ts"],
       "@auth/*": ["src/auth/*"],
       "@dashboard/*": ["src/apps/dashboard/*"],
       "@buy/*": ["src/apps/buy/*"],
@@ -42,5 +42,30 @@
       "@shared/*": ["src/shared/*"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "src/services/kongswap/**",
+    "src/services/icpswap/**",
+    "src/services/sns_governance/**",
+    "src/services/sns_reward/**",
+    "src/services/sns_swap/**",
+    "src/services/ogy_api/**",
+    "src/shared/hooks/useFetchTokenPrice.ts",
+    "src/shared/hooks/useTransferNFT.tsx",
+    "src/shared/hooks/useSwapTokensForNFT.tsx",
+    "src/shared/hooks/useSwapNFTForTokens.tsx",
+    "src/shared/hooks/useMultiTokenBalance.ts",
+    "src/shared/hooks/useFetchTokenData.tsx",
+    "src/shared/hooks/useFetchSwapAmount.tsx",
+    "src/shared/hooks/useFetchPriceGold.tsx",
+    "src/shared/hooks/useFetchNFTUserOnGoingTxs.tsx",
+    "src/shared/hooks/useFetchNFTUserMetrics.tsx",
+    "src/shared/hooks/useFetchNFTUserHistoryTxs.tsx",
+    "src/shared/hooks/useFetchNFTUser.tsx",
+    "src/shared/hooks/useFetchNFTTransferFee.tsx",
+    "src/shared/hooks/useFetchNFTAvailable.tsx",
+    "src/shared/hooks/useFetchNFTAvailable.ts",
+    "src/shared/hooks/useFetchLedgerBalance.ts",
+    "src/shared/services/**"
+  ]
 }

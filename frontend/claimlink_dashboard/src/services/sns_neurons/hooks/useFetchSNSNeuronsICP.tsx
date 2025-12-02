@@ -1,11 +1,11 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 
-import { ListNeuronsResponse, NeuronWithMetric } from "../interfaces/icp";
+import type { ListNeuronsResponse, NeuronWithMetric } from "../interfaces/icp";
 import {
   formatTimestampToYearsDifference,
   getCurrentTimestampSeconds,
@@ -36,10 +36,10 @@ const parseNeuronsICP = (neurons: Array<NeuronWithMetric>) => {
     const dissolving = neuron.dissolving;
     const dissolve_delay = !dissolving
       ? formatTimestampToYearsDifference(
-          currentTimestampSeconds + Number(neuron.dissolve_delay)
+          currentTimestampSeconds + Number(neuron.dissolve_delay),
         )
       : formatTimestampToYears(
-          Number(neuron.dissolve_delay) - currentTimestampSeconds
+          Number(neuron.dissolve_delay) - currentTimestampSeconds,
         );
     const staked_amount = divideBy1e8(neuron.staked_amount);
     const maturity = Number(neuron.maturity);
@@ -53,7 +53,7 @@ const parseNeuronsICP = (neurons: Array<NeuronWithMetric>) => {
   });
   const totalStakedAmount = data.reduce(
     (acc, cur) => acc + cur.staked_amount,
-    0
+    0,
   );
   return {
     totalStakedAmount: {
@@ -67,7 +67,7 @@ const parseNeuronsICP = (neurons: Array<NeuronWithMetric>) => {
 const useFetchSNSNeuronsICP = (
   canisterId: string,
   agent: Agent | HttpAgent | undefined,
-  options: Omit<UseQueryOptions<NeuronsICP>, "queryKey" | "queryFn"> = {}
+  options: Omit<UseQueryOptions<NeuronsICP>, "queryKey" | "queryFn"> = {},
 ) => {
   const {
     enabled = true,

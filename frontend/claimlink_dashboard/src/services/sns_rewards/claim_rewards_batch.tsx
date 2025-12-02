@@ -1,5 +1,5 @@
-import { ActorSubclass } from "@dfinity/agent";
-import { NeuronId, Result } from "./interfaces";
+import type { ActorSubclass } from "@dfinity/agent";
+import type { NeuronId, Result } from "./interfaces";
 
 const claim_rewards_batch = async (
   actor: ActorSubclass,

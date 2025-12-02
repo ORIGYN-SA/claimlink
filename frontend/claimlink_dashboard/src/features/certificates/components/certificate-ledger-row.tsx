@@ -61,7 +61,6 @@ interface AddressDisplayProps {
 }
 
 function AddressDisplay({
-  address,
   addressShort,
   verified = false,
 }: AddressDisplayProps) {

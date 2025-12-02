@@ -1,11 +1,11 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 
-import { ListNeuronsResponse } from "../interfaces/ogy";
+import type { ListNeuronsResponse } from "../interfaces/ogy";
 import { parseNeuronsOGY } from "./utils/index";
 import { idlFactory } from "../idlFactoryOGY";
 
@@ -26,7 +26,7 @@ interface NeuronsWTN {
 const useFetchSNSNeuronsWTN = (
   canisterId: string,
   agent: Agent | HttpAgent | undefined,
-  options: Omit<UseQueryOptions<NeuronsWTN>, "queryKey" | "queryFn"> = {}
+  options: Omit<UseQueryOptions<NeuronsWTN>, "queryKey" | "queryFn"> = {},
 ) => {
   const {
     enabled = true,

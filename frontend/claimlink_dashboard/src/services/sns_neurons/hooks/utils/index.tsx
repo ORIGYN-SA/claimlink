@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { Neuron, DissolveState } from "../../interfaces/ogy";
+import type { Neuron, DissolveState } from "../../interfaces/ogy";
 import {
   formatTimestampToYearsDifference,
   getCurrentTimestampSeconds,

@@ -1,6 +1,5 @@
 // Image assets from Figma design
 const imgGradient1 = "http://localhost:3845/assets/e61e1045d1911dd859b227a4c935e869315934c1.svg";
-const imgGradient2 = "http://localhost:3845/assets/ebf0b230d0625c5ac55cf6f889041e2356d8889f.svg";
 const imgGradient3 = "http://localhost:3845/assets/682663fcb95a58325d7d2d87a3be082466f303c7.svg";
 const imgGradient4 = "http://localhost:3845/assets/074f04533fe0faa6abf0aaaa997c71a22b5d477d.svg";
 const imgGradient5 = "http://localhost:3845/assets/29efa52fa5ffa8a9f0411613af6865d6368184c1.svg";
@@ -8,9 +7,7 @@ const imgOrigynIcon1 = "http://localhost:3845/assets/2eb8358fc870f3dd58d99fda656
 const imgOrigynIcon2 = "http://localhost:3845/assets/980a458467a394cf03af82c6be4f66c6193b6049.svg";
 const imgOrigynIcon3 = "http://localhost:3845/assets/f21a0a2506482f40242d586e3d255f4503edc074.svg";
 const imgOrigynIcon4 = "http://localhost:3845/assets/7209f135dd84cc50c8a0fa4ca8bf5337dad357f3.svg";
-const imgLine = "http://localhost:3845/assets/58125b013ee4bf3b7ec49d468e4cda36879ee719.svg";
 const imgBgStamp = "http://localhost:3845/assets/a7a8537fcb68be215d74acb3c651ca62d8ca0974.svg";
-const imgStampBg = "http://localhost:3845/assets/7fc18ad6d5474d29b6752238b7973c83d8e00183.png";
 
 interface CertificateDisplayProps {
   companyLogo: string;

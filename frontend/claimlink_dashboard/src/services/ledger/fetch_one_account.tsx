@@ -1,5 +1,5 @@
 import { instance } from "./icp_icrc_api/instance";
-import { Account } from "./utils/interfaces";
+import type { Account } from "./utils/interfaces";
 
 export const fetch_one_account = async ({
   accountId,

@@ -1,4 +1,4 @@
-import { Actor } from "@dfinity/agent";
+import { type ActorSubclass } from "@dfinity/agent";
 
 interface SwapAmountsParams {
   from: string;
@@ -18,10 +18,10 @@ interface SwapAmountsResult {
 }
 
 const swap_amounts = async (
-  actor: Actor,
+  actor: ActorSubclass,
   params: SwapAmountsParams,
 ): Promise<SwapAmountsResult> => {
-  const result = await actor.swap_amounts(params);
+  const result = (await actor.swap_amounts(params)) as SwapAmountsResult;
   return result;
 };
 

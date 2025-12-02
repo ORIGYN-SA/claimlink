@@ -4,7 +4,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
-// @ts-expect-error: later will be fixed
 import { idlFactory } from "../idlFactory";
 import icrc1_fee from "../icrc1_fee";
 
@@ -13,7 +12,7 @@ const useFetchTransferFee = (
   agent: Agent | HttpAgent | undefined,
   options: Omit<UseQueryOptions<bigint>, "queryKey" | "queryFn"> & {
     ledger: string;
-  }
+  },
 ) => {
   const {
     enabled = true,

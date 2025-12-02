@@ -7,9 +7,7 @@ import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
 import { AccountIdentifier } from "@dfinity/ledger-icp";
-// @ts-expect-error: later will be fixed
 import { idlFactory } from "@services/ledger-index/idlFactory";
-// @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryICP } from "@services/ledger-index/idlFactory_icp";
 import get_account_transactions from "@services/ledger-index/get_account_transactions";
 import get_account_transactions_icp from "@services/ledger-index/get_account_transactions_icp";

@@ -1,9 +1,9 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 import { idlFactory } from "../idlFactory";
 
 import icrc1_total_supply from "../icrc1_total_supply";
@@ -13,7 +13,7 @@ const useFetchTotalSupply = (
   agent: Agent | HttpAgent | undefined,
   options: Omit<UseQueryOptions<bigint>, "queryKey" | "queryFn"> & {
     ledger: string;
-  }
+  },
 ) => {
   const {
     enabled = true,
