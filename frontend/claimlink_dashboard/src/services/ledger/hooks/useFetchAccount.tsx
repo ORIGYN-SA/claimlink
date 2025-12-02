@@ -1,8 +1,8 @@
 import {
   useQuery,
   keepPreviousData,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import type { UseQueryOptions } from "@tanstack/react-query";
 
 import { divideBy1e8, numberToLocaleString } from "@shared/utils/numbers";
 import { fetch_one_account } from "@services/ledger";
@@ -20,7 +20,7 @@ const useFetchAccount = (
     "queryKey" | "queryFn"
   > & {
     accountId: string;
-  }
+  },
 ) => {
   const {
     enabled = true,
@@ -43,8 +43,14 @@ const useFetchAccount = (
         id: result.id,
         owner: result.owner,
         subaccount: has_subaccount ? subaccount : "None (default subaccount)",
-        balance: numberToLocaleString(divideBy1e8(BigInt(result.balance)), 8),
-        total_transactions: numberToLocaleString(result.total_transactions, 0),
+        balance: numberToLocaleString({
+          value: divideBy1e8(Number(result.balance)),
+          decimals: 8,
+        }),
+        total_transactions: numberToLocaleString({
+          value: result.total_transactions,
+          decimals: 0,
+        }),
       };
     },
     placeholderData,

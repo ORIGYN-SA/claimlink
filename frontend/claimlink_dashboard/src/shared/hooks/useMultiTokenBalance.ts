@@ -54,6 +54,7 @@ export const useMultiTokenBalance = (
           }
 
           // Create ledger actor
+          // @ts-expect-error - IDL factory type mismatch between versions
           const ledgerActor = Actor.createActor(icrc1IdlFactory, {
             agent,
             canisterId: token.canister_id,
@@ -77,6 +78,7 @@ export const useMultiTokenBalance = (
 
           try {
             // Create KongSwap actor
+            // @ts-expect-error - IDL factory type mismatch between versions
             const kongswapActor = Actor.createActor(kongswapIdlFactory, {
               agent,
               canisterId: KONGSWAP_CANISTER_ID_IC,
@@ -111,16 +113,16 @@ export const useMultiTokenBalance = (
         }
       },
       enabled: enabled && !!owner && !!agent,
-      refetchInterval,
+      refetchInterval: refetchInterval || undefined,
       staleTime,
-      retry: (failureCount, error) => {
+      retry: (failureCount: number, error: Error) => {
         // Retry up to 3 times for retryable errors
         if (isRetryableError(error) && failureCount < 3) {
           return true;
         }
         return false;
       },
-      retryDelay: (attemptIndex, error) => getRetryDelay(attemptIndex, error),
+      retryDelay: (attemptIndex: number, error: Error) => getRetryDelay(attemptIndex, error),
     })),
   });
 

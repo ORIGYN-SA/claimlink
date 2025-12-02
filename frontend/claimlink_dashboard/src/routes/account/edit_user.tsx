@@ -4,12 +4,17 @@ import { EditUserPage } from '@/features/account'
 
 export const Route = createFileRoute('/account/edit_user')({
   component: RouteComponent,
+  validateSearch: (search: Record<string, unknown>) => ({
+    userId: search.userId as string,
+  }),
 })
 
 function RouteComponent() {
+  const { userId } = Route.useSearch();
+
   return (
     <DashboardLayout>
-      <EditUserPage />
+      <EditUserPage userId={userId} />
     </DashboardLayout>
   )
 }

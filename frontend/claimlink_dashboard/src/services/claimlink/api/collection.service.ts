@@ -142,7 +142,7 @@ export class CollectionService {
   static async getCollectionCount(agent: Agent): Promise<number> {
     const actor = createActor(agent);
 
-    const count = await actor.get_collection_count();
+    const count = await actor.get_collection_count(null);
     return Number(count);
   }
 

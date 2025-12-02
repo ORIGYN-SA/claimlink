@@ -30,7 +30,7 @@ export function MintCertificatePage() {
 
   const handleMintCertificate = () => {
     console.log("Mint certificate clicked");
-    navigate({ to: "/mint_certificate/new" });
+    navigate({ to: "/mint_certificate/new", search: { collectionId: undefined } });
   };
 
   const handleSearchChange = (query: string) => {
