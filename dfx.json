@@ -28,7 +28,7 @@
         "env_override": null,
         "output": null
       },
-      "source": ["frontend/claimlink_frontend/dist"],
+      "source": ["frontend/claimlink_dashboard/dist"],
       "type": "assets"
     }
   },

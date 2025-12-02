@@ -24,7 +24,12 @@ export const useCollectionNfts = (collectionCanisterId: string) => {
         account
       );
 
-      if (tokenIds.length === 0) return [];
+      console.log('[useCollectionNfts] Fetched token IDs:', tokenIds);
+
+      if (tokenIds.length === 0) {
+        console.log('[useCollectionNfts] No tokens found for collection:', collectionCanisterId);
+        return [];
+      }
 
       // Step 2: Get metadata for each token (reference App.js:128-142)
       const metadataResults = await OrigynNftService.getTokenMetadata(
@@ -32,6 +37,8 @@ export const useCollectionNfts = (collectionCanisterId: string) => {
         collectionCanisterId,
         tokenIds
       );
+
+      console.log('[useCollectionNfts] Fetched metadata for', metadataResults.length, 'tokens');
 
       // Step 3: Parse metadata (reference NFTGallery.js:27-48)
       const getMetadataValue = (metadata: Array<[string, any]>, key: string): string => {

@@ -53,7 +53,10 @@ export const useMintNft = (options?: UseMintNftOptions) => {
 
       return tokenId;
     },
-    onSuccess: (tokenId) => {
+    onSuccess: (tokenId, variables) => {
+      console.log('[useMintNft] Successfully minted NFT with token ID:', tokenId);
+      console.log('[useMintNft] Invalidating queries for collection:', variables.collectionCanisterId);
+
       // Invalidate all collection-specific NFT queries (using prefix match)
       queryClient.invalidateQueries({
         queryKey: ['nfts', 'collection']  // Matches all ['nfts', 'collection', *]
