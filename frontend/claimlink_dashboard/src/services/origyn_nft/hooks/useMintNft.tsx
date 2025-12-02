@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Principal } from '@dfinity/principal';
 import { useAuth } from '@/features/auth';
 import { OrigynNftService } from '../api/origyn-nft.service';
 import type { ICRC3Value } from '../interfaces';
@@ -46,7 +47,7 @@ export const useMintNft = (options?: UseMintNftOptions) => {
       const tokenId = await OrigynNftService.mint(
         authenticatedAgent,
         args.collectionCanisterId,
-        { owner: principalId, subaccount: [] },
+        { owner: Principal.fromText(principalId), subaccount: [] },
         metadata
       );
 

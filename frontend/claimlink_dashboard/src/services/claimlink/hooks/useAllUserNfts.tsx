@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Principal } from '@dfinity/principal';
 import { useAuth } from '@/features/auth';
 import { useListMyCollections } from './useListMyCollections';
 import { OrigynNftService } from '@services/origyn_nft';
@@ -31,7 +32,7 @@ export const useAllUserNfts = () => {
       if (!authenticatedAgent || !principalId) return [];
       if (collections.length === 0) return [];
 
-      const account = { owner: principalId, subaccount: [] as [] };
+      const account = { owner: Principal.fromText(principalId), subaccount: [] as [] };
 
       // Fetch NFTs from each collection in parallel
       const nftPromises = collections.map(async (collection) => {

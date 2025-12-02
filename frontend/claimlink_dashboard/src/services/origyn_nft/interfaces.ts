@@ -1,5 +1,5 @@
-import type { ActorMethod } from '@dfinity/agent';
-import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from "@dfinity/agent";
+import type { Principal } from "@dfinity/principal";
 
 // ICRC3Value type for NFT metadata
 export type ICRC3Value =
@@ -16,15 +16,11 @@ export interface Account {
   subaccount: [] | [Uint8Array | number[]];
 }
 
-// Mint request structure
-export interface MintRequest {
+// Mint request structure (Args_2 in IDL)
+export interface MintArgs {
   metadata: Array<[string, ICRC3Value]>;
   token_owner: Account;
   memo: [] | [Uint8Array | number[]];
-}
-
-export interface MintArgs {
-  mint_requests: Array<MintRequest>;
 }
 
 export type MintError =
@@ -34,7 +30,7 @@ export type MintError =
   | { InvalidMemo: null }
   | { StorageCanisterError: string };
 
-export type MintResult = { Ok: Array<bigint> } | { Err: MintError };
+export type MintResult = { Ok: bigint } | { Err: MintError };
 
 // Upload types
 export interface InitUploadArgs {
@@ -63,7 +59,9 @@ export type UploadError =
 
 export type InitUploadResult = { Ok: null } | { Err: UploadError };
 export type StoreChunkResult = { Ok: null } | { Err: UploadError };
-export type FinalizeUploadResult = { Ok: { url: string } } | { Err: UploadError };
+export type FinalizeUploadResult =
+  | { Ok: { url: string } }
+  | { Err: UploadError };
 
 // ICRC7 standard methods
 export interface _SERVICE {

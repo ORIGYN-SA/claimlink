@@ -12,26 +12,22 @@ export class OrigynNftService {
   }
 
   /**
-   * Mint NFT (from reference MintingForm.js:369-400)
-   * Request structure: { mint_requests: [{ metadata, token_owner, memo }] }
+   * Mint NFT
+   * Request structure based on IDL Args_2: { metadata, token_owner, memo }
    */
   static async mint(
     agent: Agent,
     canisterId: string,
-    tokenOwner: { owner: Principal; subaccount: [] },
+    tokenOwner: { owner: Principal; subaccount: [] | [Uint8Array | number[]] },
     metadata: Array<[string, ICRC3Value]>,
-    memo?: Uint8Array,
+    memo?: Uint8Array | number[],
   ): Promise<bigint> {
     const actor = this.createActor(agent, canisterId);
 
     const mintRequest = {
-      mint_requests: [
-        {
-          metadata,
-          token_owner: tokenOwner,
-          memo: memo ? [memo] : [],
-        },
-      ],
+      metadata,
+      token_owner: tokenOwner,
+      memo: memo ? [memo] : [],
     };
 
     const result = await actor.mint(mintRequest);
@@ -40,7 +36,7 @@ export class OrigynNftService {
       throw new Error(`Minting failed: ${Object.keys(result.Err)[0]}`);
     }
 
-    return result.Ok[0]; // Return first token ID
+    return result.Ok; // Return token ID
   }
 
   /**

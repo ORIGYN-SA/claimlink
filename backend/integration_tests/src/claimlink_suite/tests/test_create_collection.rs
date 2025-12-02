@@ -59,6 +59,7 @@ fn create_collection_basic() {
         name: "Test Collection".to_string(),
         symbol: "TC".to_string(),
         description: "Test Description".to_string(),
+        logo: None,
     };
 
     let create_collection_result = crate::client::claimlink::create_collection(
@@ -99,6 +100,7 @@ fn create_collection_fails_if_insufficient_allowance() {
         name: "Test Collection".to_string(),
         symbol: "TC".to_string(),
         description: "Test Description".to_string(),
+        logo: None,
     };
 
     // try to create collection without approval - should fail with insufficient allowance
