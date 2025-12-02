@@ -24,10 +24,13 @@ export class OrigynNftService {
   ): Promise<bigint> {
     const actor = this.createActor(agent, canisterId);
 
+    // Type-safe memo value
+    const memoValue: [] | [Uint8Array | number[]] = memo ? [memo] : [];
+
     const mintRequest = {
       metadata,
       token_owner: tokenOwner,
-      memo: memo ? [memo] : [],
+      memo: memoValue,
     };
 
     const result = await actor.mint(mintRequest);
@@ -52,11 +55,14 @@ export class OrigynNftService {
   ): Promise<void> {
     const actor = this.createActor(agent, canisterId);
 
+    // Type-safe chunk_size value
+    const chunkSizeValue: [] | [bigint] = chunkSize ? [chunkSize] : [];
+
     const result = await actor.init_upload({
       file_path: filePath,
       file_hash: fileHash,
       file_size: fileSize,
-      chunk_size: chunkSize ? [chunkSize] : [],
+      chunk_size: chunkSizeValue,
     });
 
     if ("Err" in result) {

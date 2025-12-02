@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { Principal } from '@dfinity/principal';
 import { useAuth } from '@/features/auth';
 import { OrigynNftService } from '../api/origyn-nft.service';
 import type { NFT } from '@/features/nfts/types/nft.types';
@@ -16,7 +17,7 @@ export const useCollectionNfts = (collectionCanisterId: string) => {
       if (!authenticatedAgent || !principalId) return [];
 
       // Step 1: Get token IDs (reference App.js:121-125)
-      const account = { owner: principalId, subaccount: [] as [] };
+      const account = { owner: Principal.fromText(principalId), subaccount: [] as [] };
       const tokenIds = await OrigynNftService.getTokensOf(
         authenticatedAgent,
         collectionCanisterId,

@@ -54,8 +54,15 @@ export const useMintNft = (options?: UseMintNftOptions) => {
       return tokenId;
     },
     onSuccess: (tokenId) => {
+      // Invalidate all collection-specific NFT queries (using prefix match)
+      queryClient.invalidateQueries({
+        queryKey: ['nfts', 'collection']  // Matches all ['nfts', 'collection', *]
+      });
+      // Invalidate all user NFT queries (already works for mint certificate page)
       queryClient.invalidateQueries({ queryKey: ['nfts'] });
+      // Invalidate collections list
       queryClient.invalidateQueries({ queryKey: ['collections'] });
+
       options?.onSuccess?.(tokenId);
     },
     onError: options?.onError,
