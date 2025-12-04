@@ -27,6 +27,16 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
   // Fetch real NFTs from ORIGYN canister
   const { data: nfts = [], isLoading: isLoadingNfts } = useCollectionNfts(collectionId);
 
+  console.log('[CollectionDetailPage] NFTs fetched:', {
+    count: nfts.length,
+    nfts: nfts.map(nft => ({
+      id: nft.id,
+      title: nft.title,
+      imageUrl: nft.imageUrl,
+      status: nft.status
+    }))
+  });
+
   // Use real NFTs from ORIGYN canister
   const allCertificates = nfts;
 
@@ -103,7 +113,11 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
 
   const handleCertificateClick = (certificate: any) => {
     console.log('Certificate clicked:', certificate)
-    // TODO: Navigate to certificate detail or open modal
+    // Navigate to certificate detail page with format: collectionId:tokenId
+    navigate({
+      to: '/mint_certificate/$certificateId',
+      params: { certificateId: `${collectionId}:${certificate.id}` }
+    })
   }
 
   const handleAddCertificate = () => {
@@ -122,11 +136,13 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
       render: (certificate: Certificate) => (
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-            <img
-              src={certificate.imageUrl}
-              alt={certificate.title}
-              className="w-full h-full object-cover"
-            />
+            {certificate.imageUrl && (
+              <img
+                src={certificate.imageUrl}
+                alt={certificate.title}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-base font-medium text-[#222526] truncate">
@@ -198,11 +214,13 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
             {/* Collection Image and Info */}
             <div className="flex gap-6 min-w-0 flex-1">
               <div className="w-32 h-32 bg-black rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={collection.imageUrl}
-                  alt={collection.title}
-                  className="w-full h-full object-cover"
-                />
+                {collection.imageUrl && (
+                  <img
+                    src={collection.imageUrl}
+                    alt={collection.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl font-medium text-foreground mb-3">

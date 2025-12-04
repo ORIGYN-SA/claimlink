@@ -2,6 +2,7 @@ import { Actor, type Agent } from "@dfinity/agent";
 import type { Principal } from "@dfinity/principal";
 import { idlFactory } from "../idlFactory";
 import type { _SERVICE, ICRC3Value } from "../interfaces";
+import type { GetBlocksRequest, GetBlocksResult } from "../origyn_nft.did";
 
 export class OrigynNftService {
   private static createActor(agent: Agent, canisterId: string): _SERVICE {
@@ -150,5 +151,35 @@ export class OrigynNftService {
   ): Promise<Array<[string, ICRC3Value]>> {
     const actor = this.createActor(agent, canisterId);
     return await actor.icrc7_collection_metadata();
+  }
+
+  /**
+   * Get ICRC3 transaction blocks
+   * Used for fetching transaction history and events
+   */
+  static async getTransactionBlocks(
+    agent: Agent,
+    canisterId: string,
+    start: bigint,
+    length: bigint,
+  ): Promise<GetBlocksResult> {
+    const actor = this.createActor(agent, canisterId);
+    const request: GetBlocksRequest = { start, length };
+
+    console.log('[OrigynNftService.getTransactionBlocks] Fetching blocks:', {
+      canisterId,
+      start: start.toString(),
+      length: length.toString(),
+    });
+
+    const result = await actor.icrc3_get_blocks([request]);
+
+    console.log('[OrigynNftService.getTransactionBlocks] Fetched blocks:', {
+      log_length: result.log_length.toString(),
+      blocks_count: result.blocks.length,
+      archived_blocks_count: result.archived_blocks.length,
+    });
+
+    return result;
   }
 }

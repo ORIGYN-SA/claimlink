@@ -1,7 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { NFTService } from './nfts.service';
-import type { NFTMintData } from '../types/nft.types';
-// import type { NFT } from '../types/nft.types';
+import type { NFTMintData, NFT } from '../types/nft.types';
+import { useAuth } from '@/features/auth';
+import { OrigynNftService } from '@services/origyn_nft';
+import { CollectionService } from '@services/claimlink';
 
 export const nftKeys = {
   all: ['nfts'] as const,
@@ -21,14 +23,92 @@ export const useNFTs = (collectionId?: string, filters?: Record<string, any>) =>
 };
 
 // Fetch single NFT
-export const useNFT = (nftId: string) => {
+export const useNFT = (collectionId: string, tokenId: string) => {
+  const { authenticatedAgent } = useAuth();
+
   return useQuery({
-    queryKey: nftKeys.detail(nftId),
-    queryFn: () => {
-      // TODO: Implement single NFT fetch
-      throw new Error('Single NFT fetch not implemented');
+    queryKey: nftKeys.detail(`${collectionId}:${tokenId}`),
+    queryFn: async () => {
+      if (!authenticatedAgent) {
+        throw new Error('User not authenticated');
+      }
+
+      console.log('[useNFT] Fetching NFT:', {
+        collectionId,
+        tokenId,
+      });
+
+      // Fetch metadata for this specific token
+      const metadataResults = await OrigynNftService.getTokenMetadata(
+        authenticatedAgent,
+        collectionId,
+        [BigInt(tokenId)]
+      );
+
+      if (metadataResults.length === 0 || metadataResults[0].length === 0) {
+        throw new Error(`NFT not found: ${tokenId}`);
+      }
+
+      const metadata = metadataResults[0];
+
+      console.log('[useNFT] Metadata fetched:', {
+        fields: metadata.map(([key]) => key),
+        metadata,
+      });
+
+      // Helper to extract metadata values
+      const getMetadataValue = (key: string): string => {
+        const item = metadata.find(([k]) => k === key);
+        if (!item) return '';
+        const value = item[1];
+        if ('Text' in value) return value.Text;
+        if ('Nat' in value) return value.Nat.toString();
+        if ('Int' in value) return value.Int.toString();
+        return '';
+      };
+
+      // Fetch collection info for collection name
+      const collectionInfo = await CollectionService.getCollectionInfo(
+        authenticatedAgent,
+        collectionId
+      );
+
+      // ============================================================
+      // TEMPORARY: Hardcoded field priority for title/image
+      // TODO: Replace with template-based field extraction when template system is ready
+      // The template should specify which field to use as the display title
+      // ============================================================
+      const nft: NFT = {
+        id: tokenId,
+        title:
+          getMetadataValue('item_artwork_title') ||
+          getMetadataValue('item_name') ||
+          getMetadataValue('name') ||
+          `NFT #${tokenId}`,
+        collectionName: collectionInfo.name,
+        imageUrl:
+          getMetadataValue('image') ||
+          getMetadataValue('item_image') ||
+          getMetadataValue('thumbnail') ||
+          '',
+        status: 'Minted',
+        date: new Date().toLocaleDateString(),
+        rarity: getMetadataValue('rarity') || 'Common',
+        canisterId: collectionId,
+        tokenId: tokenId,
+        creator: '', // Will be populated by owner query if needed
+      };
+      // ============================================================
+      // END TEMPORARY
+      // ============================================================
+
+      console.log('[useNFT] NFT transformed:', nft);
+
+      return nft;
     },
-    enabled: !!nftId,
+    enabled: !!authenticatedAgent && !!collectionId && !!tokenId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 };
 

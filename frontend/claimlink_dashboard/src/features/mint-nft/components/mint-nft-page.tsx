@@ -18,6 +18,17 @@ export function MintNFTPage() {
   const { data: nfts = [] } = useNFTs();
   // const { isLoading } = useNFTs();
 
+  console.log('[MintNFTPage] NFTs fetched:', {
+    count: nfts.length,
+    nfts: nfts.map(nft => ({
+      id: nft.id,
+      title: nft.title,
+      collectionName: nft.collectionName,
+      imageUrl: nft.imageUrl,
+      status: nft.status
+    }))
+  });
+
 
   const handleNFTClick = (nft: NFT) => {
     console.log('NFT clicked:', nft);

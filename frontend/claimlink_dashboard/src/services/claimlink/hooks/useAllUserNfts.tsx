@@ -62,13 +62,46 @@ export const useAllUserNfts = () => {
 
           return tokenIds.map((tokenId, index) => {
             const metadata = metadataResults[index];
+
+            // Log the actual metadata structure for debugging
+            console.log(`[useAllUserNfts] Token ${tokenId} from collection ${collection.id} - Raw Metadata:`, metadata);
+            console.log(`[useAllUserNfts] Token ${tokenId} - Metadata Keys:`, metadata.map(([key]) => key));
+
+            // ============================================================
+            // TEMPORARY: Hardcoded field priority for title/image
+            // TODO: Replace with template-based field extraction when template system is ready
+            // The template should specify which field to use as the display title
+            // ============================================================
+            const nftTitle =
+              getMetadataValue(metadata, 'item_artwork_title') ||
+              getMetadataValue(metadata, 'item_name') ||
+              getMetadataValue(metadata, 'name') ||
+              `NFT #${tokenId}`;
+
+            const nftImage =
+              getMetadataValue(metadata, 'image') ||
+              getMetadataValue(metadata, 'item_image') ||
+              '';
+            // ============================================================
+            // END TEMPORARY
+            // ============================================================
+
+            console.log(`[useAllUserNfts] Token ${tokenId} - Extracted Values:`, {
+              title: nftTitle,
+              titleSource: metadata.find(([k]) =>
+                k === 'item_artwork_title' || k === 'item_name' || k === 'name'
+              )?.[0] || 'fallback',
+              image: nftImage,
+              collectionName: collection.title,
+            });
+
             return {
               id: tokenId.toString(),
-              title: getMetadataValue(metadata, 'name') || `NFT #${tokenId}`,
+              title: nftTitle,
               collectionName: collection.title, // Use collection name from ClaimLink
-              imageUrl: getMetadataValue(metadata, 'image'),
+              imageUrl: nftImage,
               status: 'Minted',
-              date: new Date(getMetadataValue(metadata, 'minted_at')).toLocaleDateString(),
+              date: new Date().toLocaleDateString(), // Default to now if minted_at not available
               rarity: getMetadataValue(metadata, 'rarity') || 'Common',
             } as NFT;
           });
