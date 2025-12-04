@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
     IdentityKitAuthType,
     NFIDW,
@@ -27,7 +27,13 @@ import {
 import { isLocalICReplica } from "@/shared/utils/environment";
 
 // Internal component to handle auth state initialization
-const AuthProviderInit = ({ children }: { children: ReactNode }) => {
+const AuthProviderInit = ({
+    children,
+    onRefReady,
+}: {
+    children: ReactNode;
+    onRefReady?: (ref: React.MutableRefObject<boolean>) => void;
+}) => {
     const { user } = useAuth();
     const isInitializing = useIsInitializing();
     const [state, setState] = useAtom(authStateAtom);
@@ -36,6 +42,17 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
     >();
     const authenticatedAgent = useAgent({ host: IC_HOST });
     const navigate = useNavigate();
+
+    // Track whether auth changes are from intentional user actions (connect/disconnect)
+    // vs automatic initialization (page reload). Prevents unwanted navigation on reload.
+    const isIntentionalAuthAction = useRef(false);
+
+    // Expose ref to parent component
+    useEffect(() => {
+        if (onRefReady) {
+            onRefReady(isIntentionalAuthAction);
+        }
+    }, [onRefReady]);
 
     // Create unauthenticated agent for public queries
     useEffect(() => {
@@ -85,8 +102,12 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
                 isInitializing: false,
                 authenticatedAgent,
             }));
-            // Navigate to dashboard when user connects
-            navigate({ to: "/dashboard" });
+
+            // Only navigate if this was an intentional connect action
+            if (isIntentionalAuthAction.current) {
+                navigate({ to: "/dashboard" });
+                isIntentionalAuthAction.current = false; // Reset flag
+            }
         } else {
             setState((prevState) => ({
                 ...prevState,
@@ -95,10 +116,15 @@ const AuthProviderInit = ({ children }: { children: ReactNode }) => {
                 isInitializing: false,
                 authenticatedAgent: undefined,
             }));
-            // Navigate to login when user disconnects
-            navigate({ to: "/login" });
+
+            // Navigate to login if intentional disconnect OR session expired
+            // (session expiration doesn't trigger onDisconnect callback)
+            if (isIntentionalAuthAction.current || state.isConnected) {
+                navigate({ to: "/login" });
+                isIntentionalAuthAction.current = false; // Reset flag
+            }
         }
-    }, [user, authenticatedAgent, setState, navigate]);
+    }, [user, authenticatedAgent, setState, navigate, state.isConnected]);
 
     // Show loading screen during initialization
     if (isInitializing || (user && !state.isConnected)) {
@@ -127,6 +153,7 @@ const AuthProvider = ({
     maxTimeToLive?: bigint;
 }) => {
     const queryClient = useQueryClient();
+    const [authActionRef, setAuthActionRef] = useState<React.MutableRefObject<boolean> | null>(null);
 
     // Use helper functions to get environment-specific configuration
     const nfidTargets = targets || getNfidTargets();
@@ -151,14 +178,23 @@ const AuthProvider = ({
                 console.error("Connection failed:", err);
             }}
             onConnectSuccess={() => {
+                // Mark this as an intentional auth action
+                if (authActionRef) {
+                    authActionRef.current = true;
+                }
                 // Clear query cache on successful connection
                 queryClient.clear();
             }}
             onDisconnect={() => {
-                // Handle disconnect if needed
+                // Mark this as an intentional auth action
+                if (authActionRef) {
+                    authActionRef.current = true;
+                }
             }}
         >
-            <AuthProviderInit>{children}</AuthProviderInit>
+            <AuthProviderInit onRefReady={setAuthActionRef}>
+                {children}
+            </AuthProviderInit>
         </IdentityKitProvider>
     );
 };
