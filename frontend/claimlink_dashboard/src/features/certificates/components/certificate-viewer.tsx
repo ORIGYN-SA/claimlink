@@ -19,14 +19,15 @@ interface CertificateViewerProps {
   companyLogo: string;
   tokenId: string;
   certificateTitle: string;
+  /** The asset name displayed prominently (e.g., "250g Gold") */
   companyName: string;
   certifiedBy: string;
+  /** Date of certification (e.g., "2024") */
   validUntil: string;
   vatNumber: string;
   signatureImage: string;
   signerName: string;
   signerTitle: string;
-  stampContent?: React.ReactNode;
   // Information tab data
   informationData?: CertificateInformationData;
   // Events tab data
