@@ -103,6 +103,9 @@ export const useAllUserNfts = () => {
               status: 'Minted',
               date: new Date().toLocaleDateString(), // Default to now if minted_at not available
               rarity: getMetadataValue(metadata, 'rarity') || 'Common',
+              canisterId: collection.id, // ORIGYN NFT canister ID
+              tokenId: tokenId.toString(), // Token ID within the canister
+              creator: '', // Will be populated if needed
             } as NFT;
           });
         } catch (error) {

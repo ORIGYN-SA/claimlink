@@ -23,9 +23,23 @@ export function MintCertificatePage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   const handleCertificateClick = (certificate: Certificate) => {
-    console.log("Certificate clicked:", certificate);
-    // Navigate to certificate detail page
-    navigate({ to: `/mint_certificate/${certificate.id}` });
+    console.log("[MintCertificatePage] Certificate clicked:", certificate);
+
+    // Navigate to certificate detail page with format: collectionId:tokenId
+    const certificateId = certificate.canisterId
+      ? `${certificate.canisterId}:${certificate.id}`
+      : certificate.id; // Fallback to just ID if canisterId not available
+
+    console.log("[MintCertificatePage] Navigating to:", certificateId, {
+      hasCanisterId: !!certificate.canisterId,
+      canisterId: certificate.canisterId,
+      tokenId: certificate.id,
+    });
+
+    navigate({
+      to: '/mint_certificate/$certificateId',
+      params: { certificateId }
+    });
   };
 
   const handleMintCertificate = () => {

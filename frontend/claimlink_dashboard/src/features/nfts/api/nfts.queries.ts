@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Principal } from '@dfinity/principal';
 import { NFTService } from './nfts.service';
 import type { NFTMintData, NFT } from '../types/nft.types';
 import { useAuth } from '@/features/auth';
@@ -68,9 +69,10 @@ export const useNFT = (collectionId: string, tokenId: string) => {
       };
 
       // Fetch collection info for collection name
+      const collectionPrincipal = Principal.fromText(collectionId);
       const collectionInfo = await CollectionService.getCollectionInfo(
         authenticatedAgent,
-        collectionId
+        collectionPrincipal
       );
 
       // ============================================================
@@ -85,7 +87,7 @@ export const useNFT = (collectionId: string, tokenId: string) => {
           getMetadataValue('item_name') ||
           getMetadataValue('name') ||
           `NFT #${tokenId}`,
-        collectionName: collectionInfo.name,
+        collectionName: collectionInfo?.name ?? 'Unknown Collection',
         imageUrl:
           getMetadataValue('image') ||
           getMetadataValue('item_image') ||
