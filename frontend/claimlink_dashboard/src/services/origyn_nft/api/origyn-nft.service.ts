@@ -1,8 +1,7 @@
 import { Actor, type Agent } from "@dfinity/agent";
 import type { Principal } from "@dfinity/principal";
 import { idlFactory } from "../idlFactory";
-import type { _SERVICE, ICRC3Value } from "../interfaces";
-import type { GetBlocksRequest, GetBlocksResult } from "../origyn_nft.did";
+import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "../interfaces";
 
 export class OrigynNftService {
   private static createActor(agent: Agent, canisterId: string): _SERVICE {

@@ -63,6 +63,28 @@ export type FinalizeUploadResult =
   | { Ok: { url: string } }
   | { Err: UploadError };
 
+// ICRC3 types for transaction blocks
+export interface GetBlocksRequest {
+  start: bigint;
+  length: bigint;
+}
+
+export interface BlockWithId {
+  id: bigint;
+  block: ICRC3Value;
+}
+
+export interface ArchivedBlocks {
+  args: Array<GetBlocksRequest>;
+  callback: [Principal, string];
+}
+
+export interface GetBlocksResult {
+  log_length: bigint;
+  blocks: Array<BlockWithId>;
+  archived_blocks: Array<ArchivedBlocks>;
+}
+
 // ICRC7 standard methods
 export interface _SERVICE {
   // Minting
@@ -72,6 +94,9 @@ export interface _SERVICE {
   init_upload: ActorMethod<[InitUploadArgs], InitUploadResult>;
   store_chunk: ActorMethod<[StoreChunkArgs], StoreChunkResult>;
   finalize_upload: ActorMethod<[FinalizeUploadArgs], FinalizeUploadResult>;
+
+  // ICRC3 queries (transaction blocks)
+  icrc3_get_blocks: ActorMethod<[Array<GetBlocksRequest>], GetBlocksResult>;
 
   // ICRC7 queries
   icrc7_tokens_of: ActorMethod<

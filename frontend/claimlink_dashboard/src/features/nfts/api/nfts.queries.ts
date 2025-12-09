@@ -80,6 +80,13 @@ export const useNFT = (collectionId: string, tokenId: string) => {
       // TODO: Replace with template-based field extraction when template system is ready
       // The template should specify which field to use as the display title
       // ============================================================
+      // Validate and convert rarity string to proper type
+      const rarityValue = getMetadataValue('rarity');
+      const validRarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'] as const;
+      const rarity: NFT['rarity'] = validRarities.includes(rarityValue as typeof validRarities[number])
+        ? (rarityValue as NFT['rarity'])
+        : 'Common';
+
       const nft: NFT = {
         id: tokenId,
         title:
@@ -87,7 +94,7 @@ export const useNFT = (collectionId: string, tokenId: string) => {
           getMetadataValue('item_name') ||
           getMetadataValue('name') ||
           `NFT #${tokenId}`,
-        collectionName: collectionInfo?.name ?? 'Unknown Collection',
+        collectionName: collectionInfo?.title ?? 'Unknown Collection',
         imageUrl:
           getMetadataValue('image') ||
           getMetadataValue('item_image') ||
@@ -95,7 +102,7 @@ export const useNFT = (collectionId: string, tokenId: string) => {
           '',
         status: 'Minted',
         date: new Date().toLocaleDateString(),
-        rarity: getMetadataValue('rarity') || 'Common',
+        rarity,
         canisterId: collectionId,
         tokenId: tokenId,
         creator: '', // Will be populated by owner query if needed
