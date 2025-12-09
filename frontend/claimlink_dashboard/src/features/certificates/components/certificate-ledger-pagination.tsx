@@ -1,7 +1,4 @@
-// Icon assets from Figma
-const iconArrowRight = "http://localhost:3845/assets/32887db46c0297bb943372a1f1d68013beb2ca64.svg";
-const iconArrowLeft = "http://localhost:3845/assets/1bd747c725bb60a7d3f668d41a5a66a2a21959eb.svg";
-const iconDropdown = "http://localhost:3845/assets/84c8526f439faed3b15b57a996ea41c9960905ba.svg";
+import { ChevronLeft, ChevronRight, ChevronDown } from "lucide-react";
 
 interface CertificateLedgerPaginationProps {
   currentPage: number;
@@ -85,7 +82,7 @@ export function CertificateLedgerPagination({
           <p className="text-[#222526] text-[13px] font-medium leading-normal">
             {itemsPerPage}
           </p>
-          <img alt="" className="size-2 rotate-90" src={iconDropdown} />
+          <ChevronDown className="size-3 text-[#222526]" />
         </button>
       </div>
 
@@ -98,7 +95,7 @@ export function CertificateLedgerPagination({
           className="size-3.5 flex items-center justify-center disabled:opacity-30 hover:opacity-70 transition-opacity"
           aria-label="Previous page"
         >
-          <img alt="" className="size-full" src={iconArrowLeft} />
+          <ChevronLeft className="size-full text-[#222526]" />
         </button>
 
         {/* Page Numbers */}
@@ -139,7 +136,7 @@ export function CertificateLedgerPagination({
           className="size-3.5 flex items-center justify-center disabled:opacity-30 hover:opacity-70 transition-opacity"
           aria-label="Next page"
         >
-          <img alt="" className="size-full" src={iconArrowRight} />
+          <ChevronRight className="size-full text-[#222526]" />
         </button>
       </div>
     </div>
