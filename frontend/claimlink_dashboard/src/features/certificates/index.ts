@@ -5,8 +5,10 @@ export { CertificateTabs } from './components/certificate-tabs';
 export { CertificateLaunchpad } from './components/certificate-launchpad';
 
 // Certificate Display Components
-export { CertificateViewer } from './components/certificate-viewer';
+export { CertificateViewer, type TemplateData } from './components/certificate-viewer';
 export { CertificateDisplay } from './components/certificate-display';
+export { CertificateFrame } from './components/certificate-frame';
+export { InformationFrame } from './components/information-frame';
 
 // Certificate Information Components
 export { CertificateInformation } from './components/certificate-information';

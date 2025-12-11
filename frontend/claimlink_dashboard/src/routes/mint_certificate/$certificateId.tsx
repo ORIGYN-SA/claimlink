@@ -25,8 +25,8 @@ function CertificateDetailRoute() {
     tokenId,
   });
 
-  // Fetch NFT data
-  const { data: nft, isLoading: isLoadingNft, isError: isNftError } = useNFT(
+  // Fetch NFT data (returns { nft, parsedMetadata })
+  const { data: nftData, isLoading: isLoadingNft, isError: isNftError } = useNFT(
     collectionId,
     tokenId
   );
@@ -51,7 +51,7 @@ function CertificateDetailRoute() {
   }
 
   // Handle certificate not found
-  if (isNftError || !nft) {
+  if (isNftError || !nftData) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-[400px]">
@@ -87,6 +87,8 @@ function CertificateDetailRoute() {
     );
   }
 
+  const { nft, parsedMetadata } = nftData;
+
   // Convert NFT to Certificate format
   const certificate = {
     ...nft,
@@ -94,11 +96,16 @@ function CertificateDetailRoute() {
   };
 
   console.log('[CertificateDetailRoute] Loaded certificate:', certificate);
+  console.log('[CertificateDetailRoute] Parsed metadata:', {
+    hasTemplates: !!parsedMetadata?.templates?.certificateTemplate,
+    metadataFields: Object.keys(parsedMetadata?.metadata || {}),
+  });
 
   return (
     <DashboardLayout>
       <CertificateDetailPage
         certificate={certificate}
+        parsedMetadata={parsedMetadata}
         eventsData={historyData?.eventsData}
         ledgerData={historyData?.ledgerData}
       />

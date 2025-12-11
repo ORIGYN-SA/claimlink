@@ -1,10 +1,17 @@
+import { useState, useMemo } from 'react';
 import { type Template } from '@/shared/data';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { CertificateViewer } from '@/features/certificates/components/certificate-viewer';
-import { mockCertificateInformation } from '@/shared/data/certificate-information';
+import {
+  CertificateViewer,
+  type TemplateData,
+} from '@/features/certificates/components/certificate-viewer';
 import { mockCertificateEvents } from '@/shared/data/certificate-events';
 import { mockCertificateLedger } from '@/shared/data/certificate-ledger';
+import {
+  generateOrigynViews,
+  type ParsedOrigynMetadata,
+} from '@/features/template-renderer';
 
 interface TemplateWithBackground extends Template {
   backgroundType?: 'standard' | 'custom';
@@ -101,9 +108,9 @@ function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: Templa
             <div className="mt-3">
               <p className="text-xs text-[#69737c] mb-1">Preview</p>
               <div className="w-full h-24 rounded border border-[#e1e1e1] overflow-hidden">
-                <img 
-                  src={selectedTemplate.customBackgroundImage} 
-                  alt="Custom background" 
+                <img
+                  src={selectedTemplate.customBackgroundImage}
+                  alt="Custom background"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -132,8 +139,72 @@ function TemplatePreviewSection({ selectedTemplate }: { selectedTemplate: Templa
   );
 }
 
-// Certificate Preview Component
-function CertificatePreview({ selectedTemplate }: { selectedTemplate: TemplateWithBackground | null }) {
+// Mock form data for preview
+const MOCK_PREVIEW_DATA: Record<string, string> = {
+  company_name: 'Sample Company',
+  vat_number: 'IT01450040702',
+  certification_expiration: '2024-12-31',
+  certification_date: '2024-01-15',
+  certified_by: 'Federitaly',
+  short_description: 'This is a sample company description for preview purposes.',
+  about_company: 'Founded in 1990, Sample Company has been a leader in Italian craftsmanship for over 30 years.',
+  founding_year: '1990',
+  location: 'Milan, Lombardy, Italy',
+  website: 'https://samplecompany.it',
+  craftsmanship: 'Traditional Italian techniques passed down through generations.',
+  materials: 'Premium Italian leather and sustainable materials.',
+  production_process: 'Our manufacturing process ensures quality and authenticity at every step.',
+};
+
+// Certificate Preview Component using CertificateViewer with templateData
+function CertificatePreview({
+  selectedTemplate,
+  selectedLanguage,
+}: {
+  selectedTemplate: TemplateWithBackground | null;
+  selectedLanguage: string;
+}) {
+  // Generate ORIGYN views from template structure (if available)
+  const origynViews = useMemo(() => {
+    if (!selectedTemplate?.structure) return null;
+    try {
+      return generateOrigynViews(selectedTemplate.structure);
+    } catch (error) {
+      console.error('Failed to generate ORIGYN views:', error);
+      return null;
+    }
+  }, [selectedTemplate?.structure]);
+
+  // Build templateData for CertificateViewer
+  const templateData: TemplateData | undefined = useMemo(() => {
+    if (!origynViews) return undefined;
+
+    // Create mock parsed metadata for preview
+    const mockMetadata: ParsedOrigynMetadata = {
+      metadata: MOCK_PREVIEW_DATA,
+      templates: {
+        certificateTemplate: origynViews.certificateTemplate,
+        template: origynViews.template,
+        userViewTemplate: origynViews.userViewTemplate,
+        formTemplate: origynViews.formTemplate,
+        languages: origynViews.languages,
+      },
+      library: [],
+      tokenId: 'preview-token',
+      canisterId: 'preview-canister',
+    };
+
+    return {
+      certificateTemplate: origynViews.certificateTemplate,
+      template: origynViews.template,
+      userViewTemplate: origynViews.userViewTemplate,
+      metadata: mockMetadata,
+      canisterId: 'preview-canister',
+      tokenId: 'preview-token',
+      language: selectedLanguage,
+    };
+  }, [origynViews, selectedLanguage]);
+
   return (
     <div className="space-y-4">
       <div className="text-center">
@@ -145,27 +216,41 @@ function CertificatePreview({ selectedTemplate }: { selectedTemplate: TemplateWi
         </p>
       </div>
 
-      {/* Certificate Viewer Component */}
-      <CertificateViewer
-        companyLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=212&h=48&fit=crop"
-        tokenId="preview-certificate"
-        certificateTitle="100% MADE IN ITALY CERTIFICATE"
-        companyName="Sample Company"
-        certifiedBy="Federitaly"
-        validUntil="18/02/2024"
-        vatNumber="IT01450040702"
-        signatureImage="https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=178&h=100&fit=crop"
-        signerName="CARLO VERDONE"
-        signerTitle="President Federitaly"
-        informationData={mockCertificateInformation}
-        eventsData={mockCertificateEvents}
-        ledgerData={mockCertificateLedger}
-      />
+      {/* Certificate Viewer with templateData */}
+      {templateData ? (
+        <CertificateViewer
+          templateData={templateData}
+          eventsData={mockCertificateEvents}
+          ledgerData={mockCertificateLedger}
+        />
+      ) : (
+        <div className="bg-[#f5f5f5] rounded-lg p-12 text-center">
+          <p className="text-[#69737c]">
+            No template structure available for preview.
+            <br />
+            Please select a template with a defined structure.
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
 export function PreviewDeployStep({ selectedTemplate, onBack, onComplete }: PreviewDeployStepProps) {
+  // Language selection for template preview
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
+
+  // Get available languages from template
+  const availableLanguages = useMemo(() => {
+    if (!selectedTemplate?.structure?.languages) {
+      return [{ code: 'en', name: 'English' }];
+    }
+    return selectedTemplate.structure.languages.map((lang) => ({
+      code: lang.code,
+      name: lang.name,
+    }));
+  }, [selectedTemplate?.structure?.languages]);
+
   return (
     <div className="w-full max-w-[1400px] mx-auto space-y-8">
       {/* Header Section */}
@@ -181,8 +266,28 @@ export function PreviewDeployStep({ selectedTemplate, onBack, onComplete }: Prev
       {/* Template Preview Section */}
       <TemplatePreviewSection selectedTemplate={selectedTemplate} />
 
+      {/* Language Selector (when template has multiple languages) */}
+      {availableLanguages.length > 1 && (
+        <div className="flex justify-center gap-2">
+          {availableLanguages.map((lang) => (
+            <Button
+              key={lang.code}
+              variant={selectedLanguage === lang.code ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedLanguage(lang.code)}
+              className={selectedLanguage === lang.code ? 'bg-[#222526]' : ''}
+            >
+              {lang.name}
+            </Button>
+          ))}
+        </div>
+      )}
+
       {/* Certificate Preview Section */}
-      <CertificatePreview selectedTemplate={selectedTemplate} />
+      <CertificatePreview
+        selectedTemplate={selectedTemplate}
+        selectedLanguage={selectedLanguage}
+      />
 
       {/* Action Buttons */}
       <div className="flex gap-4 justify-center pt-6">

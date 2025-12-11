@@ -5,6 +5,7 @@ import type { NFTMintData, NFT } from '../types/nft.types';
 import { useAuth } from '@/features/auth';
 import { OrigynNftService } from '@services/origyn_nft';
 import { CollectionService } from '@services/claimlink';
+import { parseOrigynMetadata, type ParsedOrigynMetadata } from '@/features/template-renderer';
 
 export const nftKeys = {
   all: ['nfts'] as const,
@@ -23,13 +24,22 @@ export const useNFTs = (collectionId?: string, filters?: Record<string, any>) =>
   });
 };
 
+/**
+ * Return type for useNFT hook
+ * Includes both the display NFT data and the parsed ORIGYN metadata with templates
+ */
+export interface NFTWithParsedMetadata {
+  nft: NFT;
+  parsedMetadata: ParsedOrigynMetadata;
+}
+
 // Fetch single NFT
 export const useNFT = (collectionId: string, tokenId: string) => {
   const { authenticatedAgent } = useAuth();
 
   return useQuery({
     queryKey: nftKeys.detail(`${collectionId}:${tokenId}`),
-    queryFn: async () => {
+    queryFn: async (): Promise<NFTWithParsedMetadata> => {
       if (!authenticatedAgent) {
         throw new Error('User not authenticated');
       }
@@ -50,16 +60,25 @@ export const useNFT = (collectionId: string, tokenId: string) => {
         throw new Error(`NFT not found: ${tokenId}`);
       }
 
-      const metadata = metadataResults[0];
+      const rawMetadata = metadataResults[0];
 
       console.log('[useNFT] Metadata fetched:', {
-        fields: metadata.map(([key]) => key),
-        metadata,
+        fields: rawMetadata.map(([key]) => key),
+        rawMetadata,
       });
 
-      // Helper to extract metadata values
+      // Parse ORIGYN metadata with templates
+      const parsedMetadata = parseOrigynMetadata(rawMetadata, collectionId, tokenId);
+
+      console.log('[useNFT] Parsed ORIGYN metadata:', {
+        hasTemplates: !!parsedMetadata.templates.certificateTemplate || !!parsedMetadata.templates.template,
+        metadataFields: Object.keys(parsedMetadata.metadata),
+        libraryCount: parsedMetadata.library.length,
+      });
+
+      // Helper to extract metadata values (for backward compat display fields)
       const getMetadataValue = (key: string): string => {
-        const item = metadata.find(([k]) => k === key);
+        const item = rawMetadata.find(([k]) => k === key);
         if (!item) return '';
         const value = item[1];
         if ('Text' in value) return value.Text;
@@ -75,11 +94,6 @@ export const useNFT = (collectionId: string, tokenId: string) => {
         collectionPrincipal
       );
 
-      // ============================================================
-      // TEMPORARY: Hardcoded field priority for title/image
-      // TODO: Replace with template-based field extraction when template system is ready
-      // The template should specify which field to use as the display title
-      // ============================================================
       // Validate and convert rarity string to proper type
       const rarityValue = getMetadataValue('rarity');
       const validRarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'] as const;
@@ -87,15 +101,33 @@ export const useNFT = (collectionId: string, tokenId: string) => {
         ? (rarityValue as NFT['rarity'])
         : 'Common';
 
+      // Also check parsed metadata for display fields
+      const getParsedMetadataValue = (key: string): string => {
+        const value = parsedMetadata.metadata[key];
+        if (typeof value === 'string') return value;
+        if (typeof value === 'object' && value && 'content' in value) {
+          const content = value.content;
+          if (typeof content === 'string') return content;
+          if (typeof content === 'object' && 'en' in content) return content.en;
+        }
+        return '';
+      };
+
       const nft: NFT = {
         id: tokenId,
         title:
+          getParsedMetadataValue('item_artwork_title') ||
+          getParsedMetadataValue('item_name') ||
+          getParsedMetadataValue('name') ||
           getMetadataValue('item_artwork_title') ||
           getMetadataValue('item_name') ||
           getMetadataValue('name') ||
           `NFT #${tokenId}`,
         collectionName: collectionInfo?.title ?? 'Unknown Collection',
         imageUrl:
+          getParsedMetadataValue('image') ||
+          getParsedMetadataValue('item_image') ||
+          getParsedMetadataValue('thumbnail') ||
           getMetadataValue('image') ||
           getMetadataValue('item_image') ||
           getMetadataValue('thumbnail') ||
@@ -105,15 +137,12 @@ export const useNFT = (collectionId: string, tokenId: string) => {
         rarity,
         canisterId: collectionId,
         tokenId: tokenId,
-        creator: '', // Will be populated by owner query if needed
+        creator: '',
       };
-      // ============================================================
-      // END TEMPORARY
-      // ============================================================
 
       console.log('[useNFT] NFT transformed:', nft);
 
-      return nft;
+      return { nft, parsedMetadata };
     },
     enabled: !!authenticatedAgent && !!collectionId && !!tokenId,
     staleTime: 5 * 60 * 1000, // 5 minutes

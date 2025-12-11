@@ -2,10 +2,11 @@
  * CreateCertificatePageV2 Component
  *
  * Uses dynamic template form to generate certificate creation form
- * Based on selected template structure
+ * Based on selected template structure.
+ * Mints certificates with full ORIGYN template metadata.
  */
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
@@ -21,7 +22,8 @@ import {
   isFormComplete,
   getInitialFormData,
 } from "@/features/templates/utils/template-utils";
-import { useMintNft, useUploadImage } from "@services/origyn_nft";
+import { useMintNftWithTemplate } from "@services/origyn_nft";
+import { useSetCollectionTemplate } from "@/features/templates";
 
 interface CreateCertificatePageV2Props {
   onSubmit?: (data: CertificateFormData) => void;
@@ -44,14 +46,14 @@ export function CreateCertificatePageV2({
     [key: string]: string;
   }>({});
 
-  const {
-    uploadImage,
-    isUploading,
-    progress: uploadProgress,
-  } = useUploadImage();
-  const mintMutation = useMintNft({
+  // Track file fields separately for the template-based minting
+  const [fileFields, setFileFields] = useState<Map<string, File[]>>(new Map());
+
+  const setCollectionTemplate = useSetCollectionTemplate();
+
+  const mintMutation = useMintNftWithTemplate({
     onSuccess: (tokenId) => {
-      toast.success(`NFT minted successfully! Token ID: ${tokenId}`);
+      toast.success(`Certificate minted successfully! Token ID: ${tokenId}`);
       navigate({
         to: "/collections/$collectionId",
         params: { collectionId: selectedCollection },
@@ -66,7 +68,16 @@ export function CreateCertificatePageV2({
     setSelectedTemplate(template);
     // Initialize form data with template defaults when template changes
     setFormData(template ? getInitialFormData(template) : {});
+    setFileFields(new Map());
     setValidationErrors({});
+
+    // Associate template with collection
+    if (template && selectedCollection) {
+      setCollectionTemplate.mutate({
+        collectionId: selectedCollection,
+        templateId: template.id,
+      });
+    }
   };
 
   // Calculate form progress (only if template is selected)
@@ -81,11 +92,37 @@ export function CreateCertificatePageV2({
     setFormData(data);
     // Clear validation errors when form changes
     setValidationErrors({});
+
+    // Extract file fields from form data
+    const newFileFields = new Map<string, File[]>();
+    Object.entries(data).forEach(([key, value]) => {
+      // Handle single file fields
+      if (value && typeof value === "object" && "file" in value) {
+        const file = (value as { file: File }).file;
+        newFileFields.set(key, [file]);
+      }
+      // Handle multiple file fields (array of files)
+      else if (Array.isArray(value)) {
+        const files = value.filter(
+          (item): item is { file: File } =>
+            typeof item === "object" && item !== null && "file" in item
+        );
+        if (files.length > 0) {
+          newFileFields.set(key, files.map((f) => f.file));
+        }
+      }
+    });
+    setFileFields(newFileFields);
   };
 
   const handleSubmit = async () => {
     if (!selectedTemplate) {
       toast.error("No template selected");
+      return;
+    }
+
+    if (!selectedTemplate.structure) {
+      toast.error("Template has no structure defined");
       return;
     }
 
@@ -104,51 +141,21 @@ export function CreateCertificatePageV2({
     }
 
     try {
-      // Extract NFT data from form
-      const nftName = formData.name?.toString() || selectedTemplate.name;
-      const nftDescription =
-        formData.description?.toString() || selectedTemplate.description;
+      toast.info("Minting certificate with template...");
 
-      // Extract image if present
-      let imageUrl: string | undefined;
-      const imageField = formData.image || formData.thumbnail || formData.photo;
-
-      if (
-        imageField &&
-        typeof imageField === "object" &&
-        "file" in imageField
-      ) {
-        toast.info("Uploading image...");
-        const file = (imageField as { file: File }).file;
-        imageUrl = await uploadImage(file, selectedCollection);
-        toast.success("Image uploaded!");
-      }
-
-      // Convert form data to attributes
-      const attributes: Record<string, string> = {};
-      Object.entries(formData).forEach(([key, value]) => {
-        // Skip special fields and complex objects
-        if (
-          key !== "name" &&
-          key !== "description" &&
-          key !== "image" &&
-          key !== "thumbnail" &&
-          key !== "photo"
-        ) {
-          if (typeof value === "string" || typeof value === "number") {
-            attributes[key] = value.toString();
-          }
-        }
-      });
-
-      // Mint NFT
-      toast.info("Minting NFT...");
       await mintMutation.mutateAsync({
         collectionCanisterId: selectedCollection,
-        name: nftName,
-        description: nftDescription,
-        imageUrl,
-        attributes,
+        template: selectedTemplate.structure,
+        formData,
+        files: fileFields.size > 0 ? fileFields : undefined,
+        name:
+          (formData.company_name as string) ||
+          (formData.name as string) ||
+          selectedTemplate.name,
+        description:
+          (formData.short_description as string) ||
+          (formData.description as string) ||
+          selectedTemplate.description,
       });
 
       // Call optional callback
@@ -164,6 +171,9 @@ export function CreateCertificatePageV2({
     console.log("Saving draft:", formData);
     // TODO: Implement draft saving
   };
+
+  // Compute if we're in uploading/minting state
+  const isBusy = mintMutation.isPending;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -244,20 +254,22 @@ export function CreateCertificatePageV2({
               </Card>
             )}
 
-            {/* Upload Progress - Show if uploading */}
-            {isUploading && (
+            {/* Minting Progress - Show if minting */}
+            {mintMutation.isPending && (
               <Card className="p-6">
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
-                    <span className="text-[#69737c]">Uploading image...</span>
+                    <span className="text-[#69737c]">
+                      Minting certificate with template...
+                    </span>
                     <span className="font-medium text-[#222526]">
-                      {Math.round(uploadProgress)}%
+                      Processing
                     </span>
                   </div>
                   <div className="w-full bg-[#e1e1e1] rounded-full h-2">
                     <div
-                      className="bg-[#615bff] h-2 rounded-full transition-all duration-300"
-                      style={{ width: `${uploadProgress}%` }}
+                      className="bg-[#615bff] h-2 rounded-full transition-all duration-300 animate-pulse"
+                      style={{ width: "60%" }}
                     />
                   </div>
                 </div>
@@ -271,25 +283,19 @@ export function CreateCertificatePageV2({
                   <Button
                     variant="outline"
                     onClick={handleSaveDraft}
-                    disabled={mintMutation.isPending || isUploading}
+                    disabled={isBusy}
                   >
                     Save as Draft
                   </Button>
                   <Button
                     onClick={handleSubmit}
-                    disabled={
-                      mintMutation.isPending ||
-                      isUploading ||
-                      !selectedCollection
-                    }
+                    disabled={isBusy || !selectedCollection}
                   >
                     {mintMutation.isPending
                       ? "Minting..."
-                      : isUploading
-                        ? "Uploading..."
-                        : isComplete
-                          ? "Mint Certificate"
-                          : `Complete Form (${progress}%)`}
+                      : isComplete
+                        ? "Mint Certificate"
+                        : `Complete Form (${progress}%)`}
                   </Button>
                 </div>
               </Card>

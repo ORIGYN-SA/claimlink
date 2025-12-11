@@ -115,6 +115,56 @@ export class OrigynNftService {
   }
 
   /**
+   * Upload a complete file with chunked upload
+   * Helper that combines initUpload, storeChunk, and finalizeUpload
+   *
+   * @param agent - Authenticated agent
+   * @param canisterId - Canister to upload to
+   * @param file - File to upload
+   * @param onProgress - Optional progress callback
+   * @returns URL of the uploaded file
+   */
+  static async uploadFile(
+    agent: Agent,
+    canisterId: string,
+    file: File,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+    const filePath = file.name;
+    const fileSize = BigInt(file.size);
+
+    // Calculate file hash (SHA-256)
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Initialize upload
+    await this.initUpload(agent, canisterId, filePath, fileHash, fileSize, BigInt(CHUNK_SIZE));
+
+    // Upload chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkData = Array.from(uint8Array.slice(start, end));
+
+      await this.storeChunk(agent, canisterId, filePath, BigInt(i), chunkData);
+
+      // Report progress
+      if (onProgress) {
+        onProgress(((i + 1) / totalChunks) * 100);
+      }
+    }
+
+    // Finalize and get URL
+    return await this.finalizeUpload(agent, canisterId, filePath);
+  }
+
+  /**
    * Get tokens owned by account (from reference App.js:121-125)
    * Used to fetch user's NFTs in a collection
    */

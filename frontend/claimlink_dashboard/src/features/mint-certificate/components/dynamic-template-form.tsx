@@ -5,7 +5,7 @@
  * Used when creating a certificate from a template
  */
 
-import { useState, useRef, createRef, type ChangeEvent } from 'react';
+import { useState, useRef, useEffect, createRef, type ChangeEvent } from 'react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
@@ -48,6 +48,26 @@ export function DynamicTemplateForm({
   );
   const [errors, setErrors] = useState<{ [itemId: string]: string }>({});
   const fileInputRefs = useRef<Map<string, React.RefObject<HTMLInputElement | null>>>(new Map());
+
+  // Sync internal formData when template changes
+  // This ensures badge defaults and other initial values are properly set
+  useEffect(() => {
+    const newFormData = getInitialFormData(template);
+    setFormData((prev) => {
+      // Merge: keep existing user-entered values but add any missing defaults
+      const merged = { ...newFormData };
+      Object.keys(prev).forEach((key) => {
+        // Only keep non-empty values from previous state
+        if (prev[key] !== undefined && prev[key] !== '' && prev[key] !== null) {
+          merged[key] = prev[key];
+        }
+      });
+      // Notify parent of the merged data with defaults
+      onFormDataChange?.(merged);
+      return merged;
+    });
+    setErrors({});
+  }, [template.id]); // Re-run when template changes (don't include onFormDataChange to avoid infinite loop)
 
   // Handle value change
   const handleChange = (itemId: string, value: any) => {
@@ -159,8 +179,8 @@ export function DynamicTemplateForm({
     const value = (formData[item.id] as string) || item.defaultValue || '';
     const error = errors[item.id];
 
-    // If immutable or no custom values allowed, just display
-    if (item.immutable || !item.allowCustomValue) {
+    // If immutable, just display as static badge (no editing allowed)
+    if (item.immutable) {
       return (
         <div className="space-y-2">
           <label className="text-sm font-medium text-[#222526] flex items-center gap-1">
@@ -174,7 +194,7 @@ export function DynamicTemplateForm({
       );
     }
 
-    // If predefined values, use select
+    // If predefined values exist, use select dropdown
     if (item.predefinedValues && item.predefinedValues.length > 0) {
       return (
         <div className="space-y-2">

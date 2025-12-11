@@ -145,8 +145,19 @@ export function validateField(
   item: TemplateItem,
   value: any
 ): { isValid: boolean; error?: string } {
+  // For immutable fields with default values, consider the default as the value
+  // This handles cases where badge fields display defaults but form state might not have them
+  let effectiveValue = value;
+  if (item.immutable && !value) {
+    if (isBadgeItem(item) && item.defaultValue) {
+      effectiveValue = item.defaultValue;
+    } else if (isTitleItem(item) && item.defaultValue) {
+      effectiveValue = item.defaultValue;
+    }
+  }
+
   // Check required
-  if (item.required && !value) {
+  if (item.required && !effectiveValue) {
     return {
       isValid: false,
       error: `${item.label} is required`,
