@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { Neuron, DissolveState } from "../../interfaces/ogy";
+import type { Neuron, DissolveState } from "../../interfaces/ogy";
 import {
   formatTimestampToYearsDifference,
   getCurrentTimestampSeconds,
@@ -33,18 +33,27 @@ export const parseNeuronsOGY = (neurons: Array<Neuron>) => {
       ? neuron.staked_maturity_e8s_equivalent[0]
       : neuron.staked_maturity_e8s_equivalent;
 
-    const id = Array.isArray(neuron.id)
+    const id = Array.isArray(neuron.id) && neuron.id[0]
       ? Buffer.from(neuron.id[0].id).toString("hex")
       : neuron.id;
 
-    const dissolve_delay = getIsDissolving(dissolveState)
-      ? formatTimestampToYearsDifference(
+    let dissolve_delay = "0 years";
+    let dissolving = false;
+
+    if (dissolveState) {
+      dissolving = getIsDissolving(dissolveState);
+
+      if (dissolving && "DissolveDelaySeconds" in dissolveState) {
+        dissolve_delay = formatTimestampToYearsDifference(
           currentTimestampSeconds + Number(dissolveState.DissolveDelaySeconds)
-        )
-      : formatTimestampToYears(
+        );
+      } else if (!dissolving && "WhenDissolvedTimestampSeconds" in dissolveState) {
+        dissolve_delay = formatTimestampToYears(
           Number(dissolveState.WhenDissolvedTimestampSeconds) -
             currentTimestampSeconds
         );
+      }
+    }
 
     const staked_amount = divideBy1e8(
       Number(neuron.cached_neuron_stake_e8s || 0)
@@ -52,7 +61,6 @@ export const parseNeuronsOGY = (neurons: Array<Neuron>) => {
     const staked_maturity = divideBy1e8(
       Number(stakedMaturityEquivalent != null ? stakedMaturityEquivalent : 0)
     );
-    const dissolving = getIsDissolving(dissolveState);
 
     return {
       id,

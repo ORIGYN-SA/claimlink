@@ -1,0 +1,186 @@
+/**
+ * ICRC3 Metadata Converter
+ *
+ * Converts buildOrigynApps output to ICRC3Value metadata format for minting.
+ */
+
+import type { ICRC3Value } from '@services/origyn_nft/interfaces';
+import type { OrigynAppEntry, FileReference, LocalizedContent } from '../types';
+import type { CertificateFormData } from '@/features/templates/types/template-structure.types';
+
+/**
+ * Convert a JavaScript value to ICRC3Value
+ */
+function toIcrc3Value(value: unknown): ICRC3Value {
+  if (value === null || value === undefined) {
+    return { Text: '' };
+  }
+
+  if (typeof value === 'string') {
+    return { Text: value };
+  }
+
+  if (typeof value === 'number') {
+    return Number.isInteger(value) ? { Int: BigInt(value) } : { Text: value.toString() };
+  }
+
+  if (typeof value === 'bigint') {
+    return { Int: value };
+  }
+
+  if (typeof value === 'boolean') {
+    return { Text: value.toString() };
+  }
+
+  if (Array.isArray(value)) {
+    return { Array: value.map(toIcrc3Value) };
+  }
+
+  if (typeof value === 'object') {
+    // Handle FileReference
+    if ('id' in value && 'path' in value) {
+      const fileRef = value as FileReference;
+      return {
+        Map: [
+          ['id', { Text: fileRef.id }],
+          ['path', { Text: fileRef.path }],
+        ],
+      };
+    }
+
+    // Handle LocalizedContent
+    if (Object.keys(value).every((k) => typeof k === 'string' && typeof (value as Record<string, unknown>)[k] === 'string')) {
+      const entries = Object.entries(value as LocalizedContent).map(
+        ([key, val]) => [key, { Text: val }] as [string, ICRC3Value]
+      );
+      return { Map: entries };
+    }
+
+    // Handle generic object
+    const entries = Object.entries(value as Record<string, unknown>).map(
+      ([key, val]) => [key, toIcrc3Value(val)] as [string, ICRC3Value]
+    );
+    return { Map: entries };
+  }
+
+  return { Text: String(value) };
+}
+
+/**
+ * Convert OrigynAppEntry to ICRC3Value Map
+ */
+function appEntryToIcrc3(app: OrigynAppEntry): ICRC3Value {
+  const entries: Array<[string, ICRC3Value]> = [
+    ['app_id', { Text: app.app_id }],
+    ['read', { Text: app.read }],
+    ['data', toIcrc3Value(app.data)],
+  ];
+
+  if (app.write) {
+    entries.push(['write', toIcrc3Value(app.write)]);
+  }
+
+  if (app.permissions) {
+    entries.push(['permissions', toIcrc3Value(app.permissions)]);
+  }
+
+  return { Map: entries };
+}
+
+/**
+ * Convert OrigynAppEntry[] to ICRC3Value Array
+ */
+function appsToIcrc3(apps: OrigynAppEntry[]): ICRC3Value {
+  return { Array: apps.map(appEntryToIcrc3) };
+}
+
+/**
+ * Options for converting to ICRC3 metadata
+ */
+export interface ConvertToIcrc3Options {
+  /** Name/title of the NFT */
+  name?: string;
+  /** Description of the NFT */
+  description?: string;
+  /** Image URL (if already uploaded) */
+  imageUrl?: string;
+}
+
+/**
+ * Convert buildOrigynApps output to ICRC3 metadata array for minting
+ *
+ * @param apps - The __apps array from buildOrigynApps
+ * @param formData - Original form data (for extracting name/description)
+ * @param options - Additional options
+ * @returns ICRC3 metadata array ready for minting
+ */
+export function convertToIcrc3Metadata(
+  apps: OrigynAppEntry[],
+  formData: CertificateFormData,
+  options: ConvertToIcrc3Options = {}
+): Array<[string, ICRC3Value]> {
+  const metadata: Array<[string, ICRC3Value]> = [];
+
+  // Extract name from form data or options
+  const name =
+    options.name ||
+    (formData.company_name as string) ||
+    (formData.name as string) ||
+    (formData.certificate_title as string) ||
+    (formData.product_name as string) ||
+    'Certificate';
+
+  // Extract description from form data or options
+  const description =
+    options.description ||
+    (formData.short_description as string) ||
+    (formData.description as string) ||
+    (formData.about as string) ||
+    '';
+
+  // Add standard metadata fields
+  metadata.push(['name', { Text: name }]);
+  metadata.push(['description', { Text: description }]);
+  metadata.push(['minted_at', { Text: new Date().toISOString() }]);
+
+  // Add image if provided
+  if (options.imageUrl) {
+    metadata.push(['image', { Text: options.imageUrl }]);
+  }
+
+  // Add form data as individual fields (for backward compatibility and querying)
+  Object.entries(formData).forEach(([key, value]) => {
+    // Skip complex objects (files, etc.)
+    if (typeof value === 'string') {
+      metadata.push([key, { Text: value }]);
+    } else if (typeof value === 'number') {
+      metadata.push([key, { Int: BigInt(value) }]);
+    }
+  });
+
+  // Add the complete __apps structure
+  metadata.push(['__apps', appsToIcrc3(apps)]);
+
+  return metadata;
+}
+
+/**
+ * Helper to extract a simple value from ICRC3Value
+ */
+export function extractIcrc3Value(value: ICRC3Value): string | number | undefined {
+  if ('Text' in value) return value.Text;
+  if ('Int' in value) return Number(value.Int);
+  if ('Nat' in value) return Number(value.Nat);
+  return undefined;
+}
+
+/**
+ * Helper to find a field in ICRC3 metadata array
+ */
+export function findIcrc3Field(
+  metadata: Array<[string, ICRC3Value]>,
+  key: string
+): ICRC3Value | undefined {
+  const entry = metadata.find(([k]) => k === key);
+  return entry?.[1];
+}

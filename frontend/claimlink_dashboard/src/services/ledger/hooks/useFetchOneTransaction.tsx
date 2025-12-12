@@ -1,12 +1,14 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
 
 import { GOLDAO_LEDGER_CANISTER_ID_IC } from "@constants";
 
-import fetch_one_transaction, { Transaction } from "../fetch_one_transaction";
+import fetch_one_transaction, {
+  type Transaction,
+} from "../fetch_one_transaction";
 import { getDateUTC } from "@shared/utils/dates";
 import { divideBy1e8, numberToLocaleString } from "@shared/utils/numbers";
 

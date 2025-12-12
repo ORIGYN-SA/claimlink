@@ -41,7 +41,7 @@ export function AccountMenu({
   const { copyToClipboard } = useCopyToClipboard();
 
   // Fetch balances for all supported tokens
-  const { balances, summary, refetchAll } = useMultiTokenBalance(
+  const { balances, refetchAll } = useMultiTokenBalance(
     SUPPORTED_TOKENS,
     authenticatedAgent,
     principalId || "",

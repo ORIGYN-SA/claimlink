@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
 import type { ActorSubclass } from "@dfinity/agent";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
-// @ts-expect-error: later will be fixed
 import { idlFactory } from "../idlFactory";
 // @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryICP } from "../idlFactoryICP";
@@ -10,7 +9,7 @@ import type { Result } from "../interfaces/ledger";
 
 const icrc1_transfer = async (
   actor: ActorSubclass,
-  transferArgs: { amount: bigint; account: string; fee: bigint }
+  transferArgs: { amount: bigint; account: string; fee: bigint },
 ) => {
   const { amount, account } = transferArgs;
   const decodedAccount = decodeIcrcAccount(account);
@@ -35,7 +34,7 @@ const icrc1_transfer = async (
 
 const send_dfx = async (
   actor: ActorSubclass,
-  transferArgs: { amount: bigint; account: string; fee: bigint; memo?: bigint }
+  transferArgs: { amount: bigint; account: string; fee: bigint; memo?: bigint },
 ) => {
   const { amount, account, memo, fee } = transferArgs;
   const result = await actor.send_dfx({
@@ -57,15 +56,19 @@ const useTransfer = (
   options: {
     ledger: string;
     is_principal_standard?: boolean;
-  }
+  },
 ) => {
   const queryClient = useQueryClient();
   const { ledger, is_principal_standard = true } = options;
-  return useMutation<bigint | undefined, Error, {
-    amount: bigint;
-    account: string;
-    fee: bigint;
-  }>({
+  return useMutation<
+    bigint | undefined,
+    Error,
+    {
+      amount: bigint;
+      account: string;
+      fee: bigint;
+    }
+  >({
     mutationFn: async ({
       amount,
       account,

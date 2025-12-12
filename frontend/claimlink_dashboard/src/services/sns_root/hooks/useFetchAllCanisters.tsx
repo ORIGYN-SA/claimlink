@@ -1,12 +1,12 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 
 import get_sns_canisters_summary, {
-  SNSCanistersSummaryData,
+  type SNSCanistersSummaryData,
 } from "../get_sns_canisters_summary";
 
 import { idlFactory } from "../idlFactory";
@@ -19,7 +19,7 @@ const useFetchAllCanisters = (
   options: Omit<
     UseQueryOptions<SNSCanistersSummaryData[]>,
     "queryKey" | "queryFn"
-  > = {}
+  > = {},
 ) => {
   const {
     enabled = true,

@@ -1,7 +1,7 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
 
 import { divideBy1e8, numberToLocaleString } from "@shared/utils/numbers";
@@ -20,7 +20,7 @@ const useFetchAccount = (
     "queryKey" | "queryFn"
   > & {
     accountId: string;
-  }
+  },
 ) => {
   const {
     enabled = true,

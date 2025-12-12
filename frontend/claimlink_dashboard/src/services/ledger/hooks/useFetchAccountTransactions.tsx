@@ -1,14 +1,14 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { SortingState } from "@tanstack/react-table";
+import type { SortingState } from "@tanstack/react-table";
 
 import {
   fetch_one_account_transactions,
-  Transactions,
-  Transaction,
+  type Transactions,
+  type Transaction,
 } from "@services/ledger";
 import { getDateUTC } from "@shared/utils/dates";
 import { divideBy1e8, roundAndFormatLocale } from "@shared/utils/numbers";
@@ -22,7 +22,7 @@ const useFetchAccountTransactions = (
     offset?: number;
     sorting?: SortingState;
     account: string;
-  }
+  },
 ) => {
   const {
     enabled = true,
@@ -95,7 +95,7 @@ const useFetchAccountTransactions = (
       } catch (err) {
         console.error(err);
         throw new Error(
-          "Fetch one account transactions error! Please retry later."
+          "Fetch one account transactions error! Please retry later.",
         );
       }
     },

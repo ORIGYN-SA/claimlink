@@ -1,5 +1,4 @@
-// Icon asset from Figma
-const iconDownload = "http://localhost:3845/assets/bec182420f6dddf77097d0826a793c18e65bc2cc.svg";
+import { Download } from "lucide-react";
 
 interface CertificateEventRowProps {
   date: string;
@@ -58,7 +57,7 @@ export function CertificateEventRow({
             className="bg-[#fcfafa] rounded-2xl p-3 size-8 flex items-center justify-center shrink-0 hover:bg-[#e1e1e1] transition-colors"
             aria-label="Download event attachment"
           >
-            <img alt="" className="size-4" src={iconDownload} />
+            <Download className="size-4 text-[#222526]" />
           </button>
         )}
       </div>

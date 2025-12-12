@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { LayoutGrid, Layers, Timer, ImagePlus, UserPlus, ScrollText, BookCopy } from "lucide-react";
+import { LayoutGrid, Layers, ScrollText, BookCopy } from "lucide-react";
 
 const navItems: {
   title: string;
@@ -19,7 +19,7 @@ const navItems: {
   {
     title: "Templates",
     url: "/templates",
-    icon: <BookCopy/>,
+    icon: <BookCopy />,
   },
   {
     title: "Mint Certificate",
@@ -31,16 +31,16 @@ const navItems: {
   //   url: "/mint_nft",
   //   icon: <ImagePlus />,
   // },
-  {
-    title: "Campaigns",
-    url: "/campaigns",
-    icon: <Timer />,
-  },
-  {
-    title: "Account",
-    url: "/account",
-    icon: <UserPlus />,
-  }
+  // {
+  //   title: "Campaigns",
+  //   url: "/campaigns",
+  //   icon: <Timer />,
+  // },
+  // {
+  //   title: "Account",
+  //   url: "/account",
+  //   icon: <UserPlus />,
+  // }
 ];
 
 export default navItems;

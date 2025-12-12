@@ -1,6 +1,6 @@
 import { instance } from "./icp_icrc_api/instance";
 
-import { Transactions, Transaction } from "./utils/interfaces";
+import type { Transactions, Transaction } from "./utils/interfaces";
 
 export type { Transactions, Transaction };
 

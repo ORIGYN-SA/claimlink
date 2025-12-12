@@ -1,7 +1,7 @@
-import { Actor } from "@dfinity/agent";
+import { type ActorSubclass } from "@dfinity/agent";
 
-const icrc1_decimals = async (actor: Actor): Promise<number> => {
-  const result = await actor.icrc1_decimals();
+const icrc1_decimals = async (actor: ActorSubclass): Promise<number> => {
+  const result = (await actor.icrc1_decimals()) as number;
   return Number(result);
 };
 

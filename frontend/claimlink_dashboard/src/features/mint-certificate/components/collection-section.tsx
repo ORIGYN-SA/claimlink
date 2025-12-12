@@ -1,7 +1,14 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { getActiveCollections } from "@/shared/data/collections";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useListMyCollections } from "@services/claimlink";
 import { templateOptions } from "@/shared/data/templates";
 import type { Template } from "@/shared/data/templates";
 import { BulkImportDialog } from "@/components/common";
@@ -9,19 +16,24 @@ import { BulkImportDialog } from "@/components/common";
 interface CollectionSectionProps {
   onTemplateChange?: (template: Template | null) => void;
   onCollectionChange?: (collectionId: string) => void;
+  initialCollectionId?: string;
 }
 
-export function CollectionSection({ 
+export function CollectionSection({
   onTemplateChange,
-  onCollectionChange 
+  onCollectionChange,
+  initialCollectionId,
 }: CollectionSectionProps) {
-  const [selectedCollection, setSelectedCollection] = useState<string>("");
+  const [selectedCollection, setSelectedCollection] = useState<string>(
+    initialCollectionId || "",
+  );
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
   const [bulkOpen, setBulkOpen] = useState(false);
 
-  // Only show active collections in the dropdown
-  const activeCollections = getActiveCollections();
-  
+  // Fetch collections from backend
+  const { data: collectionsResult, isLoading, error } = useListMyCollections();
+  const activeCollections = collectionsResult?.collections || [];
+
   // Use templateOptions (industry-specific templates) for the dropdown
   const availableTemplates = templateOptions;
 
@@ -32,9 +44,9 @@ export function CollectionSection({
 
   const handleTemplateChange = (value: string) => {
     setSelectedTemplate(value);
-    
+
     // Find the selected template and pass it to parent
-    const template = availableTemplates.find(t => t.id === value);
+    const template = availableTemplates.find((t) => t.id === value);
     onTemplateChange?.(template || null);
   };
 
@@ -52,38 +64,76 @@ export function CollectionSection({
           <div className="font-sans font-medium leading-[0] not-italic relative shrink-0 text-[#6f6d66] text-[13px] text-nowrap">
             <p className="leading-[normal] whitespace-pre">Collection</p>
           </div>
-          <Select value={selectedCollection} onValueChange={handleCollectionChange}>
-            <SelectTrigger className="bg-white border border-[#e1e1e1] rounded-[100px] h-12 px-4 text-[14px] font-semibold">
-              <SelectValue placeholder="Select a collection" />
-            </SelectTrigger>
-            <SelectContent className="bg-white border border-[#e1e1e1] rounded-[16px]">
-              {activeCollections.map((collection) => (
-                <SelectItem
-                  key={collection.id}
-                  value={collection.id}
-                  className="px-4 py-2 hover:bg-[#f5f5f5] cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-[8px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-                      <img
-                        src={collection.imageUrl}
-                        alt={collection.title}
-                        className="w-full h-full object-cover"
-                      />
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-[#69737c] text-sm py-2">
+              Loading collections...
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-[16px] p-4">
+              <p className="text-red-600 text-sm">
+                Failed to load collections: {error.message}
+              </p>
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!isLoading && !error && activeCollections.length === 0 && (
+            <div className="bg-[#f5f5f5] rounded-[16px] p-4 text-center">
+              <p className="text-[#69737c] text-sm mb-2">
+                No collections found. Create a collection first.
+              </p>
+              <Link
+                to="/collections/new"
+                className="text-[#615bff] text-sm font-medium hover:underline"
+              >
+                Create Collection →
+              </Link>
+            </div>
+          )}
+
+          {/* Collection Dropdown - Only show if collections exist */}
+          {!isLoading && !error && activeCollections.length > 0 && (
+            <Select
+              value={selectedCollection}
+              onValueChange={handleCollectionChange}
+            >
+              <SelectTrigger className="bg-white border border-[#e1e1e1] rounded-[100px] h-12 px-4 text-[14px] font-semibold">
+                <SelectValue placeholder="Select a collection" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-[#e1e1e1] rounded-[16px]">
+                {activeCollections.map((collection) => (
+                  <SelectItem
+                    key={collection.id}
+                    value={collection.id}
+                    className="px-4 py-2 hover:bg-[#f5f5f5] cursor-pointer"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-[8px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
+                        <img
+                          src={collection.imageUrl}
+                          alt={collection.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="font-medium text-[#222526] text-[14px]">
+                          {collection.title}
+                        </span>
+                        <span className="text-[#69737c] text-[12px]">
+                          {collection.itemCount} items
+                        </span>
+                      </div>
                     </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-[#222526] text-[14px]">
-                        {collection.title}
-                      </span>
-                      <span className="text-[#69737c] text-[12px]">
-                        {collection.itemCount} items
-                      </span>
-                    </div>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
         </div>
 
         {/* Template Dropdown */}
@@ -105,7 +155,10 @@ export function CollectionSection({
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-[8px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
                       <img
-                        src={template.thumbnail || "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop"}
+                        src={
+                          template.thumbnail ||
+                          "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=200&h=200&fit=crop"
+                        }
                         alt={template.name}
                         className="w-full h-full object-cover"
                       />

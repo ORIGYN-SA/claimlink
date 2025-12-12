@@ -1,11 +1,5 @@
+import { Flame, ArrowRightLeft, Coins, BadgeCheck, User } from "lucide-react";
 import type { LedgerTransaction, LedgerTransactionType } from "./certificate-ledger";
-
-// Icon assets from Figma
-const iconBurned = "http://localhost:3845/assets/3dcac31834ea8bf3c728095682ca2d134143e20f.svg";
-const iconTransferred = "http://localhost:3845/assets/6e65eda2d7538f31946882b6cbdf4071648c29b4.svg";
-const iconMinted = "http://localhost:3845/assets/b5974d93b713bbeb310a973d9db1cccdaf21d4ab.svg";
-const iconVerified = "http://localhost:3845/assets/bc0051f689280b292bb04d16b2255aa59f8ed2dd.svg";
-const iconAvatar = "http://localhost:3845/assets/008e407774e546ecf687917d90fd9048206f7402.svg";
 
 interface CertificateLedgerRowProps {
   transaction: LedgerTransaction;
@@ -21,19 +15,19 @@ function TransactionBadge({ type }: TransactionBadgeProps) {
     switch (type) {
       case "Burned":
         return {
-          icon: iconBurned,
+          Icon: Flame,
           label: "Burned",
           bgColor: "bg-white",
         };
       case "Transferred":
         return {
-          icon: iconTransferred,
+          Icon: ArrowRightLeft,
           label: "Transferred",
           bgColor: "bg-white",
         };
       case "Minted":
         return {
-          icon: iconMinted,
+          Icon: Coins,
           label: "Minted",
           bgColor: "bg-white",
         };
@@ -46,7 +40,7 @@ function TransactionBadge({ type }: TransactionBadgeProps) {
     <div
       className={`${config.bgColor} border border-[rgba(225,225,225,0.5)] flex gap-2 h-7 items-center px-2 py-1 rounded-full`}
     >
-      <img alt="" className="size-[10px]" src={config.icon} />
+      <config.Icon className="size-[10px] text-[#222526]" />
       <p className="text-[#222526] text-[12px] font-medium leading-normal">
         {config.label}
       </p>
@@ -61,7 +55,6 @@ interface AddressDisplayProps {
 }
 
 function AddressDisplay({
-  address,
   addressShort,
   verified = false,
 }: AddressDisplayProps) {
@@ -69,19 +62,14 @@ function AddressDisplay({
     return (
       <div className="flex gap-1.5 items-center">
         {/* Avatar Icon */}
-        <div className="relative size-6 shrink-0">
-          <div className="absolute inset-0 bg-[#233169] rounded-2xl" />
-          <img
-            alt=""
-            className="absolute inset-0 size-full p-[7px]"
-            src={iconAvatar}
-          />
+        <div className="relative size-6 shrink-0 bg-[#233169] rounded-2xl flex items-center justify-center">
+          <User className="size-3 text-white" />
         </div>
         <p className="text-[#69737c] text-[14px] font-medium leading-4">
           {addressShort}
         </p>
         {/* Verified Badge */}
-        <img alt="Verified" className="size-4 shrink-0" src={iconVerified} />
+        <BadgeCheck className="size-4 shrink-0 text-[#50be8f]" />
       </div>
     );
   }

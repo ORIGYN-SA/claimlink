@@ -68,7 +68,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
         .create_canister(
             claimlink_api::types::sub_canister::CreateOrigynNftCanisterArgs {
                 creator: caller,
-                logo: None,
+                logo: args.logo,
                 name: args.name.clone(),
                 symbol: args.symbol.clone(),
                 description: Some(args.description.clone()),

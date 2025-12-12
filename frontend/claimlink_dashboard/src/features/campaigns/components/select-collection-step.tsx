@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { mockCollections, getActiveCollections } from '@/shared/data/collections';
+import { getActiveCollections } from '@/shared/data/collections';
 import type { Collection } from '@/features/collections/types/collection.types';
 
 interface SelectCollectionStepProps {

@@ -4,7 +4,6 @@ import {
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
-// @ts-expect-error: later will be fixed
 import { idlFactory } from "../../services/ledger/idlFactory";
 import icrc1_decimals from "../../services/ledger/icrc1_decimals";
 

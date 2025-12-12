@@ -1,16 +1,93 @@
+import { useMemo } from "react";
 import { CertificateDetailActions } from "./certificate-detail-actions";
 import { CertificateLaunchpad } from "./certificate-launchpad";
-import { CertificateViewer } from "./certificate-viewer";
+import { CertificateViewer, type TemplateData } from "./certificate-viewer";
 import type { Certificate } from "@/features/certificates";
-import { mockCertificateInformation } from "@/shared/data/certificate-information";
-import { mockCertificateEvents } from "@/shared/data/certificate-events";
-import { mockCertificateLedger } from "@/shared/data/certificate-ledger";
+import type { CertificateEventsData } from "./certificate-events";
+import type { CertificateLedgerData } from "./certificate-ledger";
+import { useCollectionTemplate } from "@/features/templates";
+import {
+  generateOrigynViews,
+  type ParsedOrigynMetadata,
+} from "@/features/template-renderer";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
+  /** Parsed metadata from on-chain NFT (if available) */
+  parsedMetadata?: ParsedOrigynMetadata;
+  eventsData?: CertificateEventsData;
+  ledgerData?: CertificateLedgerData;
 }
 
-export function CertificateDetailPage({ certificate }: CertificateDetailPageProps) {
+export function CertificateDetailPage({
+  certificate,
+  parsedMetadata,
+  eventsData,
+  ledgerData,
+}: CertificateDetailPageProps) {
+  // Fetch template for this collection (uses mock templates for now)
+  const { data: template } = useCollectionTemplate(certificate.canisterId || '');
+
+  // Build templateData for CertificateViewer
+  const templateData: TemplateData | undefined = useMemo(() => {
+    const canisterId = certificate.canisterId || 'unknown-canister';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    // If we have parsed metadata from on-chain, use it directly
+    if (parsedMetadata?.templates?.certificateTemplate) {
+      return {
+        certificateTemplate: parsedMetadata.templates.certificateTemplate,
+        template: parsedMetadata.templates.template,
+        userViewTemplate: parsedMetadata.templates.userViewTemplate,
+        metadata: parsedMetadata,
+        canisterId,
+        tokenId,
+        language: 'en',
+      };
+    }
+
+    // Otherwise, generate views from mock template
+    if (template?.structure) {
+      try {
+        const origynViews = generateOrigynViews(template.structure);
+
+        // Build mock metadata from certificate data
+        const mockMetadata: ParsedOrigynMetadata = {
+          metadata: {
+            company_name: certificate.collectionName || 'Unknown Company',
+            certificate_title: certificate.title || 'Certificate',
+            certified_by: certificate.certifiedBy || 'ORIGYN',
+            // Add more fields as available from certificate
+          },
+          templates: {
+            certificateTemplate: origynViews.certificateTemplate,
+            template: origynViews.template,
+            userViewTemplate: origynViews.userViewTemplate,
+            formTemplate: origynViews.formTemplate,
+            languages: origynViews.languages,
+          },
+          library: [],
+          tokenId,
+          canisterId,
+        };
+
+        return {
+          certificateTemplate: origynViews.certificateTemplate,
+          template: origynViews.template,
+          userViewTemplate: origynViews.userViewTemplate,
+          metadata: mockMetadata,
+          canisterId,
+          tokenId,
+          language: 'en',
+        };
+      } catch (error) {
+        console.error('Failed to generate template views:', error);
+        return undefined;
+      }
+    }
+
+    return undefined;
+  }, [certificate, parsedMetadata, template]);
 
   const handleEditTemplate = () => {
     // TODO: Navigate to template edit page
@@ -49,39 +126,25 @@ export function CertificateDetailPage({ certificate }: CertificateDetailPageProp
       {/* Certificate Launchpad Section */}
       <CertificateLaunchpad
         imageUrl={certificate.imageUrl}
-        companyName="COMPANY NAME"
+        companyName={certificate.collectionName || "COMPANY NAME"}
         isVerified={true}
-        status={certificate.status === "Waiting" ? "Unclaimed" : certificate.status}
+        status={
+          certificate.status === "Waiting" ? "Unclaimed" : certificate.status
+        }
         title={certificate.title}
-        description="Vinyl on wooden stretcher 222 x 110,3 cm | 87 x 43 in. Stored in a secured vault in Switzerland"
+        description={certificate.description || "Certificate details"}
         issuerLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=64&h=64&fit=crop"
-        issuerName="Federitaly"
-        qrCodeUrl="https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https://claim.link/${certificate.id}"
+        issuerName={certificate.certifiedBy || "ORIGYN"}
+        qrCodeUrl={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https://claim.link/${certificate.id}`}
         className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"
       />
 
       {/* Certificate Viewer with Tabs */}
       <CertificateViewer
-        companyLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=212&h=48&fit=crop"
-        tokenId={certificate.id}
-        certificateTitle="100% MADE IN ITALY CERTIFICATE"
-        companyName="Cusco"
-        certifiedBy="Federitaly"
-        validUntil="18/02/2024"
-        vatNumber="IT01450040702"
-        signatureImage="https://images.unsplash.com/photo-1589492477829-5e65395b66cc?w=178&h=100&fit=crop"
-        signerName="CARLO VERDONE"
-        signerTitle="President Federitaly"
-        informationData={mockCertificateInformation}
-        eventsData={mockCertificateEvents}
-        ledgerData={mockCertificateLedger}
+        templateData={templateData}
+        eventsData={eventsData}
+        ledgerData={ledgerData}
       />
-
-      {/* TODO: Add more certificate details sections here */}
-      {/* - Event history/timeline */}
-      {/* - Owner information */}
-      {/* - Additional certificate details */}
     </div>
   );
 }
-

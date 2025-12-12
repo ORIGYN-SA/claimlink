@@ -1,15 +1,25 @@
 {
   "__0": "ORIGYN Claimlink Monorepo",
   "canisters": {
-    "claimlink_backend": {
+    "ogy_ledger": {
       "type": "custom",
-      "candid": "backend/canisters/backend/canisters/claimlink/api/can.did",
-      "package": "claimlink_backend",
-      "wasm": "backend/canisters/backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "candid": "backend/external_canisters/icrc_ledger/api/can.did",
+      "wasm": "backend/external_canisters/icrc_ledger/wasm/icrc_ledger_canister.wasm.gz",
       "declarations": {
         "bindings": ["js", "did", "ts"],
         "env_override": null,
-        "output": "backend/canisters/backend/canisters/claimlink/api/declarations"
+        "output": "backend/external_canisters/icrc_ledger/api/declarations"
+      }
+    },
+    "claimlink_backend": {
+      "type": "custom",
+      "candid": "backend/canisters/claimlink/api/can.did",
+      "package": "claimlink_backend",
+      "wasm": "backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "declarations": {
+        "bindings": ["js", "did", "ts"],
+        "env_override": null,
+        "output": "backend/canisters/claimlink/api/declarations"
       }
     },
     "claimlink_frontend": {
@@ -18,7 +28,7 @@
         "env_override": null,
         "output": null
       },
-      "source": ["frontend/claimlink_frontend/dist"],
+      "source": ["frontend/claimlink_dashboard/dist"],
       "type": "assets"
     }
   },

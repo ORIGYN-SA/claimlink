@@ -1,5 +1,5 @@
-import { ActorSubclass } from "@dfinity/agent";
-import { ActivitySnapshot } from "./interfaces";
+import type { ActorSubclass } from "@dfinity/agent";
+import type { ActivitySnapshot } from "./interfaces";
 // import { parseSNSCanistersData } from "./utils/parseSNSCanistersData";
 // import { SNSCanistersSummaryData } from "./utils/interfaces";
 

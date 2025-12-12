@@ -8,6 +8,9 @@ export interface Certificate extends BaseToken {
   certifiedBy?: 'ORIGYN';
   integratorId?: string;
   campaignId?: string;
+  // IC-specific fields
+  canisterId?: string;
+  tokenId?: string;
 }
 
 export interface CertificateGridProps {

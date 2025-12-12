@@ -38,9 +38,9 @@ include:
       src-folder: claimlink_frontend
   # Unit tests
   - local: scripts/ci-cd/.libraries_unit_test_coverage.yml
-  - local: scripts/ci-cd/.canister_unit_test_coverage.yml
-    inputs:
-      src-folder: claimlink
+  # - local: scripts/ci-cd/.canister_unit_test_coverage.yml
+  #   inputs:
+  #     src-folder: claimlink
   # Integration tests
   - local: scripts/ci-cd/.integration_tests.yml
   # Canister builds

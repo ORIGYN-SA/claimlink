@@ -1,7 +1,7 @@
-import { ActorSubclass } from "@dfinity/agent";
-import { GetSnsCanistersSummaryResponse } from "./interfaces";
+import type { ActorSubclass } from "@dfinity/agent";
+import type { GetSnsCanistersSummaryResponse } from "./interfaces";
 import { parseSNSCanistersData } from "./utils/parseSNSCanistersData";
-import { SNSCanistersSummaryData } from "./utils/interfaces";
+import type { SNSCanistersSummaryData } from "./utils/interfaces";
 
 const get_sns_canisters_summary = async ({
   actor,

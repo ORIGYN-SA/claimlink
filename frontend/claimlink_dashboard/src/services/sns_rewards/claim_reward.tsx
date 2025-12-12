@@ -1,4 +1,4 @@
-import { ActorSubclass } from "@dfinity/agent";
+import type { ActorSubclass } from "@dfinity/agent";
 import { Buffer } from "buffer";
 
 const claim_reward = async ({

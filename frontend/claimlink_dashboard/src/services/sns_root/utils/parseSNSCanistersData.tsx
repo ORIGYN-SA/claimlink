@@ -2,8 +2,8 @@ import { Buffer } from "buffer";
 import { Principal } from "@dfinity/principal";
 
 import { roundAndFormatLocale, divideBy1e8 } from "@shared/utils/numbers";
-import { GetSnsCanistersSummaryResponse, CanisterSummary } from "../interfaces";
-import { SNSCanistersSummaryData } from "./interfaces";
+import type { GetSnsCanistersSummaryResponse, CanisterSummary } from "../interfaces";
+import type { SNSCanistersSummaryData } from "./interfaces";
 
 export const parseSNSCanistersData = (sc: GetSnsCanistersSummaryResponse) => {
   const data = Object.entries(sc).flatMap(([key, entries]) =>

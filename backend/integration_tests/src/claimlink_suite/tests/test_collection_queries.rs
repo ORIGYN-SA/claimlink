@@ -46,6 +46,7 @@ fn create_test_collection(
         name: name.to_string(),
         symbol: symbol.to_string(),
         description: description.to_string(),
+        logo: None,
     };
 
     let result =

@@ -12,7 +12,7 @@ export function NFTList({ nfts, onNFTClick, onMintNFT }: NFTListProps) {
     <TokenGridView
       tokens={nfts}
       showCertifiedBadge={false} // NFTs don't show ORIGYN badge
-      onTokenClick={onNFTClick}
+      onTokenClick={(token) => onNFTClick(token as NFT)}
       onAddToken={onMintNFT}
       addButtonText="Create a nft"
       addButtonDescription="Create a campaign to distribute your NFTs via claim links"

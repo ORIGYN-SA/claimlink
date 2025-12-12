@@ -22,6 +22,7 @@ panic = "abort"
 [workspace.dependencies]
 candid = { version = "0.10.2" }
 ciborium = "0.2.2"
+minicbor = { version = "0.26.3",features = ["derive","alloc"] }
 canfund = "0.8.4"
 futures = "0.3.29"
 ic0 = "0.25.1"
@@ -52,6 +53,7 @@ tracing = "0.1.40"
 tracing-attributes = "0.1.27"
 tracing-subscriber = "0.3.18"
 num-bigint = "0.4.4"
+num-traits = "0.2"
 time = { version = "0.3.36", features = [
   "macros",
   "serde",

@@ -1,9 +1,9 @@
 import {
   useQuery,
   keepPreviousData,
-  UseQueryOptions,
+  type UseQueryOptions,
 } from "@tanstack/react-query";
-import { Actor, Agent, HttpAgent } from "@dfinity/agent";
+import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
 
 import {
   GOLDAO_LEDGER_CANISTER_ID,
@@ -50,7 +50,10 @@ const rewardsData: RewardFeeData[] = [
 
 const useRewardsFee = (
   agent: Agent | HttpAgent | undefined,
-  options: Omit<UseQueryOptions<RewardFeeData[], Error>, "queryKey" | "queryFn">
+  options: Omit<
+    UseQueryOptions<RewardFeeData[], Error>,
+    "queryKey" | "queryFn"
+  >,
 ) => {
   const {
     enabled = true,
@@ -73,7 +76,7 @@ const useRewardsFee = (
               ...reward,
               fee,
             };
-          })
+          }),
         );
         return data;
       } catch (err) {

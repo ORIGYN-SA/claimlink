@@ -5,10 +5,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Grid, List, Info, Edit } from 'lucide-react'
-import { getCollectionById, mockCollections } from '@/shared/data/collections'
-import { getCertificatesForCollection, mockCertificates } from '@/shared/data/certificates'
 import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog, TokenStatusBadge } from '@/components/common'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
+import { useCollectionNfts } from '@services/origyn_nft'
+import { useFetchCollectionInfo } from '@services/claimlink'
 
 interface CollectionDetailPageProps {
   collectionId: string
@@ -17,17 +17,28 @@ interface CollectionDetailPageProps {
 export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps) {
   const navigate = useNavigate()
   const [isAddStorageDialogOpen, setIsAddStorageDialogOpen] = React.useState(false)
-  
-  // Get collection data from shared mock data
-  const collection = getCollectionById(collectionId) || mockCollections[0] // fallback to first collection if not found
 
-  // Get certificates for this specific collection from shared data
-  const collectionCertificates = getCertificatesForCollection(collectionId, mockCollections)
+  // Fetch collection metadata from ClaimLink backend
+  const { data: collection, isLoading: isLoadingCollection, isError: isCollectionError } = useFetchCollectionInfo({
+    collectionId,
+    enabled: !!collectionId
+  });
 
-  // Use all certificates for the collection (no artificial limit)
-  const allCertificates = collectionCertificates.length > 0
-    ? collectionCertificates
-    : mockCertificates
+  // Fetch real NFTs from ORIGYN canister
+  const { data: nfts = [], isLoading: isLoadingNfts } = useCollectionNfts(collectionId);
+
+  console.log('[CollectionDetailPage] NFTs fetched:', {
+    count: nfts.length,
+    nfts: nfts.map(nft => ({
+      id: nft.id,
+      title: nft.title,
+      imageUrl: nft.imageUrl,
+      status: nft.status
+    }))
+  });
+
+  // Use real NFTs from ORIGYN canister
+  const allCertificates = nfts;
 
   const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = React.useState('')
@@ -71,14 +82,47 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
   const endIndex = startIndex + itemsPerPage
   const paginatedCertificates = filteredCertificates.slice(startIndex, endIndex)
 
+  // Show loading state while fetching collection or NFTs
+  if (isLoadingCollection || (collection && isLoadingNfts)) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading collection...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error state if collection not found
+  if (isCollectionError || !collection) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-12">
+          <p className="text-destructive">Collection not found</p>
+          <Button
+            variant="outline"
+            className="mt-4"
+            onClick={() => navigate({ to: '/collections' })}
+          >
+            Back to Collections
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   const handleCertificateClick = (certificate: any) => {
     console.log('Certificate clicked:', certificate)
-    // TODO: Navigate to certificate detail or open modal
+    // Navigate to certificate detail page with format: collectionId:tokenId
+    navigate({
+      to: '/mint_certificate/$certificateId',
+      params: { certificateId: `${collectionId}:${certificate.id}` }
+    })
   }
 
   const handleAddCertificate = () => {
-    console.log('Add certificate clicked')
-    // TODO: Navigate to create certificate page or open modal
+    // Navigate to mint certificate page with collection ID pre-selected
+    navigate({ to: '/mint_certificate/new', search: { collectionId } })
   }
 
   // List view columns configuration for certificates
@@ -92,11 +136,13 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
       render: (certificate: Certificate) => (
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-            <img
-              src={certificate.imageUrl}
-              alt={certificate.title}
-              className="w-full h-full object-cover"
-            />
+            {certificate.imageUrl && (
+              <img
+                src={certificate.imageUrl}
+                alt={certificate.title}
+                className="w-full h-full object-cover"
+              />
+            )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-base font-medium text-[#222526] truncate">
@@ -168,11 +214,13 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
             {/* Collection Image and Info */}
             <div className="flex gap-6 min-w-0 flex-1">
               <div className="w-32 h-32 bg-black rounded-lg overflow-hidden flex-shrink-0">
-                <img
-                  src={collection.imageUrl}
-                  alt={collection.title}
-                  className="w-full h-full object-cover"
-                />
+                {collection.imageUrl && (
+                  <img
+                    src={collection.imageUrl}
+                    alt={collection.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <h2 className="text-xl font-medium text-foreground mb-3">
@@ -184,27 +232,27 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
               </div>
             </div>
 
-            {/* Data Structure */}
+            {/* Canister ID */}
             <div className="flex-shrink-0">
               <h3 className="text-xs font-normal text-muted-foreground uppercase tracking-wider mb-2">
-                Data Structure
+                Canister ID
               </h3>
-              <p className="text-lg font-medium text-foreground">
-                65a10e1c187f6afe9c993527
+              <p className="text-sm font-medium text-foreground font-mono">
+                {collection.id.slice(0, 20)}...
               </p>
             </div>
 
-            {/* Cycles */}
+            {/* TODO: Cycles - requires IC management canister query */}
             <div className="flex-shrink-0">
               <h3 className="text-xs font-normal text-muted-foreground uppercase tracking-wider mb-2">
                 Cycles
               </h3>
               <p className="text-lg font-medium text-foreground">
-                656,503,874,712
+                -
               </p>
             </div>
 
-            {/* Storage */}
+            {/* TODO: Storage - requires IC management canister query */}
             <div className="flex-shrink-0 min-w-[200px]">
               <div className="flex items-center gap-2 mb-2">
                 <h3 className="text-xs font-normal text-muted-foreground uppercase tracking-wider">
@@ -216,17 +264,17 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
                 <div className="w-full bg-muted rounded-full h-1">
                   <div
                     className="bg-primary h-1 rounded-full"
-                    style={{ width: '78%' }}
+                    style={{ width: '0%' }}
                   />
                 </div>
                 <p className="text-xs font-medium text-foreground">
-                  1.56 / 2.0 GB
+                  - / - GB
                 </p>
-                <Button 
-                  variant="default" 
-                  size="sm" 
+                <Button
+                  variant="default"
+                  size="sm"
                   className="w-full"
-                  onClick={() => setIsAddStorageDialogOpen(true)}
+                  disabled
                 >
                   Add more storage
                 </Button>

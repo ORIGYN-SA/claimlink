@@ -1,9 +1,6 @@
+import { Copy, Download } from "lucide-react";
 import { CertificateMetadataRow } from "./certificate-metadata-row";
 import { CertificateGallery } from "./certificate-gallery";
-
-// Icon assets from Figma
-const iconCopy = "http://localhost:3845/assets/bc7320016fed561ae92f56a8e185a6d8962e9ecc.svg";
-const iconDownload = "http://localhost:3845/assets/eacc358099292679f0f255533bcdaeccf7858f84.svg";
 
 export interface CertificateInformationData {
   artistName: string;
@@ -136,7 +133,7 @@ export function CertificateInformation({
                     className="shrink-0 size-4 cursor-pointer hover:opacity-70 transition-opacity"
                     aria-label="Copy contract address"
                   >
-                    <img alt="" className="size-full" src={iconCopy} />
+                    <Copy className="size-full text-white" />
                   </button>
                 </div>
               </div>
@@ -152,7 +149,7 @@ export function CertificateInformation({
                   Download report
                 </span>
                 <div className="bg-[#222526] rounded-2xl p-3 size-8 flex items-center justify-center shrink-0">
-                  <img alt="" className="size-4" src={iconDownload} />
+                  <Download className="size-4 text-white" />
                 </div>
               </button>
             </div>

@@ -29,7 +29,7 @@ export default defineConfig({
       "@utils": fileURLToPath(new URL("./src/utils", import.meta.url)),
       "@assets": fileURLToPath(new URL("./src/assets", import.meta.url)),
       "@constants": fileURLToPath(
-        new URL("./src/constants.ts", import.meta.url),
+        new URL("./src/shared/constants.ts", import.meta.url),
       ),
       "@auth": fileURLToPath(new URL("./src/auth", import.meta.url)),
       "@dashboard": fileURLToPath(

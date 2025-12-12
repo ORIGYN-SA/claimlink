@@ -11,6 +11,19 @@ export { TemplateItemRow } from './components/template-item-row'
 export { PreviewDeployStep } from './components/preview-deploy-step'
 export { Stepper } from './components/stepper'
 
+// API / Service Layer
+export { TemplateService } from './api/templates.service'
+export {
+  templateKeys,
+  useTemplates,
+  useTemplate,
+  useCollectionTemplate,
+  useTemplatesByCategory,
+  useFreeTemplates,
+  usePremiumTemplates,
+  useSetCollectionTemplate,
+} from './api/templates.queries'
+
 // Types
 export type { CreateTemplateInput, TemplateCardProps, TemplateFilters, PaginationState } from './types/template.types'
 export type {

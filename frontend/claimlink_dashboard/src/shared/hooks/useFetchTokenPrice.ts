@@ -4,14 +4,14 @@ import {
   type UseQueryOptions,
 } from "@tanstack/react-query";
 import { Actor, type Agent, HttpAgent } from "@dfinity/agent";
-import { KONGSWAP_CANISTER_ID_IC } from "../constants";
-// @ts-expect-error: later will be fixed
+import { KONGSWAP_CANISTER_ID_IC, IC_HOST, APP_MODE } from "../constants";
 import { idlFactory as idlFactoryLedger } from "@services/ledger/idlFactory";
 // @ts-expect-error: later will be fixed
 import { idlFactory as idlFactoryKongswap } from "@services/kongswap/idlFactory";
 import icrc1_decimals from "@services/ledger/icrc1_decimals";
 import icrc1_fee from "@services/ledger/icrc1_fee";
 import swap_amounts from "@services/kongswap/swap_amounts";
+import { isLocalICReplica } from "@/shared/utils/environment";
 
 const useFetchTokenPrice = (
   agent: Agent | HttpAgent | undefined,
@@ -47,6 +47,9 @@ const useFetchTokenPrice = (
 
   const from_token = from.toLocaleUpperCase();
   const amount_number = Number(amount);
+
+  // Skip KongSwap queries in local dev (no local KongSwap deployed)
+  const shouldSkipPriceQuery = isLocalICReplica(IC_HOST, APP_MODE);
 
   return useQuery({
     queryKey: [
@@ -88,7 +91,7 @@ const useFetchTokenPrice = (
       }
     },
     placeholderData,
-    enabled,
+    enabled: enabled && agent !== undefined && !shouldSkipPriceQuery,
     refetchInterval,
     staleTime,
     refetchOnMount,

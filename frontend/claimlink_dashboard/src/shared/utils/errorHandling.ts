@@ -1,11 +1,16 @@
 export class LedgerError extends Error {
+  code?: string;
+  originalError?: Error | unknown;
+
   constructor(
     message: string,
-    public code?: string,
-    public originalError?: Error | unknown
+    code?: string,
+    originalError?: Error | unknown
   ) {
     super(message);
     this.name = 'LedgerError';
+    this.code = code;
+    this.originalError = originalError;
   }
 }
 

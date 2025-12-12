@@ -1,7 +1,7 @@
 import { DateTime } from "luxon";
 import { decodeIcrcAccount } from "@dfinity/ledger-icrc";
-import { ActorSubclass } from "@dfinity/agent";
-import { Result_2 } from "@services/ledger/interfaces/ledger";
+import type { ActorSubclass } from "@dfinity/agent";
+import type { Result_2 } from "@services/ledger/interfaces/ledger";
 
 const icrc2_approve = async (
   actor: ActorSubclass,
