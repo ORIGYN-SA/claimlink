@@ -55,7 +55,6 @@ export {
   isExpired,
   isExpiringSoon,
   // Template Conversion
-  convertToOrigynTemplate,
   convertToFormTemplate,
   convertFieldValueToOrigyn,
   convertFormDataToOrigynMetadata,
