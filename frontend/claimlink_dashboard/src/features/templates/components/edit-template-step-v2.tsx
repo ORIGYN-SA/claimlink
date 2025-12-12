@@ -463,14 +463,13 @@ export function EditTemplateStepV2({
         />
       ))}
 
-      {/* Add New Section */}
-      <Card className="p-6">
+      {/* Add New Section - COMMENTED OUT: Templates now have fixed sections (Certificate & Information) */}
+      {/* <Card className="p-6">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-medium text-[#222526]">Add New Section</h2>
             <p className="text-sm text-[#69737c]">
-              Note: Standard sections (Certificate Introduction, Certificate, About, Experience) are predefined.
-              You can add custom sections if needed.
+              Templates have 2 fixed sections: Certificate (formal certification data) and Information (about, experience, gallery).
             </p>
           </div>
           <Button variant="outline" onClick={handleAddSection}>
@@ -478,7 +477,7 @@ export function EditTemplateStepV2({
             Add section
           </Button>
         </div>
-      </Card>
+      </Card> */}
 
       {/* Choose a search index */}
       <Card className="p-6">

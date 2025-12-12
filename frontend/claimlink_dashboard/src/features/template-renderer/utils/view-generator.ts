@@ -97,16 +97,14 @@ function generateCertificateTemplate(
     libId: 'certificatelogo.png',
   } as CollectionImageNode);
 
-  // Find key fields from sections
-  const certificateSection = structure.sections.find(
-    (s) => s.name === 'Certificate' || s.name === 'Certificate Introduction'
-  );
+  // Find Certificate section (order: 1)
+  const certificateSection = structure.sections.find((s) => s.name === 'Certificate');
 
   if (certificateSection) {
-    // Add key fields
+    // Add key fields from Certificate section
     certificateSection.items
-      .filter((item) => item.type !== 'image')
-      .slice(0, 6) // Limit to first 6 fields
+      .filter((item) => item.type !== 'image' && item.type !== 'title')
+      .slice(0, 8) // Show up to 8 fields
       .forEach((item) => {
         // Title
         nodes.push({
@@ -119,32 +117,10 @@ function generateCertificateTemplate(
         nodes.push({
           id: generateNodeId(),
           type: 'valueField',
-          className: item.id === 'company_name' ? 'companyName' : undefined,
+          className: item.id.includes('name') ? 'companyName' : undefined,
           fields: [item.id],
         } as ValueFieldNode);
       });
-  }
-
-  // Add certification expiration if exists
-  const aboutSection = structure.sections.find((s) => s.name === 'About');
-  if (aboutSection) {
-    const expirationField = aboutSection.items.find(
-      (i) => i.label.toLowerCase().includes('expiration') ||
-             i.label.toLowerCase().includes('valid')
-    );
-    if (expirationField) {
-      nodes.push({
-        id: generateNodeId(),
-        type: 'title',
-        title: toLocalizedContent('Certification Valid Until', languages),
-      } as TitleNode);
-
-      nodes.push({
-        id: generateNodeId(),
-        type: 'valueField',
-        fields: [expirationField.id],
-      } as ValueFieldNode);
-    }
   }
 
   // Certified by section
@@ -205,10 +181,8 @@ function generateUserViewTemplate(
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
 
-  // Find primary identifier field
-  const certificateSection = structure.sections.find(
-    (s) => s.name === 'Certificate' || s.name === 'Certificate Introduction'
-  );
+  // Find Certificate section
+  const certificateSection = structure.sections.find((s) => s.name === 'Certificate');
 
   const primaryField = certificateSection?.items.find(
     (i) => i.label.toLowerCase().includes('name') ||
@@ -293,15 +267,14 @@ function generateUserViewTemplate(
 // ============================================================================
 
 /**
- * Generate the full experience page template
+ * Generate the full experience page template (Information tab)
  *
  * Layout:
  * - Collection logo
- * - Video (if available)
- * - About section with full text
- * - Gallery
- * - All other content
- * - Attachments
+ * - Information section content (text fields, galleries, etc.)
+ * - About, experience, and additional details
+ *
+ * Maps to: Information tab
  */
 function generateExperienceTemplate(
   structure: TemplateStructure,
@@ -322,21 +295,18 @@ function generateExperienceTemplate(
     type: 'separator',
   } as SeparatorNode);
 
-  // Process sections in order
-  const sortedSections = [...structure.sections].sort((a, b) => a.order - b.order);
+  // Find Information section (order: 2)
+  const informationSection = structure.sections.find((s) => s.name === 'Information');
 
-  sortedSections.forEach((section) => {
-    // Find image galleries
-    const galleryItems = section.items.filter(
-      (i) => i.type === 'image' && (i as ImageItem).multiple
+  if (informationSection) {
+    // Find text/about content (textarea fields)
+    const textItems = informationSection.items.filter(
+      (i) => i.type === 'input' && (i as any).inputType === 'textarea'
     );
 
-    // Find text/about content
-    const textItems = section.items.filter(
-      (i) => i.type === 'input' &&
-             (i.label.toLowerCase().includes('about') ||
-              i.label.toLowerCase().includes('description') ||
-              i.label.toLowerCase().includes('process'))
+    // Find image galleries
+    const galleryItems = informationSection.items.filter(
+      (i) => i.type === 'image' && (i as ImageItem).multiple
     );
 
     // Add text sections with title
@@ -380,7 +350,7 @@ function generateExperienceTemplate(
         type: 'separator',
       } as SeparatorNode);
     });
-  });
+  }
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {

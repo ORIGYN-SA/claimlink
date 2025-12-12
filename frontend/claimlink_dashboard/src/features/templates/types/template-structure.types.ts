@@ -90,11 +90,9 @@ export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem;
 // Section Types
 // ============================================================================
 
-export type TemplateSectionName = 
-  | 'Certificate Introduction' 
-  | 'Certificate' 
-  | 'About' 
-  | 'Experience';
+export type TemplateSectionName =
+  | 'Certificate'   // Maps to Certificate tab - formal certification data
+  | 'Information';  // Maps to Information tab - about, experience, gallery
 
 /**
  * Template section containing multiple items
@@ -102,7 +100,7 @@ export type TemplateSectionName =
 export interface TemplateSection {
   id: string;
   name: TemplateSectionName;
-  order: number; // Fixed order: Introduction(1), Certificate(2), About(3), Experience(4)
+  order: number; // Fixed order: Certificate(1), Information(2)
   items: TemplateItem[];
   collapsible?: boolean;
   collapsed?: boolean;
