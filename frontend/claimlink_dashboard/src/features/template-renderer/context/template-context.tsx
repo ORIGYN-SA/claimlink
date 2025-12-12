@@ -12,7 +12,6 @@ import type {
   FileReference,
   MetadataFieldValue,
   LocalizedContent,
-  DateContent,
   TemplateVariant,
 } from '../types';
 import {

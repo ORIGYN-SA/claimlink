@@ -3,6 +3,7 @@ import type { BaseToken, TokenStatus } from "@/components/common/token-card";
 // Certificate extends BaseToken to maintain compatibility while adding certificate-specific fields
 export interface Certificate extends BaseToken {
   // Certificate-specific fields
+  description?: string;
   issuer?: string;
   verificationCode?: string;
   certifiedBy?: 'ORIGYN';

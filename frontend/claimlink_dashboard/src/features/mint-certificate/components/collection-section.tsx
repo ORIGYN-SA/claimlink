@@ -166,7 +166,7 @@ export function CollectionSection({
                     <div className="flex flex-col">
                       <span className="font-medium text-[#222526] text-[14px]">
                         {template.name}
-                        {template.metadata?.premium && (
+                        {Boolean(template.metadata?.premium) && (
                           <span className="ml-2 text-[#615bff] text-[10px] font-bold bg-[#615bff]/10 px-2 py-0.5 rounded-full">
                             PRO
                           </span>

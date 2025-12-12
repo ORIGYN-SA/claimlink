@@ -6,7 +6,7 @@
  * Mints certificates with full ORIGYN template metadata.
  */
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
@@ -103,10 +103,12 @@ export function CreateCertificatePageV2({
       }
       // Handle multiple file fields (array of files)
       else if (Array.isArray(value)) {
-        const files = value.filter(
-          (item): item is { file: File } =>
-            typeof item === "object" && item !== null && "file" in item
-        );
+        const files: { file: File }[] = [];
+        for (const item of value) {
+          if (typeof item === "object" && item !== null && "file" in item) {
+            files.push(item as { file: File });
+          }
+        }
         if (files.length > 0) {
           newFileFields.set(key, files.map((f) => f.file));
         }

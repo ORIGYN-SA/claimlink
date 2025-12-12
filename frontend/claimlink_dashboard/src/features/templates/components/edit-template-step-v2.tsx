@@ -154,11 +154,6 @@ export function EditTemplateStepV2({
   // Event Handlers - Fields
   // ============================================================================
 
-  const handleAddSection = () => {
-    // TODO: Implement add section dialog
-    console.log('Add section');
-  };
-
   const handleAddItem = (sectionId: string) => {
     setSelectedSectionId(sectionId);
     setFieldForm({

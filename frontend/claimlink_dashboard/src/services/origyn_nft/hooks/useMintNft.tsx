@@ -175,7 +175,7 @@ export const useMintNftWithTemplate = (options?: UseMintNftOptions) => {
 
       return tokenId;
     },
-    onSuccess: (tokenId, variables) => {
+    onSuccess: (tokenId) => {
       console.log('[useMintNftWithTemplate] Successfully minted NFT with token ID:', tokenId);
 
       // Invalidate queries
