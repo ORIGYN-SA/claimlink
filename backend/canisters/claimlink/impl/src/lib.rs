@@ -8,7 +8,7 @@ pub mod queries;
 pub mod state;
 pub mod types;
 pub mod updates;
-mod utils;
+pub mod utils;
 
 use lifecycle::*;
 use queries::*;

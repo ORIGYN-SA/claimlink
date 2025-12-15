@@ -532,6 +532,7 @@ dependencies = [
  "origyn-nft-canister-api",
  "origyn-nft-canister-c2c-client",
  "serde",
+ "serde_bytes",
  "tracing",
  "types",
  "utils",
