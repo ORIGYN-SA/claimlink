@@ -3,8 +3,7 @@ import { useNavigate } from '@tanstack/react-router';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { ChooseTemplateStep } from './choose-template-step';
 import { ChooseBackgroundStep } from './choose-background-step';
-// import { EditTemplateStep } from './edit-template-step'; // OLD: Commented out - using V2 version
-import { EditTemplateStepV2 } from './edit-template-step-v2'; // NEW: Data-driven template editor
+import { EditTemplateStepV2 } from './edit-template-step-v2';
 import { PreviewDeployStep } from './preview-deploy-step';
 import { type Template } from '@/shared/data';
 

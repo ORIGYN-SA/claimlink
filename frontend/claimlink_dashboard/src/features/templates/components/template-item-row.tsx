@@ -7,7 +7,7 @@
 
 import { Button } from '@/components/ui/button';
 import Icon from '@/shared/ui/icons';
-import type { TemplateItem } from '@/features/templates/types/template-structure.types';
+import type { TemplateItem } from '@/features/templates/types/template.types';
 import { getItemTypeDisplayName, getItemTypeIcon } from '@/features/templates/utils/template-utils';
 
 interface TemplateItemRowProps {

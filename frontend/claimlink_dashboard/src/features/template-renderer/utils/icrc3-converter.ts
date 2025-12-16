@@ -6,7 +6,7 @@
 
 import type { ICRC3Value } from '@services/origyn_nft/interfaces';
 import type { OrigynAppEntry, FileReference, LocalizedContent } from '../types';
-import type { CertificateFormData } from '@/features/templates/types/template-structure.types';
+import type { CertificateFormData } from '@/features/templates/types/template.types';
 
 /**
  * Convert a JavaScript value to ICRC3Value

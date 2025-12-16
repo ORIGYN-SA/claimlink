@@ -1,4 +1,4 @@
-import type { TemplateStructure } from "@/features/templates/types/template-structure.types";
+import type { TemplateStructure } from "@/features/templates/types/template.types";
 
 // Template data type - unified for all use cases
 export interface Template {

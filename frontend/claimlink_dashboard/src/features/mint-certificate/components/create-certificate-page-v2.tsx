@@ -4,9 +4,14 @@
  * Uses dynamic template form to generate certificate creation form
  * Based on selected template structure.
  * Mints certificates with full ORIGYN template metadata.
+ *
+ * Uses certificateCreatorAtom for state management (Phase 3 migration)
+ * - Consolidated 5 useState calls into single atom
+ * - Template, collection, formData, validation, and files managed by atom
  */
 
-import { useState } from "react";
+import { useEffect } from "react";
+import { useAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
@@ -14,8 +19,9 @@ import { PricingSidebar } from "./pricing-sidebar";
 import { DynamicTemplateForm } from "./dynamic-template-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { certificateCreatorAtom } from "../atoms/certificate-creator.atom";
 import type { Template } from "@/shared/data/templates";
-import type { CertificateFormData } from "@/features/templates/types/template-structure.types";
+import type { CertificateFormData } from "@/features/templates/types/template.types";
 import {
   validateFormData,
   getTemplateProgress,
@@ -35,28 +41,24 @@ export function CreateCertificatePageV2({
   initialCollectionId,
 }: CreateCertificatePageV2Props) {
   const navigate = useNavigate();
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
-    null,
-  );
-  const [selectedCollection, setSelectedCollection] = useState<string>(
-    initialCollectionId || "",
-  );
-  const [formData, setFormData] = useState<CertificateFormData>({});
-  const [validationErrors, setValidationErrors] = useState<{
-    [key: string]: string;
-  }>({});
+  const [state, dispatch] = useAtom(certificateCreatorAtom);
 
-  // Track file fields separately for the template-based minting
-  const [fileFields, setFileFields] = useState<Map<string, File[]>>(new Map());
+  // Initialize collection if provided
+  useEffect(() => {
+    if (initialCollectionId && !state.selectedCollection) {
+      dispatch({ type: 'SET_SELECTED_COLLECTION', collectionId: initialCollectionId });
+    }
+  }, [initialCollectionId, state.selectedCollection, dispatch]);
 
   const setCollectionTemplate = useSetCollectionTemplate();
 
   const mintMutation = useMintNftWithTemplate({
     onSuccess: (tokenId) => {
       toast.success(`Certificate minted successfully! Token ID: ${tokenId}`);
+      dispatch({ type: 'RESET_ALL' });
       navigate({
         to: "/collections/$collectionId",
-        params: { collectionId: selectedCollection },
+        params: { collectionId: state.selectedCollection },
       });
     },
     onError: (error) => {
@@ -65,33 +67,42 @@ export function CreateCertificatePageV2({
   });
 
   const handleTemplateChange = (template: Template | null) => {
-    setSelectedTemplate(template);
+    dispatch({ type: 'SET_SELECTED_TEMPLATE', template });
+
     // Initialize form data with template defaults when template changes
-    setFormData(template ? getInitialFormData(template) : {});
-    setFileFields(new Map());
-    setValidationErrors({});
+    if (template) {
+      dispatch({ type: 'UPDATE_FORM_DATA', data: getInitialFormData(template) });
+    } else {
+      dispatch({ type: 'RESET_FORM_DATA' });
+    }
+
+    dispatch({ type: 'CLEAR_ALL_FILE_FIELDS' });
+    dispatch({ type: 'CLEAR_ALL_VALIDATION_ERRORS' });
 
     // Associate template with collection
-    if (template && selectedCollection) {
+    if (template && state.selectedCollection) {
       setCollectionTemplate.mutate({
-        collectionId: selectedCollection,
+        collectionId: state.selectedCollection,
         templateId: template.id,
       });
     }
   };
 
+  const handleCollectionChange = (collectionId: string) => {
+    dispatch({ type: 'SET_SELECTED_COLLECTION', collectionId });
+  };
+
   // Calculate form progress (only if template is selected)
-  const progress = selectedTemplate
-    ? getTemplateProgress(selectedTemplate, formData)
+  const progress = state.selectedTemplate
+    ? getTemplateProgress(state.selectedTemplate, state.formData)
     : 0;
-  const isComplete = selectedTemplate
-    ? isFormComplete(selectedTemplate, formData)
+  const isComplete = state.selectedTemplate
+    ? isFormComplete(state.selectedTemplate, state.formData)
     : false;
 
   const handleFormDataChange = (data: CertificateFormData) => {
-    setFormData(data);
-    // Clear validation errors when form changes
-    setValidationErrors({});
+    dispatch({ type: 'UPDATE_FORM_DATA', data });
+    dispatch({ type: 'CLEAR_ALL_VALIDATION_ERRORS' });
 
     // Extract file fields from form data
     const newFileFields = new Map<string, File[]>();
@@ -114,30 +125,37 @@ export function CreateCertificatePageV2({
         }
       }
     });
-    setFileFields(newFileFields);
+
+    // Update file fields in state
+    newFileFields.forEach((files, key) => {
+      dispatch({ type: 'SET_FILE_FIELD', field: key, files });
+    });
   };
 
   const handleSubmit = async () => {
-    if (!selectedTemplate) {
+    if (!state.selectedTemplate) {
       toast.error("No template selected");
       return;
     }
 
-    if (!selectedTemplate.structure) {
+    if (!state.selectedTemplate.structure) {
       toast.error("Template has no structure defined");
       return;
     }
 
-    if (!selectedCollection) {
+    if (!state.selectedCollection) {
       toast.error("No collection selected");
       return;
     }
 
     // Validate form
-    const validation = validateFormData(selectedTemplate, formData);
+    const validation = validateFormData(state.selectedTemplate, state.formData);
 
     if (!validation.isValid) {
-      setValidationErrors(validation.errors);
+      // Set validation errors in state
+      Object.entries(validation.errors).forEach(([field, error]) => {
+        dispatch({ type: 'SET_VALIDATION_ERROR', field, error });
+      });
       toast.error("Please fix validation errors");
       return;
     }
@@ -146,22 +164,22 @@ export function CreateCertificatePageV2({
       toast.info("Minting certificate with template...");
 
       await mintMutation.mutateAsync({
-        collectionCanisterId: selectedCollection,
-        template: selectedTemplate.structure,
-        formData,
-        files: fileFields.size > 0 ? fileFields : undefined,
+        collectionCanisterId: state.selectedCollection,
+        template: state.selectedTemplate.structure,
+        formData: state.formData,
+        files: state.fileFields.size > 0 ? state.fileFields : undefined,
         name:
-          (formData.company_name as string) ||
-          (formData.name as string) ||
-          selectedTemplate.name,
+          (state.formData.company_name as string) ||
+          (state.formData.name as string) ||
+          state.selectedTemplate.name,
         description:
-          (formData.short_description as string) ||
-          (formData.description as string) ||
-          selectedTemplate.description,
+          (state.formData.short_description as string) ||
+          (state.formData.description as string) ||
+          state.selectedTemplate.description,
       });
 
       // Call optional callback
-      onSubmit?.(formData);
+      onSubmit?.(state.formData);
     } catch (error: unknown) {
       console.error("Minting error:", error);
       // Error toast is handled by mutation onError
@@ -170,7 +188,7 @@ export function CreateCertificatePageV2({
 
   const handleSaveDraft = () => {
     // Save as draft without validation
-    console.log("Saving draft:", formData);
+    console.log("Saving draft:", state.formData);
     // TODO: Implement draft saving
   };
 
@@ -184,15 +202,15 @@ export function CreateCertificatePageV2({
         <div className="flex-1 min-w-0">
           <div className="flex flex-col gap-4">
             {/* Template Info Card - Only show if template selected */}
-            {selectedTemplate && (
+            {state.selectedTemplate && (
               <Card className="p-6">
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h2 className="text-xl font-semibold text-[#222526]">
-                      {selectedTemplate.name}
+                      {state.selectedTemplate.name}
                     </h2>
                     <p className="text-sm text-[#69737c]">
-                      {selectedTemplate.description}
+                      {state.selectedTemplate.description}
                     </p>
                   </div>
                   <div className="text-right">
@@ -216,16 +234,16 @@ export function CreateCertificatePageV2({
             {/* Collection Section */}
             <CollectionSection
               onTemplateChange={handleTemplateChange}
-              onCollectionChange={setSelectedCollection}
+              onCollectionChange={handleCollectionChange}
               initialCollectionId={initialCollectionId}
             />
 
             {/* Dynamic Template Form - Only show if template selected */}
-            {selectedTemplate ? (
+            {state.selectedTemplate ? (
               <DynamicTemplateForm
-                template={selectedTemplate}
+                template={state.selectedTemplate}
                 onFormDataChange={handleFormDataChange}
-                initialData={formData}
+                initialData={state.formData}
               />
             ) : (
               <Card className="p-12 text-center">
@@ -241,13 +259,13 @@ export function CreateCertificatePageV2({
             )}
 
             {/* Validation Errors Summary */}
-            {Object.keys(validationErrors).length > 0 && (
+            {Object.keys(state.validationErrors).length > 0 && (
               <Card className="p-6 bg-red-50 border-red-200">
                 <h3 className="text-lg font-semibold text-red-800 mb-2">
                   Please fix the following errors:
                 </h3>
                 <ul className="list-disc list-inside space-y-1">
-                  {Object.entries(validationErrors).map(([itemId, error]) => (
+                  {Object.entries(state.validationErrors).map(([itemId, error]) => (
                     <li key={itemId} className="text-sm text-red-600">
                       {error}
                     </li>
@@ -279,7 +297,7 @@ export function CreateCertificatePageV2({
             )}
 
             {/* Action Buttons - Only show if template selected */}
-            {selectedTemplate && (
+            {state.selectedTemplate && (
               <Card className="p-6">
                 <div className="flex items-center justify-between">
                   <Button
@@ -291,7 +309,7 @@ export function CreateCertificatePageV2({
                   </Button>
                   <Button
                     onClick={handleSubmit}
-                    disabled={isBusy || !selectedCollection}
+                    disabled={isBusy || !state.selectedCollection}
                   >
                     {mintMutation.isPending
                       ? "Minting..."

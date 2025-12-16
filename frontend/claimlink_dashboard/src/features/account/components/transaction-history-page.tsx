@@ -11,7 +11,7 @@ import {
   useFetchLedgerDecimals,
 } from "@/shared";
 import { OGY_LEDGER_INDEX_CANISTER_ID } from "@/shared/constants";
-import type { DisplayTransaction } from "../types/transaction-history.types";
+import type { DisplayTransaction } from "../types/account.types";
 
 export function TransactionHistoryPage() {
   const navigate = useNavigate();

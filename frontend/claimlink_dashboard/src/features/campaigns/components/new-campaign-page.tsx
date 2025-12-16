@@ -1,79 +1,50 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useAtom } from 'jotai';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { SelectCollectionStep } from '@/features/campaigns';
 import { ConfigureCampaignStep } from '@/features/campaigns';
 import { campaignService } from '../api/campaigns.service';
+import { campaignCreatorAtom } from '../atoms/campaign-creator.atom';
 import type { Collection } from '@/features/collections/types/collection.types';
-import type { CampaignFormData, CreateCampaignInput } from '../types/campaign.types';
-
-type Step = 'select' | 'configure';
+import type { CreateCampaignInput } from '../types/campaign.types';
 
 /**
  * SMART COMPONENT - Manages state and business logic
  * Handles all data fetching, state management, and side effects
  * Delegates presentation to dumb components
+ *
+ * Uses campaignCreatorAtom for workflow state management
  */
 export function NewCampaignPage() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState<Step>('select');
-  const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
+  const [state, dispatch] = useAtom(campaignCreatorAtom);
 
-  // Form state
-  const [formData, setFormData] = useState<CampaignFormData>({
-    name: '',
-    description: '',
-    maxClaims: 100,
-    claimDuration: '7',
-    startDate: '',
-  });
-
-  // Loading state
-  const [isLoading, setIsLoading] = useState(false);
-
-  // Cover image state
-  const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null);
+  // Refs for file inputs
   const coverImageInputRef = useRef<HTMLInputElement | null>(null);
-
-  // Whitelist CSV state
-  const [whitelistCsvFileName, setWhitelistCsvFileName] = useState<string | null>(null);
-  const [whitelistAddresses, setWhitelistAddresses] = useState<string[]>([]);
   const whitelistCsvInputRef = useRef<HTMLInputElement | null>(null);
-
-  // Whitelist manual input state
-  const [whitelistInput, setWhitelistInput] = useState('');
-
-  // Redirect URL state
-  const [redirectUrl, setRedirectUrl] = useState('');
-
-  // Update maxClaims when selectedCollection changes
-  useEffect(() => {
-    if (selectedCollection) {
-      setFormData(prev => ({
-        ...prev,
-        maxClaims: Math.min(prev.maxClaims, selectedCollection.itemCount)
-      }));
-    }
-  }, [selectedCollection]);
 
   // Collection selection handler
   const handleCollectionSelect = (collection: Collection) => {
-    setSelectedCollection(collection);
-    setCurrentStep('configure');
+    dispatch({ type: 'SELECT_COLLECTION', collection });
   };
 
   // Tab navigation handler
   const handleTabChange = (value: string) => {
     if (value === 'select') {
-      setCurrentStep('select');
-    } else if (value === 'configure' && currentStep === 'configure') {
-      setCurrentStep('configure');
+      dispatch({ type: 'GO_TO_SELECT' });
+    } else if (value === 'configure' && state.currentStep === 'configure') {
+      dispatch({ type: 'GO_TO_CONFIGURE' });
     }
   };
 
   // Form field change handler
-  const handleFormChange = (field: keyof CampaignFormData, value: string | number) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleFormChange = (field: string, value: string | number) => {
+    dispatch({
+      type: 'UPDATE_FORM_FIELD',
+      field: field as keyof typeof state.formData,
+      value
+    });
   };
 
   // Cover image handlers
@@ -82,14 +53,17 @@ export function NewCampaignPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setCoverImagePreview(reader.result as string);
+        dispatch({
+          type: 'SET_COVER_IMAGE_PREVIEW',
+          preview: reader.result as string
+        });
       };
       reader.readAsDataURL(file);
     }
   };
 
   const handleCoverImageRemove = () => {
-    setCoverImagePreview(null);
+    dispatch({ type: 'REMOVE_COVER_IMAGE' });
     if (coverImageInputRef.current) {
       coverImageInputRef.current.value = '';
     }
@@ -103,8 +77,8 @@ export function NewCampaignPage() {
   const handleWhitelistCsvSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setWhitelistCsvFileName(file.name);
-      
+      dispatch({ type: 'SET_WHITELIST_CSV_FILE', fileName: file.name });
+
       // Parse CSV file
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -114,15 +88,14 @@ export function NewCampaignPage() {
           .split('\n')
           .map(line => line.trim())
           .filter(line => line.length > 0);
-        setWhitelistAddresses(addresses);
+        dispatch({ type: 'SET_WHITELIST_ADDRESSES', addresses });
       };
       reader.readAsText(file);
     }
   };
 
   const handleWhitelistCsvRemove = () => {
-    setWhitelistCsvFileName(null);
-    setWhitelistAddresses([]);
+    dispatch({ type: 'CLEAR_WHITELIST' });
     if (whitelistCsvInputRef.current) {
       whitelistCsvInputRef.current.value = '';
     }
@@ -134,55 +107,59 @@ export function NewCampaignPage() {
 
   // Manual whitelist handlers
   const handleWhitelistInputChange = (value: string) => {
-    setWhitelistInput(value);
+    dispatch({ type: 'SET_WHITELIST_INPUT', input: value });
   };
 
   const handleAddToWhitelist = () => {
-    if (whitelistInput.trim()) {
-      setWhitelistAddresses(prev => [...prev, whitelistInput.trim()]);
-      setWhitelistInput('');
+    if (state.whitelistInput.trim()) {
+      dispatch({
+        type: 'ADD_WHITELIST_ADDRESS',
+        address: state.whitelistInput.trim()
+      });
+      dispatch({ type: 'SET_WHITELIST_INPUT', input: '' });
     }
   };
 
   // Redirect URL handler
   const handleRedirectUrlChange = (value: string) => {
-    setRedirectUrl(value);
+    dispatch({ type: 'SET_REDIRECT_URL', url: value });
   };
 
   // Form submission handler
   const handleSubmit = async () => {
-    if (!formData.name.trim() || !selectedCollection) return;
+    if (!state.formData.name.trim() || !state.selectedCollection) return;
 
-    setIsLoading(true);
+    dispatch({ type: 'SET_LOADING', isLoading: true });
 
     try {
       // Convert form data to API input
       const campaignInput: CreateCampaignInput = {
-        name: formData.name,
-        description: formData.description,
-        collectionId: selectedCollection.id,
-        maxClaims: formData.maxClaims,
-        claimDuration: formData.claimDuration === 'unlimited' ? 0 : parseInt(formData.claimDuration),
-        startDate: formData.startDate || undefined,
+        name: state.formData.name,
+        description: state.formData.description,
+        collectionId: state.selectedCollection.id,
+        maxClaims: state.formData.maxClaims,
+        claimDuration: state.formData.claimDuration === 'unlimited' ? 0 : parseInt(state.formData.claimDuration),
+        startDate: state.formData.startDate || undefined,
       };
 
       await campaignService.createCampaign(campaignInput);
-      
-      // Navigate to campaigns list on success
+
+      // Reset state and navigate to campaigns list on success
+      dispatch({ type: 'RESET_ALL' });
       navigate({ to: '/campaigns' });
     } catch (error) {
       console.error('Failed to create campaign:', error);
       // TODO: Show error toast
     } finally {
-      setIsLoading(false);
+      dispatch({ type: 'SET_LOADING', isLoading: false });
     }
   };
 
-  const isConfigureAccessible = currentStep === 'configure';
+  const isConfigureAccessible = state.currentStep === 'configure';
 
   return (
     <div className="flex flex-col min-h-screen bg-[#fcfafa]">
-      <Tabs value={currentStep} onValueChange={handleTabChange} className="flex-1 flex flex-col">
+      <Tabs value={state.currentStep} onValueChange={handleTabChange} className="flex-1 flex flex-col">
         {/* Tabs Navigation */}
         <div className="border-b border-gray-200 bg-white px-6 py-4">
           <TabsList className="w-full max-w-2xl mx-auto bg-transparent h-auto p-0 gap-1">
@@ -210,16 +187,16 @@ export function NewCampaignPage() {
 
           <TabsContent value="configure" className="mt-0 w-full flex justify-center">
             <ConfigureCampaignStep
-              selectedCollection={selectedCollection}
-              formData={formData}
-              isLoading={isLoading}
-              coverImagePreview={coverImagePreview}
+              selectedCollection={state.selectedCollection}
+              formData={state.formData}
+              isLoading={state.isLoading}
+              coverImagePreview={state.coverImagePreview}
               coverImageInputRef={coverImageInputRef}
-              whitelistCsvFileName={whitelistCsvFileName}
+              whitelistCsvFileName={state.whitelistCsvFileName}
               whitelistCsvInputRef={whitelistCsvInputRef}
-              whitelistAddresses={whitelistAddresses}
-              whitelistInput={whitelistInput}
-              redirectUrl={redirectUrl}
+              whitelistAddresses={state.whitelistAddresses}
+              whitelistInput={state.whitelistInput}
+              redirectUrl={state.redirectUrl}
               onFormChange={handleFormChange}
               onCoverImageSelect={handleCoverImageSelect}
               onCoverImageRemove={handleCoverImageRemove}
@@ -230,7 +207,7 @@ export function NewCampaignPage() {
               onWhitelistInputChange={handleWhitelistInputChange}
               onAddToWhitelist={handleAddToWhitelist}
               onRedirectUrlChange={handleRedirectUrlChange}
-              onBack={() => setCurrentStep('select')}
+              onBack={() => dispatch({ type: 'GO_TO_SELECT' })}
               onSubmit={handleSubmit}
             />
           </TabsContent>

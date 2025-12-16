@@ -7,7 +7,7 @@
  */
 
 import type { Template } from '@/shared/data/templates';
-import type { TemplateStructure } from '../types/template-structure.types';
+import type { TemplateStructure } from '../types/template.types';
 import {
   mockTemplates,
   getTemplateById as getMockTemplateById,

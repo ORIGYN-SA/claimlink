@@ -3,7 +3,7 @@ import { Principal } from '@dfinity/principal';
 import { useAuth } from '@/features/auth';
 import { OrigynNftService } from '../api/origyn-nft.service';
 import type { ICRC3Value } from '../interfaces';
-import type { TemplateStructure, CertificateFormData } from '@/features/templates/types/template-structure.types';
+import type { TemplateStructure, CertificateFormData } from '@/features/templates/types/template.types';
 import type { FileReference } from '@/features/template-renderer/types';
 import { buildOrigynApps, convertToIcrc3Metadata } from '@/features/template-renderer';
 

@@ -2,7 +2,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Copy, HelpCircle, Wallet } from 'lucide-react';
-import type { AccountOverview } from '../types/transaction-history.types';
+import type { AccountOverview } from '../types/account.types';
 
 interface OverviewCardsProps {
   accountOverview: AccountOverview;

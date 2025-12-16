@@ -1,3 +1,7 @@
+// ============================================================================
+// Components
+// ============================================================================
+
 // Certificate Detail Components
 export { CertificateDetailPage } from './components/certificate-detail-page';
 export { CertificateDetailActions } from './components/certificate-detail-actions';
@@ -25,11 +29,29 @@ export { CertificateLedgerTable } from './components/certificate-ledger-table';
 export { CertificateLedgerRow } from './components/certificate-ledger-row';
 export { CertificateLedgerPagination } from './components/certificate-ledger-pagination';
 
+// ============================================================================
+// API Layer
+// ============================================================================
+
+export { CertificatesService } from './api/certificates.service';
+export type { CertificateFilters } from './api/certificates.service';
+
+export {
+  certificatesKeys,
+  useCertificates,
+  useCertificate,
+  useCertificatesByCollection,
+  useCertificateStats,
+} from './api/certificates.queries';
+
+// ============================================================================
 // Types
-export type { 
-  Certificate, 
+// ============================================================================
+
+export type {
+  Certificate,
   CertificateStatus,
-  CertificateGridProps 
+  CertificateGridProps
 } from './types/certificate.types';
 
 export type { CertificateTab } from './components/certificate-tabs';

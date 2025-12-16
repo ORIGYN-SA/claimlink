@@ -15,7 +15,7 @@ import type {
   ImageItem,
   CertificateFormData,
   ValidationResult,
-} from '@/features/templates/types/template-structure.types';
+} from '@/features/templates/types/template.types';
 
 // ============================================================================
 // Template Getters

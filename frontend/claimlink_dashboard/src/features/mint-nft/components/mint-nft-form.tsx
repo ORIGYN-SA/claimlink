@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { useForm } from '@tanstack/react-form';
 import { toast } from 'sonner';
 import { Button } from '@components/ui/button';
 import { Input } from '@components/ui/input';
@@ -10,10 +11,19 @@ interface MintNFTFormProps {
   collectionCanisterId: string;
 }
 
+/**
+ * MintNFTForm - TanStack Form Integration Example
+ *
+ * Demonstrates Phase 3 pattern:
+ * - TanStack Form manages form fields (name, description)
+ * - Local state for UI concerns (image preview, attributes array)
+ * - Form validation with built-in validators
+ * - Clean separation: form state vs UI state
+ */
 export function MintNFTForm({ collectionCanisterId }: MintNFTFormProps) {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
+
+  // UI-only state (not part of form data)
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [attributes, setAttributes] = useState<Array<{ key: string; value: string }>>([]);
@@ -30,6 +40,43 @@ export function MintNFTForm({ collectionCanisterId }: MintNFTFormProps) {
     },
   });
 
+  // TanStack Form setup
+  const form = useForm({
+    defaultValues: {
+      name: '',
+      description: '',
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        // Step 1: Upload image if provided
+        let imageUrl: string | undefined;
+        if (imageFile) {
+          toast.info('Uploading image...');
+          imageUrl = await uploadImage(imageFile, collectionCanisterId);
+          toast.success('Image uploaded!');
+        }
+
+        // Step 2: Mint NFT
+        toast.info('Minting NFT...');
+        const attributesObj = attributes.reduce((acc, { key, value }) => {
+          if (key && value) acc[key] = value;
+          return acc;
+        }, {} as Record<string, string>);
+
+        await mintMutation.mutateAsync({
+          collectionCanisterId,
+          name: value.name,
+          description: value.description,
+          imageUrl,
+          attributes: attributesObj,
+        });
+      } catch (error: any) {
+        toast.error(error.message || 'Failed to mint NFT');
+      }
+    },
+  });
+
+  // Image upload handler (UI-only concern)
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -46,42 +93,6 @@ export function MintNFTForm({ collectionCanisterId }: MintNFTFormProps) {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (!name || !description) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
-    try {
-      // Step 1: Upload image if provided
-      let imageUrl: string | undefined;
-      if (imageFile) {
-        toast.info('Uploading image...');
-        imageUrl = await uploadImage(imageFile, collectionCanisterId);
-        toast.success('Image uploaded!');
-      }
-
-      // Step 2: Mint NFT
-      toast.info('Minting NFT...');
-      const attributesObj = attributes.reduce((acc, { key, value }) => {
-        if (key && value) acc[key] = value;
-        return acc;
-      }, {} as Record<string, string>);
-
-      await mintMutation.mutateAsync({
-        collectionCanisterId,
-        name,
-        description,
-        imageUrl,
-        attributes: attributesObj,
-      });
-    } catch (error: any) {
-      toast.error(error.message || 'Failed to mint NFT');
-    }
   };
 
   const addAttribute = () => {
@@ -101,28 +112,88 @@ export function MintNFTForm({ collectionCanisterId }: MintNFTFormProps) {
   const isMinting = mintMutation.isPending || isUploading;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
-        <label className="block text-sm font-medium mb-2">NFT Name *</label>
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Enter NFT name"
-          disabled={isMinting}
-          required
-        />
-      </div>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        form.handleSubmit();
+      }}
+      className="space-y-6"
+    >
+      {/* Name field with TanStack Form */}
+      <form.Field
+        name="name"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value || value.trim().length === 0) {
+              return 'NFT name is required';
+            }
+            if (value.length < 3) {
+              return 'NFT name must be at least 3 characters';
+            }
+            if (value.length > 100) {
+              return 'NFT name must be less than 100 characters';
+            }
+            return undefined;
+          },
+        }}
+      >
+        {(field) => (
+          <div>
+            <label className="block text-sm font-medium mb-2">NFT Name *</label>
+            <Input
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              placeholder="Enter NFT name"
+              disabled={isMinting}
+            />
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-sm text-red-500 mt-1">
+                {field.state.meta.errors.join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+      </form.Field>
 
-      <div>
-        <label className="block text-sm font-medium mb-2">Description *</label>
-        <Textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Describe your NFT"
-          disabled={isMinting}
-          required
-        />
-      </div>
+      {/* Description field with TanStack Form */}
+      <form.Field
+        name="description"
+        validators={{
+          onChange: ({ value }) => {
+            if (!value || value.trim().length === 0) {
+              return 'Description is required';
+            }
+            if (value.length < 10) {
+              return 'Description must be at least 10 characters';
+            }
+            if (value.length > 1000) {
+              return 'Description must be less than 1000 characters';
+            }
+            return undefined;
+          },
+        }}
+      >
+        {(field) => (
+          <div>
+            <label className="block text-sm font-medium mb-2">Description *</label>
+            <Textarea
+              value={field.state.value}
+              onChange={(e) => field.handleChange(e.target.value)}
+              onBlur={field.handleBlur}
+              placeholder="Describe your NFT"
+              disabled={isMinting}
+              rows={4}
+            />
+            {field.state.meta.errors.length > 0 && (
+              <p className="text-sm text-red-500 mt-1">
+                {field.state.meta.errors.join(', ')}
+              </p>
+            )}
+          </div>
+        )}
+      </form.Field>
 
       <div>
         <label className="block text-sm font-medium mb-2">Image (Optional)</label>
@@ -203,9 +274,18 @@ export function MintNFTForm({ collectionCanisterId }: MintNFTFormProps) {
         ))}
       </div>
 
-      <Button type="submit" disabled={isMinting}>
-        {isMinting ? 'Minting...' : 'Mint NFT'}
-      </Button>
+      <form.Subscribe
+        selector={(state) => [state.canSubmit, state.isSubmitting]}
+      >
+        {([canSubmit, isSubmitting]) => (
+          <Button
+            type="submit"
+            disabled={!canSubmit || isMinting || isSubmitting}
+          >
+            {isMinting ? 'Minting...' : 'Mint NFT'}
+          </Button>
+        )}
+      </form.Subscribe>
     </form>
   );
 }

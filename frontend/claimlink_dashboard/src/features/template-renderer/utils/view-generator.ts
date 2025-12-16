@@ -15,7 +15,7 @@ import type {
   TemplateSection,
   TemplateItem,
   ImageItem,
-} from "@/features/templates/types/template-structure.types";
+} from "@/features/templates/types/template.types";
 
 import type {
   TemplateNode,

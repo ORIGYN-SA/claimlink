@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
-import type { TransactionHistoryProps } from '../types/transaction-history.types';
+import type { TransactionHistoryProps } from '../types/account.types';
 import { OverviewCards } from './overview-cards';
 import { TransactionTable } from './transaction-table';
 import { FilterControls } from './filter-controls';

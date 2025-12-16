@@ -1,3 +1,7 @@
+// ============================================================================
+// Components
+// ============================================================================
+
 export { AccountPage } from './components/account-page';
 export { CreateUserPage } from './components/create-user-page';
 export { EditUserPage } from './components/edit-user-page';
@@ -10,11 +14,36 @@ export { TransactionDetailPage } from './components/transaction-detail-page';
 export { OverviewCards } from './components/overview-cards';
 export { TransactionTable } from './components/transaction-table';
 export { FilterControls } from './components/filter-controls';
+
+// ============================================================================
+// API Layer
+// ============================================================================
+
+export { AccountService } from './api/account.service';
+export type {
+  UserProfile,
+  UpdateProfileRequest,
+  AccountStats,
+} from './api/account.service';
+
+export {
+  accountKeys,
+  useProfile,
+  useAccountStats,
+  useActivityHistory,
+  useUpdateProfile,
+  useDeleteAccount,
+} from './api/account.queries';
+
+// ============================================================================
+// Types
+// ============================================================================
+
 export type {
   DisplayTransaction,
   AccountOverview,
   TransactionHistoryProps,
-} from './types/transaction-history.types';
+} from './types/account.types';
 
 export type {
   TransactionDetailPageProps,
@@ -23,8 +52,8 @@ export type {
   TransactionAmountSectionProps,
   TransactionMemoSectionProps,
   TransactionTimestampSectionProps,
-} from './types/transaction-detail.types';
+} from './types/account.types';
 
-export type { 
+export type {
     User
   } from './types/account.types'

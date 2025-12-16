@@ -1,6 +1,9 @@
+// ============================================================================
+// Components
+// ============================================================================
+
 // Minting Pages
 export { MintCertificatePage } from './components/mint-certificate-page';
-export { CreateCertificatePage } from './components/create-certificate-page';
 export { CreateCertificatePageV2 } from './components/create-certificate-page-v2';
 
 // Minting Components
@@ -19,5 +22,26 @@ export { TransferOwnershipLoading } from './components/transfer-ownership-loadin
 export { TransferOwnershipSuccess } from './components/transfer-ownership-success';
 export { TransferOwnershipError } from './components/transfer-ownership-error';
 
+// ============================================================================
+// API Layer
+// ============================================================================
+
+export { CertificateService } from './api/certificate.service';
+export type {
+  MintCertificateRequest,
+  TransferCertificateRequest,
+} from './api/certificate.service';
+
+export {
+  certificateMintKeys,
+  useMintCertificate,
+  useMintingPrice,
+  useTransferCertificate,
+  useValidateCertificateData,
+} from './api/certificate.queries';
+
+// ============================================================================
 // Types
+// ============================================================================
+
 export type { TransferOwnershipData, TransferType, TransferState } from './components/transfer-ownership-dialog';

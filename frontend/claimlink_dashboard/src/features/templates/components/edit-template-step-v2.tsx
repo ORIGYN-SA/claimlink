@@ -1,32 +1,51 @@
 /**
  * EditTemplateStepV2 Component
- * 
+ *
  * Data-driven template editor that works with TemplateStructure
  * Allows users to edit template sections and items dynamically
+ *
+ * Uses templateEditorAtom for state management (Phase 3 migration)
+ * - Consolidated 12 useState calls into single atom
+ * - Modals, forms, and selections managed by atom reducer
  */
 
-import { useState } from 'react';
-import { type Template } from '@/shared/data';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
-import { Trash2 } from 'lucide-react';
-import Icon from '@/shared/ui/icons';
-import { TemplateSectionCard } from './template-section-card';
+import { useEffect } from "react";
+import { useAtom } from "jotai";
+import { type Template } from "@/shared/data";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
+import { Trash2 } from "lucide-react";
+import Icon from "@/shared/ui/icons";
+import { TemplateSectionCard } from "./template-section-card";
+import { templateEditorAtom } from "../atoms/template-editor.atom";
 import type {
   TemplateItem,
   TemplateLanguage,
   TemplateSection,
-} from '@/features/templates/types/template-structure.types';
+} from "@/features/templates/types/template.types";
 import {
   getTemplateSections,
   getTemplateLanguages,
-} from '@/features/templates/utils/template-utils';
+} from "@/features/templates/utils/template-utils";
 
 interface EditTemplateStepV2Props {
   selectedTemplate: Template | null;
@@ -41,41 +60,23 @@ export function EditTemplateStepV2({
   onBack,
   onTemplateChange,
 }: EditTemplateStepV2Props) {
-  const [template, setTemplate] = useState<Template | null>(selectedTemplate);
-  const [searchIndexField, setSearchIndexField] = useState<string>(
-    template?.structure?.searchIndexField || ''
-  );
+  const [state, dispatch] = useAtom(templateEditorAtom);
 
-  // Modal states
-  const [showAddLanguageModal, setShowAddLanguageModal] = useState(false);
-  const [showDeleteLanguageModal, setShowDeleteLanguageModal] = useState(false);
-  const [showAddFieldModal, setShowAddFieldModal] = useState(false);
-  const [showEditFieldModal, setShowEditFieldModal] = useState(false);
-  const [showDeleteFieldModal, setShowDeleteFieldModal] = useState(false);
+  // Initialize atom with selected template
+  useEffect(() => {
+    if (selectedTemplate) {
+      dispatch({ type: "SET_TEMPLATE", template: selectedTemplate });
+    }
+  }, [selectedTemplate, dispatch]);
 
-  // Selected items for modals
-  const [selectedLanguage, setSelectedLanguage] = useState<TemplateLanguage | null>(null);
-  const [selectedField, setSelectedField] = useState<TemplateItem | null>(null);
-  const [selectedSectionId, setSelectedSectionId] = useState<string>('');
+  // Notify parent of template changes
+  useEffect(() => {
+    if (state.template && onTemplateChange) {
+      onTemplateChange(state.template);
+    }
+  }, [state.template, onTemplateChange]);
 
-  // Form states
-  const [languageForm, setLanguageForm] = useState({
-    name: '',
-    code: '',
-    isDefault: false,
-  });
-
-  const [fieldForm, setFieldForm] = useState({
-    label: '',
-    type: 'input' as 'input' | 'badge' | 'image' | 'title',
-    inputType: 'text' as 'text' | 'number' | 'textarea' | 'email' | 'url',
-    placeholder: '',
-    description: '',
-    required: false,
-    badgeStyle: 'default' as 'default' | 'success' | 'warning' | 'error' | 'info',
-  });
-
-  if (!template || !template.structure) {
+  if (!state.template || !state.template.structure) {
     return (
       <div className="w-full max-w-6xl mx-auto space-y-6">
         <Card className="p-6">
@@ -87,9 +88,10 @@ export function EditTemplateStepV2({
     );
   }
 
-  const sections = getTemplateSections(template);
-  const languages = getTemplateLanguages(template);
-  const certificateCount = template.structure.metadata?.certificateCount || 0;
+  const sections = getTemplateSections(state.template);
+  const languages = getTemplateLanguages(state.template);
+  const certificateCount =
+    state.template.structure.metadata?.certificateCount || 0;
 
   // Get all items for search index dropdown
   const allItems = sections.flatMap((section) => section.items);
@@ -99,55 +101,19 @@ export function EditTemplateStepV2({
   // ============================================================================
 
   const handleAddLanguage = () => {
-    setLanguageForm({ name: '', code: '', isDefault: false });
-    setShowAddLanguageModal(true);
+    dispatch({ type: "OPEN_ADD_LANGUAGE_MODAL" });
   };
 
   const handleDeleteLanguageClick = (language: TemplateLanguage) => {
-    setSelectedLanguage(language);
-    setShowDeleteLanguageModal(true);
+    dispatch({ type: "OPEN_DELETE_LANGUAGE_MODAL", language });
   };
 
   const handleConfirmAddLanguage = () => {
-    if (!template?.structure || !languageForm.name || !languageForm.code) return;
-
-    const newLanguage: TemplateLanguage = {
-      id: `lang_${Date.now()}`,
-      code: languageForm.code.toUpperCase(),
-      name: languageForm.name,
-      isDefault: languageForm.isDefault,
-    };
-
-    const updatedTemplate: Template = {
-      ...template,
-      structure: {
-        ...template.structure,
-        languages: [...(template.structure.languages || []), newLanguage],
-      },
-    };
-
-    setTemplate(updatedTemplate);
-    onTemplateChange?.(updatedTemplate);
-    setShowAddLanguageModal(false);
+    dispatch({ type: "ADD_LANGUAGE" });
   };
 
   const handleConfirmDeleteLanguage = () => {
-    if (!template?.structure || !selectedLanguage) return;
-
-    const updatedTemplate: Template = {
-      ...template,
-      structure: {
-        ...template.structure,
-        languages: template.structure.languages?.filter(
-          (lang) => lang.id !== selectedLanguage.id
-        ),
-      },
-    };
-
-    setTemplate(updatedTemplate);
-    onTemplateChange?.(updatedTemplate);
-    setShowDeleteLanguageModal(false);
-    setSelectedLanguage(null);
+    dispatch({ type: "DELETE_LANGUAGE" });
   };
 
   // ============================================================================
@@ -155,199 +121,42 @@ export function EditTemplateStepV2({
   // ============================================================================
 
   const handleAddItem = (sectionId: string) => {
-    setSelectedSectionId(sectionId);
-    setFieldForm({
-      label: '',
-      type: 'input',
-      inputType: 'text',
-      placeholder: '',
-      description: '',
-      required: false,
-      badgeStyle: 'default',
-    });
-    setShowAddFieldModal(true);
+    dispatch({ type: "OPEN_ADD_FIELD_MODAL", sectionId });
   };
 
   const handleEditItem = (item: TemplateItem) => {
-    setSelectedField(item);
-    
-    // Extract type-specific properties
-    const inputType = item.type === 'input' ? (item as any).inputType || 'text' : 'text';
-    const placeholder = item.type === 'input' ? (item as any).placeholder || '' : '';
-    const badgeStyle = item.type === 'badge' ? (item as any).badgeStyle || 'default' : 'default';
-    
-    setFieldForm({
-      label: item.label,
-      type: item.type,
-      inputType,
-      placeholder,
-      description: item.description || '',
-      required: item.required || false,
-      badgeStyle,
-    });
-    setShowEditFieldModal(true);
+    dispatch({ type: "OPEN_EDIT_FIELD_MODAL", field: item });
   };
 
   const handleDeleteItem = (item: TemplateItem) => {
-    setSelectedField(item);
-    setShowDeleteFieldModal(true);
+    dispatch({ type: "OPEN_DELETE_FIELD_MODAL", field: item });
   };
 
   const handleConfirmAddField = () => {
-    if (!template?.structure || !selectedSectionId || !fieldForm.label) return;
-
-    // Create field based on type
-    let newField: TemplateItem;
-    const baseProps = {
-      id: `field_${Date.now()}`,
-      label: fieldForm.label,
-      description: fieldForm.description,
-      required: fieldForm.required,
-      order: 0, // Will be set by section
-    };
-
-    switch (fieldForm.type) {
-      case 'input':
-        newField = {
-          ...baseProps,
-          type: 'input',
-          inputType: fieldForm.inputType,
-          placeholder: fieldForm.placeholder,
-        };
-        break;
-      case 'badge':
-        newField = {
-          ...baseProps,
-          type: 'badge',
-          badgeStyle: fieldForm.badgeStyle,
-        };
-        break;
-      case 'image':
-        newField = {
-          ...baseProps,
-          type: 'image',
-        };
-        break;
-      case 'title':
-        newField = {
-          ...baseProps,
-          type: 'title',
-          style: 'h3',
-        };
-        break;
-      default:
-        return;
-    }
-
-    const updatedSections = template.structure.sections?.map((section) => {
-      if (section.id === selectedSectionId) {
-        const newOrder = section.items.length;
-        return {
-          ...section,
-          items: [...section.items, { ...newField, order: newOrder }],
-        };
-      }
-      return section;
-    });
-
-    const updatedTemplate: Template = {
-      ...template,
-      structure: {
-        ...template.structure,
-        sections: updatedSections,
-      },
-    };
-
-    setTemplate(updatedTemplate);
-    onTemplateChange?.(updatedTemplate);
-    setShowAddFieldModal(false);
-    setSelectedSectionId('');
+    dispatch({ type: "ADD_FIELD" });
   };
 
   const handleConfirmEditField = () => {
-    if (!template?.structure || !selectedField || !fieldForm.label) return;
-
-    const updatedSections = template.structure.sections?.map((section) => ({
-      ...section,
-      items: section.items.map((item) => {
-        if (item.id !== selectedField.id) return item;
-
-        // Update based on type
-        const baseUpdate = {
-          ...item,
-          label: fieldForm.label,
-          description: fieldForm.description,
-          required: fieldForm.required,
-        };
-
-        if (fieldForm.type === 'input') {
-          return {
-            ...baseUpdate,
-            type: 'input' as const,
-            inputType: fieldForm.inputType,
-            placeholder: fieldForm.placeholder,
-          };
-        } else if (fieldForm.type === 'badge') {
-          return {
-            ...baseUpdate,
-            type: 'badge' as const,
-            badgeStyle: fieldForm.badgeStyle,
-          };
-        } else {
-          return baseUpdate;
-        }
-      }),
-    }));
-
-    const updatedTemplate: Template = {
-      ...template,
-      structure: {
-        ...template.structure,
-        sections: updatedSections,
-      },
-    };
-
-    setTemplate(updatedTemplate);
-    onTemplateChange?.(updatedTemplate);
-    setShowEditFieldModal(false);
-    setSelectedField(null);
+    dispatch({ type: "EDIT_FIELD" });
   };
 
   const handleConfirmDeleteField = () => {
-    if (!template?.structure || !selectedField) return;
-
-    const updatedSections = template.structure.sections?.map((section) => ({
-      ...section,
-      items: section.items.filter((item) => item.id !== selectedField.id),
-    }));
-
-    const updatedTemplate: Template = {
-      ...template,
-      structure: {
-        ...template.structure,
-        sections: updatedSections,
-      },
-    };
-
-    setTemplate(updatedTemplate);
-    onTemplateChange?.(updatedTemplate);
-    setShowDeleteFieldModal(false);
-    setSelectedField(null);
+    dispatch({ type: "DELETE_FIELD" });
   };
 
   const handleInfoItem = (item: TemplateItem) => {
     // TODO: Implement item info modal
-    console.log('Show info for item:', item);
+    console.log("Show info for item:", item);
   };
 
   const handleToggleSection = (sectionId: string) => {
     // TODO: Implement section collapse/expand
-    console.log('Toggle section:', sectionId);
+    console.log("Toggle section:", sectionId);
   };
 
   const handleSaveDraft = () => {
     // TODO: Implement save draft
-    console.log('Save draft');
+    console.log("Save draft");
   };
 
   const handlePreviewChanges = () => {
@@ -355,18 +164,17 @@ export function EditTemplateStepV2({
   };
 
   const handleSearchIndexChange = (itemId: string) => {
-    setSearchIndexField(itemId);
-    
-    if (template.structure) {
+    dispatch({ type: "SET_SEARCH_INDEX_FIELD", field: itemId });
+
+    if (state.template?.structure) {
       const updatedTemplate: Template = {
-        ...template,
+        ...state.template,
         structure: {
-          ...template.structure,
+          ...state.template.structure,
           searchIndexField: itemId,
         },
       };
-      setTemplate(updatedTemplate);
-      onTemplateChange?.(updatedTemplate);
+      dispatch({ type: "UPDATE_TEMPLATE", template: updatedTemplate });
     }
   };
 
@@ -381,7 +189,8 @@ export function EditTemplateStepV2({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-sm text-[#69737c] uppercase tracking-wider">
-              Applied on {certificateCount} {certificateCount === 1 ? 'certificate' : 'certificates'}
+              Applied on {certificateCount}{" "}
+              {certificateCount === 1 ? "certificate" : "certificates"}
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -402,8 +211,12 @@ export function EditTemplateStepV2({
       <Card className="p-6">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-medium text-[#222526]">Multi Language Support</h2>
-            <p className="text-sm text-[#69737c]">Add new languages you plan to support</p>
+            <h2 className="text-lg font-medium text-[#222526]">
+              Multi Language Support
+            </h2>
+            <p className="text-sm text-[#69737c]">
+              Add new languages you plan to support
+            </p>
           </div>
           <Button variant="outline" onClick={handleAddLanguage}>
             <Icon.Plus className="w-4 h-4 mr-2" />
@@ -441,7 +254,7 @@ export function EditTemplateStepV2({
         </div>
 
         <div className="text-xs text-[#69737c] uppercase tracking-wider">
-          {languages.length} {languages.length === 1 ? 'language' : 'languages'}
+          {languages.length} {languages.length === 1 ? "language" : "languages"}
         </div>
       </Card>
 
@@ -478,18 +291,26 @@ export function EditTemplateStepV2({
       <Card className="p-6">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <h2 className="text-lg font-medium text-[#222526]">Choose a search index</h2>
+            <h2 className="text-lg font-medium text-[#222526]">
+              Choose a search index
+            </h2>
             <p className="text-sm text-[#69737c]">
-              Select a field from the template that you can use to search and index certificates
+              Select a field from the template that you can use to search and
+              index certificates
             </p>
           </div>
-          <Select value={searchIndexField} onValueChange={handleSearchIndexChange}>
+          <Select
+            value={state.searchIndexField}
+            onValueChange={handleSearchIndexChange}
+          >
             <SelectTrigger className="w-64">
               <SelectValue placeholder="Select field..." />
             </SelectTrigger>
             <SelectContent>
               {allItems
-                .filter((item) => item.type === 'input' || item.type === 'badge')
+                .filter(
+                  (item) => item.type === "input" || item.type === "badge",
+                )
                 .map((item) => (
                   <SelectItem key={item.id} value={item.id}>
                     {item.label}
@@ -513,12 +334,16 @@ export function EditTemplateStepV2({
       {/* ========================================================================== */}
 
       {/* Add Language Modal */}
-      <Dialog open={showAddLanguageModal} onOpenChange={setShowAddLanguageModal}>
+      <Dialog
+        open={state.modals.addLanguage}
+        onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+      >
         <DialogContent className="sm:max-w-[500px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Add Language</DialogTitle>
             <DialogDescription>
-              Add a new language to your template. Users will be able to view certificates in this language.
+              Add a new language to your template. Users will be able to view
+              certificates in this language.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -527,8 +352,14 @@ export function EditTemplateStepV2({
               <Input
                 id="language-name"
                 placeholder="e.g., English, Spanish, French"
-                value={languageForm.name}
-                onChange={(e) => setLanguageForm({ ...languageForm, name: e.target.value })}
+                value={state.languageForm.name}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_LANGUAGE_FORM",
+                    field: "name",
+                    value: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
@@ -537,17 +368,27 @@ export function EditTemplateStepV2({
                 id="language-code"
                 placeholder="e.g., EN, ES, FR"
                 maxLength={2}
-                value={languageForm.code}
-                onChange={(e) => setLanguageForm({ ...languageForm, code: e.target.value.toUpperCase() })}
+                value={state.languageForm.code}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_LANGUAGE_FORM",
+                    field: "code",
+                    value: e.target.value.toUpperCase(),
+                  })
+                }
               />
               <p className="text-xs text-[#69737c]">Use 2-letter ISO code</p>
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="language-default"
-                checked={languageForm.isDefault}
+                checked={state.languageForm.isDefault}
                 onCheckedChange={(checked: boolean) =>
-                  setLanguageForm({ ...languageForm, isDefault: checked })
+                  dispatch({
+                    type: "UPDATE_LANGUAGE_FORM",
+                    field: "isDefault",
+                    value: checked,
+                  })
                 }
               />
               <Label
@@ -559,12 +400,15 @@ export function EditTemplateStepV2({
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddLanguageModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+            >
               Cancel
             </Button>
             <Button
               onClick={handleConfirmAddLanguage}
-              disabled={!languageForm.name || !languageForm.code}
+              disabled={!state.languageForm.name || !state.languageForm.code}
             >
               Add Language
             </Button>
@@ -573,16 +417,23 @@ export function EditTemplateStepV2({
       </Dialog>
 
       {/* Delete Language Modal */}
-      <Dialog open={showDeleteLanguageModal} onOpenChange={setShowDeleteLanguageModal}>
+      <Dialog
+        open={state.modals.deleteLanguage}
+        onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+      >
         <DialogContent className="sm:max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Delete Language</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete {selectedLanguage?.name}? This action cannot be undone.
+              Are you sure you want to delete {state.selectedLanguage?.name}?
+              This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteLanguageModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDeleteLanguage}>
@@ -593,12 +444,16 @@ export function EditTemplateStepV2({
       </Dialog>
 
       {/* Add Field Modal */}
-      <Dialog open={showAddFieldModal} onOpenChange={setShowAddFieldModal}>
+      <Dialog
+        open={state.modals.addField}
+        onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+      >
         <DialogContent className="sm:max-w-[600px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Add Field</DialogTitle>
             <DialogDescription>
-              Add a new field to the selected section. This field will be available when creating certificates.
+              Add a new field to the selected section. This field will be
+              available when creating certificates.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -607,15 +462,27 @@ export function EditTemplateStepV2({
               <Input
                 id="field-label"
                 placeholder="e.g., Certificate Title, Student Name"
-                value={fieldForm.label}
-                onChange={(e) => setFieldForm({ ...fieldForm, label: e.target.value })}
+                value={state.fieldForm.label}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "label",
+                    value: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="field-type">Field Type *</Label>
               <Select
-                value={fieldForm.type}
-                onValueChange={(value: any) => setFieldForm({ ...fieldForm, type: value })}
+                value={state.fieldForm.type}
+                onValueChange={(value: any) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "type",
+                    value: value,
+                  })
+                }
               >
                 <SelectTrigger id="field-type">
                   <SelectValue />
@@ -630,14 +497,20 @@ export function EditTemplateStepV2({
                 </SelectContent>
               </Select>
             </div>
-            {fieldForm.type === 'input' && (
+            {state.fieldForm.type === "input" && (
               <div className="space-y-2">
                 <Label htmlFor="field-placeholder">Placeholder</Label>
                 <Input
                   id="field-placeholder"
                   placeholder="Enter placeholder text..."
-                  value={fieldForm.placeholder}
-                  onChange={(e) => setFieldForm({ ...fieldForm, placeholder: e.target.value })}
+                  value={state.fieldForm.placeholder}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "UPDATE_FIELD_FORM",
+                      field: "placeholder",
+                      value: e.target.value,
+                    })
+                  }
                 />
               </div>
             )}
@@ -646,29 +519,48 @@ export function EditTemplateStepV2({
               <Textarea
                 id="field-description"
                 placeholder="Optional description to help users understand this field..."
-                value={fieldForm.description}
-                onChange={(e) => setFieldForm({ ...fieldForm, description: e.target.value })}
+                value={state.fieldForm.description}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "description",
+                    value: e.target.value,
+                  })
+                }
                 rows={3}
               />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="field-required"
-                checked={fieldForm.required}
+                checked={state.fieldForm.required}
                 onCheckedChange={(checked: boolean) =>
-                  setFieldForm({ ...fieldForm, required: checked })
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "required",
+                    value: checked,
+                  })
                 }
               />
-              <Label htmlFor="field-required" className="text-sm font-normal cursor-pointer">
+              <Label
+                htmlFor="field-required"
+                className="text-sm font-normal cursor-pointer"
+              >
                 Required field
               </Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowAddFieldModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+            >
               Cancel
             </Button>
-            <Button onClick={handleConfirmAddField} disabled={!fieldForm.label}>
+            <Button
+              onClick={handleConfirmAddField}
+              disabled={!state.fieldForm.label}
+            >
               Add Field
             </Button>
           </DialogFooter>
@@ -676,12 +568,16 @@ export function EditTemplateStepV2({
       </Dialog>
 
       {/* Edit Field Modal */}
-      <Dialog open={showEditFieldModal} onOpenChange={setShowEditFieldModal}>
+      <Dialog
+        open={state.modals.editField}
+        onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+      >
         <DialogContent className="sm:max-w-[600px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Edit Field</DialogTitle>
             <DialogDescription>
-              Update the field properties. Changes will affect new certificates only.
+              Update the field properties. Changes will affect new certificates
+              only.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -690,15 +586,27 @@ export function EditTemplateStepV2({
               <Input
                 id="edit-field-label"
                 placeholder="e.g., Certificate Title, Student Name"
-                value={fieldForm.label}
-                onChange={(e) => setFieldForm({ ...fieldForm, label: e.target.value })}
+                value={state.fieldForm.label}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "label",
+                    value: e.target.value,
+                  })
+                }
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="edit-field-type">Field Type *</Label>
               <Select
-                value={fieldForm.type}
-                onValueChange={(value: any) => setFieldForm({ ...fieldForm, type: value })}
+                value={state.fieldForm.type}
+                onValueChange={(value: any) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "type",
+                    value: value,
+                  })
+                }
               >
                 <SelectTrigger id="edit-field-type">
                   <SelectValue />
@@ -713,14 +621,20 @@ export function EditTemplateStepV2({
                 </SelectContent>
               </Select>
             </div>
-            {fieldForm.type === 'input' && (
+            {state.fieldForm.type === "input" && (
               <div className="space-y-2">
                 <Label htmlFor="edit-field-placeholder">Placeholder</Label>
                 <Input
                   id="edit-field-placeholder"
                   placeholder="Enter placeholder text..."
-                  value={fieldForm.placeholder}
-                  onChange={(e) => setFieldForm({ ...fieldForm, placeholder: e.target.value })}
+                  value={state.fieldForm.placeholder}
+                  onChange={(e) =>
+                    dispatch({
+                      type: "UPDATE_FIELD_FORM",
+                      field: "placeholder",
+                      value: e.target.value,
+                    })
+                  }
                 />
               </div>
             )}
@@ -729,29 +643,48 @@ export function EditTemplateStepV2({
               <Textarea
                 id="edit-field-description"
                 placeholder="Optional description to help users understand this field..."
-                value={fieldForm.description}
-                onChange={(e) => setFieldForm({ ...fieldForm, description: e.target.value })}
+                value={state.fieldForm.description}
+                onChange={(e) =>
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "description",
+                    value: e.target.value,
+                  })
+                }
                 rows={3}
               />
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
                 id="edit-field-required"
-                checked={fieldForm.required}
+                checked={state.fieldForm.required}
                 onCheckedChange={(checked: boolean) =>
-                  setFieldForm({ ...fieldForm, required: checked })
+                  dispatch({
+                    type: "UPDATE_FIELD_FORM",
+                    field: "required",
+                    value: checked,
+                  })
                 }
               />
-              <Label htmlFor="edit-field-required" className="text-sm font-normal cursor-pointer">
+              <Label
+                htmlFor="edit-field-required"
+                className="text-sm font-normal cursor-pointer"
+              >
                 Required field
               </Label>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowEditFieldModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+            >
               Cancel
             </Button>
-            <Button onClick={handleConfirmEditField} disabled={!fieldForm.label}>
+            <Button
+              onClick={handleConfirmEditField}
+              disabled={!state.fieldForm.label}
+            >
               Save Changes
             </Button>
           </DialogFooter>
@@ -759,17 +692,24 @@ export function EditTemplateStepV2({
       </Dialog>
 
       {/* Delete Field Modal */}
-      <Dialog open={showDeleteFieldModal} onOpenChange={setShowDeleteFieldModal}>
+      <Dialog
+        open={state.modals.deleteField}
+        onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+      >
         <DialogContent className="sm:max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Delete Field</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete the field "{selectedField?.label}"? This action cannot be undone
-              and will affect the template structure.
+              Are you sure you want to delete the field "
+              {state.selectedField?.label}"? This action cannot be undone and
+              will affect the template structure.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowDeleteFieldModal(false)}>
+            <Button
+              variant="outline"
+              onClick={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
+            >
               Cancel
             </Button>
             <Button variant="destructive" onClick={handleConfirmDeleteField}>
@@ -781,4 +721,3 @@ export function EditTemplateStepV2({
     </div>
   );
 }
-

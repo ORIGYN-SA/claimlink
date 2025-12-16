@@ -8,7 +8,7 @@
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/shared/ui/icons';
-import type { TemplateSection, TemplateItem } from '@/features/templates/types/template-structure.types';
+import type { TemplateSection, TemplateItem } from '@/features/templates/types/template.types';
 import { TemplateItemRow } from './template-item-row';
 import { getSectionItems } from '@/features/templates/utils/template-utils';
 

@@ -20,7 +20,7 @@ import type {
   BadgeItem,
   ImageItem,
   CertificateFormData,
-} from '@/features/templates/types/template-structure.types';
+} from '@/features/templates/types/template.types';
 import {
   getTemplateSections,
   getSectionItems,

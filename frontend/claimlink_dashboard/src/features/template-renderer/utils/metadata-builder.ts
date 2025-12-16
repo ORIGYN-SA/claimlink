@@ -8,7 +8,7 @@
 import type {
   TemplateStructure,
   CertificateFormData,
-} from "@/features/templates/types/template-structure.types";
+} from "@/features/templates/types/template.types";
 
 import type { OrigynAppEntry, FileReference } from "../types";
 

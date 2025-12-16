@@ -4,6 +4,9 @@ export type CampaignStatus = 'Active' | 'Ready' | 'Finished' | 'Draft' | 'Closed
 // Campaign timer/badge types
 export type CampaignTimer = 'Urgent' | 'Ongoing' | 'Starting Soon' | 'Finished';
 
+// View mode type
+export type ViewMode = 'grid' | 'list';
+
 export interface Campaign {
   id: string;
   name: string;

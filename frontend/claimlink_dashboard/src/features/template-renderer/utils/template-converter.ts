@@ -17,7 +17,7 @@ import type {
   BadgeItem,
   ImageItem,
   TemplateLanguage,
-} from '@/features/templates/types/template-structure.types';
+} from '@/features/templates/types/template.types';
 
 import type {
   TemplateNode,
