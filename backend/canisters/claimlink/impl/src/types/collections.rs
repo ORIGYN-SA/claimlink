@@ -1,46 +1,27 @@
-use std::str::FromStr;
-
 use candid::Principal;
-use serde::{Deserialize, Serialize};
-use serde_bytes::ByteArray;
+use minicbor::{Decode, Encode};
+use types::TimestampNanos;
 
-use crate::types::wasm::WasmHash;
+use super::canister::Canister;
 
-#[derive(Debug)]
-pub struct Canister {
-    status: ManagedCanisterStatus,
-}
-
-#[derive(Clone, PartialEq, Debug, Deserialize, Serialize)]
-pub enum ManagedCanisterStatus {
-    /// Canister created with the given principal
-    /// but wasm module is not yet installed.
-    Created { canister_id: Principal },
-
-    /// Canister created and wasm module installed.
-    /// The wasm_hash reflects the installed wasm module by the lsm
-    /// but *may differ* from the one being currently deployed (if another controller did an upgrade)
-    Installed {
-        canister_id: Principal,
-        installed_wasm_hash: WasmHash,
-    },
-}
-
-impl ManagedCanisterStatus {
-    pub fn canister_id(&self) -> &Principal {
-        match self {
-            ManagedCanisterStatus::Created { canister_id }
-            | ManagedCanisterStatus::Installed { canister_id, .. } => canister_id,
-        }
-    }
-
-    fn installed_wasm_hash(&self) -> Option<&WasmHash> {
-        match self {
-            ManagedCanisterStatus::Created { .. } => None,
-            ManagedCanisterStatus::Installed {
-                installed_wasm_hash,
-                ..
-            } => Some(installed_wasm_hash),
-        }
-    }
+#[derive(Debug, Encode, Decode, Clone)]
+pub struct Collection {
+    #[cbor(n(0), with = "crate::cbor::principal")]
+    pub creator: Principal,
+    #[n(1)]
+    pub name: String,
+    #[n(2)]
+    pub symbol: Option<String>,
+    #[n(3)]
+    pub description: Option<String>,
+    #[n(4)]
+    pub logo: Option<String>,
+    #[n(5)]
+    pub nft_template: Option<Vec<u8>>,
+    #[n(6)]
+    pub canister: Option<Canister>,
+    #[n(7)]
+    pub ogy_transfer_index: u64,
+    #[n(8)]
+    pub created_at: TimestampNanos,
 }
