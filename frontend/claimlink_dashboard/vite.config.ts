@@ -20,6 +20,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@canisters": fileURLToPath(new URL("./src/shared/canisters", import.meta.url)),
       "@services": fileURLToPath(new URL("./src/services", import.meta.url)),
       "@atoms": fileURLToPath(new URL("./src/atoms", import.meta.url)),
       "@hooks": fileURLToPath(new URL("./src/hooks", import.meta.url)),

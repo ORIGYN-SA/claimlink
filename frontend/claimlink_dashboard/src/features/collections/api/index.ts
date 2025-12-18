@@ -1,21 +1,18 @@
 /**
  * Collections API Layer
- * Exports service and query hooks
+ * Exports service, query hooks, and transformers
  */
 
 export { CollectionsService } from './collections.service';
-export type {
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-  CollectionFilters,
-} from './collections.service';
 
 export {
-  collectionsKeys,
-  useCollections,
-  useCollection,
-  useCollectionStats,
+  collectionKeys,
+  useListMyCollections,
+  useListAllCollections,
+  useFetchCollectionInfo,
+  useCollectionNfts,
+  useAllUserNfts,
   useCreateCollection,
-  useUpdateCollection,
-  useDeleteCollection,
 } from './collections.queries';
+
+export * from './transformers';

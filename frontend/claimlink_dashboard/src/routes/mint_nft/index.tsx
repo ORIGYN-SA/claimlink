@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { DashboardLayout } from '@/components/layout'
-import { MintNFTPage } from '@/features/mint-nft/components/mint-nft-page'
+import { MintCertificatePage } from '@/features/certificates/components/list'
 
 export const Route = createFileRoute('/mint_nft/')({
   component: MintNFTRoute,
@@ -9,7 +9,7 @@ export const Route = createFileRoute('/mint_nft/')({
 function MintNFTRoute() {
   return (
     <DashboardLayout>
-      <MintNFTPage />
+      <MintCertificatePage />
     </DashboardLayout>
   )
 }

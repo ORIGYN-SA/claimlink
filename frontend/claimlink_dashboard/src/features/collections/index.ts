@@ -19,21 +19,18 @@ export { EditCollectionSidebar } from './components/edit-collection-sidebar'
 // ============================================================================
 
 export { CollectionsService } from './api/collections.service';
-export type {
-  CreateCollectionRequest,
-  UpdateCollectionRequest,
-  CollectionFilters,
-} from './api/collections.service';
 
 export {
-  collectionsKeys,
-  useCollections,
-  useCollection,
-  useCollectionStats,
+  collectionKeys,
+  useListMyCollections,
+  useListAllCollections,
+  useFetchCollectionInfo,
+  useCollectionNfts,
+  useAllUserNfts,
   useCreateCollection,
-  useUpdateCollection,
-  useDeleteCollection,
 } from './api/collections.queries';
+
+export * from './api/transformers';
 
 // ============================================================================
 // Types

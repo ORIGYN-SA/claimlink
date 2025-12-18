@@ -5,7 +5,7 @@
  * Handles extraction of templates, fields, and library items from __apps.
  */
 
-import type { ICRC3Value } from '@services/origyn_nft/interfaces';
+import type { ICRC3Value } from '@canisters/origyn_nft';
 import type {
   ParsedOrigynMetadata,
   TemplateContainer,

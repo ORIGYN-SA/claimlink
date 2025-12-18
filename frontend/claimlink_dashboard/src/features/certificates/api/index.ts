@@ -1,15 +1,19 @@
 /**
  * Certificates API Layer
- * Exports service and query hooks
+ * Exports service, query hooks, and transformers
  */
 
 export { CertificatesService } from './certificates.service';
-export type { CertificateFilters } from './certificates.service';
 
 export {
   certificatesKeys,
-  useCertificates,
+  useCollectionCertificates,
   useCertificate,
-  useCertificatesByCollection,
-  useCertificateStats,
+  useCertificateTransactionHistory,
+  useMintCertificate,
+  useMintCertificateWithTemplate,
+  useUploadCertificateImage,
+  type CertificateWithParsedMetadata,
 } from './certificates.queries';
+
+export * from './transformers';

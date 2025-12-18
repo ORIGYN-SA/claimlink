@@ -5,8 +5,8 @@ import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import type { TokenStatus } from "@/components/common/token-card/token.types";
 import { cn } from "@/lib/utils";
-import { TransferOwnershipDialog } from "@/features/mint-certificate";
-import type { TransferOwnershipData } from "@/features/mint-certificate";
+import { TransferOwnershipDialog } from "./transfer-ownership";
+import type { TransferOwnershipData } from "./transfer-ownership";
 
 interface CertificateDetailActionsProps {
   certificateId: string;

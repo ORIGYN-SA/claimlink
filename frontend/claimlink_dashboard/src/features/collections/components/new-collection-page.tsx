@@ -9,7 +9,7 @@ import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
 import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
 import useApprove from '@services/ledger/hooks/useApprove';
 import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
-import { useCreateCollection } from '@services/claimlink';
+import { useCreateCollection } from '@/features/collections';
 
 /**
  * SMART COMPONENT - Manages all business logic and state

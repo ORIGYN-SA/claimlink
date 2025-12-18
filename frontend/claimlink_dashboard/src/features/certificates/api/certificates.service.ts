@@ -1,99 +1,240 @@
+import { Actor, type Agent } from "@dfinity/agent";
+import type { Principal } from "@dfinity/principal";
+import { idlFactory } from "@canisters/origyn_nft";
+import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "@canisters/origyn_nft";
+
 /**
- * Certificates Service Layer
+ * Certificates Service
  *
- * Abstracts certificate data access for easy backend swap.
- * Currently uses mock data from shared/data/certificates.ts.
- * TODO: Replace with ClaimLink backend API when ready.
+ * Handles certificate operations using the ORIGYN NFT canister.
+ * Certificates are NFTs with ORIGYN badge - technically the same as NFTs.
  */
-
-import type { Certificate } from '../types/certificate.types';
-import { mockCertificates } from '@/shared/data/certificates';
-
-export interface CertificateFilters {
-  status?: string;
-  collectionId?: string;
-  search?: string;
-}
-
 export class CertificatesService {
-  /**
-   * Get all certificates
-   */
-  static async getCertificates(
-    filters?: CertificateFilters
-  ): Promise<Certificate[]> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_certificates(filters);
-
-    let certificates = [...mockCertificates];
-
-    // Apply filters
-    if (filters?.status) {
-      certificates = certificates.filter((cert) => cert.status === filters.status);
-    }
-    if (filters?.collectionId) {
-      certificates = certificates.filter(
-        (cert) => cert.id === filters.collectionId
-      );
-    }
-    if (filters?.search) {
-      const searchLower = filters.search.toLowerCase();
-      certificates = certificates.filter(
-        (cert) =>
-          cert.title.toLowerCase().includes(searchLower) ||
-          cert.collectionName.toLowerCase().includes(searchLower)
-      );
-    }
-
-    return Promise.resolve(certificates);
-  }
-
-  /**
-   * Get a certificate by its ID
-   */
-  static async getCertificateById(id: string): Promise<Certificate | undefined> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_certificate(id);
-
-    const certificate = mockCertificates.find((cert) => cert.id === id);
-    return Promise.resolve(certificate);
-  }
-
-  /**
-   * Get certificates by collection ID
-   */
-  static async getCertificatesByCollection(
-    _collectionId: string
-  ): Promise<Certificate[]> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_certificates_by_collection(collectionId);
-
-    // Mock implementation - filter by collection name (in real app, would use collectionId)
-    return Promise.resolve(mockCertificates);
-  }
-
-  /**
-   * Get certificate statistics
-   */
-  static async getCertificateStats(): Promise<{
-    total: number;
-    minted: number;
-    transferred: number;
-    waiting: number;
-  }> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_certificate_stats();
-
-    const certificates = mockCertificates;
-    return Promise.resolve({
-      total: certificates.length,
-      minted: certificates.filter((c) => c.status === 'Minted').length,
-      transferred: certificates.filter((c) => c.status === 'Transferred').length,
-      waiting: certificates.filter((c) => c.status === 'Waiting').length,
+  private static createActor(agent: Agent, canisterId: string): _SERVICE {
+    return Actor.createActor<_SERVICE>(idlFactory, {
+      agent,
+      canisterId,
     });
+  }
+
+  /**
+   * Mint a certificate (NFT with ORIGYN badge)
+   * Request structure based on IDL Args_2: { metadata, token_owner, memo }
+   */
+  static async mintCertificate(
+    agent: Agent,
+    canisterId: string,
+    tokenOwner: { owner: Principal; subaccount: [] | [Uint8Array | number[]] },
+    metadata: Array<[string, ICRC3Value]>,
+    memo?: Uint8Array | number[],
+  ): Promise<bigint> {
+    const actor = this.createActor(agent, canisterId);
+
+    // Type-safe memo value
+    const memoValue: [] | [Uint8Array | number[]] = memo ? [memo] : [];
+
+    const mintRequest = {
+      metadata,
+      token_owner: tokenOwner,
+      memo: memoValue,
+    };
+
+    const result = await actor.mint(mintRequest);
+
+    if ("Err" in result) {
+      throw new Error(`Minting failed: ${Object.keys(result.Err)[0]}`);
+    }
+
+    return result.Ok; // Return token ID
+  }
+
+  /**
+   * Initialize chunked upload (from reference MintingForm.js:193-206)
+   */
+  static async initUpload(
+    agent: Agent,
+    canisterId: string,
+    filePath: string,
+    fileHash: string,
+    fileSize: bigint,
+    chunkSize?: bigint,
+  ): Promise<void> {
+    const actor = this.createActor(agent, canisterId);
+
+    // Type-safe chunk_size value
+    const chunkSizeValue: [] | [bigint] = chunkSize ? [chunkSize] : [];
+
+    const result = await actor.init_upload({
+      file_path: filePath,
+      file_hash: fileHash,
+      file_size: fileSize,
+      chunk_size: chunkSizeValue,
+    });
+
+    if ("Err" in result) {
+      throw new Error(`Init upload failed: ${Object.keys(result.Err)[0]}`);
+    }
+  }
+
+  /**
+   * Store chunk (from reference MintingForm.js:216-220)
+   */
+  static async storeChunk(
+    agent: Agent,
+    canisterId: string,
+    filePath: string,
+    chunkId: bigint,
+    chunkData: number[],
+  ): Promise<void> {
+    const actor = this.createActor(agent, canisterId);
+
+    const result = await actor.store_chunk({
+      file_path: filePath,
+      chunk_id: chunkId,
+      chunk_data: chunkData,
+    });
+
+    if ("Err" in result) {
+      throw new Error(`Store chunk failed: ${Object.keys(result.Err)[0]}`);
+    }
+  }
+
+  /**
+   * Finalize upload (from reference MintingForm.js:235-238)
+   */
+  static async finalizeUpload(
+    agent: Agent,
+    canisterId: string,
+    filePath: string,
+  ): Promise<string> {
+    const actor = this.createActor(agent, canisterId);
+
+    const result = await actor.finalize_upload({
+      file_path: filePath,
+    });
+
+    if ("Err" in result) {
+      throw new Error(`Finalize upload failed: ${Object.keys(result.Err)[0]}`);
+    }
+
+    return result.Ok.url;
+  }
+
+  /**
+   * Upload a complete certificate file with chunked upload
+   * Helper that combines initUpload, storeChunk, and finalizeUpload
+   *
+   * @param agent - Authenticated agent
+   * @param canisterId - Canister to upload to
+   * @param file - File to upload
+   * @param onProgress - Optional progress callback
+   * @returns URL of the uploaded file
+   */
+  static async uploadCertificateFile(
+    agent: Agent,
+    canisterId: string,
+    file: File,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+    const filePath = file.name;
+    const fileSize = BigInt(file.size);
+
+    // Calculate file hash (SHA-256)
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    // Initialize upload
+    await this.initUpload(agent, canisterId, filePath, fileHash, fileSize, BigInt(CHUNK_SIZE));
+
+    // Upload chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkData = Array.from(uint8Array.slice(start, end));
+
+      await this.storeChunk(agent, canisterId, filePath, BigInt(i), chunkData);
+
+      // Report progress
+      if (onProgress) {
+        onProgress(((i + 1) / totalChunks) * 100);
+      }
+    }
+
+    // Finalize and get URL
+    return await this.finalizeUpload(agent, canisterId, filePath);
+  }
+
+  /**
+   * Get certificates owned by account
+   * Used to fetch user's certificates in a collection
+   */
+  static async getCertificatesOf(
+    agent: Agent,
+    canisterId: string,
+    account: { owner: Principal; subaccount: [] },
+  ): Promise<bigint[]> {
+    const actor = this.createActor(agent, canisterId);
+    return await actor.icrc7_tokens_of(account, [], []);
+  }
+
+  /**
+   * Get certificate metadata
+   * Returns metadata as array of [key, ICRC3Value] tuples
+   */
+  static async getCertificateMetadata(
+    agent: Agent,
+    canisterId: string,
+    tokenIds: bigint[],
+  ): Promise<Array<Array<[string, ICRC3Value]>>> {
+    const actor = this.createActor(agent, canisterId);
+    const result = await actor.icrc7_token_metadata(tokenIds);
+    return result.map((opt) => opt[0] || []);
+  }
+
+  /**
+   * Get collection metadata (ICRC7 standard)
+   */
+  static async getCollectionMetadata(
+    agent: Agent,
+    canisterId: string,
+  ): Promise<Array<[string, ICRC3Value]>> {
+    const actor = this.createActor(agent, canisterId);
+    return await actor.icrc7_collection_metadata();
+  }
+
+  /**
+   * Get ICRC3 transaction history
+   * Used for fetching transaction history and events
+   */
+  static async getTransactionHistory(
+    agent: Agent,
+    canisterId: string,
+    start: bigint,
+    length: bigint,
+  ): Promise<GetBlocksResult> {
+    const actor = this.createActor(agent, canisterId);
+    const request: GetBlocksRequest = { start, length };
+
+    console.log('[CertificatesService.getTransactionHistory] Fetching blocks:', {
+      canisterId,
+      start: start.toString(),
+      length: length.toString(),
+    });
+
+    const result = await actor.icrc3_get_blocks([request]);
+
+    console.log('[CertificatesService.getTransactionHistory] Fetched blocks:', {
+      log_length: result.log_length.toString(),
+      blocks_count: result.blocks.length,
+      archived_blocks_count: result.archived_blocks.length,
+    });
+
+    return result;
   }
 }

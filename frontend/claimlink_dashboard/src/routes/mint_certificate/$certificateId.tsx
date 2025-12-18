@@ -1,8 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { DashboardLayout } from '@/components/layout';
 import { CertificateDetailPage } from '@/features/certificates';
-import { useNFT } from '@/features/nfts/api/nfts.queries';
-import { useNftTransactionHistory } from '@services/origyn_nft/hooks/useNftTransactionHistory';
+import { useCertificate, useCertificateTransactionHistory } from '@/features/certificates';
 
 export const Route = createFileRoute('/mint_certificate/$certificateId')({
   component: CertificateDetailRoute,
@@ -25,8 +24,8 @@ function CertificateDetailRoute() {
     tokenId,
   });
 
-  // Fetch NFT data (returns { nft, parsedMetadata })
-  const { data: nftData, isLoading: isLoadingNft, isError: isNftError } = useNFT(
+  // Fetch certificate data (returns { certificate, parsedMetadata })
+  const { data: certificateData, isLoading: isLoadingCertificate, isError: isCertificateError } = useCertificate(
     collectionId,
     tokenId
   );
@@ -35,10 +34,10 @@ function CertificateDetailRoute() {
   const {
     data: historyData,
     isLoading: isLoadingHistory
-  } = useNftTransactionHistory(collectionId, tokenId);
+  } = useCertificateTransactionHistory(collectionId, tokenId);
 
   // Show loading state
-  if (isLoadingNft || isLoadingHistory) {
+  if (isLoadingCertificate || isLoadingHistory) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-[400px]">
@@ -51,7 +50,7 @@ function CertificateDetailRoute() {
   }
 
   // Handle certificate not found
-  if (isNftError || !nftData) {
+  if (isCertificateError || !certificateData) {
     return (
       <DashboardLayout>
         <div className="flex items-center justify-center h-[400px]">
@@ -87,13 +86,7 @@ function CertificateDetailRoute() {
     );
   }
 
-  const { nft, parsedMetadata } = nftData;
-
-  // Convert NFT to Certificate format
-  const certificate = {
-    ...nft,
-    certifiedBy: 'ORIGYN' as const,
-  };
+  const { certificate, parsedMetadata } = certificateData;
 
   console.log('[CertificateDetailRoute] Loaded certificate:', certificate);
   console.log('[CertificateDetailRoute] Parsed metadata:', {

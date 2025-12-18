@@ -34,15 +34,19 @@ export { CertificateLedgerPagination } from './components/certificate-ledger-pag
 // ============================================================================
 
 export { CertificatesService } from './api/certificates.service';
-export type { CertificateFilters } from './api/certificates.service';
 
 export {
   certificatesKeys,
-  useCertificates,
+  useCollectionCertificates,
   useCertificate,
-  useCertificatesByCollection,
-  useCertificateStats,
+  useCertificateTransactionHistory,
+  useMintCertificate,
+  useMintCertificateWithTemplate,
+  useUploadCertificateImage,
+  type CertificateWithParsedMetadata,
 } from './api/certificates.queries';
+
+export * from './api/transformers';
 
 // ============================================================================
 // Types

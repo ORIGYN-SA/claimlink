@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Grid, List, Info, Edit } from 'lucide-react'
 import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog, TokenStatusBadge } from '@/components/common'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
-import { useCollectionNfts } from '@services/origyn_nft'
-import { useFetchCollectionInfo } from '@services/claimlink'
+import { useCollectionCertificates } from '@/features/certificates'
+import { useFetchCollectionInfo } from '@/features/collections'
 
 interface CollectionDetailPageProps {
   collectionId: string
@@ -20,12 +20,12 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
 
   // Fetch collection metadata from ClaimLink backend
   const { data: collection, isLoading: isLoadingCollection, isError: isCollectionError } = useFetchCollectionInfo({
-    collectionId,
+    canisterId: collectionId,
     enabled: !!collectionId
   });
 
-  // Fetch real NFTs from ORIGYN canister
-  const { data: nfts = [], isLoading: isLoadingNfts } = useCollectionNfts(collectionId);
+  // Fetch real certificates from ORIGYN canister
+  const { data: nfts = [], isLoading: isLoadingNfts } = useCollectionCertificates(collectionId);
 
   console.log('[CollectionDetailPage] NFTs fetched:', {
     count: nfts.length,

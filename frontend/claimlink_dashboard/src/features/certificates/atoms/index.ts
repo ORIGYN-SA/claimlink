@@ -5,3 +5,4 @@
  */
 
 export * from './certificate-filters.atom';
+export * from './certificate-creator.atom';

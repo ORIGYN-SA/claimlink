@@ -4,7 +4,7 @@
  * Converts buildOrigynApps output to ICRC3Value metadata format for minting.
  */
 
-import type { ICRC3Value } from '@services/origyn_nft/interfaces';
+import type { ICRC3Value } from '@canisters/origyn_nft';
 import type { OrigynAppEntry, FileReference, LocalizedContent } from '../types';
 import type { CertificateFormData } from '@/features/templates/types/template.types';
 

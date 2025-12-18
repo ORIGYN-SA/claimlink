@@ -1,168 +1,184 @@
-/**
- * Collections Service Layer
- *
- * Abstracts collection data access for easy backend swap.
- * Currently uses mock data from shared/data/collections.ts.
- * TODO: Replace with ClaimLink backend API when ready.
- */
-
+import { Actor } from '@dfinity/agent';
+import type { Agent } from '@dfinity/agent';
+import type { Principal } from '@dfinity/principal';
+import { idlFactory } from '@canisters/claimlink';
+import type {
+  _SERVICE,
+  CollectionInfo,
+  CollectionsResult,
+  CreateCollectionArgs,
+  Result,
+} from '@canisters/claimlink';
 import type { Collection } from '../types/collection.types';
-import { mockCollections } from '@/shared/data/collections';
+import {
+  transformCollectionInfo,
+  transformPaginationArgs,
+  formatCreateCollectionError,
+} from './transformers';
 
-export interface CreateCollectionRequest {
-  title: string;
-  description: string;
-  imageUrl?: string;
-  metadata?: Record<string, unknown>;
-}
+const CLAIMLINK_CANISTER_ID =
+  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || '';
 
-export interface UpdateCollectionRequest {
-  id: string;
-  title?: string;
-  description?: string;
-  imageUrl?: string;
-  metadata?: Record<string, unknown>;
-}
+/**
+ * Create a ClaimLink canister actor
+ */
+function createActor(agent: Agent): _SERVICE {
+  if (!CLAIMLINK_CANISTER_ID) {
+    throw new Error('VITE_CLAIMLINK_CANISTER_ID not set in environment');
+  }
 
-export interface CollectionFilters {
-  status?: string;
-  search?: string;
+  return Actor.createActor<_SERVICE>(idlFactory, {
+    agent,
+    canisterId: CLAIMLINK_CANISTER_ID,
+  });
 }
 
 export class CollectionsService {
   /**
-   * Get all collections
+   * List collections owned by the calling principal
    */
-  static async getCollections(
-    filters?: CollectionFilters
-  ): Promise<Collection[]> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_collections(filters);
+  static async listMyCollections(
+    agent: Agent,
+    offset?: number,
+    limit?: number
+  ): Promise<{ collections: Collection[]; totalCount: number }> {
+    const actor = createActor(agent);
+    const paginationArgs = transformPaginationArgs(offset, limit);
 
-    let collections = [...mockCollections];
+    const result: CollectionsResult = await actor.list_my_collections(paginationArgs);
 
-    // Apply filters
-    if (filters?.status) {
-      collections = collections.filter((coll) => coll.status === filters.status);
-    }
-    if (filters?.search) {
-      const searchLower = filters.search.toLowerCase();
-      collections = collections.filter(
-        (coll) =>
-          coll.title.toLowerCase().includes(searchLower) ||
-          coll.description.toLowerCase().includes(searchLower)
-      );
-    }
-
-    return Promise.resolve(collections);
+    return {
+      collections: result.collections.map((info) =>
+        transformCollectionInfo(info, 0)
+      ),
+      totalCount: Number(result.total_count),
+    };
   }
 
   /**
-   * Get a collection by its ID
+   * List all collections in the system
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  static async getCollectionById(id: string): Promise<Collection | undefined> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_collection(id);
+  static async listAllCollections(
+    agent: Agent,
+    offset?: number,
+    limit?: number
+  ): Promise<{ collections: Collection[]; totalCount: number }> {
+    const actor = createActor(agent);
+    const paginationArgs = transformPaginationArgs(offset, limit);
 
-    const collection = mockCollections.find((coll) => coll.id === id);
-    return Promise.resolve(collection);
+    const result: CollectionsResult = await actor.list_all_collections(paginationArgs);
+
+    return {
+      collections: result.collections.map((info) =>
+        transformCollectionInfo(info, 0)
+      ),
+      totalCount: Number(result.total_count),
+    };
+  }
+
+  /**
+   * Get collections by owner principal
+   */
+  static async getCollectionsByOwner(
+    agent: Agent,
+    owner: Principal,
+    offset?: number,
+    limit?: number
+  ): Promise<{ collections: Collection[]; totalCount: number }> {
+    const actor = createActor(agent);
+    const paginationArgs = transformPaginationArgs(offset, limit);
+
+    const result: CollectionsResult = await actor.get_collections_by_owner({
+      owner,
+      pagination: paginationArgs,
+    });
+
+    return {
+      collections: result.collections.map((info) =>
+        transformCollectionInfo(info, 0)
+      ),
+      totalCount: Number(result.total_count),
+    };
+  }
+
+  /**
+   * Get detailed information about a specific collection
+   */
+  static async getCollectionInfo(
+    agent: Agent,
+    canisterId: Principal
+  ): Promise<Collection | null> {
+    const actor = createActor(agent);
+
+    const result: [] | [CollectionInfo] = await actor.get_collection_info({
+      canister_id: canisterId,
+    });
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return transformCollectionInfo(result[0], 0);
+  }
+
+  /**
+   * Check if a collection exists
+   */
+  static async collectionExists(
+    agent: Agent,
+    canisterId: Principal
+  ): Promise<boolean> {
+    const actor = createActor(agent);
+
+    return await actor.collection_exists({
+      canister_id: canisterId,
+    });
+  }
+
+  /**
+   * Get total count of collections
+   */
+  static async getCollectionCount(agent: Agent): Promise<number> {
+    const actor = createActor(agent);
+
+    const count = await actor.get_collection_count(null);
+    return Number(count);
   }
 
   /**
    * Create a new collection
+   * @throws Error with user-friendly message if creation fails
    */
   static async createCollection(
-    request: CreateCollectionRequest
-  ): Promise<Collection> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.create_collection(request);
+    agent: Agent,
+    args: CreateCollectionArgs
+  ): Promise<string> {
+    const actor = createActor(agent);
 
-    // Mock implementation
-    return Promise.resolve({
-      id: `coll-${Date.now()}`,
-      title: request.title,
-      description: request.description,
-      imageUrl:
-        request.imageUrl ||
-        'https://images.unsplash.com/photo-1578662996442-48f60103fc96',
-      itemCount: 0,
-      status: 'Draft',
-      createdDate: new Date().toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-      lastModified: new Date().toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-      creator: 'Current User',
-    });
-  }
+    const result: Result = await actor.create_collection(args);
 
-  /**
-   * Update an existing collection
-   */
-  static async updateCollection(
-    request: UpdateCollectionRequest
-  ): Promise<Collection> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.update_collection(request);
-
-    // Mock implementation
-    const existing = await this.getCollectionById(request.id);
-    if (!existing) {
-      throw new Error('Collection not found');
+    if ('Err' in result) {
+      throw new Error(formatCreateCollectionError(result.Err));
     }
 
-    return Promise.resolve({
-      ...existing,
-      title: request.title || existing.title,
-      description: request.description || existing.description,
-      imageUrl: request.imageUrl || existing.imageUrl,
-      lastModified: new Date().toLocaleDateString('en-US', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-      }),
-    });
+    return result.Ok.origyn_nft_canister_id.toText();
   }
 
   /**
-   * Delete a collection
+   * Get list of NFT token IDs in a collection
    */
-  static async deleteCollection(_id: string): Promise<void> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.delete_collection(id);
+  static async getCollectionNfts(
+    agent: Agent,
+    canisterId: Principal,
+    prev?: bigint,
+    take?: bigint
+  ): Promise<bigint[]> {
+    const actor = createActor(agent);
 
-    // Mock implementation
-    return Promise.resolve();
-  }
-
-  /**
-   * Get collection statistics
-   */
-  static async getCollectionStats(): Promise<{
-    total: number;
-    active: number;
-    draft: number;
-  }> {
-    // TODO: Replace with backend API call
-    // const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    // return await actor.get_collection_stats();
-
-    const collections = mockCollections;
-    return Promise.resolve({
-      total: collections.length,
-      active: collections.filter((c) => c.status === 'Active').length,
-      draft: collections.filter((c) => c.status === 'Draft').length,
+    return await actor.get_collection_nfts({
+      canister_id: canisterId,
+      prev: prev !== undefined ? [prev] : [],
+      take: take !== undefined ? [take] : [],
     });
   }
 }
