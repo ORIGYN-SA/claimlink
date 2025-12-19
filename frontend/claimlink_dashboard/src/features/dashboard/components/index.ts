@@ -12,3 +12,11 @@ export { TotalStatusSection } from "./total-status-section"
 export { LastCertificateOwnersSection } from "./last-certificate-owners-section"
 export { LastSentCertificatesSection } from "./last-sent-certificates-section"
 export { LastMintedCertificatesSection } from "./last-minted-certificates-section"
+
+// Loading and error states
+export {
+  StatusSectionSkeleton,
+  StatusSectionError,
+  CertificatesSectionSkeleton,
+  CertificatesSectionError,
+} from "./dashboard-skeletons"

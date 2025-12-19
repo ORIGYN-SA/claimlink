@@ -5,20 +5,25 @@
  * Uses DashboardService for data access abstraction.
  */
 
-import { useQuery } from '@tanstack/react-query';
-import { DashboardService } from './dashboard.service';
+import { useQuery } from "@tanstack/react-query";
+import { DashboardService } from "./dashboard.service";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 /**
  * Query key factory for dashboard
  */
 export const dashboardKeys = {
-  all: ['dashboard'] as const,
-  stats: () => [...dashboardKeys.all, 'stats'] as const,
+  all: ["dashboard"] as const,
+  stats: () => [...dashboardKeys.all, "stats"] as const,
   activity: (limit?: number) =>
-    [...dashboardKeys.all, 'activity', limit] as const,
-  quickStats: () => [...dashboardKeys.all, 'quickStats'] as const,
+    [...dashboardKeys.all, "activity", limit] as const,
+  quickStats: () => [...dashboardKeys.all, "quickStats"] as const,
   trending: (limit?: number) =>
-    [...dashboardKeys.all, 'trending', limit] as const,
+    [...dashboardKeys.all, "trending", limit] as const,
+  statusCounts: (principalId?: string) =>
+    [...dashboardKeys.all, "statusCounts", principalId] as const,
+  recentCertificates: (principalId?: string, limit?: number) =>
+    [...dashboardKeys.all, "recentCertificates", principalId, limit] as const,
 };
 
 /**
@@ -62,5 +67,61 @@ export const useTrendingItems = (limit = 5) => {
     queryKey: dashboardKeys.trending(limit),
     queryFn: () => DashboardService.getTrendingItems(limit),
     staleTime: 5 * 60 * 1000, // 5 minutes - trending data changes slowly
+  });
+};
+
+/**
+ * Fetch certificate status counts for dashboard stat cards
+ *
+ * Returns counts for:
+ * - Minted Certificates (total)
+ * - Awaiting Certificates (pending/waiting status)
+ * - Certificates in Wallet (owned by current user)
+ * - Transferred Certificates (owned by others)
+ */
+export const useDashboardStatusCounts = () => {
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
+
+  return useQuery({
+    queryKey: dashboardKeys.statusCounts(principalId),
+    queryFn: async () => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error("Not authenticated");
+      }
+
+      return await DashboardService.getCertificateStatusCounts(
+        authenticatedAgent,
+        principalId,
+      );
+    },
+    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    staleTime: 5 * 60 * 1000, // 5 minutes - dashboard refreshes moderately
+    retry: 1,
+  });
+};
+
+/**
+ * Fetch most recently minted certificates for dashboard display
+ * Limited to 9 certificates by default
+ */
+export const useDashboardRecentCertificates = (limit: number = 9) => {
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
+
+  return useQuery({
+    queryKey: dashboardKeys.recentCertificates(principalId, limit),
+    queryFn: async () => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error("Not authenticated");
+      }
+
+      return await DashboardService.getRecentCertificates(
+        authenticatedAgent,
+        principalId,
+        limit,
+      );
+    },
+    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
   });
 };

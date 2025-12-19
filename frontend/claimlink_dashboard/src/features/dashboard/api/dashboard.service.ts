@@ -1,10 +1,62 @@
+import { Actor } from '@dfinity/agent';
+import type { Agent } from '@dfinity/agent';
+import { Principal } from '@dfinity/principal';
+import { idlFactory } from '@services/claimlink';
+import type { _SERVICE, NftDetails } from '@services/claimlink/interfaces';
+import { CollectionsService } from '@/features/collections/api/collections.service';
+import type { Certificate } from '@/features/certificates/types/certificate.types';
+import {
+  type EnrichedCertificate,
+  transformNftDetailsToCertificate,
+  sortCertificatesByMintedDate,
+} from './transformers';
+
 /**
  * Dashboard Service Layer
  *
- * Abstracts dashboard data access for easy backend swap.
- * Currently uses aggregated mock data from various sources.
- * TODO: Replace with ClaimLink backend API when ready.
+ * Aggregates certificate data from multiple collections to provide dashboard statistics
+ * and recent activity. Integrates with IC canisters for real-time data.
  */
+
+const CLAIMLINK_CANISTER_ID =
+  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || '';
+
+/**
+ * Create a ClaimLink canister actor
+ */
+function createActor(agent: Agent): _SERVICE {
+  if (!CLAIMLINK_CANISTER_ID) {
+    throw new Error('VITE_CLAIMLINK_CANISTER_ID not set in environment');
+  }
+
+  return Actor.createActor<_SERVICE>(idlFactory, {
+    agent,
+    canisterId: CLAIMLINK_CANISTER_ID,
+  });
+}
+
+export interface DashboardStatusCounts {
+  minted: {
+    value: string;
+    trend: string;
+    trendColor: 'green' | 'red';
+  };
+  awaiting: {
+    value: string;
+    trend: string;
+    trendColor: 'green' | 'red';
+  };
+  wallet: {
+    value: string;
+    trend: string;
+    trendColor: 'green' | 'red';
+  };
+  transferred: {
+    value: string;
+    trend: string;
+    trendColor: 'green' | 'red';
+  };
+}
 
 export interface DashboardStats {
   totalCertificates: number;
@@ -32,6 +84,177 @@ export interface QuickStat {
 }
 
 export class DashboardService {
+  /**
+   * Fetch all certificates across all user collections with full metadata
+   * Returns enriched certificate data with owner information for status determination
+   *
+   * Note: In ClaimLink, NFTs and Certificates are technically the same thing.
+   * Certificates are NFTs with the ORIGYN badge representing real-world assets.
+   */
+  static async getAllUserCertificatesWithDetails(
+    agent: Agent,
+    principalId: string
+  ): Promise<EnrichedCertificate[]> {
+    try {
+      // Step 1: Get all user's collections
+      const collectionsResult = await CollectionsService.listMyCollections(
+        agent,
+        0,
+        100 // Reasonable limit for MVP
+      );
+
+      const collections = collectionsResult.collections;
+
+      if (collections.length === 0) {
+        return [];
+      }
+
+      // Step 2: Fetch NFT details from all collections in parallel
+      const actor = createActor(agent);
+
+      const certificatePromises = collections.map(async (collection) => {
+        try {
+          const collectionPrincipal = Principal.fromText(collection.id);
+
+          // Get token IDs
+          const tokenIds = await actor.get_collection_nfts({
+            canister_id: collectionPrincipal,
+            prev: [],
+            take: [], // Get all tokens
+          });
+
+          if (tokenIds.length === 0) {
+            return [];
+          }
+
+          // Get NFT details (metadata + owner)
+          const nftDetails = await actor.get_nft_details({
+            canister_id: collectionPrincipal,
+            token_ids: tokenIds,
+          });
+
+          // Transform to Certificate type
+          return nftDetails.map((details) =>
+            transformNftDetailsToCertificate(
+              details,
+              collection.title,
+              collection.id,
+              principalId
+            )
+          );
+        } catch (error) {
+          console.error(
+            `[Dashboard] Failed to fetch certificates from collection ${collection.id}:`,
+            error
+          );
+          return [];
+        }
+      });
+
+      const certificateArrays = await Promise.all(certificatePromises);
+      return certificateArrays.flat();
+    } catch (error) {
+      console.error('[Dashboard] Failed to fetch user certificates:', error);
+      throw new Error('Failed to load certificates. Please try again.');
+    }
+  }
+
+  /**
+   * Calculate certificate counts by status
+   *
+   * Status determination logic:
+   * - "minted": total count of all certificates
+   * - "inWallet": count where owner.principal === currentPrincipal
+   * - "transferred": count where owner.principal !== currentPrincipal
+   * - "awaiting": count where status is "Waiting"
+   */
+  static async getCertificateStatusCounts(
+    agent: Agent,
+    principalId: string
+  ): Promise<DashboardStatusCounts> {
+    try {
+      const certificates = await this.getAllUserCertificatesWithDetails(
+        agent,
+        principalId
+      );
+
+      // Initialize counts
+      let mintedCount = certificates.length;
+      let awaitingCount = 0;
+      let inWalletCount = 0;
+      let transferredCount = 0;
+
+      // Count by status
+      for (const cert of certificates) {
+        if (cert.status === 'Waiting') {
+          awaitingCount++;
+        }
+
+        if (cert.status === 'Minted') {
+          inWalletCount++;
+        }
+
+        if (cert.status === 'Transferred') {
+          transferredCount++;
+        }
+      }
+
+      // TODO: Calculate real trends from historical data
+      // For now, use placeholder trends
+      return {
+        minted: {
+          value: mintedCount.toString(),
+          trend: '0%',
+          trendColor: 'green',
+        },
+        awaiting: {
+          value: awaitingCount.toString(),
+          trend: '0%',
+          trendColor: 'green',
+        },
+        wallet: {
+          value: inWalletCount.toString(),
+          trend: '0%',
+          trendColor: 'green',
+        },
+        transferred: {
+          value: transferredCount.toString(),
+          trend: '0%',
+          trendColor: 'green',
+        },
+      };
+    } catch (error) {
+      console.error('[Dashboard] Failed to get certificate status counts:', error);
+      throw new Error('Failed to load certificate statistics. Please try again.');
+    }
+  }
+
+  /**
+   * Get most recently minted certificates
+   * Sorted by minted_at timestamp from metadata
+   */
+  static async getRecentCertificates(
+    agent: Agent,
+    principalId: string,
+    limit: number = 9
+  ): Promise<Certificate[]> {
+    try {
+      const certificates = await this.getAllUserCertificatesWithDetails(
+        agent,
+        principalId
+      );
+
+      // Sort by minted timestamp (newest first)
+      const sorted = sortCertificatesByMintedDate(certificates);
+
+      // Take first `limit` certificates
+      return sorted.slice(0, limit);
+    } catch (error) {
+      console.error('[Dashboard] Failed to get recent certificates:', error);
+      throw new Error('Failed to load recent certificates. Please try again.');
+    }
+  }
+
   /**
    * Get dashboard overview statistics
    */

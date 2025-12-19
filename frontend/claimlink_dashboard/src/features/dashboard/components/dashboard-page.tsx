@@ -7,12 +7,16 @@ import {
   LastCertificateOwnersSection,
   LastSentCertificatesSection,
   LastMintedCertificatesSection,
-  WelcomeCard
+  WelcomeCard,
+  StatusSectionSkeleton,
+  StatusSectionError,
+  CertificatesSectionSkeleton,
+  CertificatesSectionError,
 } from "./";
 import {
-  mockCertificates,
-  getMintedCertificates
-} from "@/shared/data/certificates";
+  useDashboardStatusCounts,
+  useDashboardRecentCertificates,
+} from "../api/dashboard.queries";
 import type { Certificate } from "@/features/certificates/types/certificate.types";
 
 interface DashboardPageProps {
@@ -21,32 +25,36 @@ interface DashboardPageProps {
 
 export function DashboardPage({ className }: DashboardPageProps) {
   const navigate = useNavigate();
-  
+
   // State management for all interactions
   const [ownersSearchQuery, setOwnersSearchQuery] = React.useState('');
   const [sentSearchQuery, setSentSearchQuery] = React.useState('');
   const [viewMode, setViewMode] = React.useState<ViewMode>('grid');
 
-  // Data preparation
-  const mintedCertificates = getMintedCertificates().slice(0, 9);
-  
+  // Fetch real data from IC
+  const {
+    data: statusData,
+    isLoading: isLoadingStatus,
+    error: statusError,
+  } = useDashboardStatusCounts();
+
+  const {
+    data: recentCertificates = [],
+    isLoading: isLoadingCertificates,
+    error: certificatesError,
+  } = useDashboardRecentCertificates(9);
+
+  // Mock data for sections we're not touching (Last Certificate Owners and Last Sent Certificates)
   const certificateOwners = [
     { title: "John Doe", date: "20 Feb, 2024" },
     { title: "Jane Smith", date: "19 Feb, 2024" },
     { title: "Bob Johnson", date: "18 Feb, 2024" },
   ];
 
-  const sentCertificates = mockCertificates.slice(0, 2).map(cert => ({
-    title: cert.title,
-    date: cert.date
-  }));
-
-  const statusData = {
-    minted: { value: "235", trend: "56%", trendColor: "green" as const },
-    awaiting: { value: "235", trend: "56%", trendColor: "green" as const },
-    wallet: { value: "235", trend: "11%", trendColor: "red" as const },
-    transferred: { value: "235", trend: "56%", trendColor: "green" as const },
-  };
+  const sentCertificates = [
+    { title: "Sample Certificate 1", date: "20 Feb, 2024" },
+    { title: "Sample Certificate 2", date: "19 Feb, 2024" },
+  ];
 
   const handleCertificateClick = (certificate: Certificate) => {
     console.log('Certificate clicked:', certificate);
@@ -85,7 +93,13 @@ export function DashboardPage({ className }: DashboardPageProps) {
     >
 
       {/* Stats Section */}
-      <TotalStatusSection statusData={statusData} />
+      {isLoadingStatus ? (
+        <StatusSectionSkeleton />
+      ) : statusError ? (
+        <StatusSectionError error={statusError as Error} />
+      ) : statusData ? (
+        <TotalStatusSection statusData={statusData} />
+      ) : null}
 
       {/* Main Content */}
       <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
@@ -110,14 +124,20 @@ export function DashboardPage({ className }: DashboardPageProps) {
         </div>
 
         {/* Main Content Area */}
-        <LastMintedCertificatesSection
-          certificates={mintedCertificates}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          onCertificateClick={handleCertificateClick}
-          onAddCertificate={handleAddCertificate}
-          onViewAll={handleViewAllMinted}
-        />
+        {isLoadingCertificates ? (
+          <CertificatesSectionSkeleton />
+        ) : certificatesError ? (
+          <CertificatesSectionError error={certificatesError as Error} />
+        ) : (
+          <LastMintedCertificatesSection
+            certificates={recentCertificates}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onCertificateClick={handleCertificateClick}
+            onAddCertificate={handleAddCertificate}
+            onViewAll={handleViewAllMinted}
+          />
+        )}
       </div>
     </div>
   );
