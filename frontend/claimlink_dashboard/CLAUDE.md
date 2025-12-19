@@ -22,11 +22,19 @@ pnpm preview              # Preview production build
 ## High-Level Architecture
 
 ### Platform & Purpose
-ClaimLink "Minting Studio" - A React dashboard for NFT and Certificate minting on the Internet Computer (ICP) blockchain. The app manages two distinct token types:
-- **Certificates**: Integrator-only, verified real-world assets (gold, diamonds, watches) with ORIGYN badge
-- **NFTs**: Public minting, digital collectibles
+ClaimLink "Minting Studio" - A React dashboard for certificate minting on the Internet Computer (ICP) blockchain.
 
-Both share UI components with conditional rendering via props (e.g., `showCertifiedBadge`).
+**Token Architecture:**
+All tokens are ORIGYN NFTs (ICRC-7 standard) representing verified real-world assets (gold, diamonds, watches) with the ORIGYN badge.
+
+**Naming Convention (Critical!):**
+- **Backend/IC APIs**: Use "NFT" terminology (`get_nft_details`, `NftDetails`, `get_collection_nfts`)
+  - Reflects technical reality - tokens are ORIGYN NFTs
+- **Frontend/UI**: Use "Certificate" terminology (`Certificate` type, `MintCertificatePage`, `useCertificates`)
+  - Reflects business domain - tokens are certified assets
+- **Transform Layer**: Bridges the two (`transformNftDetailsToCertificate`)
+
+This is **intentional** - there's only ONE token type with different names at different layers.
 
 ### Core Technology Stack
 - **Frontend**: React 19.1 + TypeScript 5.8 + Vite 7.1
@@ -80,7 +88,7 @@ const [isOpen, setIsOpen] = useState(false);
 const authState = useAtom(authStateAtom); // Cross-component sharing
 
 // Layer 3: Server State (TanStack Query)
-const { data } = useNFTs(); // Canister data fetching
+const { data } = useCertificates(); // Canister data fetching
 ```
 
 **Rules:**
@@ -91,18 +99,23 @@ const { data } = useNFTs(); // Canister data fetching
 **3. Service Layer Pattern**
 ```typescript
 // features/[feature]/api/[feature].service.ts - Business logic
-export class NFTService {
-  static async fetchNFTs(): Promise<NFT[]> {
+// Note: Service layer calls IC APIs (using "NFT" terminology)
+// then transforms to Certificate types for frontend
+export class CertificatesService {
+  static async fetchCertificates(): Promise<Certificate[]> {
     const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    return await actor.get_nfts();
+    // IC canister uses "nft_details" (technical layer)
+    const nftDetails = await actor.get_nft_details({ token_ids });
+    // Transform to Certificate (business layer)
+    return nftDetails.map(transformNftDetailsToCertificate);
   }
 }
 
 // features/[feature]/api/[feature].queries.ts - React Query hooks
-export const useNFTs = () => {
+export const useCertificates = () => {
   return useQuery({
-    queryKey: nftKeys.list(),
-    queryFn: () => NFTService.fetchNFTs(),
+    queryKey: certificatesKeys.list(),
+    queryFn: () => CertificatesService.fetchCertificates(),
   });
 };
 ```
@@ -159,9 +172,9 @@ Route tree is auto-generated in `routeTree.gen.ts` by TanStack Router plugin.
 ### File Naming Conventions
 - **Components**: kebab-case (`token-card.tsx`)
 - **Routes**: kebab-case or snake_case matching URL (`mint_certificate.tsx`)
-- **Hooks**: camelCase with "use" prefix (`useFetchNFTs.tsx`)
-- **Services**: kebab-case with suffix (`nfts.service.ts`, `nfts.queries.ts`)
-- **Types**: kebab-case with suffix (`token.types.ts`)
+- **Hooks**: camelCase with "use" prefix (`useCertificates.tsx`)
+- **Services**: kebab-case with suffix (`certificates.service.ts`, `certificates.queries.ts`)
+- **Types**: kebab-case with suffix (`certificate.types.ts`)
 
 ### Design System (CSS Custom Properties)
 

@@ -5,10 +5,10 @@ import { cn } from "@/lib/utils"
 
 interface WelcomeCardProps {
   className?: string
-  onNFTClick?: () => void
+  onMintClick?: () => void
 }
 
-export function WelcomeCard({ className, onNFTClick }: WelcomeCardProps) {
+export function WelcomeCard({ className, onMintClick }: WelcomeCardProps) {
   return (
     <div className={cn(
       "p-8 rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.15),0_2px_4px_0_rgba(0,0,0,0.05)] text-white border-none w-full",
@@ -36,12 +36,12 @@ export function WelcomeCard({ className, onNFTClick }: WelcomeCardProps) {
       
       {/* Button */}
       <div className="flex items-center justify-start">
-        <button 
-          onClick={onNFTClick}
+        <button
+          onClick={onMintClick}
           className="bg-white cursor-pointer rounded-[20px] h-14 pl-6 pr-3 py-3 flex items-center justify-end gap-2.5 shadow-[0_4px_24px_0_rgba(0,0,0,0.15)] hover:bg-white/95 transition-colors"
         >
           <span className="font-sans font-normal text-[#222526] text-sm leading-4 text-center">
-            NFT
+            Certificate
           </span>
           <div className="w-8 h-8 bg-gradient-to-br from-[#061937] to-[#1e3a8a] rounded-full flex items-center justify-center">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="white">

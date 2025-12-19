@@ -2,7 +2,7 @@ import { Actor } from '@dfinity/agent';
 import type { Agent } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { idlFactory } from '@services/claimlink';
-import type { _SERVICE, NftDetails } from '@services/claimlink/interfaces';
+import type { _SERVICE } from '@services/claimlink/interfaces';
 import { CollectionsService } from '@/features/collections/api/collections.service';
 import type { Certificate } from '@/features/certificates/types/certificate.types';
 import {

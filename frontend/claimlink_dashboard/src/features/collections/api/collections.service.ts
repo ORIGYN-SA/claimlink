@@ -166,6 +166,16 @@ export class CollectionsService {
 
   /**
    * Get list of NFT token IDs in a collection
+   *
+   * Note: Uses "NFT" terminology to match the IC canister API (get_collection_nfts).
+   * In ClaimLink, NFTs are the technical implementation - these tokens represent
+   * Certificates from a user/business perspective.
+   *
+   * @param agent - Authenticated IC agent
+   * @param canisterId - Principal of the collection canister
+   * @param prev - Optional previous token ID for pagination
+   * @param take - Optional number of tokens to fetch
+   * @returns Array of token IDs (bigint)
    */
   static async getCollectionNfts(
     agent: Agent,

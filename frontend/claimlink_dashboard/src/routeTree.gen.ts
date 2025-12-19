@@ -15,14 +15,12 @@ import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as TemplatesIndexRouteImport } from './routes/templates/index'
-import { Route as Mint_nftIndexRouteImport } from './routes/mint_nft/index'
 import { Route as Mint_certificateIndexRouteImport } from './routes/mint_certificate/index'
 import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
 import { Route as CampaignsIndexRouteImport } from './routes/campaigns/index'
 import { Route as AccountIndexRouteImport } from './routes/account/index'
 import { Route as TemplatesNewRouteImport } from './routes/templates/new'
 import { Route as TemplatesTemplateIdRouteImport } from './routes/templates/$templateId'
-import { Route as Mint_nftNewRouteImport } from './routes/mint_nft/new'
 import { Route as Mint_certificateNewRouteImport } from './routes/mint_certificate/new'
 import { Route as Mint_certificateCertificateIdRouteImport } from './routes/mint_certificate/$certificateId'
 import { Route as CollectionsNewRouteImport } from './routes/collections/new'
@@ -68,11 +66,6 @@ const TemplatesIndexRoute = TemplatesIndexRouteImport.update({
   path: '/templates/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const Mint_nftIndexRoute = Mint_nftIndexRouteImport.update({
-  id: '/mint_nft/',
-  path: '/mint_nft/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const Mint_certificateIndexRoute = Mint_certificateIndexRouteImport.update({
   id: '/mint_certificate/',
   path: '/mint_certificate/',
@@ -101,11 +94,6 @@ const TemplatesNewRoute = TemplatesNewRouteImport.update({
 const TemplatesTemplateIdRoute = TemplatesTemplateIdRouteImport.update({
   id: '/templates/$templateId',
   path: '/templates/$templateId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Mint_nftNewRoute = Mint_nftNewRouteImport.update({
-  id: '/mint_nft/new',
-  path: '/mint_nft/new',
   getParentRoute: () => rootRouteImport,
 } as any)
 const Mint_certificateNewRoute = Mint_certificateNewRouteImport.update({
@@ -199,14 +187,12 @@ export interface FileRoutesByFullPath {
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
   '/templates/new': typeof TemplatesNewRoute
   '/account': typeof AccountIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/collections': typeof CollectionsIndexRoute
   '/mint_certificate': typeof Mint_certificateIndexRoute
-  '/mint_nft': typeof Mint_nftIndexRoute
   '/templates': typeof TemplatesIndexRoute
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
@@ -229,14 +215,12 @@ export interface FileRoutesByTo {
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
   '/templates/new': typeof TemplatesNewRoute
   '/account': typeof AccountIndexRoute
   '/campaigns': typeof CampaignsIndexRoute
   '/collections': typeof CollectionsIndexRoute
   '/mint_certificate': typeof Mint_certificateIndexRoute
-  '/mint_nft': typeof Mint_nftIndexRoute
   '/templates': typeof TemplatesIndexRoute
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
@@ -260,14 +244,12 @@ export interface FileRoutesById {
   '/collections/new': typeof CollectionsNewRoute
   '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/mint_nft/new': typeof Mint_nftNewRoute
   '/templates/$templateId': typeof TemplatesTemplateIdRoute
   '/templates/new': typeof TemplatesNewRoute
   '/account/': typeof AccountIndexRoute
   '/campaigns/': typeof CampaignsIndexRoute
   '/collections/': typeof CollectionsIndexRoute
   '/mint_certificate/': typeof Mint_certificateIndexRoute
-  '/mint_nft/': typeof Mint_nftIndexRoute
   '/templates/': typeof TemplatesIndexRoute
   '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
   '/account/users/$userId': typeof AccountUsersUserIdRoute
@@ -292,14 +274,12 @@ export interface FileRouteTypes {
     | '/collections/new'
     | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
-    | '/mint_nft/new'
     | '/templates/$templateId'
     | '/templates/new'
     | '/account'
     | '/campaigns'
     | '/collections'
     | '/mint_certificate'
-    | '/mint_nft'
     | '/templates'
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
@@ -322,14 +302,12 @@ export interface FileRouteTypes {
     | '/collections/new'
     | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
-    | '/mint_nft/new'
     | '/templates/$templateId'
     | '/templates/new'
     | '/account'
     | '/campaigns'
     | '/collections'
     | '/mint_certificate'
-    | '/mint_nft'
     | '/templates'
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
@@ -352,14 +330,12 @@ export interface FileRouteTypes {
     | '/collections/new'
     | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
-    | '/mint_nft/new'
     | '/templates/$templateId'
     | '/templates/new'
     | '/account/'
     | '/campaigns/'
     | '/collections/'
     | '/mint_certificate/'
-    | '/mint_nft/'
     | '/templates/'
     | '/account/transactions/$transactionId'
     | '/account/users/$userId'
@@ -383,14 +359,12 @@ export interface RootRouteChildren {
   CollectionsNewRoute: typeof CollectionsNewRoute
   Mint_certificateCertificateIdRoute: typeof Mint_certificateCertificateIdRoute
   Mint_certificateNewRoute: typeof Mint_certificateNewRoute
-  Mint_nftNewRoute: typeof Mint_nftNewRoute
   TemplatesTemplateIdRoute: typeof TemplatesTemplateIdRoute
   TemplatesNewRoute: typeof TemplatesNewRoute
   AccountIndexRoute: typeof AccountIndexRoute
   CampaignsIndexRoute: typeof CampaignsIndexRoute
   CollectionsIndexRoute: typeof CollectionsIndexRoute
   Mint_certificateIndexRoute: typeof Mint_certificateIndexRoute
-  Mint_nftIndexRoute: typeof Mint_nftIndexRoute
   TemplatesIndexRoute: typeof TemplatesIndexRoute
   AccountTransactionsTransactionIdRoute: typeof AccountTransactionsTransactionIdRoute
   AccountUsersUserIdRoute: typeof AccountUsersUserIdRoute
@@ -444,13 +418,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TemplatesIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/mint_nft/': {
-      id: '/mint_nft/'
-      path: '/mint_nft'
-      fullPath: '/mint_nft'
-      preLoaderRoute: typeof Mint_nftIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/mint_certificate/': {
       id: '/mint_certificate/'
       path: '/mint_certificate'
@@ -491,13 +458,6 @@ declare module '@tanstack/react-router' {
       path: '/templates/$templateId'
       fullPath: '/templates/$templateId'
       preLoaderRoute: typeof TemplatesTemplateIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mint_nft/new': {
-      id: '/mint_nft/new'
-      path: '/mint_nft/new'
-      fullPath: '/mint_nft/new'
-      preLoaderRoute: typeof Mint_nftNewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mint_certificate/new': {
@@ -615,14 +575,12 @@ const rootRouteChildren: RootRouteChildren = {
   CollectionsNewRoute: CollectionsNewRoute,
   Mint_certificateCertificateIdRoute: Mint_certificateCertificateIdRoute,
   Mint_certificateNewRoute: Mint_certificateNewRoute,
-  Mint_nftNewRoute: Mint_nftNewRoute,
   TemplatesTemplateIdRoute: TemplatesTemplateIdRoute,
   TemplatesNewRoute: TemplatesNewRoute,
   AccountIndexRoute: AccountIndexRoute,
   CampaignsIndexRoute: CampaignsIndexRoute,
   CollectionsIndexRoute: CollectionsIndexRoute,
   Mint_certificateIndexRoute: Mint_certificateIndexRoute,
-  Mint_nftIndexRoute: Mint_nftIndexRoute,
   TemplatesIndexRoute: TemplatesIndexRoute,
   AccountTransactionsTransactionIdRoute: AccountTransactionsTransactionIdRoute,
   AccountUsersUserIdRoute: AccountUsersUserIdRoute,
