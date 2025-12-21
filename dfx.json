@@ -20,7 +20,12 @@
         "bindings": ["js", "did", "ts"],
         "env_override": null,
         "output": "backend/canisters/claimlink/api/declarations"
-      }
+      },
+       "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     },
     "claimlink_frontend": {
       "declarations": {

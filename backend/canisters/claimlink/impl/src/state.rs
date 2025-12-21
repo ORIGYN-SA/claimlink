@@ -12,12 +12,7 @@ use utils::{
     memory::MemorySize,
 };
 
-use crate::{
-    memory::{
-        get_collections_by_owner_memory, get_collections_memory, get_collections_ordered_memory, VM,
-    },
-    types::collections::Collection,
-};
+use crate::types::collections::Collection;
 use claimlink_api::types::{
     collection::{CollectionInfo, OwnerCollectionList},
     sub_canister::OrigynSubCanisterManager,
