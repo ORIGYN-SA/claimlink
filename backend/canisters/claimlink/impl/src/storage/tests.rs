@@ -11,7 +11,7 @@ pub mod wasm_store {
 
     #[test]
     fn test_record_and_retrieve_nft_collection_wasm() {
-        let hash = mutate_wasm_store(|store| record_nft_collection_wasm(store));
+        let hash = mutate_wasm_store(record_nft_collection_wasm);
 
         read_wasm_store(|store| {
             assert!(

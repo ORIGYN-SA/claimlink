@@ -17,7 +17,7 @@ pub struct Collection {
     #[n(4)]
     pub logo: Option<String>,
     #[n(5)]
-    pub nft_template: Option<Vec<u8>>,
+    pub template: Option<Vec<u8>>,
     #[n(6)]
     pub canister: Option<Canister>,
     #[n(7)]

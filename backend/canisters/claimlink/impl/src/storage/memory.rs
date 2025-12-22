@@ -15,3 +15,9 @@ const WASM_STORE_MEMORY_ID: MemoryId = MemoryId::new(0);
 pub fn wasm_store_memory() -> StableMemory {
     MEMORY_MANAGER.with(|m| m.borrow().get(WASM_STORE_MEMORY_ID))
 }
+
+const TEMPLATE_STORE_MEMORY_ID: MemoryId = MemoryId::new(1);
+
+pub fn template_store_memory() -> StableMemory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(TEMPLATE_STORE_MEMORY_ID))
+}
