@@ -12,29 +12,30 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as NewPasswordRouteImport } from './routes/new-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as TemplatesIndexRouteImport } from './routes/templates/index'
-import { Route as Mint_certificateIndexRouteImport } from './routes/mint_certificate/index'
-import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
-import { Route as CampaignsIndexRouteImport } from './routes/campaigns/index'
-import { Route as AccountIndexRouteImport } from './routes/account/index'
-import { Route as TemplatesNewRouteImport } from './routes/templates/new'
-import { Route as TemplatesTemplateIdRouteImport } from './routes/templates/$templateId'
-import { Route as Mint_certificateNewRouteImport } from './routes/mint_certificate/new'
-import { Route as Mint_certificateCertificateIdRouteImport } from './routes/mint_certificate/$certificateId'
-import { Route as CollectionsNewRouteImport } from './routes/collections/new'
-import { Route as CampaignsNewRouteImport } from './routes/campaigns/new'
-import { Route as AccountTransactionHistoryRouteImport } from './routes/account/transaction-history'
-import { Route as AccountNewRouteImport } from './routes/account/new'
-import { Route as AccountEdit_userRouteImport } from './routes/account/edit_user'
-import { Route as AccountEdit_companyRouteImport } from './routes/account/edit_company'
-import { Route as CollectionsCollectionIdIndexRouteImport } from './routes/collections/$collectionId/index'
-import { Route as CampaignsCampaignsIndexRouteImport } from './routes/campaigns/$campaigns/index'
-import { Route as CollectionsCollectionIdEditRouteImport } from './routes/collections/$collectionId/edit'
-import { Route as CampaignsCampaignsClaimersRouteImport } from './routes/campaigns/$campaigns/claimers'
-import { Route as AccountUsersUserIdRouteImport } from './routes/account/users.$userId'
-import { Route as AccountTransactionsTransactionIdRouteImport } from './routes/account/transactions.$transactionId'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
+import { Route as AuthenticatedMint_certificateIndexRouteImport } from './routes/_authenticated/mint_certificate/index'
+import { Route as AuthenticatedCollectionsIndexRouteImport } from './routes/_authenticated/collections/index'
+import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/index'
+import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
+import { Route as AuthenticatedTemplatesNewRouteImport } from './routes/_authenticated/templates/new'
+import { Route as AuthenticatedTemplatesTemplateIdRouteImport } from './routes/_authenticated/templates/$templateId'
+import { Route as AuthenticatedMint_certificateNewRouteImport } from './routes/_authenticated/mint_certificate/new'
+import { Route as AuthenticatedMint_certificateCertificateIdRouteImport } from './routes/_authenticated/mint_certificate/$certificateId'
+import { Route as AuthenticatedCollectionsNewRouteImport } from './routes/_authenticated/collections/new'
+import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns/new'
+import { Route as AuthenticatedAccountTransactionHistoryRouteImport } from './routes/_authenticated/account/transaction-history'
+import { Route as AuthenticatedAccountNewRouteImport } from './routes/_authenticated/account/new'
+import { Route as AuthenticatedAccountEdit_userRouteImport } from './routes/_authenticated/account/edit_user'
+import { Route as AuthenticatedAccountEdit_companyRouteImport } from './routes/_authenticated/account/edit_company'
+import { Route as AuthenticatedCollectionsCollectionIdIndexRouteImport } from './routes/_authenticated/collections/$collectionId/index'
+import { Route as AuthenticatedCampaignsCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/$campaigns/index'
+import { Route as AuthenticatedCollectionsCollectionIdEditRouteImport } from './routes/_authenticated/collections/$collectionId/edit'
+import { Route as AuthenticatedCampaignsCampaignsClaimersRouteImport } from './routes/_authenticated/campaigns/$campaigns/claimers'
+import { Route as AuthenticatedAccountUsersUserIdRouteImport } from './routes/_authenticated/account/users.$userId'
+import { Route as AuthenticatedAccountTransactionsTransactionIdRouteImport } from './routes/_authenticated/account/transactions.$transactionId'
 
 const NewPasswordRoute = NewPasswordRouteImport.update({
   id: '/new-password',
@@ -51,9 +52,8 @@ const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -61,211 +61,231 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TemplatesIndexRoute = TemplatesIndexRouteImport.update({
-  id: '/templates/',
-  path: '/templates/',
-  getParentRoute: () => rootRouteImport,
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const Mint_certificateIndexRoute = Mint_certificateIndexRouteImport.update({
-  id: '/mint_certificate/',
-  path: '/mint_certificate/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
-  id: '/collections/',
-  path: '/collections/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CampaignsIndexRoute = CampaignsIndexRouteImport.update({
-  id: '/campaigns/',
-  path: '/campaigns/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountIndexRoute = AccountIndexRouteImport.update({
-  id: '/account/',
-  path: '/account/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TemplatesNewRoute = TemplatesNewRouteImport.update({
-  id: '/templates/new',
-  path: '/templates/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TemplatesTemplateIdRoute = TemplatesTemplateIdRouteImport.update({
-  id: '/templates/$templateId',
-  path: '/templates/$templateId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Mint_certificateNewRoute = Mint_certificateNewRouteImport.update({
-  id: '/mint_certificate/new',
-  path: '/mint_certificate/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const Mint_certificateCertificateIdRoute =
-  Mint_certificateCertificateIdRouteImport.update({
+const AuthenticatedTemplatesIndexRoute =
+  AuthenticatedTemplatesIndexRouteImport.update({
+    id: '/templates/',
+    path: '/templates/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMint_certificateIndexRoute =
+  AuthenticatedMint_certificateIndexRouteImport.update({
+    id: '/mint_certificate/',
+    path: '/mint_certificate/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCollectionsIndexRoute =
+  AuthenticatedCollectionsIndexRouteImport.update({
+    id: '/collections/',
+    path: '/collections/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCampaignsIndexRoute =
+  AuthenticatedCampaignsIndexRouteImport.update({
+    id: '/campaigns/',
+    path: '/campaigns/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountIndexRoute =
+  AuthenticatedAccountIndexRouteImport.update({
+    id: '/account/',
+    path: '/account/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTemplatesNewRoute =
+  AuthenticatedTemplatesNewRouteImport.update({
+    id: '/templates/new',
+    path: '/templates/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedTemplatesTemplateIdRoute =
+  AuthenticatedTemplatesTemplateIdRouteImport.update({
+    id: '/templates/$templateId',
+    path: '/templates/$templateId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMint_certificateNewRoute =
+  AuthenticatedMint_certificateNewRouteImport.update({
+    id: '/mint_certificate/new',
+    path: '/mint_certificate/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMint_certificateCertificateIdRoute =
+  AuthenticatedMint_certificateCertificateIdRouteImport.update({
     id: '/mint_certificate/$certificateId',
     path: '/mint_certificate/$certificateId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const CollectionsNewRoute = CollectionsNewRouteImport.update({
-  id: '/collections/new',
-  path: '/collections/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CampaignsNewRoute = CampaignsNewRouteImport.update({
-  id: '/campaigns/new',
-  path: '/campaigns/new',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountTransactionHistoryRoute =
-  AccountTransactionHistoryRouteImport.update({
+const AuthenticatedCollectionsNewRoute =
+  AuthenticatedCollectionsNewRouteImport.update({
+    id: '/collections/new',
+    path: '/collections/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCampaignsNewRoute =
+  AuthenticatedCampaignsNewRouteImport.update({
+    id: '/campaigns/new',
+    path: '/campaigns/new',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountTransactionHistoryRoute =
+  AuthenticatedAccountTransactionHistoryRouteImport.update({
     id: '/account/transaction-history',
     path: '/account/transaction-history',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AccountNewRoute = AccountNewRouteImport.update({
+const AuthenticatedAccountNewRoute = AuthenticatedAccountNewRouteImport.update({
   id: '/account/new',
   path: '/account/new',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AccountEdit_userRoute = AccountEdit_userRouteImport.update({
-  id: '/account/edit_user',
-  path: '/account/edit_user',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountEdit_companyRoute = AccountEdit_companyRouteImport.update({
-  id: '/account/edit_company',
-  path: '/account/edit_company',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionsCollectionIdIndexRoute =
-  CollectionsCollectionIdIndexRouteImport.update({
+const AuthenticatedAccountEdit_userRoute =
+  AuthenticatedAccountEdit_userRouteImport.update({
+    id: '/account/edit_user',
+    path: '/account/edit_user',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountEdit_companyRoute =
+  AuthenticatedAccountEdit_companyRouteImport.update({
+    id: '/account/edit_company',
+    path: '/account/edit_company',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCollectionsCollectionIdIndexRoute =
+  AuthenticatedCollectionsCollectionIdIndexRouteImport.update({
     id: '/collections/$collectionId/',
     path: '/collections/$collectionId/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const CampaignsCampaignsIndexRoute = CampaignsCampaignsIndexRouteImport.update({
-  id: '/campaigns/$campaigns/',
-  path: '/campaigns/$campaigns/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CollectionsCollectionIdEditRoute =
-  CollectionsCollectionIdEditRouteImport.update({
+const AuthenticatedCampaignsCampaignsIndexRoute =
+  AuthenticatedCampaignsCampaignsIndexRouteImport.update({
+    id: '/campaigns/$campaigns/',
+    path: '/campaigns/$campaigns/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedCollectionsCollectionIdEditRoute =
+  AuthenticatedCollectionsCollectionIdEditRouteImport.update({
     id: '/collections/$collectionId/edit',
     path: '/collections/$collectionId/edit',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const CampaignsCampaignsClaimersRoute =
-  CampaignsCampaignsClaimersRouteImport.update({
+const AuthenticatedCampaignsCampaignsClaimersRoute =
+  AuthenticatedCampaignsCampaignsClaimersRouteImport.update({
     id: '/campaigns/$campaigns/claimers',
     path: '/campaigns/$campaigns/claimers',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AccountUsersUserIdRoute = AccountUsersUserIdRouteImport.update({
-  id: '/account/users/$userId',
-  path: '/account/users/$userId',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AccountTransactionsTransactionIdRoute =
-  AccountTransactionsTransactionIdRouteImport.update({
+const AuthenticatedAccountUsersUserIdRoute =
+  AuthenticatedAccountUsersUserIdRouteImport.update({
+    id: '/account/users/$userId',
+    path: '/account/users/$userId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAccountTransactionsTransactionIdRoute =
+  AuthenticatedAccountTransactionsTransactionIdRouteImport.update({
     id: '/account/transactions/$transactionId',
     path: '/account/transactions/$transactionId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/edit_company': typeof AccountEdit_companyRoute
-  '/account/edit_user': typeof AccountEdit_userRoute
-  '/account/new': typeof AccountNewRoute
-  '/account/transaction-history': typeof AccountTransactionHistoryRoute
-  '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/new': typeof CollectionsNewRoute
-  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
-  '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/templates/$templateId': typeof TemplatesTemplateIdRoute
-  '/templates/new': typeof TemplatesNewRoute
-  '/account': typeof AccountIndexRoute
-  '/campaigns': typeof CampaignsIndexRoute
-  '/collections': typeof CollectionsIndexRoute
-  '/mint_certificate': typeof Mint_certificateIndexRoute
-  '/templates': typeof TemplatesIndexRoute
-  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
-  '/account/users/$userId': typeof AccountUsersUserIdRoute
-  '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
-  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
-  '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
+  '/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
+  '/account/new': typeof AuthenticatedAccountNewRoute
+  '/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/collections/new': typeof AuthenticatedCollectionsNewRoute
+  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
+  '/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
+  '/templates/new': typeof AuthenticatedTemplatesNewRoute
+  '/account': typeof AuthenticatedAccountIndexRoute
+  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
+  '/collections': typeof AuthenticatedCollectionsIndexRoute
+  '/mint_certificate': typeof AuthenticatedMint_certificateIndexRoute
+  '/templates': typeof AuthenticatedTemplatesIndexRoute
+  '/account/transactions/$transactionId': typeof AuthenticatedAccountTransactionsTransactionIdRoute
+  '/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
+  '/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
+  '/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/campaigns/$campaigns': typeof AuthenticatedCampaignsCampaignsIndexRoute
+  '/collections/$collectionId': typeof AuthenticatedCollectionsCollectionIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/edit_company': typeof AccountEdit_companyRoute
-  '/account/edit_user': typeof AccountEdit_userRoute
-  '/account/new': typeof AccountNewRoute
-  '/account/transaction-history': typeof AccountTransactionHistoryRoute
-  '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/new': typeof CollectionsNewRoute
-  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
-  '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/templates/$templateId': typeof TemplatesTemplateIdRoute
-  '/templates/new': typeof TemplatesNewRoute
-  '/account': typeof AccountIndexRoute
-  '/campaigns': typeof CampaignsIndexRoute
-  '/collections': typeof CollectionsIndexRoute
-  '/mint_certificate': typeof Mint_certificateIndexRoute
-  '/templates': typeof TemplatesIndexRoute
-  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
-  '/account/users/$userId': typeof AccountUsersUserIdRoute
-  '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
-  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
-  '/campaigns/$campaigns': typeof CampaignsCampaignsIndexRoute
-  '/collections/$collectionId': typeof CollectionsCollectionIdIndexRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
+  '/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
+  '/account/new': typeof AuthenticatedAccountNewRoute
+  '/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
+  '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/collections/new': typeof AuthenticatedCollectionsNewRoute
+  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
+  '/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
+  '/templates/new': typeof AuthenticatedTemplatesNewRoute
+  '/account': typeof AuthenticatedAccountIndexRoute
+  '/campaigns': typeof AuthenticatedCampaignsIndexRoute
+  '/collections': typeof AuthenticatedCollectionsIndexRoute
+  '/mint_certificate': typeof AuthenticatedMint_certificateIndexRoute
+  '/templates': typeof AuthenticatedTemplatesIndexRoute
+  '/account/transactions/$transactionId': typeof AuthenticatedAccountTransactionsTransactionIdRoute
+  '/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
+  '/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
+  '/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/campaigns/$campaigns': typeof AuthenticatedCampaignsCampaignsIndexRoute
+  '/collections/$collectionId': typeof AuthenticatedCollectionsCollectionIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
-  '/account/edit_company': typeof AccountEdit_companyRoute
-  '/account/edit_user': typeof AccountEdit_userRoute
-  '/account/new': typeof AccountNewRoute
-  '/account/transaction-history': typeof AccountTransactionHistoryRoute
-  '/campaigns/new': typeof CampaignsNewRoute
-  '/collections/new': typeof CollectionsNewRoute
-  '/mint_certificate/$certificateId': typeof Mint_certificateCertificateIdRoute
-  '/mint_certificate/new': typeof Mint_certificateNewRoute
-  '/templates/$templateId': typeof TemplatesTemplateIdRoute
-  '/templates/new': typeof TemplatesNewRoute
-  '/account/': typeof AccountIndexRoute
-  '/campaigns/': typeof CampaignsIndexRoute
-  '/collections/': typeof CollectionsIndexRoute
-  '/mint_certificate/': typeof Mint_certificateIndexRoute
-  '/templates/': typeof TemplatesIndexRoute
-  '/account/transactions/$transactionId': typeof AccountTransactionsTransactionIdRoute
-  '/account/users/$userId': typeof AccountUsersUserIdRoute
-  '/campaigns/$campaigns/claimers': typeof CampaignsCampaignsClaimersRoute
-  '/collections/$collectionId/edit': typeof CollectionsCollectionIdEditRoute
-  '/campaigns/$campaigns/': typeof CampaignsCampaignsIndexRoute
-  '/collections/$collectionId/': typeof CollectionsCollectionIdIndexRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
+  '/_authenticated/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
+  '/_authenticated/account/new': typeof AuthenticatedAccountNewRoute
+  '/_authenticated/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
+  '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
+  '/_authenticated/collections/new': typeof AuthenticatedCollectionsNewRoute
+  '/_authenticated/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
+  '/_authenticated/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/_authenticated/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
+  '/_authenticated/templates/new': typeof AuthenticatedTemplatesNewRoute
+  '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
+  '/_authenticated/campaigns/': typeof AuthenticatedCampaignsIndexRoute
+  '/_authenticated/collections/': typeof AuthenticatedCollectionsIndexRoute
+  '/_authenticated/mint_certificate/': typeof AuthenticatedMint_certificateIndexRoute
+  '/_authenticated/templates/': typeof AuthenticatedTemplatesIndexRoute
+  '/_authenticated/account/transactions/$transactionId': typeof AuthenticatedAccountTransactionsTransactionIdRoute
+  '/_authenticated/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
+  '/_authenticated/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
+  '/_authenticated/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/_authenticated/campaigns/$campaigns/': typeof AuthenticatedCampaignsCampaignsIndexRoute
+  '/_authenticated/collections/$collectionId/': typeof AuthenticatedCollectionsCollectionIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/dashboard'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -290,10 +310,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/dashboard'
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/dashboard'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -318,60 +338,40 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/dashboard'
+    | '/_authenticated'
     | '/forgot-password'
     | '/login'
     | '/new-password'
-    | '/account/edit_company'
-    | '/account/edit_user'
-    | '/account/new'
-    | '/account/transaction-history'
-    | '/campaigns/new'
-    | '/collections/new'
-    | '/mint_certificate/$certificateId'
-    | '/mint_certificate/new'
-    | '/templates/$templateId'
-    | '/templates/new'
-    | '/account/'
-    | '/campaigns/'
-    | '/collections/'
-    | '/mint_certificate/'
-    | '/templates/'
-    | '/account/transactions/$transactionId'
-    | '/account/users/$userId'
-    | '/campaigns/$campaigns/claimers'
-    | '/collections/$collectionId/edit'
-    | '/campaigns/$campaigns/'
-    | '/collections/$collectionId/'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/account/edit_company'
+    | '/_authenticated/account/edit_user'
+    | '/_authenticated/account/new'
+    | '/_authenticated/account/transaction-history'
+    | '/_authenticated/campaigns/new'
+    | '/_authenticated/collections/new'
+    | '/_authenticated/mint_certificate/$certificateId'
+    | '/_authenticated/mint_certificate/new'
+    | '/_authenticated/templates/$templateId'
+    | '/_authenticated/templates/new'
+    | '/_authenticated/account/'
+    | '/_authenticated/campaigns/'
+    | '/_authenticated/collections/'
+    | '/_authenticated/mint_certificate/'
+    | '/_authenticated/templates/'
+    | '/_authenticated/account/transactions/$transactionId'
+    | '/_authenticated/account/users/$userId'
+    | '/_authenticated/campaigns/$campaigns/claimers'
+    | '/_authenticated/collections/$collectionId/edit'
+    | '/_authenticated/campaigns/$campaigns/'
+    | '/_authenticated/collections/$collectionId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewPasswordRoute: typeof NewPasswordRoute
-  AccountEdit_companyRoute: typeof AccountEdit_companyRoute
-  AccountEdit_userRoute: typeof AccountEdit_userRoute
-  AccountNewRoute: typeof AccountNewRoute
-  AccountTransactionHistoryRoute: typeof AccountTransactionHistoryRoute
-  CampaignsNewRoute: typeof CampaignsNewRoute
-  CollectionsNewRoute: typeof CollectionsNewRoute
-  Mint_certificateCertificateIdRoute: typeof Mint_certificateCertificateIdRoute
-  Mint_certificateNewRoute: typeof Mint_certificateNewRoute
-  TemplatesTemplateIdRoute: typeof TemplatesTemplateIdRoute
-  TemplatesNewRoute: typeof TemplatesNewRoute
-  AccountIndexRoute: typeof AccountIndexRoute
-  CampaignsIndexRoute: typeof CampaignsIndexRoute
-  CollectionsIndexRoute: typeof CollectionsIndexRoute
-  Mint_certificateIndexRoute: typeof Mint_certificateIndexRoute
-  TemplatesIndexRoute: typeof TemplatesIndexRoute
-  AccountTransactionsTransactionIdRoute: typeof AccountTransactionsTransactionIdRoute
-  AccountUsersUserIdRoute: typeof AccountUsersUserIdRoute
-  CampaignsCampaignsClaimersRoute: typeof CampaignsCampaignsClaimersRoute
-  CollectionsCollectionIdEditRoute: typeof CollectionsCollectionIdEditRoute
-  CampaignsCampaignsIndexRoute: typeof CampaignsCampaignsIndexRoute
-  CollectionsCollectionIdIndexRoute: typeof CollectionsCollectionIdIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -397,11 +397,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -411,183 +411,231 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/templates/': {
-      id: '/templates/'
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/templates/': {
+      id: '/_authenticated/templates/'
       path: '/templates'
       fullPath: '/templates'
-      preLoaderRoute: typeof TemplatesIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTemplatesIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/mint_certificate/': {
-      id: '/mint_certificate/'
+    '/_authenticated/mint_certificate/': {
+      id: '/_authenticated/mint_certificate/'
       path: '/mint_certificate'
       fullPath: '/mint_certificate'
-      preLoaderRoute: typeof Mint_certificateIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMint_certificateIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/collections/': {
-      id: '/collections/'
+    '/_authenticated/collections/': {
+      id: '/_authenticated/collections/'
       path: '/collections'
       fullPath: '/collections'
-      preLoaderRoute: typeof CollectionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCollectionsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/campaigns/': {
-      id: '/campaigns/'
+    '/_authenticated/campaigns/': {
+      id: '/_authenticated/campaigns/'
       path: '/campaigns'
       fullPath: '/campaigns'
-      preLoaderRoute: typeof CampaignsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCampaignsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/': {
-      id: '/account/'
+    '/_authenticated/account/': {
+      id: '/_authenticated/account/'
       path: '/account'
       fullPath: '/account'
-      preLoaderRoute: typeof AccountIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/templates/new': {
-      id: '/templates/new'
+    '/_authenticated/templates/new': {
+      id: '/_authenticated/templates/new'
       path: '/templates/new'
       fullPath: '/templates/new'
-      preLoaderRoute: typeof TemplatesNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTemplatesNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/templates/$templateId': {
-      id: '/templates/$templateId'
+    '/_authenticated/templates/$templateId': {
+      id: '/_authenticated/templates/$templateId'
       path: '/templates/$templateId'
       fullPath: '/templates/$templateId'
-      preLoaderRoute: typeof TemplatesTemplateIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedTemplatesTemplateIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/mint_certificate/new': {
-      id: '/mint_certificate/new'
+    '/_authenticated/mint_certificate/new': {
+      id: '/_authenticated/mint_certificate/new'
       path: '/mint_certificate/new'
       fullPath: '/mint_certificate/new'
-      preLoaderRoute: typeof Mint_certificateNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMint_certificateNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/mint_certificate/$certificateId': {
-      id: '/mint_certificate/$certificateId'
+    '/_authenticated/mint_certificate/$certificateId': {
+      id: '/_authenticated/mint_certificate/$certificateId'
       path: '/mint_certificate/$certificateId'
       fullPath: '/mint_certificate/$certificateId'
-      preLoaderRoute: typeof Mint_certificateCertificateIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedMint_certificateCertificateIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/collections/new': {
-      id: '/collections/new'
+    '/_authenticated/collections/new': {
+      id: '/_authenticated/collections/new'
       path: '/collections/new'
       fullPath: '/collections/new'
-      preLoaderRoute: typeof CollectionsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCollectionsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/campaigns/new': {
-      id: '/campaigns/new'
+    '/_authenticated/campaigns/new': {
+      id: '/_authenticated/campaigns/new'
       path: '/campaigns/new'
       fullPath: '/campaigns/new'
-      preLoaderRoute: typeof CampaignsNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCampaignsNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/transaction-history': {
-      id: '/account/transaction-history'
+    '/_authenticated/account/transaction-history': {
+      id: '/_authenticated/account/transaction-history'
       path: '/account/transaction-history'
       fullPath: '/account/transaction-history'
-      preLoaderRoute: typeof AccountTransactionHistoryRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountTransactionHistoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/new': {
-      id: '/account/new'
+    '/_authenticated/account/new': {
+      id: '/_authenticated/account/new'
       path: '/account/new'
       fullPath: '/account/new'
-      preLoaderRoute: typeof AccountNewRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountNewRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/edit_user': {
-      id: '/account/edit_user'
+    '/_authenticated/account/edit_user': {
+      id: '/_authenticated/account/edit_user'
       path: '/account/edit_user'
       fullPath: '/account/edit_user'
-      preLoaderRoute: typeof AccountEdit_userRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountEdit_userRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/edit_company': {
-      id: '/account/edit_company'
+    '/_authenticated/account/edit_company': {
+      id: '/_authenticated/account/edit_company'
       path: '/account/edit_company'
       fullPath: '/account/edit_company'
-      preLoaderRoute: typeof AccountEdit_companyRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountEdit_companyRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/collections/$collectionId/': {
-      id: '/collections/$collectionId/'
+    '/_authenticated/collections/$collectionId/': {
+      id: '/_authenticated/collections/$collectionId/'
       path: '/collections/$collectionId'
       fullPath: '/collections/$collectionId'
-      preLoaderRoute: typeof CollectionsCollectionIdIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCollectionsCollectionIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/campaigns/$campaigns/': {
-      id: '/campaigns/$campaigns/'
+    '/_authenticated/campaigns/$campaigns/': {
+      id: '/_authenticated/campaigns/$campaigns/'
       path: '/campaigns/$campaigns'
       fullPath: '/campaigns/$campaigns'
-      preLoaderRoute: typeof CampaignsCampaignsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCampaignsCampaignsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/collections/$collectionId/edit': {
-      id: '/collections/$collectionId/edit'
+    '/_authenticated/collections/$collectionId/edit': {
+      id: '/_authenticated/collections/$collectionId/edit'
       path: '/collections/$collectionId/edit'
       fullPath: '/collections/$collectionId/edit'
-      preLoaderRoute: typeof CollectionsCollectionIdEditRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCollectionsCollectionIdEditRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/campaigns/$campaigns/claimers': {
-      id: '/campaigns/$campaigns/claimers'
+    '/_authenticated/campaigns/$campaigns/claimers': {
+      id: '/_authenticated/campaigns/$campaigns/claimers'
       path: '/campaigns/$campaigns/claimers'
       fullPath: '/campaigns/$campaigns/claimers'
-      preLoaderRoute: typeof CampaignsCampaignsClaimersRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedCampaignsCampaignsClaimersRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/users/$userId': {
-      id: '/account/users/$userId'
+    '/_authenticated/account/users/$userId': {
+      id: '/_authenticated/account/users/$userId'
       path: '/account/users/$userId'
       fullPath: '/account/users/$userId'
-      preLoaderRoute: typeof AccountUsersUserIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountUsersUserIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/account/transactions/$transactionId': {
-      id: '/account/transactions/$transactionId'
+    '/_authenticated/account/transactions/$transactionId': {
+      id: '/_authenticated/account/transactions/$transactionId'
       path: '/account/transactions/$transactionId'
       fullPath: '/account/transactions/$transactionId'
-      preLoaderRoute: typeof AccountTransactionsTransactionIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedAccountTransactionsTransactionIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedAccountEdit_companyRoute: typeof AuthenticatedAccountEdit_companyRoute
+  AuthenticatedAccountEdit_userRoute: typeof AuthenticatedAccountEdit_userRoute
+  AuthenticatedAccountNewRoute: typeof AuthenticatedAccountNewRoute
+  AuthenticatedAccountTransactionHistoryRoute: typeof AuthenticatedAccountTransactionHistoryRoute
+  AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
+  AuthenticatedCollectionsNewRoute: typeof AuthenticatedCollectionsNewRoute
+  AuthenticatedMint_certificateCertificateIdRoute: typeof AuthenticatedMint_certificateCertificateIdRoute
+  AuthenticatedMint_certificateNewRoute: typeof AuthenticatedMint_certificateNewRoute
+  AuthenticatedTemplatesTemplateIdRoute: typeof AuthenticatedTemplatesTemplateIdRoute
+  AuthenticatedTemplatesNewRoute: typeof AuthenticatedTemplatesNewRoute
+  AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
+  AuthenticatedCampaignsIndexRoute: typeof AuthenticatedCampaignsIndexRoute
+  AuthenticatedCollectionsIndexRoute: typeof AuthenticatedCollectionsIndexRoute
+  AuthenticatedMint_certificateIndexRoute: typeof AuthenticatedMint_certificateIndexRoute
+  AuthenticatedTemplatesIndexRoute: typeof AuthenticatedTemplatesIndexRoute
+  AuthenticatedAccountTransactionsTransactionIdRoute: typeof AuthenticatedAccountTransactionsTransactionIdRoute
+  AuthenticatedAccountUsersUserIdRoute: typeof AuthenticatedAccountUsersUserIdRoute
+  AuthenticatedCampaignsCampaignsClaimersRoute: typeof AuthenticatedCampaignsCampaignsClaimersRoute
+  AuthenticatedCollectionsCollectionIdEditRoute: typeof AuthenticatedCollectionsCollectionIdEditRoute
+  AuthenticatedCampaignsCampaignsIndexRoute: typeof AuthenticatedCampaignsCampaignsIndexRoute
+  AuthenticatedCollectionsCollectionIdIndexRoute: typeof AuthenticatedCollectionsCollectionIdIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedAccountEdit_companyRoute: AuthenticatedAccountEdit_companyRoute,
+  AuthenticatedAccountEdit_userRoute: AuthenticatedAccountEdit_userRoute,
+  AuthenticatedAccountNewRoute: AuthenticatedAccountNewRoute,
+  AuthenticatedAccountTransactionHistoryRoute:
+    AuthenticatedAccountTransactionHistoryRoute,
+  AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
+  AuthenticatedCollectionsNewRoute: AuthenticatedCollectionsNewRoute,
+  AuthenticatedMint_certificateCertificateIdRoute:
+    AuthenticatedMint_certificateCertificateIdRoute,
+  AuthenticatedMint_certificateNewRoute: AuthenticatedMint_certificateNewRoute,
+  AuthenticatedTemplatesTemplateIdRoute: AuthenticatedTemplatesTemplateIdRoute,
+  AuthenticatedTemplatesNewRoute: AuthenticatedTemplatesNewRoute,
+  AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
+  AuthenticatedCampaignsIndexRoute: AuthenticatedCampaignsIndexRoute,
+  AuthenticatedCollectionsIndexRoute: AuthenticatedCollectionsIndexRoute,
+  AuthenticatedMint_certificateIndexRoute:
+    AuthenticatedMint_certificateIndexRoute,
+  AuthenticatedTemplatesIndexRoute: AuthenticatedTemplatesIndexRoute,
+  AuthenticatedAccountTransactionsTransactionIdRoute:
+    AuthenticatedAccountTransactionsTransactionIdRoute,
+  AuthenticatedAccountUsersUserIdRoute: AuthenticatedAccountUsersUserIdRoute,
+  AuthenticatedCampaignsCampaignsClaimersRoute:
+    AuthenticatedCampaignsCampaignsClaimersRoute,
+  AuthenticatedCollectionsCollectionIdEditRoute:
+    AuthenticatedCollectionsCollectionIdEditRoute,
+  AuthenticatedCampaignsCampaignsIndexRoute:
+    AuthenticatedCampaignsCampaignsIndexRoute,
+  AuthenticatedCollectionsCollectionIdIndexRoute:
+    AuthenticatedCollectionsCollectionIdIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewPasswordRoute: NewPasswordRoute,
-  AccountEdit_companyRoute: AccountEdit_companyRoute,
-  AccountEdit_userRoute: AccountEdit_userRoute,
-  AccountNewRoute: AccountNewRoute,
-  AccountTransactionHistoryRoute: AccountTransactionHistoryRoute,
-  CampaignsNewRoute: CampaignsNewRoute,
-  CollectionsNewRoute: CollectionsNewRoute,
-  Mint_certificateCertificateIdRoute: Mint_certificateCertificateIdRoute,
-  Mint_certificateNewRoute: Mint_certificateNewRoute,
-  TemplatesTemplateIdRoute: TemplatesTemplateIdRoute,
-  TemplatesNewRoute: TemplatesNewRoute,
-  AccountIndexRoute: AccountIndexRoute,
-  CampaignsIndexRoute: CampaignsIndexRoute,
-  CollectionsIndexRoute: CollectionsIndexRoute,
-  Mint_certificateIndexRoute: Mint_certificateIndexRoute,
-  TemplatesIndexRoute: TemplatesIndexRoute,
-  AccountTransactionsTransactionIdRoute: AccountTransactionsTransactionIdRoute,
-  AccountUsersUserIdRoute: AccountUsersUserIdRoute,
-  CampaignsCampaignsClaimersRoute: CampaignsCampaignsClaimersRoute,
-  CollectionsCollectionIdEditRoute: CollectionsCollectionIdEditRoute,
-  CampaignsCampaignsIndexRoute: CampaignsCampaignsIndexRoute,
-  CollectionsCollectionIdIndexRoute: CollectionsCollectionIdIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
