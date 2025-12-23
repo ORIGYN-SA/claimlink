@@ -1,23 +1,17 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { LoginPage } from "@/features/auth";
 
-type LoginSearch = {
-  returnTo?: string;
-  reason?: "session_expired" | "unauthorized";
-};
-
+/**
+ * Root route - always redirects.
+ * - Authenticated users → /dashboard
+ * - Unauthenticated users → /login
+ *
+ * This route never renders content directly.
+ */
 export const Route = createFileRoute("/")({
-  validateSearch: (search: Record<string, unknown>): LoginSearch => ({
-    returnTo: search.returnTo as string,
-    reason: search.reason as LoginSearch["reason"],
-  }),
-  beforeLoad: ({ context, search }) => {
-    // Redirect if already authenticated
-    // Use returnTo if available, otherwise go to dashboard
+  beforeLoad: ({ context }) => {
     if (context.auth.isConnected && context.auth.principalId) {
-      const destination = (search as LoginSearch).returnTo || "/dashboard";
-      throw redirect({ to: destination });
+      throw redirect({ to: "/dashboard" });
     }
+    throw redirect({ to: "/login" });
   },
-  component: LoginPage,
 });
