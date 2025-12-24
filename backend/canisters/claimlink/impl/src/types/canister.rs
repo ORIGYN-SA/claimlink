@@ -26,10 +26,10 @@ pub enum Canister {
 }
 
 impl Canister {
-    pub fn canister_id(&self) -> &Principal {
+    pub fn canister_id(&self) -> Principal {
         match self {
             Canister::Created { canister_id } | Canister::Installed { canister_id, .. } => {
-                canister_id
+                *canister_id
             }
         }
     }

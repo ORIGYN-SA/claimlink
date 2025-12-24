@@ -1276,6 +1276,7 @@ checksum = "8877193e1921b5fd16accb0305eb46016868cd1935b05c05eca0ec007b943272"
 name = "ic_management_canister_api"
 version = "0.1.0"
 dependencies = [
+ "bity-ic-canister-client",
  "candid",
  "ic-management-canister-types 0.4.0",
 ]
@@ -1285,6 +1286,7 @@ name = "ic_management_canister_c2c_client"
 version = "0.1.0"
 dependencies = [
  "bity-ic-canister-client",
+ "bity-ic-types",
  "ic-cdk",
  "ic_management_canister_api",
  "types",

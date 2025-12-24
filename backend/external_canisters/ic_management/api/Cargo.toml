@@ -8,3 +8,5 @@ edition = "2021"
 [dependencies]
 candid = { workspace = true }
 ic-management-canister-types = { workspace = true }
+bity-ic-canister-client = { workspace = true }
+

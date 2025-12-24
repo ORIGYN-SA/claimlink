@@ -42,7 +42,7 @@ impl StableStorage {
     }
 
     /// Retrieves a WASM binary from stable storage by its hash.
-    pub fn get_wasm(&mut self, wasm_hash: &WasmHash) -> Option<Wasm> {
+    pub fn get_wasm(&self, wasm_hash: &WasmHash) -> Option<Wasm> {
         self.wasms.get(wasm_hash)
     }
 

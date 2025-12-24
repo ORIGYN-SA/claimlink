@@ -12,7 +12,7 @@ use utils::{
     memory::MemorySize,
 };
 
-use crate::types::collections::Collection;
+use crate::types::{collections::Collection, templates::NftTemplateId};
 use claimlink_api::types::{
     collection::{CollectionInfo, OwnerCollectionList},
     sub_canister::OrigynSubCanisterManager,
@@ -40,7 +40,7 @@ impl RuntimeState {
                 memory_used: MemorySize::used(),
                 cycles_balance_in_tc: self.env.cycles_balance_in_tc(),
             },
-            origyn_nft_commit_hash: self.data.origyn_nft_commit_hash.clone(),
+            origyn_nft_wasm_hash: self.data.origyn_nft_wasm_hash.clone(),
             authorized_principals: self.data.authorized_principals.clone(),
             ledger_canister_id: self.data.ledger_canister_id,
             bank_principal_id: self.data.bank_principal_id,
@@ -58,7 +58,7 @@ pub struct Metrics {
     pub authorized_principals: Vec<Principal>,
     pub ledger_canister_id: Principal,
     pub bank_principal_id: Principal,
-    pub origyn_nft_commit_hash: String,
+    pub origyn_nft_wasm_hash: String,
 }
 
 #[derive(CandidType, Deserialize, Serialize)]
@@ -71,42 +71,41 @@ pub struct CanisterInfo {
 
 pub struct Data {
     /// current origyn NFT commit hash
-    pub origyn_nft_commit_hash: String,
+    pub origyn_nft_wasm_hash: String,
     /// SNS OGY ledger canister
     pub ledger_canister_id: Principal,
     /// authorized Principals for guarded calls
     pub authorized_principals: Vec<Principal>,
     /// Bank principal for burning OGY paid for NFT collection(canister) creations and installation
     pub bank_principal_id: Principal,
-    /// Manages the ORIGYN NFT canister (create_canister)
-    pub sub_canister_manager: OrigynSubCanisterManager,
+
+    pub template_owners: BTreeMap<Principal, NftTemplateId>,
 
     ///  NFT collection(canister) requests waiting to be created and installed
-    pub collections_to_install: VecDeque<Collection>,
+    pub pending_collections: VecDeque<Collection>,
     /// Created and Installed NFT collections(canisters)
     pub collections: BTreeMap<Principal, Collection>,
 }
 
 impl Data {
     pub fn new(
-        is_test_mode: bool,
         ledger_canister_id: CanisterId,
         authorized_principals: Vec<Principal>,
         bank_principal_id: Principal,
-        origyn_nft_commit_hash: String,
+        origyn_nft_wasm_hash: String,
     ) -> Self {
         Self {
             ledger_canister_id,
             authorized_principals,
             bank_principal_id,
-            origyn_nft_commit_hash: origyn_nft_commit_hash.clone(),
-            sub_canister_manager: OrigynSubCanisterManager::new(
-                is_test_mode,
-                origyn_nft_commit_hash,
-                include_bytes!("../wasm/origyn_nft_canister.wasm.gz").to_vec(),
-            ),
-            collections_to_install: VecDeque::new(),
+            origyn_nft_wasm_hash,
+            pending_collections: VecDeque::new(),
             collections: BTreeMap::new(),
+            template_owners: BTreeMap::new(),
         }
+    }
+
+    pub fn oldest_pending_collection(&self) -> Option<&Collection> {
+        self.pending_collections.get(0)
     }
 }
