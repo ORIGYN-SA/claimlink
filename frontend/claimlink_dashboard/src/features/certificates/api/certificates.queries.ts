@@ -103,6 +103,7 @@ interface MintCertificateArgs {
 interface UseMintCertificateOptions {
   onSuccess?: (tokenId: bigint) => void;
   onError?: (error: Error) => void;
+  onUploadProgress?: (fieldId: string, progress: number) => void;
 }
 
 /**
@@ -207,12 +208,19 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         for (const [fieldId, files] of args.files) {
           const refs: FileReference[] = [];
 
-          for (const file of files) {
-            // Upload file to canister
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            // Upload file with progress tracking
             const uploadedUrl = await CertificatesService.uploadCertificateFile(
               authenticatedAgent,
               args.collectionCanisterId,
-              file
+              file,
+              (progress) => {
+                // Report overall progress for this field
+                const overallProgress = ((i + progress / 100) / files.length) * 100;
+                options?.onUploadProgress?.(fieldId, overallProgress);
+              }
             );
 
             refs.push({
@@ -270,6 +278,126 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
       queryClient.invalidateQueries({
         queryKey: certificatesKeys.all,
       });
+      queryClient.invalidateQueries({ queryKey: ['collections'] });
+
+      options?.onSuccess?.(tokenId);
+    },
+    onError: options?.onError,
+  });
+};
+
+/**
+ * Args for updating certificate with full template support
+ */
+interface UpdateCertificateWithTemplateArgs extends MintCertificateWithTemplateArgs {
+  /** The token ID to update */
+  tokenId: bigint;
+}
+
+/**
+ * Hook for updating certificates with full ORIGYN template support
+ *
+ * This hook:
+ * 1. Uploads any new files to the canister
+ * 2. Builds the complete ORIGYN __apps structure using buildOrigynApps
+ * 3. Converts to ICRC3 format
+ * 4. Updates the certificate metadata
+ *
+ * Note: Most certificate fields are immutable after minting in ORIGYN NFT.
+ * This hook is provided for completeness but may have limited functionality.
+ */
+export const useUpdateCertificateWithTemplate = (options?: UseMintCertificateOptions) => {
+  const { authenticatedAgent, principalId } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (args: UpdateCertificateWithTemplateArgs) => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error('Not authenticated');
+      }
+
+      // Step 1: Upload any new files (skip URLs from existing files)
+      const uploadedFiles = new Map<string, FileReference[]>();
+
+      if (args.files && args.files.size > 0) {
+        for (const [fieldId, files] of args.files) {
+          const refs: FileReference[] = [];
+
+          for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            // Skip if it's already a URL string (existing file reference)
+            if (typeof file === 'string') {
+              refs.push({ id: file, path: file });
+              continue;
+            }
+
+            // Upload new file with progress tracking
+            const uploadedUrl = await CertificatesService.uploadCertificateFile(
+              authenticatedAgent,
+              args.collectionCanisterId,
+              file,
+              (progress) => {
+                const overallProgress = ((i + progress / 100) / files.length) * 100;
+                options?.onUploadProgress?.(fieldId, overallProgress);
+              }
+            );
+
+            refs.push({
+              id: file.name,
+              path: uploadedUrl,
+            });
+          }
+
+          uploadedFiles.set(fieldId, refs);
+        }
+      }
+
+      // Step 2: Build ORIGYN apps structure
+      const apps = buildOrigynApps({
+        template: args.template,
+        formData: args.formData,
+        files: uploadedFiles,
+        writerPrincipal: principalId,
+      });
+
+      // Step 3: Find first uploaded image URL for the image field
+      let imageUrl: string | undefined;
+      uploadedFiles.forEach((refs) => {
+        if (!imageUrl && refs.length > 0) {
+          const firstRef = refs[0];
+          const ext = firstRef.path.split('.').pop()?.toLowerCase();
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) {
+            imageUrl = firstRef.path;
+          }
+        }
+      });
+
+      // Step 4: Convert to ICRC3 metadata format
+      const metadata = convertToIcrc3Metadata(apps, args.formData, {
+        name: args.name,
+        description: args.description,
+        imageUrl,
+      });
+
+      // Step 5: Update the certificate
+      await CertificatesService.updateCertificate(
+        authenticatedAgent,
+        args.collectionCanisterId,
+        args.tokenId,
+        metadata
+      );
+
+      return args.tokenId;
+    },
+    onSuccess: (tokenId, variables) => {
+      console.log('[useUpdateCertificateWithTemplate] Successfully updated certificate with token ID:', tokenId);
+
+      // Invalidate queries
+      queryClient.invalidateQueries({
+        queryKey: certificatesKeys.detail(`${variables.collectionCanisterId}:${tokenId}`),
+      });
+      queryClient.invalidateQueries({ queryKey: certificatesKeys.all });
       queryClient.invalidateQueries({ queryKey: ['collections'] });
 
       options?.onSuccess?.(tokenId);

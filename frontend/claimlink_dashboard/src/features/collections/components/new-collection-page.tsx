@@ -9,22 +9,12 @@ import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
 import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
 import useApprove from '@services/ledger/hooks/useApprove';
 import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
-import { useCreateCollection } from '@/features/collections';
+import { useCreateCollection, CollectionsService } from '@/features/collections';
 
 /**
  * SMART COMPONENT - Manages all business logic and state
  */
 const COLLECTION_CREATION_COST_OGY = 15000; // 15,000 OGY tokens required
-
-// Utility to convert File to data URL
-const fileToDataUrl = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
 
 export function NewCollectionPage() {
   const navigate = useNavigate();
@@ -188,32 +178,53 @@ export function NewCollectionPage() {
 
       toast.success('Approval granted! Creating collection...');
 
-      // Step 3: Convert image to data URL if provided
-      let logoDataUrl: string | undefined = undefined;
-      if (imageFile) {
-        setSubmitButtonText('Processing image...');
-        try {
-          logoDataUrl = await fileToDataUrl(imageFile);
-          console.log('Image converted to data URL, size:', logoDataUrl.length);
-        } catch (error) {
-          console.error('Failed to convert image:', error);
-          toast.error('Failed to process image. Please try again.');
-          setIsSubmitting(false);
-          setSubmitButtonText('Create collection');
-          return;
-        }
-      }
-
-      // Step 4: Create collection
+      // Step 3: Create collection WITHOUT logo
       setSubmitButtonText('Creating collection...');
-      await createCollectionMutation.mutateAsync({
+      const canisterId = await createCollectionMutation.mutateAsync({
         name: collectionName,
         symbol: collectionSymbol,
         description: collectionDescription,
-        logo: logoDataUrl,
+        // Don't pass logo - will be uploaded separately
       });
 
-      // Success handling is in the onSuccess callback
+      // Step 4: Upload and set logo if provided
+      if (imageFile) {
+        try {
+          setSubmitButtonText('Uploading logo...');
+          toast.info('Uploading collection logo...');
+
+          // Upload directly to the newly created collection canister
+          const logoUrl = await CollectionsService.uploadLogoToCollection(
+            authenticatedAgent!,
+            canisterId,
+            imageFile,
+            (progress) => {
+              setSubmitButtonText(`Uploading logo... ${Math.round(progress)}%`);
+            }
+          );
+
+          // Update collection metadata with logo URL
+          setSubmitButtonText('Updating collection...');
+          await CollectionsService.updateCollectionMetadata(
+            authenticatedAgent!,
+            canisterId,
+            { logo: logoUrl }
+          );
+
+          toast.success('Logo uploaded successfully!');
+        } catch (error) {
+          console.error('Logo upload failed:', error);
+          toast.warning('Collection created, but logo upload failed. You can add it later.');
+          // Continue - collection exists, just without logo
+        }
+      }
+
+      toast.success('Collection created successfully!');
+      navigate({ to: `/collections/${canisterId}` });
+
+      // Reset form after successful creation
+      setIsSubmitting(false);
+      setSubmitButtonText('Create collection');
     } catch (error: any) {
       console.error('Collection creation failed:', error);
 

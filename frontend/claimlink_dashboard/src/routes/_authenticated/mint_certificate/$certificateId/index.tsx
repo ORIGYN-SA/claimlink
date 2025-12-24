@@ -7,7 +7,7 @@ import {
 } from "@/features/certificates";
 
 export const Route = createFileRoute(
-  "/_authenticated/mint_certificate/$certificateId"
+  "/_authenticated/mint_certificate/$certificateId/",
 )({
   component: CertificateDetailRoute,
 });

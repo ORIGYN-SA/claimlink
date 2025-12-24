@@ -42,6 +42,7 @@ export {
   useCertificateTransactionHistory,
   useMintCertificate,
   useMintCertificateWithTemplate,
+  useUpdateCertificateWithTemplate,
   useUploadCertificateImage,
   type CertificateWithParsedMetadata,
 } from './api/certificates.queries';

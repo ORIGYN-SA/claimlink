@@ -18,6 +18,37 @@ export class CertificatesService {
   }
 
   /**
+   * Retry an operation with exponential backoff
+   * @private
+   */
+  private static async retryOperation<T>(
+    operation: () => Promise<T>,
+    maxRetries: number = 3,
+    operationName: string = 'Operation'
+  ): Promise<T> {
+    let lastError: Error | undefined;
+
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      try {
+        return await operation();
+      } catch (error) {
+        lastError = error instanceof Error ? error : new Error(String(error));
+
+        if (attempt < maxRetries) {
+          const delay = 1000 * Math.pow(2, attempt); // 1s, 2s, 4s
+          console.warn(
+            `${operationName} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms...`,
+            lastError.message
+          );
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
+      }
+    }
+
+    throw new Error(`${operationName} failed after ${maxRetries + 1} attempts: ${lastError?.message}`);
+  }
+
+  /**
    * Mint a certificate (NFT with ORIGYN badge)
    * Request structure based on IDL Args_2: { metadata, token_owner, memo }
    */
@@ -158,7 +189,14 @@ export class CertificatesService {
       const end = Math.min(start + CHUNK_SIZE, file.size);
       const chunkData = Array.from(uint8Array.slice(start, end));
 
-      await this.storeChunk(agent, canisterId, filePath, BigInt(i), chunkData);
+      // Upload chunk with retry on failure
+      await this.retryOperation(
+        async () => {
+          await this.storeChunk(agent, canisterId, filePath, BigInt(i), chunkData);
+        },
+        3,
+        `Chunk ${i + 1}/${totalChunks}`
+      );
 
       // Report progress
       if (onProgress) {
@@ -168,6 +206,48 @@ export class CertificatesService {
 
     // Finalize and get URL
     return await this.finalizeUpload(agent, canisterId, filePath);
+  }
+
+  /**
+   * Update certificate metadata
+   *
+   * Note: This method attempts to update token metadata on ORIGYN NFT canister.
+   * The actual capability depends on the ORIGYN NFT implementation.
+   * Some fields may be immutable after minting.
+   *
+   * @param agent - Authenticated agent
+   * @param canisterId - Collection canister ID
+   * @param tokenId - Token ID to update
+   * @param metadata - New metadata values
+   * @throws Error if update is not supported or fails
+   */
+  static async updateCertificate(
+    agent: Agent,
+    canisterId: string,
+    tokenId: bigint,
+    metadata: Array<[string, ICRC3Value]>
+  ): Promise<void> {
+    const actor = this.createActor(agent, canisterId);
+
+    // Attempt to call update_token_metadata if available
+    // Note: This may not be supported by all ORIGYN NFT versions
+    try {
+      // @ts-ignore - update_token_metadata may not be in types
+      const result = await actor.update_token_metadata?.({
+        token_id: tokenId,
+        metadata: metadata,
+      });
+
+      if (result && 'Err' in result) {
+        throw new Error(`Update failed: ${Object.keys(result.Err)[0]}`);
+      }
+    } catch (error) {
+      console.error('[CertificatesService.updateCertificate] Update not supported:', error);
+      throw new Error(
+        'Certificate metadata update is not supported by this collection. ' +
+        'Most fields are immutable after minting.'
+      );
+    }
   }
 
   /**

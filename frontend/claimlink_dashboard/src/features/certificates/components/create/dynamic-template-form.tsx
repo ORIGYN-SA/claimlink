@@ -36,12 +36,14 @@ interface DynamicTemplateFormProps {
   template: Template;
   onFormDataChange?: (formData: CertificateFormData) => void;
   initialData?: CertificateFormData;
+  mode?: 'create' | 'edit';
 }
 
 export function DynamicTemplateForm({
   template,
   onFormDataChange,
   initialData,
+  mode = 'create',
 }: DynamicTemplateFormProps) {
   const [formData, setFormData] = useState<CertificateFormData>(
     initialData || getInitialFormData(template)
@@ -131,14 +133,18 @@ export function DynamicTemplateForm({
   const renderInputItem = (item: InputItem) => {
     const value = (formData[item.id] as string) || '';
     const error = errors[item.id];
+    const isImmutable = item.immutable && mode === 'edit';
 
     return (
       <div className="space-y-2">
         <label htmlFor={item.id} className="text-sm font-medium text-[#222526] flex items-center gap-1">
           {item.label}
           {item.required && <span className="text-red-500">*</span>}
+          {isImmutable && (
+            <span className="text-xs text-[#69737c] font-normal ml-1">(Immutable)</span>
+          )}
         </label>
-        
+
         {item.description && (
           <p className="text-xs text-[#69737c]">{item.description}</p>
         )}
@@ -152,7 +158,7 @@ export function DynamicTemplateForm({
             placeholder={item.placeholder}
             rows={item.rows || 3}
             disabled={item.immutable}
-            className={error ? 'border-red-500' : ''}
+            className={error ? 'border-red-500' : isImmutable ? 'opacity-60 cursor-not-allowed' : ''}
           />
         ) : (
           <Input
@@ -163,7 +169,7 @@ export function DynamicTemplateForm({
             onBlur={() => handleBlur(item)}
             placeholder={item.placeholder}
             disabled={item.immutable}
-            className={error ? 'border-red-500' : ''}
+            className={error ? 'border-red-500' : isImmutable ? 'opacity-60 cursor-not-allowed' : ''}
           />
         )}
 
@@ -178,6 +184,7 @@ export function DynamicTemplateForm({
   const renderBadgeItem = (item: BadgeItem) => {
     const value = (formData[item.id] as string) || item.defaultValue || '';
     const error = errors[item.id];
+    const isImmutable = item.immutable && mode === 'edit';
 
     // If immutable, just display as static badge (no editing allowed)
     if (item.immutable) {
@@ -186,6 +193,9 @@ export function DynamicTemplateForm({
           <label className="text-sm font-medium text-[#222526] flex items-center gap-1">
             {item.label}
             {item.required && <span className="text-red-500">*</span>}
+            {isImmutable && (
+              <span className="text-xs text-[#69737c] font-normal ml-1">(Immutable)</span>
+            )}
           </label>
           <Badge variant={item.badgeStyle as any || 'default'}>
             {value || item.label}

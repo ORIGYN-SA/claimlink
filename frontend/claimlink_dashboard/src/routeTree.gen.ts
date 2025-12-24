@@ -22,16 +22,18 @@ import { Route as AuthenticatedCampaignsIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedAccountIndexRouteImport } from './routes/_authenticated/account/index'
 import { Route as AuthenticatedTemplatesNewRouteImport } from './routes/_authenticated/templates/new'
 import { Route as AuthenticatedTemplatesTemplateIdRouteImport } from './routes/_authenticated/templates/$templateId'
+import { Route as AuthenticatedMint_certificateTestRouteImport } from './routes/_authenticated/mint_certificate/test'
 import { Route as AuthenticatedMint_certificateNewRouteImport } from './routes/_authenticated/mint_certificate/new'
-import { Route as AuthenticatedMint_certificateCertificateIdRouteImport } from './routes/_authenticated/mint_certificate/$certificateId'
 import { Route as AuthenticatedCollectionsNewRouteImport } from './routes/_authenticated/collections/new'
 import { Route as AuthenticatedCampaignsNewRouteImport } from './routes/_authenticated/campaigns/new'
 import { Route as AuthenticatedAccountTransactionHistoryRouteImport } from './routes/_authenticated/account/transaction-history'
 import { Route as AuthenticatedAccountNewRouteImport } from './routes/_authenticated/account/new'
 import { Route as AuthenticatedAccountEdit_userRouteImport } from './routes/_authenticated/account/edit_user'
 import { Route as AuthenticatedAccountEdit_companyRouteImport } from './routes/_authenticated/account/edit_company'
+import { Route as AuthenticatedMint_certificateCertificateIdIndexRouteImport } from './routes/_authenticated/mint_certificate/$certificateId/index'
 import { Route as AuthenticatedCollectionsCollectionIdIndexRouteImport } from './routes/_authenticated/collections/$collectionId/index'
 import { Route as AuthenticatedCampaignsCampaignsIndexRouteImport } from './routes/_authenticated/campaigns/$campaigns/index'
+import { Route as AuthenticatedMint_certificateCertificateIdEditRouteImport } from './routes/_authenticated/mint_certificate/$certificateId/edit'
 import { Route as AuthenticatedCollectionsCollectionIdEditRouteImport } from './routes/_authenticated/collections/$collectionId/edit'
 import { Route as AuthenticatedCampaignsCampaignsClaimersRouteImport } from './routes/_authenticated/campaigns/$campaigns/claimers'
 import { Route as AuthenticatedAccountUsersUserIdRouteImport } from './routes/_authenticated/account/users.$userId'
@@ -108,16 +110,16 @@ const AuthenticatedTemplatesTemplateIdRoute =
     path: '/templates/$templateId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMint_certificateTestRoute =
+  AuthenticatedMint_certificateTestRouteImport.update({
+    id: '/mint_certificate/test',
+    path: '/mint_certificate/test',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedMint_certificateNewRoute =
   AuthenticatedMint_certificateNewRouteImport.update({
     id: '/mint_certificate/new',
     path: '/mint_certificate/new',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedMint_certificateCertificateIdRoute =
-  AuthenticatedMint_certificateCertificateIdRouteImport.update({
-    id: '/mint_certificate/$certificateId',
-    path: '/mint_certificate/$certificateId',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCollectionsNewRoute =
@@ -155,6 +157,12 @@ const AuthenticatedAccountEdit_companyRoute =
     path: '/account/edit_company',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedMint_certificateCertificateIdIndexRoute =
+  AuthenticatedMint_certificateCertificateIdIndexRouteImport.update({
+    id: '/mint_certificate/$certificateId/',
+    path: '/mint_certificate/$certificateId/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedCollectionsCollectionIdIndexRoute =
   AuthenticatedCollectionsCollectionIdIndexRouteImport.update({
     id: '/collections/$collectionId/',
@@ -165,6 +173,12 @@ const AuthenticatedCampaignsCampaignsIndexRoute =
   AuthenticatedCampaignsCampaignsIndexRouteImport.update({
     id: '/campaigns/$campaigns/',
     path: '/campaigns/$campaigns/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedMint_certificateCertificateIdEditRoute =
+  AuthenticatedMint_certificateCertificateIdEditRouteImport.update({
+    id: '/mint_certificate/$certificateId/edit',
+    path: '/mint_certificate/$certificateId/edit',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedCollectionsCollectionIdEditRoute =
@@ -204,8 +218,8 @@ export interface FileRoutesByFullPath {
   '/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/collections/new': typeof AuthenticatedCollectionsNewRoute
-  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/mint_certificate/test': typeof AuthenticatedMint_certificateTestRoute
   '/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
   '/templates/new': typeof AuthenticatedTemplatesNewRoute
   '/account': typeof AuthenticatedAccountIndexRoute
@@ -217,8 +231,10 @@ export interface FileRoutesByFullPath {
   '/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
   '/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/mint_certificate/$certificateId/edit': typeof AuthenticatedMint_certificateCertificateIdEditRoute
   '/campaigns/$campaigns': typeof AuthenticatedCampaignsCampaignsIndexRoute
   '/collections/$collectionId': typeof AuthenticatedCollectionsCollectionIdIndexRoute
+  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -232,8 +248,8 @@ export interface FileRoutesByTo {
   '/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
   '/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/collections/new': typeof AuthenticatedCollectionsNewRoute
-  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
   '/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/mint_certificate/test': typeof AuthenticatedMint_certificateTestRoute
   '/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
   '/templates/new': typeof AuthenticatedTemplatesNewRoute
   '/account': typeof AuthenticatedAccountIndexRoute
@@ -245,8 +261,10 @@ export interface FileRoutesByTo {
   '/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
   '/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
   '/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/mint_certificate/$certificateId/edit': typeof AuthenticatedMint_certificateCertificateIdEditRoute
   '/campaigns/$campaigns': typeof AuthenticatedCampaignsCampaignsIndexRoute
   '/collections/$collectionId': typeof AuthenticatedCollectionsCollectionIdIndexRoute
+  '/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -262,8 +280,8 @@ export interface FileRoutesById {
   '/_authenticated/account/transaction-history': typeof AuthenticatedAccountTransactionHistoryRoute
   '/_authenticated/campaigns/new': typeof AuthenticatedCampaignsNewRoute
   '/_authenticated/collections/new': typeof AuthenticatedCollectionsNewRoute
-  '/_authenticated/mint_certificate/$certificateId': typeof AuthenticatedMint_certificateCertificateIdRoute
   '/_authenticated/mint_certificate/new': typeof AuthenticatedMint_certificateNewRoute
+  '/_authenticated/mint_certificate/test': typeof AuthenticatedMint_certificateTestRoute
   '/_authenticated/templates/$templateId': typeof AuthenticatedTemplatesTemplateIdRoute
   '/_authenticated/templates/new': typeof AuthenticatedTemplatesNewRoute
   '/_authenticated/account/': typeof AuthenticatedAccountIndexRoute
@@ -275,8 +293,10 @@ export interface FileRoutesById {
   '/_authenticated/account/users/$userId': typeof AuthenticatedAccountUsersUserIdRoute
   '/_authenticated/campaigns/$campaigns/claimers': typeof AuthenticatedCampaignsCampaignsClaimersRoute
   '/_authenticated/collections/$collectionId/edit': typeof AuthenticatedCollectionsCollectionIdEditRoute
+  '/_authenticated/mint_certificate/$certificateId/edit': typeof AuthenticatedMint_certificateCertificateIdEditRoute
   '/_authenticated/campaigns/$campaigns/': typeof AuthenticatedCampaignsCampaignsIndexRoute
   '/_authenticated/collections/$collectionId/': typeof AuthenticatedCollectionsCollectionIdIndexRoute
+  '/_authenticated/mint_certificate/$certificateId/': typeof AuthenticatedMint_certificateCertificateIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -292,8 +312,8 @@ export interface FileRouteTypes {
     | '/account/transaction-history'
     | '/campaigns/new'
     | '/collections/new'
-    | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
+    | '/mint_certificate/test'
     | '/templates/$templateId'
     | '/templates/new'
     | '/account'
@@ -305,8 +325,10 @@ export interface FileRouteTypes {
     | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
     | '/collections/$collectionId/edit'
+    | '/mint_certificate/$certificateId/edit'
     | '/campaigns/$campaigns'
     | '/collections/$collectionId'
+    | '/mint_certificate/$certificateId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -320,8 +342,8 @@ export interface FileRouteTypes {
     | '/account/transaction-history'
     | '/campaigns/new'
     | '/collections/new'
-    | '/mint_certificate/$certificateId'
     | '/mint_certificate/new'
+    | '/mint_certificate/test'
     | '/templates/$templateId'
     | '/templates/new'
     | '/account'
@@ -333,8 +355,10 @@ export interface FileRouteTypes {
     | '/account/users/$userId'
     | '/campaigns/$campaigns/claimers'
     | '/collections/$collectionId/edit'
+    | '/mint_certificate/$certificateId/edit'
     | '/campaigns/$campaigns'
     | '/collections/$collectionId'
+    | '/mint_certificate/$certificateId'
   id:
     | '__root__'
     | '/'
@@ -349,8 +373,8 @@ export interface FileRouteTypes {
     | '/_authenticated/account/transaction-history'
     | '/_authenticated/campaigns/new'
     | '/_authenticated/collections/new'
-    | '/_authenticated/mint_certificate/$certificateId'
     | '/_authenticated/mint_certificate/new'
+    | '/_authenticated/mint_certificate/test'
     | '/_authenticated/templates/$templateId'
     | '/_authenticated/templates/new'
     | '/_authenticated/account/'
@@ -362,8 +386,10 @@ export interface FileRouteTypes {
     | '/_authenticated/account/users/$userId'
     | '/_authenticated/campaigns/$campaigns/claimers'
     | '/_authenticated/collections/$collectionId/edit'
+    | '/_authenticated/mint_certificate/$certificateId/edit'
     | '/_authenticated/campaigns/$campaigns/'
     | '/_authenticated/collections/$collectionId/'
+    | '/_authenticated/mint_certificate/$certificateId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -467,18 +493,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTemplatesTemplateIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/mint_certificate/test': {
+      id: '/_authenticated/mint_certificate/test'
+      path: '/mint_certificate/test'
+      fullPath: '/mint_certificate/test'
+      preLoaderRoute: typeof AuthenticatedMint_certificateTestRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/mint_certificate/new': {
       id: '/_authenticated/mint_certificate/new'
       path: '/mint_certificate/new'
       fullPath: '/mint_certificate/new'
       preLoaderRoute: typeof AuthenticatedMint_certificateNewRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/mint_certificate/$certificateId': {
-      id: '/_authenticated/mint_certificate/$certificateId'
-      path: '/mint_certificate/$certificateId'
-      fullPath: '/mint_certificate/$certificateId'
-      preLoaderRoute: typeof AuthenticatedMint_certificateCertificateIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/collections/new': {
@@ -523,6 +549,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAccountEdit_companyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/mint_certificate/$certificateId/': {
+      id: '/_authenticated/mint_certificate/$certificateId/'
+      path: '/mint_certificate/$certificateId'
+      fullPath: '/mint_certificate/$certificateId'
+      preLoaderRoute: typeof AuthenticatedMint_certificateCertificateIdIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/collections/$collectionId/': {
       id: '/_authenticated/collections/$collectionId/'
       path: '/collections/$collectionId'
@@ -535,6 +568,13 @@ declare module '@tanstack/react-router' {
       path: '/campaigns/$campaigns'
       fullPath: '/campaigns/$campaigns'
       preLoaderRoute: typeof AuthenticatedCampaignsCampaignsIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/mint_certificate/$certificateId/edit': {
+      id: '/_authenticated/mint_certificate/$certificateId/edit'
+      path: '/mint_certificate/$certificateId/edit'
+      fullPath: '/mint_certificate/$certificateId/edit'
+      preLoaderRoute: typeof AuthenticatedMint_certificateCertificateIdEditRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/collections/$collectionId/edit': {
@@ -576,8 +616,8 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAccountTransactionHistoryRoute: typeof AuthenticatedAccountTransactionHistoryRoute
   AuthenticatedCampaignsNewRoute: typeof AuthenticatedCampaignsNewRoute
   AuthenticatedCollectionsNewRoute: typeof AuthenticatedCollectionsNewRoute
-  AuthenticatedMint_certificateCertificateIdRoute: typeof AuthenticatedMint_certificateCertificateIdRoute
   AuthenticatedMint_certificateNewRoute: typeof AuthenticatedMint_certificateNewRoute
+  AuthenticatedMint_certificateTestRoute: typeof AuthenticatedMint_certificateTestRoute
   AuthenticatedTemplatesTemplateIdRoute: typeof AuthenticatedTemplatesTemplateIdRoute
   AuthenticatedTemplatesNewRoute: typeof AuthenticatedTemplatesNewRoute
   AuthenticatedAccountIndexRoute: typeof AuthenticatedAccountIndexRoute
@@ -589,8 +629,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAccountUsersUserIdRoute: typeof AuthenticatedAccountUsersUserIdRoute
   AuthenticatedCampaignsCampaignsClaimersRoute: typeof AuthenticatedCampaignsCampaignsClaimersRoute
   AuthenticatedCollectionsCollectionIdEditRoute: typeof AuthenticatedCollectionsCollectionIdEditRoute
+  AuthenticatedMint_certificateCertificateIdEditRoute: typeof AuthenticatedMint_certificateCertificateIdEditRoute
   AuthenticatedCampaignsCampaignsIndexRoute: typeof AuthenticatedCampaignsCampaignsIndexRoute
   AuthenticatedCollectionsCollectionIdIndexRoute: typeof AuthenticatedCollectionsCollectionIdIndexRoute
+  AuthenticatedMint_certificateCertificateIdIndexRoute: typeof AuthenticatedMint_certificateCertificateIdIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -602,9 +644,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedAccountTransactionHistoryRoute,
   AuthenticatedCampaignsNewRoute: AuthenticatedCampaignsNewRoute,
   AuthenticatedCollectionsNewRoute: AuthenticatedCollectionsNewRoute,
-  AuthenticatedMint_certificateCertificateIdRoute:
-    AuthenticatedMint_certificateCertificateIdRoute,
   AuthenticatedMint_certificateNewRoute: AuthenticatedMint_certificateNewRoute,
+  AuthenticatedMint_certificateTestRoute:
+    AuthenticatedMint_certificateTestRoute,
   AuthenticatedTemplatesTemplateIdRoute: AuthenticatedTemplatesTemplateIdRoute,
   AuthenticatedTemplatesNewRoute: AuthenticatedTemplatesNewRoute,
   AuthenticatedAccountIndexRoute: AuthenticatedAccountIndexRoute,
@@ -620,10 +662,14 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
     AuthenticatedCampaignsCampaignsClaimersRoute,
   AuthenticatedCollectionsCollectionIdEditRoute:
     AuthenticatedCollectionsCollectionIdEditRoute,
+  AuthenticatedMint_certificateCertificateIdEditRoute:
+    AuthenticatedMint_certificateCertificateIdEditRoute,
   AuthenticatedCampaignsCampaignsIndexRoute:
     AuthenticatedCampaignsCampaignsIndexRoute,
   AuthenticatedCollectionsCollectionIdIndexRoute:
     AuthenticatedCollectionsCollectionIdIndexRoute,
+  AuthenticatedMint_certificateCertificateIdIndexRoute:
+    AuthenticatedMint_certificateCertificateIdIndexRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -191,4 +191,85 @@ export class CollectionsService {
       take: take !== undefined ? [take] : [],
     });
   }
+
+  /**
+   * Upload logo directly to collection canister
+   *
+   * Uses ORIGYN NFT upload API to store logo in the collection's own canister.
+   * The uploaded file will be accessible at: https://{canisterId}.raw.icp0.io/{filename}
+   *
+   * @param agent - Authenticated IC agent
+   * @param collectionCanisterId - Collection canister ID to upload to
+   * @param file - Logo image file
+   * @param onProgress - Optional progress callback (0-100)
+   * @returns URL of the uploaded logo
+   */
+  static async uploadLogoToCollection(
+    agent: Agent,
+    collectionCanisterId: string,
+    file: File,
+    onProgress?: (progress: number) => void
+  ): Promise<string> {
+    const { CertificatesService } = await import('@/features/certificates/api/certificates.service');
+
+    return await CertificatesService.uploadCertificateFile(
+      agent,
+      collectionCanisterId,
+      file,
+      onProgress
+    );
+  }
+
+  /**
+   * Update collection metadata directly on ORIGYN NFT canister
+   *
+   * Calls the collection canister's update_collection_metadata method to update
+   * metadata fields like logo, name, description, etc.
+   *
+   * @param agent - Authenticated IC agent
+   * @param collectionCanisterId - Collection canister ID
+   * @param updates - Fields to update (logo, description, name, symbol)
+   * @throws Error if update fails
+   */
+  static async updateCollectionMetadata(
+    agent: Agent,
+    collectionCanisterId: string,
+    updates: {
+      logo?: string;
+      description?: string;
+      name?: string;
+      symbol?: string;
+    }
+  ): Promise<void> {
+    // Import ORIGYN NFT IDL factory dynamically to avoid circular dependencies
+    const { idlFactory } = await import('@canisters/origyn_nft');
+
+    const actor = Actor.createActor(idlFactory, {
+      agent,
+      canisterId: collectionCanisterId,
+    });
+
+    const result = await actor.update_collection_metadata({
+      logo: updates.logo ? [updates.logo] : [],
+      description: updates.description ? [updates.description] : [],
+      name: updates.name ? [updates.name] : [],
+      symbol: updates.symbol ? [updates.symbol] : [],
+      supply_cap: [],
+      max_query_batch_size: [],
+      max_update_batch_size: [],
+      max_take_value: [],
+      default_take_value: [],
+      max_memo_size: [],
+      atomic_batch_transfers: [],
+      tx_window: [],
+      permitted_drift: [],
+      max_canister_storage_threshold: [],
+      collection_metadata: [],
+    });
+
+    if ('Err' in result) {
+      const errorKey = Object.keys(result.Err)[0];
+      throw new Error(`Failed to update collection metadata: ${errorKey}`);
+    }
+  }
 }

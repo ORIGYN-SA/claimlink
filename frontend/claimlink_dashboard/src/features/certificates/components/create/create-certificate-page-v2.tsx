@@ -10,7 +10,7 @@
  * - Template, collection, formData, validation, and files managed by atom
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -28,20 +28,63 @@ import {
   isFormComplete,
   getInitialFormData,
 } from "@/features/templates/utils/template-utils";
-import { useMintCertificateWithTemplate } from "@/features/certificates";
+import {
+  useMintCertificateWithTemplate,
+  useUpdateCertificateWithTemplate,
+  useCertificate
+} from "@/features/certificates";
 import { useSetCollectionTemplate } from "@/features/templates";
+import type { TemplateStructure } from "@/features/templates/types/template.types";
+
+/**
+ * Reconstruct CertificateFormData from parsed on-chain metadata
+ */
+function reconstructFormData(
+  metadata: Record<string, any>,
+  template: TemplateStructure
+): CertificateFormData {
+  const formData: CertificateFormData = {};
+
+  // Iterate through template items and extract values from metadata
+  template.sections.forEach(section => {
+    section.items.forEach(item => {
+      const value = metadata[item.id];
+
+      if (value !== undefined && value !== null) {
+        // For file/image fields, keep URL references
+        if (item.type === 'image' && typeof value === 'string') {
+          formData[item.id] = value; // URL string
+        } else {
+          formData[item.id] = value;
+        }
+      }
+    });
+  });
+
+  return formData;
+}
 
 interface CreateCertificatePageV2Props {
+  mode?: 'create' | 'edit';
   onSubmit?: (data: CertificateFormData) => void;
   initialCollectionId?: string;
+  certificateId?: string; // For edit mode: "collectionId:tokenId"
 }
 
 export function CreateCertificatePageV2({
+  mode = 'create',
   onSubmit,
   initialCollectionId,
+  certificateId,
 }: CreateCertificatePageV2Props) {
   const navigate = useNavigate();
   const [state, dispatch] = useAtom(certificateCreatorAtom);
+  const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(new Map());
+
+  // Extract collection and token ID from certificateId in edit mode
+  const [editCollectionId, editTokenId] = mode === 'edit' && certificateId
+    ? certificateId.split(':')
+    : [null, null];
 
   // Initialize collection if provided
   useEffect(() => {
@@ -50,11 +93,59 @@ export function CreateCertificatePageV2({
     }
   }, [initialCollectionId, state.selectedCollection, dispatch]);
 
+  // Fetch certificate data in edit mode
+  const { data: certificateData } = useCertificate(
+    editCollectionId || '',
+    editTokenId || '',
+    {
+      enabled: mode === 'edit' && !!editCollectionId && !!editTokenId,
+    }
+  );
+
+  // Initialize form with certificate data in edit mode
+  useEffect(() => {
+    if (mode === 'edit' && certificateData) {
+      const { parsedMetadata } = certificateData;
+
+      // Set collection
+      if (editCollectionId) {
+        dispatch({
+          type: 'SET_SELECTED_COLLECTION',
+          collectionId: editCollectionId
+        });
+      }
+
+      // Reconstruct template from parsed metadata
+      const template = parsedMetadata.templates?.certificateTemplate
+        || parsedMetadata.templates?.template;
+
+      if (template) {
+        dispatch({ type: 'SET_SELECTED_TEMPLATE', template });
+
+        // Build form data from metadata
+        const formData = reconstructFormData(
+          parsedMetadata.metadata,
+          template
+        );
+
+        dispatch({ type: 'UPDATE_FORM_DATA', data: formData });
+      }
+    }
+  }, [mode, certificateData, dispatch, editCollectionId]);
+
   const setCollectionTemplate = useSetCollectionTemplate();
 
   const mintMutation = useMintCertificateWithTemplate({
+    onUploadProgress: (fieldId, progress) => {
+      setUploadProgress(prev => {
+        const updated = new Map(prev);
+        updated.set(fieldId, progress);
+        return updated;
+      });
+    },
     onSuccess: (tokenId) => {
       toast.success(`Certificate minted successfully! Token ID: ${tokenId}`);
+      setUploadProgress(new Map()); // Clear progress
       dispatch({ type: 'RESET_ALL' });
       navigate({
         to: "/collections/$collectionId",
@@ -63,8 +154,35 @@ export function CreateCertificatePageV2({
     },
     onError: (error) => {
       toast.error(`Minting failed: ${error.message}`);
+      setUploadProgress(new Map()); // Clear progress
     },
   });
+
+  const updateMutation = useUpdateCertificateWithTemplate({
+    onUploadProgress: (fieldId, progress) => {
+      setUploadProgress(prev => {
+        const updated = new Map(prev);
+        updated.set(fieldId, progress);
+        return updated;
+      });
+    },
+    onSuccess: (tokenId) => {
+      toast.success('Certificate updated successfully!');
+      setUploadProgress(new Map()); // Clear progress
+      dispatch({ type: 'RESET_ALL' });
+      navigate({
+        to: "/mint_certificate/$certificateId",
+        params: { certificateId: `${state.selectedCollection}:${tokenId}` },
+      });
+    },
+    onError: (error) => {
+      toast.error(`Update failed: ${error.message}`);
+      setUploadProgress(new Map()); // Clear progress
+    },
+  });
+
+  // Select the active mutation based on mode
+  const activeMutation = mode === 'edit' ? updateMutation : mintMutation;
 
   const handleTemplateChange = (template: Template | null) => {
     dispatch({ type: 'SET_SELECTED_TEMPLATE', template });
@@ -161,27 +279,52 @@ export function CreateCertificatePageV2({
     }
 
     try {
-      toast.info("Minting certificate with template...");
+      if (mode === 'edit') {
+        toast.info("Updating certificate...");
 
-      await mintMutation.mutateAsync({
-        collectionCanisterId: state.selectedCollection,
-        template: state.selectedTemplate.structure,
-        formData: state.formData,
-        files: state.fileFields.size > 0 ? state.fileFields : undefined,
-        name:
-          (state.formData.company_name as string) ||
-          (state.formData.name as string) ||
-          state.selectedTemplate.name,
-        description:
-          (state.formData.short_description as string) ||
-          (state.formData.description as string) ||
-          state.selectedTemplate.description,
-      });
+        if (!editTokenId) {
+          toast.error("Invalid certificate ID");
+          return;
+        }
+
+        await updateMutation.mutateAsync({
+          collectionCanisterId: state.selectedCollection,
+          tokenId: BigInt(editTokenId),
+          template: state.selectedTemplate.structure,
+          formData: state.formData,
+          files: state.fileFields.size > 0 ? state.fileFields : undefined,
+          name:
+            (state.formData.company_name as string) ||
+            (state.formData.name as string) ||
+            state.selectedTemplate.name,
+          description:
+            (state.formData.short_description as string) ||
+            (state.formData.description as string) ||
+            state.selectedTemplate.description,
+        });
+      } else {
+        toast.info("Minting certificate with template...");
+
+        await mintMutation.mutateAsync({
+          collectionCanisterId: state.selectedCollection,
+          template: state.selectedTemplate.structure,
+          formData: state.formData,
+          files: state.fileFields.size > 0 ? state.fileFields : undefined,
+          name:
+            (state.formData.company_name as string) ||
+            (state.formData.name as string) ||
+            state.selectedTemplate.name,
+          description:
+            (state.formData.short_description as string) ||
+            (state.formData.description as string) ||
+            state.selectedTemplate.description,
+        });
+      }
 
       // Call optional callback
       onSubmit?.(state.formData);
     } catch (error: unknown) {
-      console.error("Minting error:", error);
+      console.error(mode === 'edit' ? "Update error:" : "Minting error:", error);
       // Error toast is handled by mutation onError
     }
   };
@@ -193,7 +336,7 @@ export function CreateCertificatePageV2({
   };
 
   // Compute if we're in uploading/minting state
-  const isBusy = mintMutation.isPending;
+  const isBusy = activeMutation.isPending;
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -235,7 +378,8 @@ export function CreateCertificatePageV2({
             <CollectionSection
               onTemplateChange={handleTemplateChange}
               onCollectionChange={handleCollectionChange}
-              initialCollectionId={initialCollectionId}
+              initialCollectionId={initialCollectionId || editCollectionId || undefined}
+              disabled={mode === 'edit'} // Disable in edit mode
             />
 
             {/* Dynamic Template Form - Only show if template selected */}
@@ -244,6 +388,7 @@ export function CreateCertificatePageV2({
                 template={state.selectedTemplate}
                 onFormDataChange={handleFormDataChange}
                 initialData={state.formData}
+                mode={mode}
               />
             ) : (
               <Card className="p-12 text-center">
@@ -274,24 +419,54 @@ export function CreateCertificatePageV2({
               </Card>
             )}
 
-            {/* Minting Progress - Show if minting */}
-            {mintMutation.isPending && (
+            {/* Minting/Updating Progress - Show if processing */}
+            {activeMutation.isPending && (
               <Card className="p-6">
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-[#69737c]">
-                      Minting certificate with template...
+                      {mode === 'edit'
+                        ? 'Updating certificate...'
+                        : 'Minting certificate with template...'}
                     </span>
                     <span className="font-medium text-[#222526]">
                       Processing
                     </span>
                   </div>
-                  <div className="w-full bg-[#e1e1e1] rounded-full h-2">
-                    <div
-                      className="bg-[#615bff] h-2 rounded-full transition-all duration-300 animate-pulse"
-                      style={{ width: "60%" }}
-                    />
-                  </div>
+
+                  {/* Show upload progress for each field */}
+                  {uploadProgress.size > 0 && (
+                    <div className="space-y-3">
+                      {Array.from(uploadProgress.entries()).map(([fieldId, progress]) => (
+                        <div key={fieldId} className="space-y-1">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-[#69737c]">
+                              Uploading {fieldId}
+                            </span>
+                            <span className="font-medium text-[#222526]">
+                              {Math.round(progress)}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-[#e1e1e1] rounded-full h-1.5">
+                            <div
+                              className="bg-[#615bff] h-1.5 rounded-full transition-all duration-300"
+                              style={{ width: `${progress}%` }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Overall progress bar */}
+                  {uploadProgress.size === 0 && (
+                    <div className="w-full bg-[#e1e1e1] rounded-full h-2">
+                      <div
+                        className="bg-[#615bff] h-2 rounded-full transition-all duration-300 animate-pulse"
+                        style={{ width: "60%" }}
+                      />
+                    </div>
+                  )}
                 </div>
               </Card>
             )}
@@ -311,10 +486,10 @@ export function CreateCertificatePageV2({
                     onClick={handleSubmit}
                     disabled={isBusy || !state.selectedCollection}
                   >
-                    {mintMutation.isPending
-                      ? "Minting..."
+                    {activeMutation.isPending
+                      ? mode === 'edit' ? "Updating..." : "Minting..."
                       : isComplete
-                        ? "Mint Certificate"
+                        ? mode === 'edit' ? "Update Certificate" : "Mint Certificate"
                         : `Complete Form (${progress}%)`}
                   </Button>
                 </div>

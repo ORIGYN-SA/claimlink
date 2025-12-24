@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { CertificateDetailActions } from "./certificate-detail-actions";
 import { CertificateLaunchpad } from "./certificate-launchpad";
 import { CertificateViewer, type TemplateData } from "./certificate-viewer";
@@ -25,6 +26,8 @@ export function CertificateDetailPage({
   eventsData,
   ledgerData,
 }: CertificateDetailPageProps) {
+  const navigate = useNavigate();
+
   // Fetch template for this collection (uses mock templates for now)
   const { data: template } = useCollectionTemplate(certificate.canisterId || '');
 
@@ -90,8 +93,10 @@ export function CertificateDetailPage({
   }, [certificate, parsedMetadata, template]);
 
   const handleEditTemplate = () => {
-    // TODO: Navigate to template edit page
-    console.log("Edit template for certificate:", certificate.id);
+    navigate({
+      to: '/mint_certificate/$certificateId/edit',
+      params: { certificateId: `${certificate.canisterId}:${certificate.tokenId || certificate.id}` },
+    });
   };
 
   const handleLogEvent = () => {

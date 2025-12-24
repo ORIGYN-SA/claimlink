@@ -102,13 +102,13 @@ export function CertificateDetailActions({
 
           {/* Action Buttons */}
           <div className="flex gap-4 items-center w-full">
-            {/* Edit Template Button */}
+            {/* Edit Certificate Button */}
             <button
               onClick={onEditTemplate}
               className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
             >
               <span className="text-[14px] font-normal text-[#222526]">
-                Edit Template
+                Edit Certificate
               </span>
               <div className="bg-[#222526] rounded-2xl w-8 h-8 flex items-center justify-center">
                 <Pencil className="w-4 h-4 text-white" />
