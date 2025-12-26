@@ -7,6 +7,7 @@ import type { TokenStatus } from "@/components/common/token-card/token.types";
 import { cn } from "@/lib/utils";
 import { TransferOwnershipDialog } from "./transfer-ownership";
 import type { TransferOwnershipData } from "./transfer-ownership";
+import { toast } from "sonner";
 
 interface CertificateDetailActionsProps {
   certificateId: string;
@@ -39,8 +40,10 @@ export function CertificateDetailActions({
       await navigator.clipboard.writeText(shareLink);
       setCopySuccess(true);
       setTimeout(() => setCopySuccess(false), 2000);
+      toast.success("Link copied to clipboard!");
     } catch (err) {
       console.error("Failed to copy:", err);
+      toast.error("Failed to copy link");
     }
   };
 

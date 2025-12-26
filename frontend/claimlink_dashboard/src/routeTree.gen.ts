@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CertificateCertificateIdRouteImport } from './routes/certificate/$certificateId'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedTemplatesIndexRouteImport } from './routes/_authenticated/templates/index'
 import { Route as AuthenticatedMint_certificateIndexRouteImport } from './routes/_authenticated/mint_certificate/index'
@@ -63,6 +64,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CertificateCertificateIdRoute =
+  CertificateCertificateIdRouteImport.update({
+    id: '/certificate/$certificateId',
+    path: '/certificate/$certificateId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
   '/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
   '/account/new': typeof AuthenticatedAccountNewRoute
@@ -242,6 +250,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
   '/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
   '/account/new': typeof AuthenticatedAccountNewRoute
@@ -274,6 +283,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/_authenticated/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
   '/_authenticated/account/edit_user': typeof AuthenticatedAccountEdit_userRoute
   '/_authenticated/account/new': typeof AuthenticatedAccountNewRoute
@@ -306,6 +316,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/new-password'
     | '/dashboard'
+    | '/certificate/$certificateId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/new-password'
     | '/dashboard'
+    | '/certificate/$certificateId'
     | '/account/edit_company'
     | '/account/edit_user'
     | '/account/new'
@@ -367,6 +379,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/new-password'
     | '/_authenticated/dashboard'
+    | '/certificate/$certificateId'
     | '/_authenticated/account/edit_company'
     | '/_authenticated/account/edit_user'
     | '/_authenticated/account/new'
@@ -398,6 +411,7 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewPasswordRoute: typeof NewPasswordRoute
+  CertificateCertificateIdRoute: typeof CertificateCertificateIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -435,6 +449,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/certificate/$certificateId': {
+      id: '/certificate/$certificateId'
+      path: '/certificate/$certificateId'
+      fullPath: '/certificate/$certificateId'
+      preLoaderRoute: typeof CertificateCertificateIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/dashboard': {
@@ -682,6 +703,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewPasswordRoute: NewPasswordRoute,
+  CertificateCertificateIdRoute: CertificateCertificateIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

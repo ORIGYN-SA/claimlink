@@ -1,8 +1,10 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { CertificateDetailActions } from "./certificate-detail-actions";
 import { CertificateLaunchpad } from "./certificate-launchpad";
 import { CertificateViewer, type TemplateData } from "./certificate-viewer";
+import { CertificateQRCode } from "./certificate-qr-code";
+import { QRCodeService } from "../api/qr.service";
 import type { Certificate } from "@/features/certificates";
 import type { CertificateEventsData } from "./certificate-events";
 import type { CertificateLedgerData } from "./certificate-ledger";
@@ -11,6 +13,7 @@ import {
   generateOrigynViews,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
+import { toast } from "sonner";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -27,6 +30,7 @@ export function CertificateDetailPage({
   ledgerData,
 }: CertificateDetailPageProps) {
   const navigate = useNavigate();
+  const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Fetch template for this collection (uses mock templates for now)
   const { data: template } = useCollectionTemplate(certificate.canisterId || '');
@@ -104,9 +108,21 @@ export function CertificateDetailPage({
     console.log("Log new event for certificate:", certificate.id);
   };
 
-  const handleDownloadQR = () => {
-    // TODO: Implement QR code download
-    console.log("Download QR for certificate:", certificate.id);
+  const handleDownloadQR = async () => {
+    if (!qrCanvasRef.current) {
+      console.error('QR code canvas not available');
+      toast.error('QR code not ready');
+      return;
+    }
+
+    try {
+      const filename = QRCodeService.generateFilename(certificate.title);
+      await QRCodeService.downloadQRCode(qrCanvasRef.current, filename);
+      toast.success('QR code downloaded successfully!');
+    } catch (error) {
+      console.error('Failed to download QR code:', error);
+      toast.error('Failed to download QR code');
+    }
   };
 
   const handleTransferOwnership = () => {
@@ -116,12 +132,29 @@ export function CertificateDetailPage({
 
   return (
     <div className="space-y-6">
+      {/* Hidden high-resolution QR code for download */}
+      <div className="sr-only">
+        <CertificateQRCode
+          ref={qrCanvasRef}
+          value={QRCodeService.getCertificateVerificationUrl(
+            certificate.canisterId || '',
+            certificate.tokenId || certificate.id
+          )}
+          size={512}
+          level="M"
+          showLogo={true}
+        />
+      </div>
+
       {/* Certificate Actions Component */}
       <CertificateDetailActions
         certificateId={certificate.id}
         currentStatus={certificate.status}
         unclaimedStatus={certificate.status === "Waiting"}
-        shareLink={`https://claim.link/${certificate.id}`}
+        shareLink={QRCodeService.getCertificateVerificationUrl(
+          certificate.canisterId || '',
+          certificate.tokenId || certificate.id
+        )}
         onEditTemplate={handleEditTemplate}
         onLogEvent={handleLogEvent}
         onDownloadQR={handleDownloadQR}
@@ -140,7 +173,8 @@ export function CertificateDetailPage({
         description={certificate.description || "Certificate details"}
         issuerLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=64&h=64&fit=crop"
         issuerName={certificate.certifiedBy || "ORIGYN"}
-        qrCodeUrl={`https://api.qrserver.com/v1/create-qr-code/?size=64x64&data=https://claim.link/${certificate.id}`}
+        canisterId={certificate.canisterId}
+        tokenId={certificate.tokenId || certificate.id}
         className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"
       />
 

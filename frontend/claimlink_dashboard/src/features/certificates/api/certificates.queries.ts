@@ -533,6 +533,82 @@ export const useCertificate = (collectionId: string, tokenId: string) => {
   });
 };
 
+/**
+ * Fetch a single certificate by collection ID and token ID using UNAUTHENTICATED agent
+ * Used for public certificate page (/certificate/:certificateId)
+ * Returns certificate data and parsed ORIGYN metadata with templates
+ *
+ * Key differences from useCertificate:
+ * - Uses unauthenticatedAgent (works without login)
+ * - Skips collection name lookup (may require auth)
+ * - Has fallback values for missing data
+ */
+export const usePublicCertificate = (collectionId: string, tokenId: string) => {
+  const { unauthenticatedAgent } = useAuth();
+
+  return useQuery({
+    queryKey: [...certificatesKeys.detail(`${collectionId}:${tokenId}`), 'public'],
+    queryFn: async (): Promise<CertificateWithParsedMetadata> => {
+      if (!unauthenticatedAgent) {
+        throw new Error('Unauthenticated agent not available');
+      }
+
+      console.log('[usePublicCertificate] Fetching certificate (public):', {
+        collectionId,
+        tokenId,
+      });
+
+      // Fetch metadata using public ICRC-7 query (no auth needed)
+      const metadataResults = await CertificatesService.getCertificateMetadata(
+        unauthenticatedAgent,
+        collectionId,
+        [BigInt(tokenId)]
+      );
+
+      if (metadataResults.length === 0 || metadataResults[0].length === 0) {
+        throw new Error(`Certificate not found: ${tokenId}`);
+      }
+
+      const rawMetadata = metadataResults[0];
+
+      console.log('[usePublicCertificate] Metadata fetched:', {
+        fields: rawMetadata.map(([key]) => key),
+      });
+
+      // Parse ORIGYN metadata with templates
+      const parsedMetadata = parseOrigynMetadata(rawMetadata, collectionId, tokenId);
+
+      console.log('[usePublicCertificate] Parsed ORIGYN metadata:', {
+        hasTemplates: !!parsedMetadata.templates.certificateTemplate || !!parsedMetadata.templates.template,
+        metadataFields: Object.keys(parsedMetadata.metadata),
+        libraryCount: parsedMetadata.library.length,
+      });
+
+      const certificateTitle = getCertificateTitle(rawMetadata, BigInt(tokenId));
+      const certificateImage = getCertificateImageUrl(rawMetadata);
+
+      const certificate: Certificate = {
+        id: tokenId,
+        title: certificateTitle,
+        collectionName: collectionId,  // Fallback to canister ID (collection lookup may require auth)
+        imageUrl: certificateImage,
+        status: 'Minted',  // Default for public view
+        date: extractMetadataValue(rawMetadata, 'minted_at') || new Date().toLocaleDateString(),
+        canisterId: collectionId,
+        tokenId: tokenId,
+        certifiedBy: 'ORIGYN',
+      };
+
+      console.log('[usePublicCertificate] Certificate transformed:', certificate);
+
+      return { certificate, parsedMetadata };
+    },
+    enabled: !!unauthenticatedAgent && !!collectionId && !!tokenId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+  });
+};
+
 interface CertificateTransactionHistoryResult {
   eventsData: CertificateEventsData;
   ledgerData: CertificateLedgerData;
