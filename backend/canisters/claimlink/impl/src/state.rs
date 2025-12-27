@@ -1,21 +1,17 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
-use ic_stable_structures::StableBTreeMap;
 use serde::{Deserialize, Serialize};
-use std::{
-    cell::RefCell,
-    collections::{BTreeMap, VecDeque},
-};
-use types::{CanisterId, TimestampMillis};
+use std::collections::BTreeMap;
+use types::TimestampNanos;
 use utils::{
     env::{CanisterEnv, Environment},
     memory::MemorySize,
 };
 
-use crate::types::{collections::Collection, templates::NftTemplateId};
-use claimlink_api::types::{
-    collection::{CollectionInfo, OwnerCollectionList},
-    sub_canister::OrigynSubCanisterManager,
+use crate::types::{
+    collections::{CollectionRequest, OgyTransferIndex},
+    cycles::CyclesManagement,
+    templates::NftTemplateId,
 };
 
 canister_state!(RuntimeState);
@@ -35,7 +31,7 @@ impl RuntimeState {
     pub fn metrics(&self) -> Metrics {
         Metrics {
             canister_info: CanisterInfo {
-                now: self.env.now(),
+                now_nanos: self.env.now(),
                 test_mode: self.env.is_test_mode(),
                 memory_used: MemorySize::used(),
                 cycles_balance_in_tc: self.env.cycles_balance_in_tc(),
@@ -63,7 +59,7 @@ pub struct Metrics {
 
 #[derive(CandidType, Deserialize, Serialize)]
 pub struct CanisterInfo {
-    pub now: TimestampMillis,
+    pub now_nanos: TimestampNanos,
     pub test_mode: bool,
     pub memory_used: MemorySize,
     pub cycles_balance_in_tc: f64,
@@ -72,40 +68,38 @@ pub struct CanisterInfo {
 pub struct Data {
     /// current origyn NFT commit hash
     pub origyn_nft_wasm_hash: String,
+
     /// SNS OGY ledger canister
     pub ledger_canister_id: Principal,
+
     /// authorized Principals for guarded calls
     pub authorized_principals: Vec<Principal>,
+
     /// Bank principal for burning OGY paid for NFT collection(canister) creations and installation
     pub bank_principal_id: Principal,
 
+    // cycles mangement config
+    pub cycles_management: CyclesManagement,
+
+    // amount of OGY to charge per collection
+    pub collection_request_fee: u128,
+
+    // OGY transfer
+    pub ogy_transfer_fee: u128,
+
     pub template_owners: BTreeMap<Principal, NftTemplateId>,
 
-    ///  NFT collection(canister) requests waiting to be created and installed
-    pub pending_collections: VecDeque<Collection>,
-    /// Created and Installed NFT collections(canisters)
-    pub collections: BTreeMap<Principal, Collection>,
+    // nft collection requersts
+    pub collection_requests: BTreeMap<OgyTransferIndex, CollectionRequest>,
+
+    /// creatio retry attampts after a failed collection creation
+    pub max_creation_retries: u64,
+
+    // pending collections to be created and installed
+    pub pending_queue: Vec<OgyTransferIndex>,
+
+    // failed collections to be reimbursed
+    pub reimbursement_queue: Vec<OgyTransferIndex>,
 }
 
-impl Data {
-    pub fn new(
-        ledger_canister_id: CanisterId,
-        authorized_principals: Vec<Principal>,
-        bank_principal_id: Principal,
-        origyn_nft_wasm_hash: String,
-    ) -> Self {
-        Self {
-            ledger_canister_id,
-            authorized_principals,
-            bank_principal_id,
-            origyn_nft_wasm_hash,
-            pending_collections: VecDeque::new(),
-            collections: BTreeMap::new(),
-            template_owners: BTreeMap::new(),
-        }
-    }
-
-    pub fn oldest_pending_collection(&self) -> Option<&Collection> {
-        self.pending_collections.get(0)
-    }
-}
+impl Data {}

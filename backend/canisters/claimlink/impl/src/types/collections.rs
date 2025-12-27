@@ -1,27 +1,41 @@
-use candid::Principal;
-use minicbor::{Decode, Encode};
+use candid::{CandidType, Principal};
+use serde::{Deserialize, Serialize};
 use types::TimestampNanos;
 
-use super::canister::Canister;
+use crate::{
+    canister_management::TaskError,
+    types::{templates::NftTemplateId, wasm::WasmHash},
+};
 
-#[derive(Debug, Encode, Decode, Clone)]
-pub struct Collection {
-    #[cbor(n(0), with = "crate::cbor::principal")]
-    pub creator: Principal,
-    #[n(1)]
-    pub name: String,
-    #[n(2)]
-    pub symbol: Option<String>,
-    #[n(3)]
-    pub description: Option<String>,
-    #[n(4)]
-    pub logo: Option<String>,
-    #[n(5)]
-    pub template: Option<Vec<u8>>,
-    #[n(6)]
-    pub canister: Option<Canister>,
-    #[n(7)]
-    pub ogy_transfer_index: u64,
-    #[n(8)]
+pub type OgyTransferIndex = u128;
+
+#[derive(Debug, Clone)]
+pub struct CollectionRequest {
+    pub owner: Principal,
+    pub ogy_payment_index: OgyTransferIndex, // unique collection request Identifier
+    pub metadata: CollectionMetadata,
+    pub status: InstallationStatus,
     pub created_at: TimestampNanos,
+    pub updated_at: TimestampNanos,
+}
+
+// Collection Metadata
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+pub struct CollectionMetadata {
+    pub name: String,
+    pub symbol: Option<String>,
+    pub description: Option<String>,
+    pub template_id: NftTemplateId,
+}
+
+//  Distinct states for the lifecycle
+#[derive(Clone, Debug)]
+pub enum InstallationStatus {
+    Queued,
+    Created { principal: Principal },
+    Installed { wasm_hash: WasmHash },
+    Failed { reason: TaskError, attempsts: u64 }, // Ready for reimbursement
+    ReimbursingQueued,
+    Reimbursed { tx_index: OgyTransferIndex },
+    QuarantinedReimbursement,
 }
