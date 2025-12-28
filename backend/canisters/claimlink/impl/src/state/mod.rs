@@ -1,5 +1,9 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
+use claimlink_api::{
+    cycles::CyclesManagement,
+    init::{AuthordiedPrincipal, InitArg},
+};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use types::TimestampNanos;
@@ -10,9 +14,11 @@ use utils::{
 
 use crate::types::{
     collections::{CollectionRequest, OgyTransferIndex},
-    cycles::CyclesManagement,
     templates::NftTemplateId,
+    wasm::WasmHash,
 };
+
+pub mod audit;
 
 canister_state!(RuntimeState);
 
@@ -36,7 +42,7 @@ impl RuntimeState {
                 memory_used: MemorySize::used(),
                 cycles_balance_in_tc: self.env.cycles_balance_in_tc(),
             },
-            origyn_nft_wasm_hash: self.data.origyn_nft_wasm_hash.clone(),
+            origyn_nft_wasm_hash: self.data.origyn_nft_wasm_hash.to_string(),
             authorized_principals: self.data.authorized_principals.clone(),
             ledger_canister_id: self.data.ledger_canister_id,
             bank_principal_id: self.data.bank_principal_id,
@@ -44,14 +50,18 @@ impl RuntimeState {
     }
     pub fn is_caller_authorised_principal(&self) -> bool {
         let caller = self.env.caller();
-        self.data.authorized_principals.contains(&caller)
+        self.data
+            .authorized_principals
+            .iter()
+            .find(|authordied_principal| authordied_principal.principal == caller)
+            .is_some()
     }
 }
 
-#[derive(CandidType, Serialize)]
+#[derive(CandidType)]
 pub struct Metrics {
     pub canister_info: CanisterInfo,
-    pub authorized_principals: Vec<Principal>,
+    pub authorized_principals: Vec<AuthordiedPrincipal>,
     pub ledger_canister_id: Principal,
     pub bank_principal_id: Principal,
     pub origyn_nft_wasm_hash: String,
@@ -67,13 +77,13 @@ pub struct CanisterInfo {
 
 pub struct Data {
     /// current origyn NFT commit hash
-    pub origyn_nft_wasm_hash: String,
+    pub origyn_nft_wasm_hash: WasmHash,
 
     /// SNS OGY ledger canister
     pub ledger_canister_id: Principal,
 
     /// authorized Principals for guarded calls
-    pub authorized_principals: Vec<Principal>,
+    pub authorized_principals: Vec<AuthordiedPrincipal>,
 
     /// Bank principal for burning OGY paid for NFT collection(canister) creations and installation
     pub bank_principal_id: Principal,
@@ -87,6 +97,7 @@ pub struct Data {
     // OGY transfer
     pub ogy_transfer_fee: u128,
 
+    // owner to template map
     pub template_owners: BTreeMap<Principal, NftTemplateId>,
 
     // nft collection requersts
@@ -103,3 +114,45 @@ pub struct Data {
 }
 
 impl Data {}
+
+impl TryFrom<InitArg> for RuntimeState {
+    type Error = String;
+
+    fn try_from(value: InitArg) -> Result<Self, Self::Error> {
+        let collection_request_fee: u128 = value
+            .collection_request_fee
+            .0
+            .try_into()
+            .map_err(|_| "collection_request_fee too big".to_string())?;
+
+        let ogy_transfer_fee: u128 = value
+            .ogy_transfer_fee
+            .0
+            .try_into()
+            .map_err(|_| "ogy_transfer_fee too big".to_string())?;
+
+        let max_creation_retries: u64 = value
+            .max_creation_retries
+            .0
+            .try_into()
+            .map_err(|_| "max_creation_retries too big".to_string())?;
+
+        Ok(RuntimeState::new(
+            CanisterEnv::new(value.test_mode),
+            Data {
+                origyn_nft_wasm_hash: WasmHash::default(),
+                ledger_canister_id: value.ledger_canister_id,
+                authorized_principals: value.authorized_principals,
+                bank_principal_id: value.bank_principal_id,
+                cycles_management: value.cycles_management,
+                collection_request_fee,
+                ogy_transfer_fee,
+                template_owners: Default::default(),
+                collection_requests: Default::default(),
+                max_creation_retries,
+                pending_queue: Default::default(),
+                reimbursement_queue: Default::default(),
+            },
+        ))
+    }
+}

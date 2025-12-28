@@ -32,10 +32,46 @@ pub struct CollectionMetadata {
 #[derive(Clone, Debug)]
 pub enum InstallationStatus {
     Queued,
-    Created { principal: Principal },
-    Installed { wasm_hash: WasmHash },
-    Failed { reason: TaskError, attempsts: u64 }, // Ready for reimbursement
+    Created {
+        principal: Principal,
+    },
+    Installed {
+        principal: Principal,
+        wasm_hash: WasmHash,
+    },
+    Failed {
+        reason: TaskError,
+        attempsts: u64,
+        principal: Option<Principal>, // in case cansiter creation passes but installation fails
+    },
     ReimbursingQueued,
-    Reimbursed { tx_index: OgyTransferIndex },
+    Reimbursed {
+        tx_index: OgyTransferIndex,
+    },
     QuarantinedReimbursement,
+}
+
+impl InstallationStatus {
+    pub fn canister_id(&self) -> Option<Principal> {
+        match self {
+            InstallationStatus::Created { principal } => Some(*principal),
+            InstallationStatus::Installed {
+                principal,
+                wasm_hash: _,
+            } => Some(*principal),
+            InstallationStatus::Failed {
+                reason: _,
+                attempsts: _,
+                principal,
+            } => *principal,
+            _ => None,
+        }
+    }
+
+    pub fn is_installed(&self) -> bool {
+        match self {
+            InstallationStatus::Installed { .. } => true,
+            _ => false,
+        }
+    }
 }

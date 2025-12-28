@@ -21,3 +21,15 @@ const TEMPLATE_STORE_MEMORY_ID: MemoryId = MemoryId::new(1);
 pub fn template_store_memory() -> StableMemory {
     MEMORY_MANAGER.with(|m| m.borrow().get(TEMPLATE_STORE_MEMORY_ID))
 }
+
+const EVENTS_INDEX_MEMORY_ID: MemoryId = MemoryId::new(2);
+
+pub fn events_index_memory() -> StableMemory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(EVENTS_INDEX_MEMORY_ID))
+}
+
+const EVENTS_DATA_MEMORY_ID: MemoryId = MemoryId::new(3);
+
+pub fn events_data_memory() -> StableMemory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(EVENTS_DATA_MEMORY_ID))
+}

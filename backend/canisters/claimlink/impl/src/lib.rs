@@ -1,7 +1,6 @@
 use ic_cdk::export_candid;
 
 pub mod canister_management;
-pub mod cbor;
 mod guards;
 mod lifecycle;
 pub mod queries;

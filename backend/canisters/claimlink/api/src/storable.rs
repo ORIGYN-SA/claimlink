@@ -29,8 +29,6 @@ mod tests {
     use minicbor::{Decode, Encode};
     use std::borrow::Cow;
 
-    use crate::types::wasm::WasmHash;
-
     #[derive(Encode, Decode, Debug, PartialEq, Clone)]
     struct SimpleStruct {
         #[n(0)]
@@ -68,8 +66,6 @@ mod tests {
         #[n(0)]
         data: Vec<u8>,
         #[n(1)]
-        hash: WasmHash,
-        #[n(2)]
         matrix: Vec<Vec<f64>>,
     }
 
@@ -120,7 +116,6 @@ mod tests {
     fn test_round_trip_complex_struct() {
         let original = ComplexStruct {
             data: vec![0xDE, 0xAD, 0xBE, 0xEF],
-            hash: WasmHash::from([0xAB; 32]), // Assuming WasmHash is Hash<32>
             matrix: vec![vec![1.1, 2.2], vec![3.3, 4.4]],
         };
 

@@ -1,10 +1,10 @@
+use claimlink_api::impl_storable_minicbor;
 use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteArray;
 use sha2::Digest;
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
-
-use crate::impl_storable_minicbor;
 
 const WASM_HASH_LENGTH: usize = 32;
 
@@ -25,6 +25,12 @@ pub struct Hash<const N: usize>(#[n(0)] [u8; N]);
 impl<const N: usize> Default for Hash<N> {
     fn default() -> Self {
         Self([0; N])
+    }
+}
+
+impl<const N: usize> Display for Hash<N> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", hex::encode(self.0))
     }
 }
 

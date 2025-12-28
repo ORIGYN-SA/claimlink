@@ -1,6 +1,12 @@
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
+use candid::CandidType;
+use minicbor::{Decode, Encode};
+use serde::Deserialize;
+
+#[derive(CandidType, Deserialize, Clone, Eq, PartialEq, Encode, Decode, Debug)]
 pub struct CyclesManagement {
+    #[cbor(n(0), with = "crate::cbor::u128")]
     pub cycles_for_collection_creation: u128,
+    #[cbor(n(1), with = "crate::cbor::u128")]
     pub cycles_top_up_increment: u128,
 }
 

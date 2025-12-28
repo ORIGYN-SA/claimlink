@@ -10,6 +10,7 @@ use crate::{
     },
 };
 
+pub mod events;
 pub mod memory;
 
 pub(crate) const NFT_COLLECTION_BYTECODE: &[u8] =

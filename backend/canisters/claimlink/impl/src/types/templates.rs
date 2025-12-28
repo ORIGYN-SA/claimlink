@@ -1,7 +1,6 @@
+use claimlink_api::impl_storable_minicbor;
 use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
-
-use crate::impl_storable_minicbor;
 
 pub type NftTemplateId = u64;
 

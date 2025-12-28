@@ -1,7 +1,8 @@
 use std::fmt::Debug;
 use std::vec;
 
-use candid::{CandidType, Encode, Nat, Principal};
+use candid::{CandidType, Encode, Principal};
+use claimlink_api::collection_exists;
 use ic_cdk::call::Error as CallError;
 use ic_cdk::management_canister::{
     create_canister_with_extra_cycles, install_code, CanisterInstallMode, CanisterSettings,
@@ -11,8 +12,8 @@ use ic_cdk::management_canister::{
 use tracing::{error, info};
 
 use crate::storage::read_stable_storage;
-use crate::types::canister::Canister;
-use crate::types::{collections::Collection, wasm::WasmHash};
+use crate::types::collections::CollectionRequest;
+use crate::types::wasm::WasmHash;
 
 #[derive(Clone, Debug)]
 pub enum TaskError {
@@ -25,15 +26,11 @@ pub enum TaskError {
 }
 
 async fn create_canister_once(
-    collection: &Collection,
+    collection: CollectionRequest,
     cycles_for_canister_creation: u128,
 ) -> Result<Principal, TaskError> {
     // check if the canister already exists
-    if let Some(canister_id) = collection
-        .canister
-        .as_ref()
-        .map(|canister| canister.canister_id())
-    {
+    if let Some(canister_id) = collection.status.canister_id() {
         return Ok(canister_id);
     }
 
@@ -53,8 +50,8 @@ async fn create_canister_once(
             info!(
                 "created {} canister for {:?} with transfer index {}",
                 canister_id_record.canister_id.to_text(),
-                &collection.name,
-                &collection.ogy_transfer_index
+                &collection.metadata.name,
+                &collection.ogy_payment_index
             );
 
             canister_id_record.canister_id
@@ -62,7 +59,7 @@ async fn create_canister_once(
         Err(error) => {
             error!(
                 "failed to create {} collection with transfer index {:?}: {}",
-                collection.name, collection.ogy_transfer_index, error
+                collection.metadata.name, collection.ogy_payment_index, error
             );
             return Err(TaskError::CanisterCreationError(error));
         }
@@ -74,22 +71,25 @@ async fn create_canister_once(
 }
 
 async fn install_canister_once<I>(
-    collection: &Collection,
+    collection: &CollectionRequest,
     wasm_hash: &WasmHash,
     init_args: &I,
 ) -> Result<(), TaskError>
 where
     I: Debug + CandidType,
 {
-    let canister_id = match collection.canister.as_ref() {
+    if collection.status.is_installed() {
+        return Ok(());
+    }
+
+    let canister_id = match collection.status.canister_id() {
         None => {
             panic!(
                 "BUG: {} canister with ogy transfer index {} is not yet created",
-                collection.name, collection.ogy_transfer_index
+                collection.metadata.name, collection.ogy_payment_index
             )
         }
-        Some(Canister::Created { canister_id }) => *canister_id,
-        Some(Canister::Installed { .. }) => return Ok(()),
+        Some(canister_id) => canister_id,
     };
 
     let wasm = match read_stable_storage(|s| s.get_wasm(wasm_hash)) {
@@ -97,8 +97,8 @@ where
         None => {
             error!(
                 "ERROR: failed to install {} canister with ogy transfer index {} at '{}': wasm hash {:?} not found",
-                collection.name,
-                collection.ogy_transfer_index,
+                collection.metadata.name,
+                collection.ogy_payment_index,
                 canister_id,
                 wasm_hash
             );
@@ -117,8 +117,8 @@ where
         Ok(_) => {
             info!(
                 "successfully installed {} canister with ogy transfer index {} at '{}' with init args {:?}",
-                collection.name,
-                collection.ogy_transfer_index,
+                collection.metadata.name,
+                collection.ogy_payment_index,
                 canister_id,
                 init_args
             );
@@ -126,8 +126,8 @@ where
         Err(e) => {
             error!(
                 "failed to install {} canister with ogy transfer index {} at '{}' with init args {:?}: {}",
-                collection.name,
-                collection.ogy_transfer_index,
+                collection.metadata.name,
+                collection.ogy_payment_index,
                 canister_id,
                 init_args,
                 e
