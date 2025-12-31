@@ -9,8 +9,23 @@ use crate::{
 // requires canister infrastructure to retrieve time
 pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
     match payload {
-        EventType::Init(init) => todo!(),
+        EventType::Init(init_arg) => {
+            panic!("state re-initialization is not allowed: {init_arg:?}");
+        }
         EventType::Upgrade() => todo!(),
+        EventType::CreateCollectionRequest {
+            metadata,
+            ogy_payment_index,
+            created_at,
+        } => todo!(),
+        EventType::CreatedCansiter {
+            ogy_payment_index,
+            canister_id,
+        } => todo!(),
+        EventType::InstalledWasm {
+            ogy_payment_index,
+            wasm_hash,
+        } => todo!(),
     }
 }
 

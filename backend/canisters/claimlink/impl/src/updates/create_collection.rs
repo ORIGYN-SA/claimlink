@@ -1,10 +1,13 @@
 use crate::{
     guards,
     state::{mutate_state, read_state},
+    types::collections::{
+        CollectionMetadata, CollectionRequest, InstallationStatus, OgyTransferIndex,
+    },
 };
 use bity_ic_canister_time::timestamp_nanos;
 use bity_ic_subcanister_manager::Canister;
-use candid::{Nat, Principal};
+use candid::Nat;
 use claimlink_api::errors::{CreateCollectionError, GenericError};
 use claimlink_api::types::collection::{CollectionInfo, OwnerCollectionList};
 pub use claimlink_api::updates::create_collection::{
@@ -16,24 +19,35 @@ use utils::{consts, env::Environment};
 const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
 const INITIAL_COLLECTION_CYCLES: u128 = 1 * consts::T;
 
-#[ic_cdk::update(guard = "guards::reject_anonymous_caller")]
+#[ic_cdk::update(guard = "guards::caller_is_authorised_principal")]
 #[bity_ic_canister_tracing_macros::trace]
 pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionResponse {
-    let available_cycles = read_state(|state| {
-        if state.env.is_test_mode() {
-            INITIAL_COLLECTION_CYCLES
-        } else {
-            state.env.cycles_balance()
-        }
-    });
-    let ledger_id = read_state(|state| state.data.ledger_canister_id);
-    let caller = ic_cdk::api::msg_caller();
-    let bank_principal: Principal = read_state(|state| state.data.bank_principal_id);
+    let (ledger_id, bank_principal, cycles_management, cycles_available, caller, ogy_to_pay) =
+        read_state(|s| {
+            (
+                s.data.ledger_canister_id,
+                s.data.bank_principal_id,
+                s.data.cycles_management,
+                s.env.cycles_balance(),
+                s.env.caller(),
+                s.data.collection_request_fee,
+            )
+        });
 
-    if available_cycles < INITIAL_COLLECTION_CYCLES {
-        return Err(CreateCollectionError::InsufficientCycles);
+    let template_id = args.template_id.0.try_into().unwrap();
+
+    // in case the caller does not own the template
+    if !read_state(|s| s.data.owns_template(&caller, template_id)) {
+        return Err(CreateCollectionError::InvalidNftTemplateId);
     }
 
+    if cycles_available < cycles_management.cycles_for_collection_creation {
+        return Err(CreateCollectionError::Generic(GenericError::Other(
+            "Canister Out of cycles to spwan a new collection".to_string(),
+        )));
+    }
+
+    // Transfer OGY into claimlink as a temporary vault to refund user in case of a failure
     let transfer_from_args = icrc_ledger_types::icrc2::transfer_from::TransferFromArgs {
         spender_subaccount: None,
         from: Account {
@@ -41,7 +55,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
             subaccount: None,
         },
         to: Account {
-            owner: bank_principal,
+            owner: ic_cdk::api::canister_self(),
             subaccount: None,
         },
         amount: Nat::from(OGY_TO_PAY),
@@ -57,24 +71,29 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
             .await
             .map_err(|e| CreateCollectionError::Generic(GenericError::Other(e.to_string())))?;
 
-    println!("Response: {:?}", response);
-    if let icrc_ledger_canister::icrc2_transfer_from::Response::Err(e) = response {
-        return Err(CreateCollectionError::TransferFromError(e));
-    }
+    let ogy_payment_index: OgyTransferIndex = match response {
+        icrc_ledger_canister::icrc2_transfer_from::Response::Ok(index) => {
+            index.0.try_into().unwrap()
+        }
+        icrc_ledger_canister::icrc2_transfer_from::Response::Err(e) => {
+            return Err(CreateCollectionError::TransferFromError(e))
+        }
+    };
 
-    let mut sub_canister_manager = read_state(|state| state.data.sub_canister_manager.clone());
-
-    let origyn_nft_canister = sub_canister_manager
-        .create_canister(
-            claimlink_api::types::sub_canister::CreateOrigynNftCanisterArgs {
-                creator: caller,
-                logo: args.logo,
-                name: args.name.clone(),
-                symbol: args.symbol.clone(),
-                description: Some(args.description.clone()),
-            },
-        )
-        .await?;
+    let collection_request = CollectionRequest {
+        owner: caller,
+        ogy_payment_index,
+        metadata: CollectionMetadata {
+            name: args.name,
+            symbol: args.symbol,
+            description: args.description,
+            template_id,
+        },
+        status: InstallationStatus::Queued,
+        created_at: ic_cdk::api::time(),
+        updated_at: ic_cdk::api::time(),
+        ogy_charged: ogy_to_pay,
+    };
 
     let canister_id = origyn_nft_canister.canister_id();
 

@@ -10,15 +10,7 @@ type EventLog = StableLog<Event, StableMemory, StableMemory>;
 
 thread_local! {
        /// The log of the canister state modifications.
-    static EVENTS: RefCell<EventLog> =
-              RefCell::new(
-StableLog::init
-            (events_index_memory(), events_data_memory())
-            .expect("Failed to initialize events log")
-    );
-
-
-
+    static EVENTS: RefCell<EventLog> = RefCell::new(StableLog::init(events_index_memory(), events_data_memory()).expect("Failed to initialize events log"));
 }
 
 /// Appends the event to the event log.

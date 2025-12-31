@@ -1,18 +1,21 @@
 use candid::{CandidType, Principal};
+use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use types::TimestampNanos;
 
 use crate::{
-    canister_management::TaskError,
+    task_manager::TaskError,
     types::{templates::NftTemplateId, wasm::WasmHash},
 };
 
 pub type OgyTransferIndex = u128;
+pub type OgyChargedAmount = u128;
 
 #[derive(Debug, Clone)]
 pub struct CollectionRequest {
     pub owner: Principal,
     pub ogy_payment_index: OgyTransferIndex, // unique collection request Identifier
+    pub ogy_charged: OgyChargedAmount,
     pub metadata: CollectionMetadata,
     pub status: InstallationStatus,
     pub created_at: TimestampNanos,
@@ -20,11 +23,15 @@ pub struct CollectionRequest {
 }
 
 // Collection Metadata
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+#[derive(CandidType, Clone, Debug, Encode, Decode, PartialEq, Eq)]
 pub struct CollectionMetadata {
+    #[n(0)]
     pub name: String,
-    pub symbol: Option<String>,
-    pub description: Option<String>,
+    #[n(1)]
+    pub symbol: String,
+    #[n(2)]
+    pub description: String,
+    #[n(3)]
     pub template_id: NftTemplateId,
 }
 

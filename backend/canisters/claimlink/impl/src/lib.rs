@@ -1,11 +1,11 @@
 use ic_cdk::export_candid;
 
-pub mod canister_management;
 mod guards;
 mod lifecycle;
 pub mod queries;
 pub mod state;
 pub mod storage;
+pub mod task_manager;
 pub mod types;
 pub mod updates;
 pub mod utils;

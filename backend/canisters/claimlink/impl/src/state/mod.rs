@@ -98,7 +98,7 @@ pub struct Data {
     pub ogy_transfer_fee: u128,
 
     // owner to template map
-    pub template_owners: BTreeMap<Principal, NftTemplateId>,
+    pub template_owners: BTreeMap<Principal, Vec<NftTemplateId>>,
 
     // nft collection requersts
     pub collection_requests: BTreeMap<OgyTransferIndex, CollectionRequest>,
@@ -113,7 +113,16 @@ pub struct Data {
     pub reimbursement_queue: Vec<OgyTransferIndex>,
 }
 
-impl Data {}
+impl Data {
+    // check if an owner principal owns a template
+    pub fn owns_template(&self, owner: &Principal, template_id: NftTemplateId) -> bool {
+        if let Some(template_ids) = self.template_owners.get(owner) {
+            template_ids.iter().find(|id| **id == template_id).is_some()
+        } else {
+            false
+        }
+    }
+}
 
 impl TryFrom<InitArg> for RuntimeState {
     type Error = String;
