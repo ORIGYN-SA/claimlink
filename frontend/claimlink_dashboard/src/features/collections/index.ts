@@ -1,18 +1,27 @@
 // ============================================================================
+// Pages (Entry Points)
+// ============================================================================
+
+export { CollectionsPage } from './pages/collections-page'
+export { CollectionDetailPage } from './pages/collection-detail-page'
+export { NewCollectionPage } from './pages/new-collection-page'
+export { EditCollectionPage } from './pages/edit-collection-page'
+
+// ============================================================================
 // Components
 // ============================================================================
 
-export { CollectionsPage } from './components/collections-page'
-export { CollectionDetailPage } from './components/collection-detail-page'
 export { CollectionCard } from './components/collection-card'
 export { AddCollectionCard } from './components/add-collection-card'
 export { CollectionStatusBadge } from './components/collection-status-badge'
-export { NewCollectionPage } from './components/new-collection-page'
-export { CollectionFormSection } from './components/collection-form-section'
-export { PricingSidebar } from './components/pricing-sidebar'
-export { EditCollectionPage } from './components/edit-collection-page'
-export { EditCollectionFormSection } from './components/edit-collection-form-section'
-export { EditCollectionSidebar } from './components/edit-collection-sidebar'
+
+// Form components
+export {
+  CollectionFormSection,
+  EditCollectionFormSection,
+  EditCollectionSidebar,
+  PricingSidebar,
+} from './components/form'
 
 // ============================================================================
 // API Layer
@@ -28,6 +37,8 @@ export {
   useCollectionNfts,
   useAllUserNfts,
   useCreateCollection,
+  useCollectionTemplate,
+  useSetCollectionTemplate,
 } from './api/collections.queries';
 
 export * from './api/transformers';

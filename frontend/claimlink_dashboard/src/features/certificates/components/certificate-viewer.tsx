@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { CertificateTabs, type CertificateTab } from "./certificate-tabs";
+import { CertificateTabs, type CertificateTab } from "./detail/certificate-tabs";
 import {
   CertificateEvents,
   type CertificateEventsData,
-} from "./certificate-events";
+} from "./detail/certificate-events";
 import {
   CertificateLedger,
   type CertificateLedgerData,
-} from "./certificate-ledger";
+} from "./detail/certificate-ledger";
 import { CertificateFrame } from "./certificate-frame";
 import { InformationFrame } from "./information-frame";
 import {

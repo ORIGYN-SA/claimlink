@@ -1,4 +1,4 @@
-import { CertificateGallery } from "./certificate-gallery";
+import { CertificateGallery } from "./detail/certificate-gallery";
 
 interface InformationFrameProps {
   /** Title shown in sticky left column */

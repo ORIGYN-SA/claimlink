@@ -35,8 +35,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import { Trash2 } from "lucide-react";
 import Icon from "@/shared/ui/icons";
-import { TemplateSectionCard } from "./template-section-card";
-import { templateEditorAtom } from "../atoms/template-editor.atom";
+import { TemplateSectionCard } from "../template-section-card";
+import { templateEditorAtom } from "../../atoms/template-editor.atom";
 import type {
   TemplateItem,
   TemplateLanguage,

@@ -11,7 +11,7 @@ import {
   type ListAction,
 } from "@/components/common";
 import type { FilterOption } from "@/components/common";
-import { CollectionStatusBadge } from "./collection-status-badge";
+import { CollectionStatusBadge } from "../components/collection-status-badge";
 import { useListMyCollections } from "@/features/collections";
 import type { Collection, CollectionStatus } from "../types/collection.types";
 import { Eye, Edit, Trash2 } from "lucide-react";

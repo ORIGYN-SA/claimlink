@@ -12,21 +12,16 @@ export * from './create';
 // Transfer ownership components
 export * from './transfer-ownership';
 
-// Detail view components (not nested)
-export { CertificateDetailPage } from './certificate-detail-page';
+// Detail view components (moved to detail/ subdirectory)
+export * from './detail';
+
+// Pages (moved to ../pages/)
+export { CertificateDetailPage } from '../pages/certificate-detail-page';
+
+// Root-level components
 export { CertificateViewer } from './certificate-viewer';
 export { CertificateLaunchpad } from './certificate-launchpad';
-export { CertificateGallery } from './certificate-gallery';
-export { CertificateTabs } from './certificate-tabs';
 export { CertificateFrame } from './certificate-frame';
 export { InformationFrame } from './information-frame';
-export { CertificateInformation } from './certificate-information';
-export { CertificateLedger } from './certificate-ledger';
-export { CertificateEvents } from './certificate-events';
 export { CertificateDisplay } from './certificate-display';
 export { CertificateDetailActions } from './certificate-detail-actions';
-export { CertificateMetadataRow } from './certificate-metadata-row';
-export { CertificateLedgerTable } from './certificate-ledger-table';
-export { CertificateLedgerPagination } from './certificate-ledger-pagination';
-export { CertificateLedgerRow } from './certificate-ledger-row';
-export { CertificateEventRow } from './certificate-event-row';

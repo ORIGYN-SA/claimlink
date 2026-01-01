@@ -1,7 +1,8 @@
-import { Actor, type Agent } from "@dfinity/agent";
+import type { Agent } from "@dfinity/agent";
 import type { Principal } from "@dfinity/principal";
 import { idlFactory } from "@canisters/origyn_nft";
 import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "@canisters/origyn_nft";
+import { createCanisterActor, retryWithBackoff } from "@/shared/canister";
 
 /**
  * Certificates Service
@@ -11,41 +12,7 @@ import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "@c
  */
 export class CertificatesService {
   private static createActor(agent: Agent, canisterId: string): _SERVICE {
-    return Actor.createActor<_SERVICE>(idlFactory, {
-      agent,
-      canisterId,
-    });
-  }
-
-  /**
-   * Retry an operation with exponential backoff
-   * @private
-   */
-  private static async retryOperation<T>(
-    operation: () => Promise<T>,
-    maxRetries: number = 3,
-    operationName: string = 'Operation'
-  ): Promise<T> {
-    let lastError: Error | undefined;
-
-    for (let attempt = 0; attempt <= maxRetries; attempt++) {
-      try {
-        return await operation();
-      } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error));
-
-        if (attempt < maxRetries) {
-          const delay = 1000 * Math.pow(2, attempt); // 1s, 2s, 4s
-          console.warn(
-            `${operationName} failed (attempt ${attempt + 1}/${maxRetries + 1}), retrying in ${delay}ms...`,
-            lastError.message
-          );
-          await new Promise(resolve => setTimeout(resolve, delay));
-        }
-      }
-    }
-
-    throw new Error(`${operationName} failed after ${maxRetries + 1} attempts: ${lastError?.message}`);
+    return createCanisterActor<_SERVICE>(agent, canisterId, idlFactory);
   }
 
   /**
@@ -190,12 +157,11 @@ export class CertificatesService {
       const chunkData = Array.from(uint8Array.slice(start, end));
 
       // Upload chunk with retry on failure
-      await this.retryOperation(
+      await retryWithBackoff(
         async () => {
           await this.storeChunk(agent, canisterId, filePath, BigInt(i), chunkData);
         },
-        3,
-        `Chunk ${i + 1}/${totalChunks}`
+        { maxRetries: 3, operationName: `Chunk ${i + 1}/${totalChunks}` }
       );
 
       // Report progress

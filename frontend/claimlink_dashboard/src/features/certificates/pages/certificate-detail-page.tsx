@@ -1,14 +1,14 @@
 import { useMemo, useRef } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { CertificateDetailActions } from "./certificate-detail-actions";
-import { CertificateLaunchpad } from "./certificate-launchpad";
-import { CertificateViewer, type TemplateData } from "./certificate-viewer";
-import { CertificateQRCode } from "./certificate-qr-code";
+import { CertificateDetailActions } from "../components/certificate-detail-actions";
+import { CertificateLaunchpad } from "../components/certificate-launchpad";
+import { CertificateViewer, type TemplateData } from "../components/certificate-viewer";
+import { CertificateQRCode } from "../components/detail/certificate-qr-code";
 import { QRCodeService } from "../api/qr.service";
 import type { Certificate } from "@/features/certificates";
-import type { CertificateEventsData } from "./certificate-events";
-import type { CertificateLedgerData } from "./certificate-ledger";
-import { useCollectionTemplate } from "@/features/templates";
+import type { CertificateEventsData } from "../components/detail/certificate-events";
+import type { CertificateLedgerData } from "../components/detail/certificate-ledger";
+import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
   type ParsedOrigynMetadata,
@@ -32,8 +32,11 @@ export function CertificateDetailPage({
   const navigate = useNavigate();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Fetch template for this collection (uses mock templates for now)
-  const { data: template } = useCollectionTemplate(certificate.canisterId || '');
+  // Fetch template for this collection from on-chain collection metadata
+  const { data: templateStructure } = useCollectionTemplate({
+    collectionId: certificate.canisterId || '',
+    enabled: !!certificate.canisterId,
+  });
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -53,10 +56,10 @@ export function CertificateDetailPage({
       };
     }
 
-    // Otherwise, generate views from mock template
-    if (template?.structure) {
+    // Otherwise, generate views from collection's template structure
+    if (templateStructure) {
       try {
-        const origynViews = generateOrigynViews(template.structure);
+        const origynViews = generateOrigynViews(templateStructure);
 
         // Build mock metadata from certificate data
         const mockMetadata: ParsedOrigynMetadata = {
@@ -94,7 +97,7 @@ export function CertificateDetailPage({
     }
 
     return undefined;
-  }, [certificate, parsedMetadata, template]);
+  }, [certificate, parsedMetadata, templateStructure]);
 
   const handleEditTemplate = () => {
     navigate({

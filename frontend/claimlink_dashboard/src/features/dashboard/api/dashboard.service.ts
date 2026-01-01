@@ -1,4 +1,3 @@
-import { Actor } from '@dfinity/agent';
 import type { Agent } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import { idlFactory } from '@services/claimlink';
@@ -10,6 +9,7 @@ import {
   transformNftDetailsToCertificate,
   sortCertificatesByMintedDate,
 } from './transformers';
+import { createCanisterActor, getCanisterId } from '@/shared/canister';
 
 /**
  * Dashboard Service Layer
@@ -18,21 +18,11 @@ import {
  * and recent activity. Integrates with IC canisters for real-time data.
  */
 
-const CLAIMLINK_CANISTER_ID =
-  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || '';
-
 /**
  * Create a ClaimLink canister actor
  */
 function createActor(agent: Agent): _SERVICE {
-  if (!CLAIMLINK_CANISTER_ID) {
-    throw new Error('VITE_CLAIMLINK_CANISTER_ID not set in environment');
-  }
-
-  return Actor.createActor<_SERVICE>(idlFactory, {
-    agent,
-    canisterId: CLAIMLINK_CANISTER_ID,
-  });
+  return createCanisterActor<_SERVICE>(agent, getCanisterId('claimlink'), idlFactory);
 }
 
 export interface DashboardStatusCounts {

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { TemplatesActions } from "./templates-actions";
+import { TemplatesActions } from "../components/templates-actions";
 import { Pagination, GridOnlyContainer } from "@/components/common";
-import { TemplateCard } from "./template-card";
+import { TemplateCard } from "../components/template-card";
 import type { Template } from "@/shared/data/templates";
 import { mockTemplates } from "@/shared/data/templates";
 

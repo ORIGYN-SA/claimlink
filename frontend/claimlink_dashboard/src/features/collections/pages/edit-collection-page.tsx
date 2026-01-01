@@ -1,8 +1,8 @@
 import { useState, useRef } from 'react';
 import { mockTemplates } from '@/shared/data/templates';
 import { getCollectionById } from '@/shared/data/collections';
-import { EditCollectionFormSection } from './edit-collection-form-section';
-import { EditCollectionSidebar } from './edit-collection-sidebar';
+import { EditCollectionFormSection } from '../components/form/edit-collection-form-section';
+import { EditCollectionSidebar } from '../components/form/edit-collection-sidebar';
 
 interface EditCollectionPageProps {
   collectionId: string;

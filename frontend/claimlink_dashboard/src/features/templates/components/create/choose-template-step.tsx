@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TemplateCard } from './template-card';
+import { TemplateCard } from '../template-card';
 import { templateOptions, manualTemplateOption, type Template } from '@/shared/data';
 
 interface ChooseTemplateStepProps {

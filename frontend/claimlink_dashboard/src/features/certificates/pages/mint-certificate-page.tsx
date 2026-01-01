@@ -8,8 +8,8 @@ import {
   type ListAction,
   TokenStatusBadge,
 } from "@/components/common";
-import { CertificatesActions } from "./certificates-actions";
-import type { Certificate } from "../../types/certificate.types";
+import { CertificatesActions } from "../components/list";
+import type { Certificate } from "../types/certificate.types";
 import { Eye, Edit, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAllUserNfts } from "@/features/collections";
@@ -37,14 +37,17 @@ export function MintCertificatePage() {
     });
 
     navigate({
-      to: '/mint_certificate/$certificateId',
-      params: { certificateId }
+      to: "/mint_certificate/$certificateId",
+      params: { certificateId },
     });
   };
 
   const handleMintCertificate = () => {
     console.log("Mint certificate clicked");
-    navigate({ to: "/mint_certificate/new", search: { collectionId: undefined } });
+    navigate({
+      to: "/mint_certificate/new",
+      search: { collectionId: undefined },
+    });
   };
 
   const handleSearchChange = (query: string) => {

@@ -1,7 +1,7 @@
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CertificateQRCode } from "./certificate-qr-code";
+import { CertificateQRCode } from "./detail/certificate-qr-code";
 import { QRCodeService } from "../api/qr.service";
 
 interface CertificateLaunchpadProps {

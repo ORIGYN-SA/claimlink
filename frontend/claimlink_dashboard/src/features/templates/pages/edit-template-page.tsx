@@ -8,8 +8,8 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { EditTemplateStepV2 } from './edit-template-step-v2';
-import { PreviewDeployStep } from './preview-deploy-step';
+import { EditTemplateStepV2 } from '../components/create/edit-template-step-v2';
+import { PreviewDeployStep } from '../components/create/preview-deploy-step';
 import { type Template, getTemplateById } from '@/shared/data';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -31,9 +31,10 @@ import {
 import {
   useMintCertificateWithTemplate,
   useUpdateCertificateWithTemplate,
-  useCertificate
+  useCertificate,
 } from "@/features/certificates";
-import { useSetCollectionTemplate } from "@/features/templates";
+import { useCollectionTemplate } from "@/features/collections";
+import { mockTemplates } from "@/shared/data/templates";
 import type { TemplateStructure } from "@/features/templates/types/template.types";
 
 /**
@@ -41,18 +42,18 @@ import type { TemplateStructure } from "@/features/templates/types/template.type
  */
 function reconstructFormData(
   metadata: Record<string, any>,
-  template: TemplateStructure
+  template: TemplateStructure,
 ): CertificateFormData {
   const formData: CertificateFormData = {};
 
   // Iterate through template items and extract values from metadata
-  template.sections.forEach(section => {
-    section.items.forEach(item => {
+  template.sections.forEach((section) => {
+    section.items.forEach((item) => {
       const value = metadata[item.id];
 
       if (value !== undefined && value !== null) {
         // For file/image fields, keep URL references
-        if (item.type === 'image' && typeof value === 'string') {
+        if (item.type === "image" && typeof value === "string") {
           formData[item.id] = value; // URL string
         } else {
           formData[item.id] = value;
@@ -65,79 +66,120 @@ function reconstructFormData(
 }
 
 interface CreateCertificatePageV2Props {
-  mode?: 'create' | 'edit';
+  mode?: "create" | "edit";
   onSubmit?: (data: CertificateFormData) => void;
   initialCollectionId?: string;
   certificateId?: string; // For edit mode: "collectionId:tokenId"
 }
 
 export function CreateCertificatePageV2({
-  mode = 'create',
+  mode = "create",
   onSubmit,
   initialCollectionId,
   certificateId,
 }: CreateCertificatePageV2Props) {
   const navigate = useNavigate();
   const [state, dispatch] = useAtom(certificateCreatorAtom);
-  const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(new Map());
+  const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(
+    new Map(),
+  );
 
   // Extract collection and token ID from certificateId in edit mode
-  const [editCollectionId, editTokenId] = mode === 'edit' && certificateId
-    ? certificateId.split(':')
-    : [null, null];
+  const [editCollectionId, editTokenId] =
+    mode === "edit" && certificateId ? certificateId.split(":") : [null, null];
 
   // Initialize collection if provided
   useEffect(() => {
     if (initialCollectionId && !state.selectedCollection) {
-      dispatch({ type: 'SET_SELECTED_COLLECTION', collectionId: initialCollectionId });
+      dispatch({
+        type: "SET_SELECTED_COLLECTION",
+        collectionId: initialCollectionId,
+      });
     }
   }, [initialCollectionId, state.selectedCollection, dispatch]);
 
   // Fetch certificate data in edit mode
   const { data: certificateData } = useCertificate(
-    editCollectionId || '',
-    editTokenId || '',
+    editCollectionId || "",
+    editTokenId || "",
     {
-      enabled: mode === 'edit' && !!editCollectionId && !!editTokenId,
-    }
+      enabled: mode === "edit" && !!editCollectionId && !!editTokenId,
+    },
   );
+
+  // Fetch template structure from collection metadata (for edit mode)
+  const { data: collectionTemplateStructure, isLoading: isLoadingTemplate } =
+    useCollectionTemplate({
+      collectionId: editCollectionId || "",
+      enabled: mode === "edit" && !!editCollectionId,
+    });
 
   // Initialize form with certificate data in edit mode
   useEffect(() => {
-    if (mode === 'edit' && certificateData) {
+    if (mode === "edit" && certificateData && !isLoadingTemplate) {
       const { parsedMetadata } = certificateData;
 
       // Set collection
       if (editCollectionId) {
         dispatch({
-          type: 'SET_SELECTED_COLLECTION',
-          collectionId: editCollectionId
+          type: "SET_SELECTED_COLLECTION",
+          collectionId: editCollectionId,
         });
       }
 
-      // Reconstruct template from parsed metadata
-      const template = parsedMetadata.templates?.certificateTemplate
-        || parsedMetadata.templates?.template;
+      // Get template from collection metadata (stored TemplateStructure)
+      // Fall back to mock templates for legacy collections
+      let templateStructure: TemplateStructure | null = collectionTemplateStructure ?? null;
 
-      if (template) {
-        dispatch({ type: 'SET_SELECTED_TEMPLATE', template });
+      if (!templateStructure) {
+        // Legacy fallback: try to find a mock template that matches
+        const fallbackTemplate = mockTemplates.find((t) => t.structure);
+        if (fallbackTemplate?.structure) {
+          console.warn(
+            `Collection ${editCollectionId} has no stored template, using fallback: ${fallbackTemplate.name}`,
+          );
+          templateStructure = fallbackTemplate.structure;
+        }
+      }
 
-        // Build form data from metadata
+      if (templateStructure) {
+        // Create a Template object from the TemplateStructure
+        const template: Template = {
+          id: `collection-template-${editCollectionId}`,
+          name: "Collection Template",
+          description: "Template from collection metadata",
+          category: "existing",
+          structure: templateStructure,
+        };
+
+        dispatch({ type: "SET_SELECTED_TEMPLATE", template });
+
+        // Build form data from metadata using the collection's template structure
         const formData = reconstructFormData(
           parsedMetadata.metadata,
-          template
+          templateStructure,
         );
 
-        dispatch({ type: 'UPDATE_FORM_DATA', data: formData });
+        dispatch({ type: "UPDATE_FORM_DATA", data: formData });
+      } else {
+        console.error(
+          "Cannot edit certificate: No template found in collection or fallback templates",
+        );
+        toast.error("Cannot load template for editing. Please contact support.");
       }
     }
-  }, [mode, certificateData, dispatch, editCollectionId]);
-
-  const setCollectionTemplate = useSetCollectionTemplate();
+  }, [
+    mode,
+    certificateData,
+    collectionTemplateStructure,
+    isLoadingTemplate,
+    dispatch,
+    editCollectionId,
+  ]);
 
   const mintMutation = useMintCertificateWithTemplate({
     onUploadProgress: (fieldId, progress) => {
-      setUploadProgress(prev => {
+      setUploadProgress((prev) => {
         const updated = new Map(prev);
         updated.set(fieldId, progress);
         return updated;
@@ -146,7 +188,7 @@ export function CreateCertificatePageV2({
     onSuccess: (tokenId) => {
       toast.success(`Certificate minted successfully! Token ID: ${tokenId}`);
       setUploadProgress(new Map()); // Clear progress
-      dispatch({ type: 'RESET_ALL' });
+      dispatch({ type: "RESET_ALL" });
       navigate({
         to: "/collections/$collectionId",
         params: { collectionId: state.selectedCollection },
@@ -160,16 +202,16 @@ export function CreateCertificatePageV2({
 
   const updateMutation = useUpdateCertificateWithTemplate({
     onUploadProgress: (fieldId, progress) => {
-      setUploadProgress(prev => {
+      setUploadProgress((prev) => {
         const updated = new Map(prev);
         updated.set(fieldId, progress);
         return updated;
       });
     },
     onSuccess: (tokenId) => {
-      toast.success('Certificate updated successfully!');
+      toast.success("Certificate updated successfully!");
       setUploadProgress(new Map()); // Clear progress
-      dispatch({ type: 'RESET_ALL' });
+      dispatch({ type: "RESET_ALL" });
       navigate({
         to: "/mint_certificate/$certificateId",
         params: { certificateId: `${state.selectedCollection}:${tokenId}` },
@@ -182,32 +224,30 @@ export function CreateCertificatePageV2({
   });
 
   // Select the active mutation based on mode
-  const activeMutation = mode === 'edit' ? updateMutation : mintMutation;
+  const activeMutation = mode === "edit" ? updateMutation : mintMutation;
 
   const handleTemplateChange = (template: Template | null) => {
-    dispatch({ type: 'SET_SELECTED_TEMPLATE', template });
+    dispatch({ type: "SET_SELECTED_TEMPLATE", template });
 
     // Initialize form data with template defaults when template changes
     if (template) {
-      dispatch({ type: 'UPDATE_FORM_DATA', data: getInitialFormData(template) });
-    } else {
-      dispatch({ type: 'RESET_FORM_DATA' });
-    }
-
-    dispatch({ type: 'CLEAR_ALL_FILE_FIELDS' });
-    dispatch({ type: 'CLEAR_ALL_VALIDATION_ERRORS' });
-
-    // Associate template with collection
-    if (template && state.selectedCollection) {
-      setCollectionTemplate.mutate({
-        collectionId: state.selectedCollection,
-        templateId: template.id,
+      dispatch({
+        type: "UPDATE_FORM_DATA",
+        data: getInitialFormData(template),
       });
+    } else {
+      dispatch({ type: "RESET_FORM_DATA" });
     }
+
+    dispatch({ type: "CLEAR_ALL_FILE_FIELDS" });
+    dispatch({ type: "CLEAR_ALL_VALIDATION_ERRORS" });
+
+    // Note: Template is now stored in collection metadata during collection creation
+    // No need to associate here - CollectionSection will fetch it from collection
   };
 
   const handleCollectionChange = (collectionId: string) => {
-    dispatch({ type: 'SET_SELECTED_COLLECTION', collectionId });
+    dispatch({ type: "SET_SELECTED_COLLECTION", collectionId });
   };
 
   // Calculate form progress (only if template is selected)
@@ -219,8 +259,8 @@ export function CreateCertificatePageV2({
     : false;
 
   const handleFormDataChange = (data: CertificateFormData) => {
-    dispatch({ type: 'UPDATE_FORM_DATA', data });
-    dispatch({ type: 'CLEAR_ALL_VALIDATION_ERRORS' });
+    dispatch({ type: "UPDATE_FORM_DATA", data });
+    dispatch({ type: "CLEAR_ALL_VALIDATION_ERRORS" });
 
     // Extract file fields from form data
     const newFileFields = new Map<string, File[]>();
@@ -239,14 +279,17 @@ export function CreateCertificatePageV2({
           }
         }
         if (files.length > 0) {
-          newFileFields.set(key, files.map((f) => f.file));
+          newFileFields.set(
+            key,
+            files.map((f) => f.file),
+          );
         }
       }
     });
 
     // Update file fields in state
     newFileFields.forEach((files, key) => {
-      dispatch({ type: 'SET_FILE_FIELD', field: key, files });
+      dispatch({ type: "SET_FILE_FIELD", field: key, files });
     });
   };
 
@@ -272,14 +315,14 @@ export function CreateCertificatePageV2({
     if (!validation.isValid) {
       // Set validation errors in state
       Object.entries(validation.errors).forEach(([field, error]) => {
-        dispatch({ type: 'SET_VALIDATION_ERROR', field, error });
+        dispatch({ type: "SET_VALIDATION_ERROR", field, error });
       });
       toast.error("Please fix validation errors");
       return;
     }
 
     try {
-      if (mode === 'edit') {
+      if (mode === "edit") {
         toast.info("Updating certificate...");
 
         if (!editTokenId) {
@@ -324,7 +367,10 @@ export function CreateCertificatePageV2({
       // Call optional callback
       onSubmit?.(state.formData);
     } catch (error: unknown) {
-      console.error(mode === 'edit' ? "Update error:" : "Minting error:", error);
+      console.error(
+        mode === "edit" ? "Update error:" : "Minting error:",
+        error,
+      );
       // Error toast is handled by mutation onError
     }
   };
@@ -378,8 +424,10 @@ export function CreateCertificatePageV2({
             <CollectionSection
               onTemplateChange={handleTemplateChange}
               onCollectionChange={handleCollectionChange}
-              initialCollectionId={initialCollectionId || editCollectionId || undefined}
-              disabled={mode === 'edit'} // Disable in edit mode
+              initialCollectionId={
+                initialCollectionId || editCollectionId || undefined
+              }
+              disabled={mode === "edit"} // Disable in edit mode
             />
 
             {/* Dynamic Template Form - Only show if template selected */}
@@ -410,11 +458,13 @@ export function CreateCertificatePageV2({
                   Please fix the following errors:
                 </h3>
                 <ul className="list-disc list-inside space-y-1">
-                  {Object.entries(state.validationErrors).map(([itemId, error]) => (
-                    <li key={itemId} className="text-sm text-red-600">
-                      {error}
-                    </li>
-                  ))}
+                  {Object.entries(state.validationErrors).map(
+                    ([itemId, error]) => (
+                      <li key={itemId} className="text-sm text-red-600">
+                        {error}
+                      </li>
+                    ),
+                  )}
                 </ul>
               </Card>
             )}
@@ -425,9 +475,9 @@ export function CreateCertificatePageV2({
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-[#69737c]">
-                      {mode === 'edit'
-                        ? 'Updating certificate...'
-                        : 'Minting certificate with template...'}
+                      {mode === "edit"
+                        ? "Updating certificate..."
+                        : "Minting certificate with template..."}
                     </span>
                     <span className="font-medium text-[#222526]">
                       Processing
@@ -437,24 +487,26 @@ export function CreateCertificatePageV2({
                   {/* Show upload progress for each field */}
                   {uploadProgress.size > 0 && (
                     <div className="space-y-3">
-                      {Array.from(uploadProgress.entries()).map(([fieldId, progress]) => (
-                        <div key={fieldId} className="space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span className="text-[#69737c]">
-                              Uploading {fieldId}
-                            </span>
-                            <span className="font-medium text-[#222526]">
-                              {Math.round(progress)}%
-                            </span>
+                      {Array.from(uploadProgress.entries()).map(
+                        ([fieldId, progress]) => (
+                          <div key={fieldId} className="space-y-1">
+                            <div className="flex justify-between text-xs">
+                              <span className="text-[#69737c]">
+                                Uploading {fieldId}
+                              </span>
+                              <span className="font-medium text-[#222526]">
+                                {Math.round(progress)}%
+                              </span>
+                            </div>
+                            <div className="w-full bg-[#e1e1e1] rounded-full h-1.5">
+                              <div
+                                className="bg-[#615bff] h-1.5 rounded-full transition-all duration-300"
+                                style={{ width: `${progress}%` }}
+                              />
+                            </div>
                           </div>
-                          <div className="w-full bg-[#e1e1e1] rounded-full h-1.5">
-                            <div
-                              className="bg-[#615bff] h-1.5 rounded-full transition-all duration-300"
-                              style={{ width: `${progress}%` }}
-                            />
-                          </div>
-                        </div>
-                      ))}
+                        ),
+                      )}
                     </div>
                   )}
 
@@ -487,9 +539,13 @@ export function CreateCertificatePageV2({
                     disabled={isBusy || !state.selectedCollection}
                   >
                     {activeMutation.isPending
-                      ? mode === 'edit' ? "Updating..." : "Minting..."
+                      ? mode === "edit"
+                        ? "Updating..."
+                        : "Minting..."
                       : isComplete
-                        ? mode === 'edit' ? "Update Certificate" : "Mint Certificate"
+                        ? mode === "edit"
+                          ? "Update Certificate"
+                          : "Mint Certificate"
                         : `Complete Form (${progress}%)`}
                   </Button>
                 </div>

@@ -1,4 +1,3 @@
-import { Actor } from '@dfinity/agent';
 import type { Agent } from '@dfinity/agent';
 import type { Principal } from '@dfinity/principal';
 import { idlFactory } from '@canisters/claimlink';
@@ -10,27 +9,23 @@ import type {
   Result,
 } from '@canisters/claimlink';
 import type { Collection } from '../types/collection.types';
+import type { TemplateStructure } from '@/features/templates/types/template.types';
 import {
   transformCollectionInfo,
   transformPaginationArgs,
   formatCreateCollectionError,
 } from './transformers';
-
-const CLAIMLINK_CANISTER_ID =
-  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || '';
+import { createCanisterActor, getCanisterId } from '@/shared/canister';
+import {
+  serializeTemplateForOrigyn,
+  deserializeTemplateFromOrigyn,
+} from '@/features/templates/utils/template-serializer';
 
 /**
  * Create a ClaimLink canister actor
  */
 function createActor(agent: Agent): _SERVICE {
-  if (!CLAIMLINK_CANISTER_ID) {
-    throw new Error('VITE_CLAIMLINK_CANISTER_ID not set in environment');
-  }
-
-  return Actor.createActor<_SERVICE>(idlFactory, {
-    agent,
-    canisterId: CLAIMLINK_CANISTER_ID,
-  });
+  return createCanisterActor<_SERVICE>(agent, getCanisterId('claimlink'), idlFactory);
 }
 
 export class CollectionsService {
@@ -241,13 +236,11 @@ export class CollectionsService {
       symbol?: string;
     }
   ): Promise<void> {
-    // Import ORIGYN NFT IDL factory dynamically to avoid circular dependencies
-    const { idlFactory } = await import('@canisters/origyn_nft');
+    // Import ORIGYN NFT IDL factory and types dynamically to avoid circular dependencies
+    const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+    type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
 
-    const actor = Actor.createActor(idlFactory, {
-      agent,
-      canisterId: collectionCanisterId,
-    });
+    const actor = createCanisterActor<OrigynNftService>(agent, collectionCanisterId, origynIdlFactory);
 
     const result = await actor.update_collection_metadata({
       logo: updates.logo ? [updates.logo] : [],
@@ -271,5 +264,85 @@ export class CollectionsService {
       const errorKey = Object.keys(result.Err)[0];
       throw new Error(`Failed to update collection metadata: ${errorKey}`);
     }
+  }
+
+  /**
+   * Store template structure in collection metadata
+   *
+   * Serializes and stores the TemplateStructure in the collection's
+   * collection_metadata field for later retrieval during certificate editing.
+   *
+   * @param agent - Authenticated IC agent
+   * @param collectionCanisterId - Collection canister ID
+   * @param template - The template structure to store
+   * @throws Error if storage fails
+   */
+  static async setCollectionTemplate(
+    agent: Agent,
+    collectionCanisterId: string,
+    template: TemplateStructure
+  ): Promise<void> {
+    const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+    type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+
+    const actor = createCanisterActor<OrigynNftService>(
+      agent,
+      collectionCanisterId,
+      origynIdlFactory
+    );
+
+    const serializedTemplate = serializeTemplateForOrigyn(template);
+
+    const result = await actor.update_collection_metadata({
+      logo: [],
+      description: [],
+      name: [],
+      symbol: [],
+      supply_cap: [],
+      max_query_batch_size: [],
+      max_update_batch_size: [],
+      max_take_value: [],
+      default_take_value: [],
+      max_memo_size: [],
+      atomic_batch_transfers: [],
+      tx_window: [],
+      permitted_drift: [],
+      max_canister_storage_threshold: [],
+      collection_metadata: [[serializedTemplate]],
+    });
+
+    if ('Err' in result) {
+      const errorKey = Object.keys(result.Err)[0];
+      throw new Error(`Failed to store collection template: ${errorKey}`);
+    }
+  }
+
+  /**
+   * Fetch template structure from collection metadata
+   *
+   * Retrieves and deserializes the TemplateStructure stored in the collection's
+   * collection_metadata field.
+   *
+   * @param agent - IC agent (can be unauthenticated for read-only)
+   * @param collectionCanisterId - Collection canister ID
+   * @returns The template structure, or null if not found
+   */
+  static async getCollectionTemplate(
+    agent: Agent,
+    collectionCanisterId: string
+  ): Promise<TemplateStructure | null> {
+    const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+    type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+
+    const actor = createCanisterActor<OrigynNftService>(
+      agent,
+      collectionCanisterId,
+      origynIdlFactory
+    );
+
+    // Fetch collection metadata via ICRC7
+    const metadata = await actor.icrc7_collection_metadata();
+
+    return deserializeTemplateFromOrigyn(metadata);
   }
 }

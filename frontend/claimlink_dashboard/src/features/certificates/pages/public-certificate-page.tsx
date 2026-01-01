@@ -1,18 +1,21 @@
-import { useMemo, useRef } from 'react';
-import { Link } from '@tanstack/react-router';
-import { usePublicCertificate } from '../api/certificates.queries';
-import { CertificateLaunchpad } from './certificate-launchpad';
-import { CertificateViewer, type TemplateData } from './certificate-viewer';
-import { CertificateQRCode } from './certificate-qr-code';
-import { QRCodeService } from '../api/qr.service';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { useCollectionTemplate } from '@/features/templates';
+import { useMemo, useRef } from "react";
+import { Link } from "@tanstack/react-router";
+import { usePublicCertificate } from "../api/certificates.queries";
+import { CertificateLaunchpad } from "../components/certificate-launchpad";
+import {
+  CertificateViewer,
+  type TemplateData,
+} from "../components/certificate-viewer";
+import { CertificateQRCode } from "../components/detail/certificate-qr-code";
+import { QRCodeService } from "../api/qr.service";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
   type ParsedOrigynMetadata,
-} from '@/features/template-renderer';
-import { toast } from 'sonner';
+} from "@/features/template-renderer";
+import { toast } from "sonner";
 
 export interface PublicCertificatePageProps {
   collectionId: string;
@@ -31,12 +34,21 @@ export interface PublicCertificatePageProps {
  * - QR code display and download
  * - CTA to login for management features
  */
-export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertificatePageProps) => {
-  const { data, isLoading, error } = usePublicCertificate(collectionId, tokenId);
+export const PublicCertificatePage = ({
+  collectionId,
+  tokenId,
+}: PublicCertificatePageProps) => {
+  const { data, isLoading, error } = usePublicCertificate(
+    collectionId,
+    tokenId,
+  );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Fetch template for this collection (uses mock templates for now)
-  const { data: template } = useCollectionTemplate(collectionId);
+  // Fetch template for this collection from on-chain collection metadata
+  const { data: templateStructure } = useCollectionTemplate({
+    collectionId,
+    enabled: !!collectionId,
+  });
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -55,21 +67,21 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
         metadata: parsedMetadata,
         canisterId,
         tokenId: token,
-        language: 'en',
+        language: "en",
       };
     }
 
-    // Otherwise, generate views from mock template
-    if (template?.structure) {
+    // Otherwise, generate views from collection's template structure
+    if (templateStructure) {
       try {
-        const origynViews = generateOrigynViews(template.structure);
+        const origynViews = generateOrigynViews(templateStructure);
 
         // Build mock metadata from certificate data
         const mockMetadata: ParsedOrigynMetadata = {
           metadata: {
-            company_name: certificate.collectionName || 'Unknown Company',
-            certificate_title: certificate.title || 'Certificate',
-            certified_by: certificate.certifiedBy || 'ORIGYN',
+            company_name: certificate.collectionName || "Unknown Company",
+            certificate_title: certificate.title || "Certificate",
+            certified_by: certificate.certifiedBy || "ORIGYN",
           },
           templates: {
             certificateTemplate: origynViews.certificateTemplate,
@@ -90,30 +102,30 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
           metadata: mockMetadata,
           canisterId,
           tokenId: token,
-          language: 'en',
+          language: "en",
         };
       } catch (error) {
-        console.error('Failed to generate template views:', error);
+        console.error("Failed to generate template views:", error);
         return undefined;
       }
     }
 
     return undefined;
-  }, [data, template, collectionId, tokenId]);
+  }, [data, templateStructure, collectionId, tokenId]);
 
   const handleDownloadQR = async () => {
     if (!qrCanvasRef.current || !data) {
-      toast.error('QR code not ready');
+      toast.error("QR code not ready");
       return;
     }
 
     try {
       const filename = QRCodeService.generateFilename(data.certificate.title);
       await QRCodeService.downloadQRCode(qrCanvasRef.current, filename);
-      toast.success('QR code downloaded successfully!');
+      toast.success("QR code downloaded successfully!");
     } catch (error) {
-      console.error('Failed to download QR code:', error);
-      toast.error('Failed to download QR code');
+      console.error("Failed to download QR code:", error);
+      toast.error("Failed to download QR code");
     }
   };
 
@@ -121,8 +133,12 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
     return (
       <div className="min-h-screen bg-[#fcfafa] flex items-center justify-center p-6">
         <div className="text-center">
-          <div className="text-lg font-medium text-charcoal mb-2">Loading certificate...</div>
-          <div className="text-slate">Please wait while we load the certificate.</div>
+          <div className="text-lg font-medium text-charcoal mb-2">
+            Loading certificate...
+          </div>
+          <div className="text-slate">
+            Please wait while we load the certificate.
+          </div>
         </div>
       </div>
     );
@@ -132,9 +148,12 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
     return (
       <div className="min-h-screen bg-[#fcfafa] flex items-center justify-center p-6">
         <Card className="max-w-md w-full p-8 text-center">
-          <h1 className="text-2xl font-bold text-charcoal mb-4">Certificate Not Found</h1>
+          <h1 className="text-2xl font-bold text-charcoal mb-4">
+            Certificate Not Found
+          </h1>
           <p className="text-slate mb-6">
-            The certificate you're looking for could not be found or does not exist.
+            The certificate you're looking for could not be found or does not
+            exist.
           </p>
           <p className="text-sm text-slate mb-6">
             Certificate ID: {collectionId}:{tokenId}
@@ -148,7 +167,10 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
   }
 
   const { certificate } = data;
-  const qrValue = QRCodeService.getCertificateVerificationUrl(collectionId, tokenId);
+  const qrValue = QRCodeService.getCertificateVerificationUrl(
+    collectionId,
+    tokenId,
+  );
 
   return (
     <div className="min-h-screen bg-[#fcfafa]">
@@ -178,7 +200,9 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
             </Button>
             <Link
               to="/login"
-              search={{ returnTo: `/mint_certificate/${collectionId}:${tokenId}` }}
+              search={{
+                returnTo: `/mint_certificate/${collectionId}:${tokenId}`,
+              }}
             >
               <Button size="sm">Login to Manage</Button>
             </Link>
@@ -212,14 +236,19 @@ export const PublicCertificatePage = ({ collectionId, tokenId }: PublicCertifica
         <Card className="bg-azure/10 border-azure p-6">
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
-              <h3 className="font-semibold mb-2 text-charcoal">Need to manage this certificate?</h3>
+              <h3 className="font-semibold mb-2 text-charcoal">
+                Need to manage this certificate?
+              </h3>
               <p className="text-slate mb-4">
-                Login to view transaction history, edit certificate details, transfer ownership, and access additional management features.
+                Login to view transaction history, edit certificate details,
+                transfer ownership, and access additional management features.
               </p>
             </div>
             <Link
               to="/login"
-              search={{ returnTo: `/mint_certificate/${collectionId}:${tokenId}` }}
+              search={{
+                returnTo: `/mint_certificate/${collectionId}:${tokenId}`,
+              }}
             >
               <Button>Login</Button>
             </Link>

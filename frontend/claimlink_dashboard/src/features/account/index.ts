@@ -16,6 +16,21 @@ export { TransactionTable } from './components/transaction-table';
 export { FilterControls } from './components/filter-controls';
 
 // ============================================================================
+// Hooks
+// ============================================================================
+
+export {
+  useFetchLedgerBalance,
+  useFetchLedgerDecimals,
+  useFetchAccountTransactions,
+} from './hooks';
+export type {
+  LedgerBalanceData,
+  UseFetchLedgerBalanceOptions,
+  UseFetchLedgerBalanceResult,
+} from './hooks';
+
+// ============================================================================
 // API Layer
 // ============================================================================
 

@@ -1,15 +1,15 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
-import { mockTemplates } from '@/shared/data/templates';
-import { CollectionFormSection } from './collection-form-section';
-import { PricingSidebar } from './pricing-sidebar';
+import { mockTemplates, getTemplateById } from '@/shared/data/templates';
+import { CollectionFormSection } from '../components/form/collection-form-section';
+import { PricingSidebar } from '../components/form/pricing-sidebar';
 import { useAuth } from '@/features/auth';
 import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
 import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
 import useApprove from '@services/ledger/hooks/useApprove';
 import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
-import { useCreateCollection, CollectionsService } from '@/features/collections';
+import { useCreateCollection, useSetCollectionTemplate, CollectionsService } from '@/features/collections';
 
 /**
  * SMART COMPONENT - Manages all business logic and state
@@ -60,18 +60,15 @@ export function NewCollectionPage() {
     }
   );
 
-  // Approval and creation hooks
+  // Approval, creation, and template hooks
   const approveMutation = useApprove(ogyToken?.canister_id || '', authenticatedAgent);
   const createCollectionMutation = useCreateCollection({
-    onSuccess: (canisterId) => {
-      toast.success('Collection created successfully!');
-      navigate({ to: `/collections/${canisterId}` });
-    },
     onError: (error) => {
       toast.error(error.message);
       setIsSubmitting(false);
     },
   });
+  const setCollectionTemplateMutation = useSetCollectionTemplate();
 
   // Validation constants
   const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
@@ -136,6 +133,18 @@ export function NewCollectionPage() {
 
     if (!collectionName || !collectionSymbol || !collectionDescription) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+
+    if (!selectedTemplate) {
+      toast.error('Please select a template for the collection');
+      return;
+    }
+
+    // Verify the selected template exists and has a structure
+    const template = getTemplateById(selectedTemplate);
+    if (!template?.structure) {
+      toast.error('Selected template is invalid. Please choose another.');
       return;
     }
 
@@ -217,6 +226,20 @@ export function NewCollectionPage() {
           toast.warning('Collection created, but logo upload failed. You can add it later.');
           // Continue - collection exists, just without logo
         }
+      }
+
+      // Step 5: Store template structure in collection metadata
+      try {
+        setSubmitButtonText('Storing template...');
+        await setCollectionTemplateMutation.mutateAsync({
+          collectionId: canisterId,
+          template: template.structure,
+        });
+        toast.success('Template stored successfully!');
+      } catch (error) {
+        console.error('Template storage failed:', error);
+        toast.warning('Collection created, but template storage failed. Certificate editing may be limited.');
+        // Continue - collection exists, just without template for editing
       }
 
       toast.success('Collection created successfully!');
