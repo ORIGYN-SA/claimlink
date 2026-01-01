@@ -1,4 +1,5 @@
 use bity_ic_canister_state_macros::canister_state;
+use bity_ic_utils::principal::PrincipalDotAccountFormat;
 use candid::{CandidType, Principal};
 use claimlink_api::{
     cycles::CyclesManagement,
@@ -13,7 +14,10 @@ use utils::{
 };
 
 use crate::types::{
-    collections::{CollectionRequest, OgyTransferIndex},
+    collections::{
+        CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount,
+        OgyTransferIndex,
+    },
     templates::NftTemplateId,
     wasm::WasmHash,
 };
@@ -122,6 +126,64 @@ impl Data {
             false
         }
     }
+
+    pub fn record_pending_collection_request(
+        &mut self,
+        metadata: CollectionMetadata,
+        ogy_payment_index: OgyTransferIndex,
+        ogy_charged: OgyChargedAmount,
+        created_at: TimestampNanos,
+        owner: Principal,
+    ) {
+        self.collection_requests.insert(
+            ogy_payment_index,
+            CollectionRequest {
+                owner,
+                ogy_payment_index,
+                ogy_charged,
+                metadata,
+                status: InstallationStatus::Queued,
+                created_at,
+                updated_at: created_at,
+            },
+        );
+
+        self.pending_queue.push(ogy_payment_index);
+    }
+
+    pub fn record_created_canister(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        canister_id: Principal,
+    ) {
+        if let Some(collection) = self.collection_requests.get_mut(&ogy_payment_index) {
+            collection.status = InstallationStatus::Created {
+                principal: canister_id,
+            }
+        }
+    }
+
+    pub fn record_installed_canister(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        wasm_hash: WasmHash,
+    ) {
+        if let Some(collection) = self.collection_requests.get_mut(&ogy_payment_index) {
+            let canister_id = collection
+                .status
+                .canister_id()
+                .expect("Bug: Canister id should be available at this point");
+            collection.status = InstallationStatus::Installed {
+                principal: canister_id,
+                wasm_hash,
+            };
+
+            self.pending_queue
+                .retain(|index| *index != ogy_payment_index);
+        }
+    }
+
+    //pub fn record_failed_installation(&mut self)
 }
 
 impl TryFrom<InitArg> for RuntimeState {

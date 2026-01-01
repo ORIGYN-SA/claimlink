@@ -10,8 +10,8 @@ use tracing::{error, info};
 use crate::task_manager::TaskError;
 use crate::types::collections::CollectionRequest;
 
-async fn create_canister_once(
-    collection: CollectionRequest,
+pub async fn create_canister_once(
+    collection: &CollectionRequest,
     cycles_for_canister_creation: u128,
 ) -> Result<Principal, TaskError> {
     // check if the canister already exists

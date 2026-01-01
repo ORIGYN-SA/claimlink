@@ -12,20 +12,34 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::Init(init_arg) => {
             panic!("state re-initialization is not allowed: {init_arg:?}");
         }
-        EventType::Upgrade() => todo!(),
+        EventType::Upgrade() => {}
         EventType::CreateCollectionRequest {
             metadata,
             ogy_payment_index,
             created_at,
-        } => todo!(),
+            ogy_charged,
+            owner,
+        } => state.data.record_pending_collection_request(
+            metadata.clone(),
+            *ogy_payment_index,
+            *ogy_charged,
+            *created_at,
+            *owner,
+        ),
         EventType::CreatedCansiter {
             ogy_payment_index,
             canister_id,
-        } => todo!(),
+        } => {
+            state
+                .data
+                .record_created_canister(*ogy_payment_index, *canister_id);
+        }
         EventType::InstalledWasm {
             ogy_payment_index,
             wasm_hash,
-        } => todo!(),
+        } => state
+            .data
+            .record_installed_canister(*ogy_payment_index, wasm_hash.clone()),
     }
 }
 

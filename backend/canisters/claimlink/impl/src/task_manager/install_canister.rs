@@ -10,7 +10,7 @@ use crate::task_manager::TaskError;
 use crate::types::collections::CollectionRequest;
 use crate::types::wasm::WasmHash;
 
-async fn install_canister_once<I>(
+pub async fn install_canister_once<I>(
     collection: &CollectionRequest,
     wasm_hash: &WasmHash,
     init_args: &I,

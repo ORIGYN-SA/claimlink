@@ -4,7 +4,7 @@ use minicbor::{Decode, Encode};
 use types::TimestampNanos;
 
 use crate::types::{
-    collections::{CollectionMetadata, OgyTransferIndex},
+    collections::{CollectionMetadata, OgyChargedAmount, OgyTransferIndex},
     wasm::WasmHash,
 };
 
@@ -21,8 +21,12 @@ pub enum EventType {
         metadata: CollectionMetadata,
         #[cbor(n(1), with = "claimlink_api::cbor::u128")]
         ogy_payment_index: OgyTransferIndex,
-        #[n(2)]
+        #[cbor(n(2), with = "claimlink_api::cbor::u128")]
+        ogy_charged: OgyChargedAmount,
+        #[n(3)]
         created_at: TimestampNanos,
+        #[cbor(n(4), with = "claimlink_api::cbor::principal")]
+        owner: Principal,
     },
     #[n(3)]
     CreatedCansiter {
@@ -31,11 +35,11 @@ pub enum EventType {
         #[cbor(n(1), with = "claimlink_api::cbor::principal")]
         canister_id: Principal,
     },
-    #[n(3)]
+    #[n(4)]
     InstalledWasm {
         #[cbor(n(0), with = "claimlink_api::cbor::u128")]
         ogy_payment_index: OgyTransferIndex,
-        #[cbor(n(1), with = "claimlink_api::cbor::principal")]
+        #[n(1)]
         wasm_hash: WasmHash,
     },
 }
