@@ -26,7 +26,7 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
             *created_at,
             *owner,
         ),
-        EventType::CreatedCansiter {
+        EventType::CreatedCanister {
             ogy_payment_index,
             canister_id,
         } => {

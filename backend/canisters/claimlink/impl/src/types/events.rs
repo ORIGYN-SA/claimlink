@@ -3,9 +3,12 @@ use claimlink_api::{impl_storable_minicbor, init::InitArg};
 use minicbor::{Decode, Encode};
 use types::TimestampNanos;
 
-use crate::types::{
-    collections::{CollectionMetadata, OgyChargedAmount, OgyTransferIndex},
-    wasm::WasmHash,
+use crate::{
+    task_manager::TaskError,
+    types::{
+        collections::{CollectionMetadata, OgyChargedAmount, OgyTransferIndex},
+        wasm::WasmHash,
+    },
 };
 
 /// The event describing the  canister state transition.
@@ -29,7 +32,7 @@ pub enum EventType {
         owner: Principal,
     },
     #[n(3)]
-    CreatedCansiter {
+    CreatedCanister {
         #[cbor(n(0), with = "claimlink_api::cbor::u128")]
         ogy_payment_index: OgyTransferIndex,
         #[cbor(n(1), with = "claimlink_api::cbor::principal")]
@@ -41,6 +44,15 @@ pub enum EventType {
         ogy_payment_index: OgyTransferIndex,
         #[n(1)]
         wasm_hash: WasmHash,
+    },
+    #[n(5)]
+    FailedInstallation {
+        #[cbor(n(0), with = "claimlink_api::cbor::u128")]
+        ogy_payment_index: OgyTransferIndex,
+        #[n(1)]
+        reason: String,
+        #[cbor(n(2), with = "claimlink_api::cbor::principal::option")]
+        canister_id: Option<Principal>,
     },
 }
 

@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
+use std::fmt;
 use std::vec;
 
 use bity_ic_types::BuildVersion;
@@ -38,6 +38,44 @@ pub enum TaskError {
     ReimbursementError(TransferFromError),
 }
 
+impl fmt::Display for TaskError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            TaskError::CanisterCreationError(e) => {
+                write!(f, "Failed to create canister: {:?}", e)
+            }
+            TaskError::InstallCodeError(e) => {
+                write!(f, "Failed to install code: {:?}", e)
+            }
+            TaskError::CanisterStatusError(e) => {
+                write!(f, "Failed to check canister status: {:?}", e)
+            }
+            TaskError::WasmHashNotFound(hash) => {
+                write!(f, "WASM hash not found: {:?}", hash)
+            }
+            TaskError::InterCanisterCallError(e) => {
+                write!(f, "Inter-canister call error: {:?}", e)
+            }
+            TaskError::CanisterCallError(msg) => {
+                write!(f, "Canister call error: {}", msg)
+            }
+            TaskError::InsufficientCyclesToTopUp {
+                required,
+                available,
+            } => {
+                write!(
+                    f,
+                    "Insufficient cycles for top-up. Required: {}, Available: {}",
+                    required, available
+                )
+            }
+            TaskError::ReimbursementError(e) => {
+                write!(f, "Reimbursement failed: {:?}", e)
+            }
+        }
+    }
+}
+
 pub async fn create_and_install_canister(
     args: CreateCollectionArgs,
     owner: Principal,
@@ -69,24 +107,37 @@ pub async fn create_and_install_canister(
     });
 
     // create canister
-    match create_canister_once(&collection_request, cycles_for_canister_creation).await {
-        Ok(canister_id) => {
-            collection_request.status = InstallationStatus::Created {
-                principal: canister_id,
-            };
-            mutate_state(|s| {
-                process_event(
-                    s,
-                    EventType::CreatedCansiter {
-                        ogy_payment_index,
-                        canister_id,
-                    },
-                )
-            });
-            canister_id
-        }
-        Err(_) => todo!(),
-    };
+    let canister_id =
+        match create_canister_once(&collection_request, cycles_for_canister_creation).await {
+            Ok(canister_id) => {
+                collection_request.status = InstallationStatus::Created {
+                    principal: canister_id,
+                };
+                mutate_state(|s| {
+                    process_event(
+                        s,
+                        EventType::CreatedCanister {
+                            ogy_payment_index,
+                            canister_id,
+                        },
+                    )
+                });
+                canister_id
+            }
+            Err(e) => {
+                mutate_state(|s| {
+                    process_event(
+                        s,
+                        EventType::FailedInstallation {
+                            ogy_payment_index,
+                            reason: e.to_string(),
+                            canister_id: None,
+                        },
+                    )
+                });
+                return;
+            }
+        };
 
     // install wasm
 
@@ -139,6 +190,18 @@ pub async fn create_and_install_canister(
                 },
             )
         }),
-        Err(_) => todo!(),
+        Err(e) => {
+            mutate_state(|s| {
+                process_event(
+                    s,
+                    EventType::FailedInstallation {
+                        ogy_payment_index,
+                        reason: e.to_string(),
+                        canister_id: Some(canister_id),
+                    },
+                )
+            });
+            return;
+        }
     }
 }

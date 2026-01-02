@@ -1,3 +1,4 @@
+use claimlink_api::init::ClaimlinkArgs;
 use ic_cdk::export_candid;
 
 mod guards;

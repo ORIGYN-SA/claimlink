@@ -104,6 +104,8 @@ pub struct Data {
     // owner to template map
     pub template_owners: BTreeMap<Principal, Vec<NftTemplateId>>,
 
+    pub max_template_per_owner: u64,
+
     // nft collection requersts
     pub collection_requests: BTreeMap<OgyTransferIndex, CollectionRequest>,
 
@@ -156,10 +158,13 @@ impl Data {
         ogy_payment_index: OgyTransferIndex,
         canister_id: Principal,
     ) {
-        if let Some(collection) = self.collection_requests.get_mut(&ogy_payment_index) {
-            collection.status = InstallationStatus::Created {
-                principal: canister_id,
-            }
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        collection.status = InstallationStatus::Created {
+            principal: canister_id,
         }
     }
 
@@ -168,22 +173,100 @@ impl Data {
         ogy_payment_index: OgyTransferIndex,
         wasm_hash: WasmHash,
     ) {
-        if let Some(collection) = self.collection_requests.get_mut(&ogy_payment_index) {
-            let canister_id = collection
-                .status
-                .canister_id()
-                .expect("Bug: Canister id should be available at this point");
-            collection.status = InstallationStatus::Installed {
-                principal: canister_id,
-                wasm_hash,
-            };
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
 
-            self.pending_queue
-                .retain(|index| *index != ogy_payment_index);
+        let canister_id = collection
+            .status
+            .canister_id()
+            .expect("Bug: Canister id should be available at this point");
+        collection.status = InstallationStatus::Installed {
+            principal: canister_id,
+            wasm_hash,
+        };
+
+        self.pending_queue
+            .retain(|index| *index != ogy_payment_index);
+    }
+
+    pub fn record_failed_installation(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        reason: String,
+        canister_id: Option<Principal>,
+    ) {
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        match &collection.status {
+            InstallationStatus::Failed {
+                reason: _,
+                attempsts,
+                principal,
+            } => {
+                collection.status = InstallationStatus::Failed {
+                    reason,
+                    attempsts: *attempsts + 1,
+                    principal: *principal,
+                }
+            }
+            _ => {
+                collection.status = InstallationStatus::Failed {
+                    reason,
+                    attempsts: 1,
+                    principal: canister_id,
+                }
+            }
         }
     }
 
-    //pub fn record_failed_installation(&mut self)
+    pub fn record_reimbursement_request(&mut self, ogy_payment_index: OgyTransferIndex) {
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        collection.status = InstallationStatus::ReimbursingQueued;
+
+        self.pending_queue
+            .retain(|index| *index != ogy_payment_index);
+
+        self.reimbursement_queue.push(ogy_payment_index);
+    }
+
+    pub fn record_reimbursed_colllection(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        reimbursement_index: OgyTransferIndex,
+    ) {
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        collection.status = InstallationStatus::Reimbursed {
+            tx_index: reimbursement_index,
+        };
+
+        self.reimbursement_queue
+            .retain(|index| *index != ogy_payment_index);
+    }
+
+    pub fn record_failed_reimbursement(&mut self, ogy_payment_index: OgyTransferIndex) {
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        collection.status = InstallationStatus::QuarantinedReimbursement;
+
+        self.reimbursement_queue
+            .retain(|index| *index != ogy_payment_index);
+    }
 }
 
 impl TryFrom<InitArg> for RuntimeState {
@@ -208,6 +291,12 @@ impl TryFrom<InitArg> for RuntimeState {
             .try_into()
             .map_err(|_| "max_creation_retries too big".to_string())?;
 
+        let max_template_per_owner: u64 = value
+            .max_template_per_owner
+            .0
+            .try_into()
+            .map_err(|_| "max_template_per_owner too big".to_string())?;
+
         Ok(RuntimeState::new(
             CanisterEnv::new(value.test_mode),
             Data {
@@ -223,6 +312,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 max_creation_retries,
                 pending_queue: Default::default(),
                 reimbursement_queue: Default::default(),
+                max_template_per_owner,
             },
         ))
     }

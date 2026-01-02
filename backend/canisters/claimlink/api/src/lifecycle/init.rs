@@ -24,6 +24,8 @@ pub struct InitArg {
     #[cbor(n(7), with = "crate::cbor::nat")]
     /// creatio retry attampts after a failed collection creation
     pub max_creation_retries: Nat,
+    #[cbor(n(8), with = "crate::cbor::nat")]
+    pub max_template_per_owner: Nat,
 }
 
 #[derive(Deserialize, CandidType, Encode, Decode, Clone, Debug, PartialEq, Eq)]
@@ -42,6 +44,8 @@ pub struct UpgradeArg {
     #[cbor(n(5), with = "crate::cbor::nat")]
     /// creatio retry attampts after a failed collection creation
     pub max_creation_retries: Nat,
+    #[cbor(n(6), with = "crate::cbor::nat")]
+    pub max_template_per_owner: Nat,
 }
 
 #[derive(Deserialize, CandidType)]

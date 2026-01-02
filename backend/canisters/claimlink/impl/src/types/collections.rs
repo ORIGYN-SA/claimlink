@@ -1,6 +1,5 @@
 use candid::{CandidType, Principal};
 use minicbor::{Decode, Encode};
-use serde::{Deserialize, Serialize};
 use types::TimestampNanos;
 
 use crate::{
@@ -47,7 +46,7 @@ pub enum InstallationStatus {
         wasm_hash: WasmHash,
     },
     Failed {
-        reason: TaskError,
+        reason: String,
         attempsts: u64,
         principal: Option<Principal>, // in case cansiter creation passes but installation fails
     },
