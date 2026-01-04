@@ -25,6 +25,7 @@ use origyn_nft_canister_api::lifecycle::InitArgs as OrigynNftInitArgs;
 pub mod create_canister;
 pub mod install_canister;
 pub mod reimburse_ogy;
+pub mod retry_installation;
 
 #[derive(Clone, Debug)]
 pub enum TaskError {
@@ -140,45 +141,8 @@ pub async fn create_and_install_canister(
         };
 
     // install wasm
-
-    let mut permissions_map = HashMap::new();
-    permissions_map.insert(
-        owner,
-        vec![
-            Permission::Minting,
-            Permission::ManageAuthorities,
-            Permission::ReadUploads,
-            Permission::UpdateUploads,
-            Permission::UpdateCollectionMetadata,
-            Permission::UpdateMetadata,
-        ],
-    );
-
-    let nft_init_args = OrigynNftInitArgs {
-        test_mode,
-        version: BuildVersion::default(),
-        commit_hash: wasm_hash.to_string(),
-        permissions: PermissionManager::new(permissions_map),
-        description: Some(collection_request.metadata.description.clone()),
-        symbol: collection_request.metadata.symbol.clone(),
-        name: collection_request.metadata.name.clone(),
-        logo: None,
-        collection_metadata: HashMap::new(),
-        approval_init: InitApprovalsArg {
-            max_approvals_per_token_or_collection: Some(Nat::from(100u64)),
-            max_revoke_approvals: Some(Nat::from(100u64)),
-        },
-        atomic_batch_transfers: None,
-        default_take_value: None,
-        max_canister_storage_threshold: None,
-        max_memo_size: None,
-        max_query_batch_size: None,
-        max_take_value: None,
-        max_update_batch_size: None,
-        permitted_drift: None,
-        supply_cap: None,
-        tx_window: None,
-    };
+    let nft_init_args =
+        build_origyn_nft_init_args(test_mode, &wasm_hash, owner, &collection_request);
 
     match install_canister_once(&collection_request, &wasm_hash, &nft_init_args).await {
         Ok(()) => mutate_state(|s| {
@@ -203,5 +167,51 @@ pub async fn create_and_install_canister(
             });
             return;
         }
+    }
+}
+
+pub fn build_origyn_nft_init_args(
+    test_mode: bool,
+    wasm_hash: &WasmHash,
+    owner: Principal,
+    collection_request: &CollectionRequest,
+) -> OrigynNftInitArgs {
+    let mut permissions_map = HashMap::new();
+    permissions_map.insert(
+        owner,
+        vec![
+            Permission::Minting,
+            Permission::ManageAuthorities,
+            Permission::ReadUploads,
+            Permission::UpdateUploads,
+            Permission::UpdateCollectionMetadata,
+            Permission::UpdateMetadata,
+        ],
+    );
+
+    OrigynNftInitArgs {
+        test_mode,
+        version: BuildVersion::default(),
+        commit_hash: wasm_hash.to_string(),
+        permissions: PermissionManager::new(permissions_map),
+        description: Some(collection_request.metadata.description.clone()),
+        symbol: collection_request.metadata.symbol.clone(),
+        name: collection_request.metadata.name.clone(),
+        logo: None,
+        collection_metadata: HashMap::new(),
+        approval_init: InitApprovalsArg {
+            max_approvals_per_token_or_collection: Some(Nat::from(100u64)),
+            max_revoke_approvals: Some(Nat::from(100u64)),
+        },
+        atomic_batch_transfers: None,
+        default_take_value: None,
+        max_canister_storage_threshold: None,
+        max_memo_size: None,
+        max_query_batch_size: None,
+        max_take_value: None,
+        max_update_batch_size: None,
+        permitted_drift: None,
+        supply_cap: None,
+        tx_window: None,
     }
 }

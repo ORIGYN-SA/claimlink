@@ -267,6 +267,19 @@ impl Data {
         self.reimbursement_queue
             .retain(|index| *index != ogy_payment_index);
     }
+
+    pub fn get_failed_installations(&self) -> Vec<(u128, CollectionRequest)> {
+        self.collection_requests
+            .iter()
+            .filter_map(|(id, request)| {
+                if request.status.is_failed() {
+                    Some((id.clone(), request.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
 }
 
 impl TryFrom<InitArg> for RuntimeState {

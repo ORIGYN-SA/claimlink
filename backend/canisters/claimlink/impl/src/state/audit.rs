@@ -40,6 +40,18 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         } => state
             .data
             .record_installed_canister(*ogy_payment_index, wasm_hash.clone()),
+        EventType::FailedInstallation {
+            ogy_payment_index,
+            reason,
+            canister_id,
+        } => state.data.record_failed_installation(
+            *ogy_payment_index,
+            reason.to_string(),
+            *canister_id,
+        ),
+        EventType::ReimbursementRequest { ogy_payment_index } => {
+            state.data.record_reimbursement_request(*ogy_payment_index)
+        }
     }
 }
 

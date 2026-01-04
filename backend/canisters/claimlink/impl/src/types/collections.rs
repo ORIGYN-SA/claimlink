@@ -80,4 +80,26 @@ impl InstallationStatus {
             _ => false,
         }
     }
+
+    pub fn is_failed(&self) -> bool {
+        match self {
+            InstallationStatus::Failed {
+                reason: _,
+                attempsts: _,
+                principal: _,
+            } => true,
+            _ => false,
+        }
+    }
+
+    pub fn attempeted_retries(&self) -> u64 {
+        match self {
+            InstallationStatus::Failed {
+                reason: _,
+                attempsts,
+                principal: _,
+            } => *attempsts,
+            _ => 0,
+        }
+    }
 }

@@ -54,6 +54,11 @@ pub enum EventType {
         #[cbor(n(2), with = "claimlink_api::cbor::principal::option")]
         canister_id: Option<Principal>,
     },
+    #[n(6)]
+    ReimbursementRequest {
+        #[cbor(n(0), with = "claimlink_api::cbor::u128")]
+        ogy_payment_index: OgyTransferIndex,
+    },
 }
 
 #[derive(Encode, Decode, Debug, PartialEq, Eq)]
