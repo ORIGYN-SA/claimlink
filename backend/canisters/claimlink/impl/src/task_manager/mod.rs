@@ -1,26 +1,21 @@
-use std::collections::HashMap;
-use std::fmt;
-use std::vec;
-
-use bity_ic_types::BuildVersion;
-use candid::{Nat, Principal};
-use claimlink_api::create_collection::CreateCollectionArgs;
-use ic_cdk::call::Error as CallError;
-
-use icrc_ledger_types::icrc2::transfer_from::TransferFromError;
-use origyn_nft_canister_api::{InitApprovalsArg, Permission, PermissionManager};
-
-use crate::state::audit::process_event;
-use crate::state::{mutate_state, read_state};
+use crate::state::read_state;
 use crate::task_manager::create_canister::create_canister_once;
 use crate::task_manager::install_canister::install_canister_once;
 use crate::types::collections::{
     CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount, OgyTransferIndex,
 };
-use crate::types::events::EventType;
 use crate::types::templates::NftTemplateId;
 use crate::types::wasm::WasmHash;
+use bity_ic_types::BuildVersion;
+use candid::{Nat, Principal};
+use claimlink_api::create_collection::CreateCollectionArgs;
+use ic_cdk::call::Error as CallError;
+use icrc_ledger_types::icrc2::transfer_from::TransferFromError;
 use origyn_nft_canister_api::lifecycle::InitArgs as OrigynNftInitArgs;
+use origyn_nft_canister_api::{InitApprovalsArg, Permission, PermissionManager};
+use std::collections::HashMap;
+use std::fmt;
+use std::vec;
 
 pub mod create_canister;
 pub mod install_canister;
@@ -81,25 +76,9 @@ pub async fn create_and_install_canister(
     args: CreateCollectionArgs,
     owner: Principal,
     ogy_payment_index: OgyTransferIndex,
-    ogy_charged: OgyChargedAmount,
     template_id: NftTemplateId,
     wasm_hash: WasmHash,
 ) {
-    let mut collection_request = CollectionRequest {
-        owner,
-        ogy_payment_index,
-        ogy_charged,
-        metadata: CollectionMetadata {
-            name: args.name,
-            symbol: args.symbol,
-            description: args.description,
-            template_id,
-        },
-        status: InstallationStatus::Queued,
-        created_at: ic_cdk::api::time(),
-        updated_at: ic_cdk::api::time(),
-    };
-
     let (cycles_for_canister_creation, test_mode) = read_state(|s| {
         (
             s.data.cycles_management.cycles_for_collection_creation,
@@ -109,72 +88,34 @@ pub async fn create_and_install_canister(
 
     // create canister
     let canister_id =
-        match create_canister_once(&collection_request, cycles_for_canister_creation).await {
-            Ok(canister_id) => {
-                collection_request.status = InstallationStatus::Created {
-                    principal: canister_id,
-                };
-                mutate_state(|s| {
-                    process_event(
-                        s,
-                        EventType::CreatedCanister {
-                            ogy_payment_index,
-                            canister_id,
-                        },
-                    )
-                });
-                canister_id
-            }
-            Err(e) => {
-                mutate_state(|s| {
-                    process_event(
-                        s,
-                        EventType::FailedInstallation {
-                            ogy_payment_index,
-                            reason: e.to_string(),
-                            canister_id: None,
-                        },
-                    )
-                });
+        match create_canister_once(ogy_payment_index, cycles_for_canister_creation).await {
+            Ok(canister_id) => canister_id,
+            Err(_e) => {
                 return;
             }
         };
 
     // install wasm
-    let nft_init_args =
-        build_origyn_nft_init_args(test_mode, &wasm_hash, owner, &collection_request);
+    let nft_init_args = build_origyn_nft_init_args(
+        test_mode,
+        &wasm_hash,
+        owner,
+        &CollectionMetadata {
+            name: args.name,
+            symbol: args.symbol,
+            description: args.description,
+            template_id,
+        },
+    );
 
-    match install_canister_once(&collection_request, &wasm_hash, &nft_init_args).await {
-        Ok(()) => mutate_state(|s| {
-            process_event(
-                s,
-                EventType::InstalledWasm {
-                    ogy_payment_index,
-                    wasm_hash,
-                },
-            )
-        }),
-        Err(e) => {
-            mutate_state(|s| {
-                process_event(
-                    s,
-                    EventType::FailedInstallation {
-                        ogy_payment_index,
-                        reason: e.to_string(),
-                        canister_id: Some(canister_id),
-                    },
-                )
-            });
-            return;
-        }
-    }
+    let _ = install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await;
 }
 
 pub fn build_origyn_nft_init_args(
     test_mode: bool,
     wasm_hash: &WasmHash,
     owner: Principal,
-    collection_request: &CollectionRequest,
+    metadata: &CollectionMetadata,
 ) -> OrigynNftInitArgs {
     let mut permissions_map = HashMap::new();
     permissions_map.insert(
@@ -194,9 +135,9 @@ pub fn build_origyn_nft_init_args(
         version: BuildVersion::default(),
         commit_hash: wasm_hash.to_string(),
         permissions: PermissionManager::new(permissions_map),
-        description: Some(collection_request.metadata.description.clone()),
-        symbol: collection_request.metadata.symbol.clone(),
-        name: collection_request.metadata.name.clone(),
+        description: Some(metadata.description.clone()),
+        symbol: metadata.symbol.clone(),
+        name: metadata.name.clone(),
         logo: None,
         collection_metadata: HashMap::new(),
         approval_init: InitApprovalsArg {

@@ -106,7 +106,6 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
             args,
             caller,
             ogy_payment_index,
-            ogy_to_pay,
             template_id,
             wasm_hash,
         ))

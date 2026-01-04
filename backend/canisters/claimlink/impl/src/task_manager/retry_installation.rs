@@ -1,4 +1,5 @@
 use crate::{
+    guards::{TaskType, TimerGuard},
     state::{audit::process_event, mutate_state, read_state},
     task_manager::{
         build_origyn_nft_init_args, create_canister::create_canister_once,
@@ -8,7 +9,8 @@ use crate::{
 };
 
 pub async fn retry_installation() {
-    // todo: guard
+    // gaurd
+    let _gaurd = TimerGuard::new(TaskType::RetryFailedInstallation);
 
     let (
         failed_collecctions,
@@ -38,62 +40,23 @@ pub async fn retry_installation() {
 
         // creations canister
         let canister_id =
-            match create_canister_once(&collection, cycles_for_collection_creation).await {
-                Ok(canister_id) => {
-                    mutate_state(|s| {
-                        process_event(
-                            s,
-                            EventType::CreatedCanister {
-                                ogy_payment_index,
-                                canister_id,
-                            },
-                        )
-                    });
-                    canister_id
-                }
+            match create_canister_once(ogy_payment_index, cycles_for_collection_creation).await {
+                Ok(canister_id) => canister_id,
                 Err(e) => {
-                    mutate_state(|s| {
-                        process_event(
-                            s,
-                            EventType::FailedInstallation {
-                                ogy_payment_index,
-                                reason: e.to_string(),
-                                canister_id: None,
-                            },
-                        )
-                    });
-                    return;
+                    continue;
                 }
             };
 
         // installtion request
 
-        let nft_init_args =
-            build_origyn_nft_init_args(test_mode, &wasm_hash, collection.owner, &collection);
+        let nft_init_args = build_origyn_nft_init_args(
+            test_mode,
+            &wasm_hash,
+            collection.owner,
+            &collection.metadata,
+        );
 
-        match install_canister_once(&collection, &wasm_hash, &nft_init_args).await {
-            Ok(()) => mutate_state(|s| {
-                process_event(
-                    s,
-                    EventType::InstalledWasm {
-                        ogy_payment_index,
-                        wasm_hash: wasm_hash.clone(),
-                    },
-                )
-            }),
-            Err(e) => {
-                mutate_state(|s| {
-                    process_event(
-                        s,
-                        EventType::FailedInstallation {
-                            ogy_payment_index,
-                            reason: e.to_string(),
-                            canister_id: Some(canister_id),
-                        },
-                    )
-                });
-                return;
-            }
-        }
+        let _ =
+            install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await;
     }
 }

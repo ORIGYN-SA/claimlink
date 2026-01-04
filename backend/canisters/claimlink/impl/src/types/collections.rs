@@ -54,7 +54,9 @@ pub enum InstallationStatus {
     Reimbursed {
         tx_index: OgyTransferIndex,
     },
-    QuarantinedReimbursement,
+    QuarantinedReimbursement {
+        reason: String,
+    },
 }
 
 impl InstallationStatus {

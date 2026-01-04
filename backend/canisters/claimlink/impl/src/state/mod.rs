@@ -1,25 +1,28 @@
 use bity_ic_canister_state_macros::canister_state;
-use bity_ic_utils::principal::PrincipalDotAccountFormat;
 use candid::{CandidType, Principal};
 use claimlink_api::{
+    collection,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
 };
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashSet};
 use types::TimestampNanos;
 use utils::{
     env::{CanisterEnv, Environment},
     memory::MemorySize,
 };
 
-use crate::types::{
-    collections::{
-        CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount,
-        OgyTransferIndex,
+use crate::{
+    guards::TaskType,
+    types::{
+        collections::{
+            CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount,
+            OgyTransferIndex,
+        },
+        templates::NftTemplateId,
+        wasm::WasmHash,
     },
-    templates::NftTemplateId,
-    wasm::WasmHash,
 };
 
 pub mod audit;
@@ -82,6 +85,9 @@ pub struct CanisterInfo {
 pub struct Data {
     /// current origyn NFT commit hash
     pub origyn_nft_wasm_hash: WasmHash,
+
+    /// Locks preventing concurrent execution timer tasks
+    pub active_tasks: HashSet<TaskType>,
 
     /// SNS OGY ledger canister
     pub ledger_canister_id: Principal,
@@ -256,13 +262,17 @@ impl Data {
             .retain(|index| *index != ogy_payment_index);
     }
 
-    pub fn record_failed_reimbursement(&mut self, ogy_payment_index: OgyTransferIndex) {
+    pub fn record_quarantined_reimbursement(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        reason: String,
+    ) {
         let collection = self
             .collection_requests
             .get_mut(&ogy_payment_index)
             .expect("Bug: collection should exist at this point");
 
-        collection.status = InstallationStatus::QuarantinedReimbursement;
+        collection.status = InstallationStatus::QuarantinedReimbursement { reason };
 
         self.reimbursement_queue
             .retain(|index| *index != ogy_payment_index);
@@ -279,6 +289,33 @@ impl Data {
                 }
             })
             .collect()
+    }
+
+    pub fn get_reimbusements(&self) -> Vec<u128> {
+        self.reimbursement_queue.clone()
+    }
+
+    pub fn get_collection(
+        &self,
+        ogy_payment_index: OgyTransferIndex,
+    ) -> Option<&CollectionRequest> {
+        self.collection_requests.get(&ogy_payment_index)
+    }
+
+    pub fn get_collection_canister_id(
+        &self,
+        ogy_payment_index: OgyTransferIndex,
+    ) -> Option<Principal> {
+        self.collection_requests
+            .get(&ogy_payment_index)
+            .map(|request| request.status.canister_id())?
+    }
+
+    pub fn is_collection_installed(&self, ogy_payment_index: OgyTransferIndex) -> bool {
+        self.collection_requests
+            .get(&ogy_payment_index)
+            .map(|collection| collection.status.is_installed())
+            .unwrap_or(false)
     }
 }
 
@@ -314,6 +351,7 @@ impl TryFrom<InitArg> for RuntimeState {
             CanisterEnv::new(value.test_mode),
             Data {
                 origyn_nft_wasm_hash: WasmHash::default(),
+                active_tasks: HashSet::new(),
                 ledger_canister_id: value.ledger_canister_id,
                 authorized_principals: value.authorized_principals,
                 bank_principal_id: value.bank_principal_id,

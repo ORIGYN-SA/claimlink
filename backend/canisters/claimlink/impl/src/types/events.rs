@@ -59,6 +59,20 @@ pub enum EventType {
         #[cbor(n(0), with = "claimlink_api::cbor::u128")]
         ogy_payment_index: OgyTransferIndex,
     },
+    #[n(7)]
+    QuarantinedReimbursement {
+        #[cbor(n(0), with = "claimlink_api::cbor::u128")]
+        ogy_payment_index: OgyTransferIndex,
+        #[n(1)]
+        reason: String,
+    },
+    #[n(8)]
+    ReimbursedCollection {
+        #[cbor(n(0), with = "claimlink_api::cbor::u128")]
+        ogy_payment_index: OgyTransferIndex,
+        #[cbor(n(1), with = "claimlink_api::cbor::u128")]
+        reimbursement_index: OgyTransferIndex,
+    },
 }
 
 #[derive(Encode, Decode, Debug, PartialEq, Eq)]

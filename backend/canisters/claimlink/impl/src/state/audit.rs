@@ -52,6 +52,20 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::ReimbursementRequest { ogy_payment_index } => {
             state.data.record_reimbursement_request(*ogy_payment_index)
         }
+        EventType::QuarantinedReimbursement {
+            ogy_payment_index,
+            reason,
+        } => {
+            state
+                .data
+                .record_quarantined_reimbursement(*ogy_payment_index, reason.to_string());
+        }
+        EventType::ReimbursedCollection {
+            ogy_payment_index,
+            reimbursement_index,
+        } => state
+            .data
+            .record_reimbursed_colllection(*ogy_payment_index, *reimbursement_index),
     }
 }
 
