@@ -4,7 +4,7 @@ use claimlink_api::init::ClaimlinkArgs;
 use ic_cdk_macros::init;
 use tracing::info;
 
-use crate::{state::RuntimeState, storage::record_nft_collection_wasm};
+use crate::{setup_timers, state::RuntimeState, storage::record_nft_collection_wasm};
 
 use super::init_canister;
 
@@ -27,6 +27,8 @@ fn init(args: ClaimlinkArgs) {
     state.data.origyn_nft_wasm_hash = origyn_nft_wasm_hash;
 
     init_canister(state);
+
+    setup_timers();
 
     info!("Init complete.")
 }

@@ -73,6 +73,13 @@ pub enum EventType {
         #[cbor(n(1), with = "claimlink_api::cbor::u128")]
         reimbursement_index: OgyTransferIndex,
     },
+    #[n(9)]
+    BurnedOGY {
+        #[cbor(n(0), with = "claimlink_api::cbor::u128")]
+        ogy_burn_index: OgyTransferIndex,
+        #[cbor(n(1), with = "claimlink_api::cbor::u128")]
+        burn_amount: u128,
+    },
 }
 
 #[derive(Encode, Decode, Debug, PartialEq, Eq)]

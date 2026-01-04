@@ -66,6 +66,11 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         } => state
             .data
             .record_reimbursed_colllection(*ogy_payment_index, *reimbursement_index),
+
+        EventType::BurnedOGY {
+            ogy_burn_index: _,
+            burn_amount,
+        } => state.data.record_ogy_burn(*burn_amount),
     }
 }
 

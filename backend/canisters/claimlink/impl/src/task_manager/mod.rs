@@ -17,6 +17,7 @@ use std::collections::HashMap;
 use std::fmt;
 use std::vec;
 
+pub mod burn_ogy;
 pub mod create_canister;
 pub mod install_canister;
 pub mod reimburse_ogy;

@@ -2,6 +2,8 @@ use bity_ic_canister_tracing_macros::trace;
 use ic_cdk_macros::post_upgrade;
 use tracing::info;
 
+use crate::setup_timers;
+
 #[post_upgrade]
 #[trace]
 fn post_upgrade() {
@@ -22,6 +24,8 @@ fn post_upgrade() {
     //
     //bity_ic_canister_logger::init_with_logs(state.env.is_test_mode(), logs, traces);
     //init_canister(state);
+    //
+    setup_timers();
 
     info!("Post upgrade complete.")
 }

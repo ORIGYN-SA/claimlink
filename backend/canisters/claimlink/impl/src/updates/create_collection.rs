@@ -16,9 +16,7 @@ pub use claimlink_api::updates::create_collection::{
     Args as CreateCollectionArgs, Response as CreateCollectionResponse,
 };
 use icrc_ledger_types::icrc1::account::Account;
-use utils::{consts, env::Environment};
-
-const INITIAL_COLLECTION_CYCLES: u128 = 1 * consts::T;
+use utils::env::Environment;
 
 #[ic_cdk::update(guard = "guards::caller_is_authorised_principal")]
 #[bity_ic_canister_tracing_macros::trace]

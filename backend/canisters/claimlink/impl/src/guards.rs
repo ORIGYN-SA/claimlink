@@ -19,6 +19,7 @@ pub fn reject_anonymous_caller() -> Result<(), String> {
 pub enum TaskType {
     RetryFailedInstallation,
     Reimbursement,
+    BurnOGY,
 }
 
 #[derive(Debug, PartialEq, Eq)]

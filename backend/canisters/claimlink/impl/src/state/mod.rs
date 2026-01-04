@@ -1,7 +1,6 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
 use claimlink_api::{
-    collection,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
 };
@@ -107,6 +106,11 @@ pub struct Data {
     // OGY transfer
     pub ogy_transfer_fee: u128,
 
+    // collected OGY token after successful collection creation ready to be burned
+    pub ogy_to_burn: u128,
+
+    pub total_ogy_burned: u128,
+
     // owner to template map
     pub template_owners: BTreeMap<Principal, Vec<NftTemplateId>>,
 
@@ -195,6 +199,8 @@ impl Data {
 
         self.pending_queue
             .retain(|index| *index != ogy_payment_index);
+
+        self.ogy_to_burn.wrapping_add(collection.ogy_charged);
     }
 
     pub fn record_failed_installation(
@@ -317,6 +323,14 @@ impl Data {
             .map(|collection| collection.status.is_installed())
             .unwrap_or(false)
     }
+
+    pub fn record_ogy_burn(&mut self, burned_ogy_amount: u128) {
+        self.ogy_to_burn
+            .checked_sub(burned_ogy_amount)
+            .expect("Bug: Burned ogy exceeds ogy_to_burn");
+
+        self.total_ogy_burned.wrapping_add(burned_ogy_amount);
+    }
 }
 
 impl TryFrom<InitArg> for RuntimeState {
@@ -364,6 +378,8 @@ impl TryFrom<InitArg> for RuntimeState {
                 pending_queue: Default::default(),
                 reimbursement_queue: Default::default(),
                 max_template_per_owner,
+                ogy_to_burn: Default::default(),
+                total_ogy_burned: Default::default(),
             },
         ))
     }
