@@ -7,12 +7,16 @@ import {
   LastCertificateOwnersSection,
   LastSentCertificatesSection,
   LastMintedCertificatesSection,
+} from "../components/sections";
+import {
   WelcomeCard,
+} from "../components/cards";
+import {
   StatusSectionSkeleton,
   StatusSectionError,
   CertificatesSectionSkeleton,
   CertificatesSectionError,
-} from "./";
+} from "../components/dashboard-skeletons";
 import {
   useDashboardStatusCounts,
   useDashboardRecentCertificates,
@@ -91,8 +95,7 @@ export function DashboardPage({ className }: DashboardPageProps) {
         className,
       )}
     >
-
-      {/* Stats Section */}
+      {/* Stats Section - Always first on both mobile and desktop */}
       {isLoadingStatus ? (
         <StatusSectionSkeleton />
       ) : statusError ? (
@@ -101,10 +104,45 @@ export function DashboardPage({ className }: DashboardPageProps) {
         <TotalStatusSection statusData={statusData} />
       ) : null}
 
-      {/* Main Content */}
-      <div className="flex flex-col lg:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
+      {/* Mobile Layout (below md): Stats → Welcome → Certificates → Owners → Sent */}
+      <div className="flex flex-col gap-6 w-full md:hidden">
+        <WelcomeCard onMintClick={handleMintClick} />
+
+        {isLoadingCertificates ? (
+          <CertificatesSectionSkeleton />
+        ) : certificatesError ? (
+          <CertificatesSectionError error={certificatesError as Error} />
+        ) : (
+          <LastMintedCertificatesSection
+            certificates={recentCertificates}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onCertificateClick={handleCertificateClick}
+            onAddCertificate={handleAddCertificate}
+            onViewAll={handleViewAllMinted}
+          />
+        )}
+
+        <LastCertificateOwnersSection
+          owners={certificateOwners}
+          searchQuery={ownersSearchQuery}
+          onSearchChange={setOwnersSearchQuery}
+          onViewAll={handleViewAllOwners}
+        />
+
+        <LastSentCertificatesSection
+          certificates={sentCertificates}
+          searchQuery={sentSearchQuery}
+          onSearchChange={setSentSearchQuery}
+          onViewAll={handleViewAllSent}
+          onCertificateClick={handleSentCertificateClick}
+        />
+      </div>
+
+      {/* Desktop Layout (md and above): Sidebar + Main content */}
+      <div className="hidden md:flex md:flex-row gap-6 items-start justify-start w-full flex-1 min-w-0">
         {/* Left Sidebar */}
-        <div className="flex flex-col gap-6 items-start justify-start w-full lg:w-[346px] flex-shrink-0">
+        <div className="flex flex-col gap-6 items-start justify-start w-[346px] flex-shrink-0">
           <WelcomeCard onMintClick={handleMintClick} />
 
           <LastCertificateOwnersSection

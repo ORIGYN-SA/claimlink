@@ -6,24 +6,24 @@ export { useMediaQuery, useIsDesktop, useIsMobile, BREAKPOINTS } from "./useMedi
 // These have been moved to their respective feature directories
 
 /**
- * @deprecated Import from '@/features/account/hooks' instead
+ * @deprecated Import from '@/features/account' instead
  */
-export { default as useFetchLedgerBalance } from "@/features/account/hooks/useFetchLedgerBalance";
+export { useFetchLedgerBalance } from "@/features/account/api/account.queries";
 export type {
   LedgerBalanceData as HookLedgerBalanceData, // Renamed to avoid conflict with types/tokens
   UseFetchLedgerBalanceOptions,
   UseFetchLedgerBalanceResult,
-} from "@/features/account/hooks/useFetchLedgerBalance";
+} from "@/features/account/api/account.queries";
 
 /**
- * @deprecated Import from '@/features/account/hooks' instead
+ * @deprecated Import from '@/features/account' instead
  */
-export { default as useFetchLedgerDecimals } from "@/features/account/hooks/useFetchLedgerDecimals";
+export { useFetchLedgerDecimals } from "@/features/account/api/account.queries";
 
 /**
- * @deprecated Import from '@/features/account/hooks' instead
+ * @deprecated Import from '@/features/account' instead
  */
-export { default as useFetchAccountTransactions } from "@/features/account/hooks/useFetchAccountTransactions";
+export { useFetchAccountTransactions } from "@/features/account/api/account.queries";
 
 /**
  * @deprecated Import from '@/features/tokens/hooks' instead

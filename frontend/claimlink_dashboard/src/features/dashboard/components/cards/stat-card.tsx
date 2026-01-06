@@ -1,17 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import type { StatCardProps } from "../types/dashboard.types";
+import type { StatCardProps } from "../../types/dashboard.types";
 import { MoveDownRight, MoveUpRight, Info } from "lucide-react";
-
-// interface StatCardProps {
-//   title: string
-//   value: string
-//   trend: string
-//   trendColor: "green" | "red"
-//   icon?: React.ReactNode
-//   className?: string
-// }
 
 export function StatCard({
   title,
@@ -52,11 +43,11 @@ export function StatCard({
           <div className="font-sans font-medium text-[#222526] text-[48px] leading-[56px]">
             {value}
           </div>
-          <div 
+          <div
             className={cn(
               "flex items-center gap-1 px-1.5 py-1 rounded-full border",
-              trendColor === "green" 
-                ? "bg-[#50be8f] border-[#50be8f]" 
+              trendColor === "green"
+                ? "bg-[#50be8f] border-[#50be8f]"
                 : "bg-[#e84c25] border-[#e84c25]"
             )}
           >

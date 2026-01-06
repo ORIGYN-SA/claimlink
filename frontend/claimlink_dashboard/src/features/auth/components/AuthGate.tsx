@@ -16,7 +16,7 @@ import {
 } from "@nfid/identitykit/react";
 import { HttpAgent } from "@dfinity/agent";
 import type { Agent } from "@dfinity/agent";
-import authStateAtom from "../stores/atoms";
+import authStateAtom from "../atoms/atoms";
 import type { RouterAuthContext } from "../types/router-context";
 import {
   IC_HOST,

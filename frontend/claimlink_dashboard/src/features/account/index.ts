@@ -16,22 +16,7 @@ export { TransactionTable } from './components/transaction-table';
 export { FilterControls } from './components/filter-controls';
 
 // ============================================================================
-// Hooks
-// ============================================================================
-
-export {
-  useFetchLedgerBalance,
-  useFetchLedgerDecimals,
-  useFetchAccountTransactions,
-} from './hooks';
-export type {
-  LedgerBalanceData,
-  UseFetchLedgerBalanceOptions,
-  UseFetchLedgerBalanceResult,
-} from './hooks';
-
-// ============================================================================
-// API Layer
+// API Layer (includes all hooks)
 // ============================================================================
 
 export { AccountService } from './api/account.service';
@@ -42,12 +27,24 @@ export type {
 } from './api/account.service';
 
 export {
+  // Query keys
   accountKeys,
+  // Profile hooks
   useProfile,
   useAccountStats,
   useActivityHistory,
   useUpdateProfile,
   useDeleteAccount,
+  // Ledger hooks
+  useFetchLedgerBalance,
+  useFetchLedgerDecimals,
+  useFetchAccountTransactions,
+} from './api/account.queries';
+
+export type {
+  LedgerBalanceData,
+  UseFetchLedgerBalanceOptions,
+  UseFetchLedgerBalanceResult,
 } from './api/account.queries';
 
 // ============================================================================

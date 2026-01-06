@@ -112,7 +112,7 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
   ];
 
   return (
-    <Card className={`bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full lg:flex-1 min-w-0 ${className}`}>
+    <Card className={`bg-white border border-[#f2f2f2] rounded-2xl shadow-[0_2px_4px_0_rgba(0,0,0,0.05)] p-4 w-full md:flex-1 min-w-0 ${className}`}>
       {/* Custom header with subtitle and view toggle */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex flex-col gap-1">
@@ -124,7 +124,7 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
           </div>
         </div>
         {onViewAll && (
-          <Button 
+          <Button
             variant="link"
             className="h-auto p-0 font-sans font-medium text-[#615bff] text-[13px] leading-normal hover:underline"
             onClick={onViewAll}
@@ -134,7 +134,7 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
         )}
       </div>
 
-      {/* Use standardized grid/list container */}
+      {/* Use standardized grid/list container - Mobile: 2 cols, Desktop: 3 cols */}
       <StandardizedGridListContainer
         title=""
         totalCount={certificates.length}
@@ -146,7 +146,7 @@ export const LastMintedCertificatesSection: React.FC<LastMintedCertificatesSecti
         onAddItem={onAddCertificate}
         addButtonText="Create a certificate"
         addButtonDescription="Create your first certificate"
-        gridCols="grid-cols-1 md:grid-cols-2 xl:grid-cols-3"
+        gridCols="grid-cols-2 xl:grid-cols-3"
         showCertifiedBadge={true}
         listColumns={listColumns}
         listActions={listActions}

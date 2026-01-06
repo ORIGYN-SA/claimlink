@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "@/components/ui/card";
-import { StatCard } from "./stat-card";
+import { StatCard } from "../cards";
 import { Wallet, ScrollText, Hourglass, ArrowLeftRight } from "lucide-react";
 
 
@@ -42,7 +42,8 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
         <div className="font-sans font-medium text-black text-sm leading-4 mb-4">
           Total certificate status
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        {/* Mobile: 2 cols, Desktop: 4 cols */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           <StatCard
             title="Minted Certificates"
             value={statusData.minted.value}

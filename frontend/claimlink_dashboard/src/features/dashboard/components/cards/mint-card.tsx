@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/card"
-// import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface MintCardProps {
@@ -57,7 +56,7 @@ export function MintCard({
             }}
           />
         </div>
-        
+
         {/* Content */}
         <div className="px-1 pt-1 pb-2 flex flex-col gap-1">
           <div className="flex flex-col gap-2">
@@ -69,12 +68,12 @@ export function MintCard({
             <div className="font-sans font-medium text-[#69737c] text-[13px] leading-normal">
               {date}
             </div>
-            <div 
+            <div
               className="bg-white border border-[rgba(225,225,225,0.5)] rounded-full px-2 py-1 flex items-center gap-2 h-8"
             >
               <div
                 className="w-2.5 h-2.5 rounded-full"
-                style={{ 
+                style={{
                   backgroundColor: statusConfig.dot,
                   border: `1px solid ${statusConfig.border}`
                 }}

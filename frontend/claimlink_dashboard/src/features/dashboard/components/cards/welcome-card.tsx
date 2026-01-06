@@ -1,6 +1,3 @@
-// import { Card, CardContent } from "@/components/ui/card"
-// import { Button } from "@/components/ui/button"
-// import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface WelcomeCardProps {
@@ -23,7 +20,7 @@ export function WelcomeCard({ className, onMintClick }: WelcomeCardProps) {
           </span>
         </div>
       </div>
-      
+
       {/* Main Content */}
       <div className="flex flex-col mb-8">
         <h2 className="font-sans font-light text-white text-[40px] leading-[48px] mb-2">
@@ -33,7 +30,7 @@ export function WelcomeCard({ className, onMintClick }: WelcomeCardProps) {
           Today is a good day to mint some great stuff.
         </p>
       </div>
-      
+
       {/* Button */}
       <div className="flex items-center justify-start">
         <button

@@ -51,21 +51,32 @@ This is **intentional** - there's only ONE token type with different names at di
 src/
 ├── routes/                    # TanStack Router (file-based routing)
 │   └── __root.tsx            # Root layout with AuthProvider
-├── features/                  # Business logic modules (dashboard, templates, collections, campaigns, etc.)
+├── features/                  # Business logic modules
 │   └── [feature]/
 │       ├── api/              # Service layer pattern
 │       │   ├── *.service.ts  # Business logic & canister calls
 │       │   └── *.queries.ts  # TanStack Query hooks
 │       ├── components/       # Feature-specific UI
-│       ├── stores/           # Jotai atoms
+│       │   ├── create/       # Creation flow components
+│       │   ├── detail/       # Detail view components
+│       │   └── form/         # Form components
+│       ├── pages/            # Page-level components
+│       ├── atoms/            # Jotai atoms
+│       ├── utils/            # Feature-specific utilities
 │       └── types/
+├── shared/                    # Shared infrastructure
+│   ├── canister/             # IC canister utilities (actor factory, canister IDs)
+│   ├── canisters/            # Canister type definitions (claimlink, origyn_nft)
+│   ├── data/                 # Mock data (templates, etc.)
+│   ├── hooks/                # Shared React hooks
+│   └── constants/            # App constants
 ├── components/
 │   ├── ui/                   # shadcn/ui primitives (20+ components)
 │   ├── layout/               # DashboardLayout, Sidebar, HeaderBar
-│   └── common/               # Reusable business components (token-card, token-grid-view, etc.)
-└── services/                 # IC Canister integrations (ledger, nft, swap, governance, etc.)
+│   └── common/               # Reusable business components
+└── services/                 # Legacy IC canister integrations (being migrated to features/)
     └── [canister]/
-        ├── hooks/            # useMutation hooks for canister operations
+        ├── hooks/            # useMutation hooks
         ├── idlFactory.js     # Candid interface
         └── interfaces.ts
 ```
@@ -199,6 +210,36 @@ Create `.env` file (see `env.example`):
 - Canister IDs for all integrated services
 - `VITE_IC_HOST` for network selection
 - NFID configuration (requires special localhost setup for signing)
+
+### Template System Architecture
+
+Templates define the form structure for creating/editing certificates. Two formats exist:
+
+- **`TemplateStructure`** (ClaimLink format): Form definition with `sections[].items[]` containing field types, labels, validation, etc. Used by the frontend to render dynamic forms.
+- **`TemplateNode[]`** (ORIGYN format): Rendering layout with columns, elements, valueField. Stored on-chain in `public.metadata.template`.
+
+**Key files:**
+- `src/features/templates/types/template.types.ts` - TemplateStructure type definition
+- `src/features/templates/utils/template-serializer.ts` - Serialize/deserialize for ORIGYN storage
+- `src/shared/data/templates.ts` - Mock templates (Made in Italy, Gold Certificate)
+
+**Template storage flow:**
+1. Collection creation: User selects template → stored in ORIGYN collection's `collection_metadata` as JSON
+2. Certificate creation: Template auto-loaded from collection (no separate selection)
+3. Certificate editing: `TemplateStructure` fetched from collection metadata to reconstruct form
+
+**Hooks:**
+- `useCollectionTemplate({ collectionId })` - Fetch template from collection metadata
+- `useSetCollectionTemplate()` - Store template in collection metadata
+
+**Known issue:** Storing templates requires `update_collection_metadata` permission on ORIGYN NFT canister. Backend change needed to grant this permission during collection creation.
+
+### Shared Canister Infrastructure
+
+Located in `src/shared/canister/`:
+- `actor.ts` - Generic `createCanisterActor<T>()` factory
+- `canister-ids.ts` - Centralized canister ID management with `getCanisterId(name)`
+- `index.ts` - Exports for use across features
 
 ### Current Development State
 - **Mock Data**: Using `shared/data/` for development
