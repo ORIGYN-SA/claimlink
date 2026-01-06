@@ -13,10 +13,10 @@ export function TokenCard({
   return (
     <Card
       className={cn(
-        "bg-white border border-[#e1e1e1] rounded-[16px] p-3 gap-4",
-        compact 
-          ? "flex flex-col items-start justify-center w-full min-w-[180px] h-[280px]"
-          : "flex flex-col items-start justify-center w-full min-w-[200px] h-[320px]",
+        "bg-white border border-[#e1e1e1] rounded-[16px] p-2 md:p-3 gap-3 md:gap-4",
+        compact
+          ? "flex flex-col items-start justify-center w-full min-w-0 h-auto min-h-[220px] md:min-h-[280px]"
+          : "flex flex-col items-start justify-center w-full min-w-0 h-auto min-h-[260px] md:min-h-[320px]",
         "cursor-pointer hover:shadow-md transition-shadow",
         className
       )}
@@ -25,7 +25,7 @@ export function TokenCard({
       {/* Image Container */}
       <div className={cn(
         "relative w-full rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]",
-        compact ? "h-40" : "h-48"
+        compact ? "h-28 md:h-40" : "h-32 md:h-48"
       )}>
         {token.imageUrl && (
           <img
@@ -47,28 +47,28 @@ export function TokenCard({
       </div>
 
       {/* Content */}
-      <div className="flex flex-col gap-1 pb-2 pt-1 px-1 w-full">
+      <div className="flex flex-col gap-1 pb-1 md:pb-2 pt-1 px-1 w-full min-w-0 overflow-hidden">
         {/* Description */}
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex gap-2 items-start w-full">
-          <h3 
-            className="flex-1 text-lg font-normal text-[#222526] leading-normal truncate" 
-            title={token.title}
-          >
+        <div className="flex flex-col gap-1 md:gap-2 w-full min-w-0">
+          <div className="flex gap-2 items-start w-full min-w-0">
+            <h3
+              className="flex-1 text-sm md:text-lg font-normal text-[#222526] leading-tight md:leading-normal truncate min-w-0"
+              title={token.title}
+            >
               {token.title}
             </h3>
           </div>
-          <p className="text-[14px] font-normal text-[#69737c] leading-[18px] w-full">
+          <p className="text-xs md:text-[14px] font-normal text-[#69737c] leading-tight md:leading-[18px] w-full truncate">
             {token.collectionName}
           </p>
         </div>
 
         {/* Legend - Date and Status */}
-        <div className="flex items-center justify-between w-full">
-          <span className="text-[13px] font-medium text-[#69737c] leading-normal">
+        <div className="flex items-center justify-between w-full gap-1 min-w-0">
+          <span className="text-[11px] md:text-[13px] font-medium text-[#69737c] leading-normal shrink-0">
             {token.date}
           </span>
-          <TokenStatusBadge status={token.status} />
+          <TokenStatusBadge status={token.status} className="shrink min-w-0" />
         </div>
       </div>
     </Card>
