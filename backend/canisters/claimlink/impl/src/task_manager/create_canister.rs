@@ -64,7 +64,6 @@ pub async fn create_canister_once(
                     EventType::FailedInstallation {
                         ogy_payment_index,
                         reason: error.to_string(),
-                        canister_id: None,
                     },
                 )
             });

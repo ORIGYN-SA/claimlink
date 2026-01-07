@@ -1,6 +1,6 @@
 use std::panic;
 
-use claimlink_api::init::ClaimlinkArgs;
+pub use claimlink_api::init::ClaimlinkArgs;
 use ic_cdk_macros::init;
 use tracing::info;
 

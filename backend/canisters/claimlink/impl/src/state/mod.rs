@@ -1,6 +1,7 @@
 use bity_ic_canister_state_macros::canister_state;
 use candid::{CandidType, Principal};
 use claimlink_api::{
+    collection::CollectionSearchParam,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
 };
@@ -59,8 +60,7 @@ impl RuntimeState {
         self.data
             .authorized_principals
             .iter()
-            .find(|authordied_principal| authordied_principal.principal == caller)
-            .is_some()
+            .any(|authordied_principal| authordied_principal.principal == caller)
     }
 }
 
@@ -116,6 +116,8 @@ pub struct Data {
 
     pub max_template_per_owner: u64,
 
+    pub next_template_id: u64,
+
     // nft collection requersts
     pub collection_requests: BTreeMap<OgyTransferIndex, CollectionRequest>,
 
@@ -133,7 +135,7 @@ impl Data {
     // check if an owner principal owns a template
     pub fn owns_template(&self, owner: &Principal, template_id: NftTemplateId) -> bool {
         if let Some(template_ids) = self.template_owners.get(owner) {
-            template_ids.iter().find(|id| **id == template_id).is_some()
+            template_ids.contains(&template_id)
         } else {
             false
         }
@@ -157,6 +159,9 @@ impl Data {
                 status: InstallationStatus::Queued,
                 created_at,
                 updated_at: created_at,
+                canister_id: None,
+                wasm_hash: None,
+                is_template_uploaded: false,
             },
         );
 
@@ -173,9 +178,9 @@ impl Data {
             .get_mut(&ogy_payment_index)
             .expect("Bug: collection should exist at this point");
 
-        collection.status = InstallationStatus::Created {
-            principal: canister_id,
-        }
+        collection.status = InstallationStatus::Created;
+        collection.canister_id = Some(canister_id);
+        collection.updated_at = ic_cdk::api::time();
     }
 
     pub fn record_installed_canister(
@@ -188,26 +193,33 @@ impl Data {
             .get_mut(&ogy_payment_index)
             .expect("Bug: collection should exist at this point");
 
-        let canister_id = collection
-            .status
-            .canister_id()
-            .expect("Bug: Canister id should be available at this point");
-        collection.status = InstallationStatus::Installed {
-            principal: canister_id,
-            wasm_hash,
-        };
+        collection.status = InstallationStatus::Installed;
+        collection.wasm_hash = Some(wasm_hash);
+        collection.updated_at = ic_cdk::api::time();
+    }
+
+    // last step of the installation, at this point collection is successfully create, installed,
+    // and collection template is uploaded
+    pub fn record_uploaded_template(&mut self, ogy_payment_index: OgyTransferIndex) {
+        let collection = self
+            .collection_requests
+            .get_mut(&ogy_payment_index)
+            .expect("Bug: collection should exist at this point");
+
+        collection.status = InstallationStatus::TemplateUploaded;
+        collection.is_template_uploaded = true;
+        collection.updated_at = ic_cdk::api::time();
 
         self.pending_queue
             .retain(|index| *index != ogy_payment_index);
 
-        self.ogy_to_burn.wrapping_add(collection.ogy_charged);
+        let _ = self.ogy_to_burn.wrapping_add(collection.ogy_charged);
     }
 
     pub fn record_failed_installation(
         &mut self,
         ogy_payment_index: OgyTransferIndex,
         reason: String,
-        canister_id: Option<Principal>,
     ) {
         let collection = self
             .collection_requests
@@ -218,22 +230,20 @@ impl Data {
             InstallationStatus::Failed {
                 reason: _,
                 attempsts,
-                principal,
             } => {
                 collection.status = InstallationStatus::Failed {
                     reason,
                     attempsts: *attempsts + 1,
-                    principal: *principal,
                 }
             }
             _ => {
                 collection.status = InstallationStatus::Failed {
                     reason,
                     attempsts: 1,
-                    principal: canister_id,
                 }
             }
         }
+        collection.updated_at = ic_cdk::api::time();
     }
 
     pub fn record_reimbursement_request(&mut self, ogy_payment_index: OgyTransferIndex) {
@@ -243,6 +253,7 @@ impl Data {
             .expect("Bug: collection should exist at this point");
 
         collection.status = InstallationStatus::ReimbursingQueued;
+        collection.updated_at = ic_cdk::api::time();
 
         self.pending_queue
             .retain(|index| *index != ogy_payment_index);
@@ -263,6 +274,7 @@ impl Data {
         collection.status = InstallationStatus::Reimbursed {
             tx_index: reimbursement_index,
         };
+        collection.updated_at = ic_cdk::api::time();
 
         self.reimbursement_queue
             .retain(|index| *index != ogy_payment_index);
@@ -279,6 +291,7 @@ impl Data {
             .expect("Bug: collection should exist at this point");
 
         collection.status = InstallationStatus::QuarantinedReimbursement { reason };
+        collection.updated_at = ic_cdk::api::time();
 
         self.reimbursement_queue
             .retain(|index| *index != ogy_payment_index);
@@ -289,7 +302,7 @@ impl Data {
             .iter()
             .filter_map(|(id, request)| {
                 if request.status.is_failed() {
-                    Some((id.clone(), request.clone()))
+                    Some((*id, request.clone()))
                 } else {
                     None
                 }
@@ -308,19 +321,60 @@ impl Data {
         self.collection_requests.get(&ogy_payment_index)
     }
 
+    pub fn get_collection_by_search_params(
+        &self,
+        search_param: CollectionSearchParam,
+    ) -> Option<CollectionRequest> {
+        match search_param {
+            CollectionSearchParam::CanisterId(principal) => {
+                self.collection_requests.iter().find_map(|(_, collection)| {
+                    if collection.canister_id == Some(principal) {
+                        Some(collection.clone())
+                    } else {
+                        None
+                    }
+                })
+            }
+            CollectionSearchParam::CollectionId(id_nat) => self
+                .collection_requests
+                .get(&id_nat.0.try_into().unwrap())
+                .cloned(),
+        }
+    }
+
+    pub fn get_collections_by_owner(&self, owner: Principal) -> Vec<CollectionRequest> {
+        self.collection_requests
+            .iter()
+            .filter_map(|(_, collection)| {
+                if collection.owner == owner {
+                    Some(collection.clone())
+                } else {
+                    None
+                }
+            })
+            .collect()
+    }
+
     pub fn get_collection_canister_id(
         &self,
         ogy_payment_index: OgyTransferIndex,
     ) -> Option<Principal> {
         self.collection_requests
             .get(&ogy_payment_index)
-            .map(|request| request.status.canister_id())?
+            .map(|request| request.canister_id)?
     }
 
     pub fn is_collection_installed(&self, ogy_payment_index: OgyTransferIndex) -> bool {
         self.collection_requests
             .get(&ogy_payment_index)
-            .map(|collection| collection.status.is_installed())
+            .map(|collection| collection.wasm_hash.is_some())
+            .unwrap_or(false)
+    }
+
+    pub fn is_template_uploaded(&self, ogy_payment_index: OgyTransferIndex) -> bool {
+        self.collection_requests
+            .get(&ogy_payment_index)
+            .map(|collection| collection.is_template_uploaded)
             .unwrap_or(false)
     }
 
@@ -329,7 +383,15 @@ impl Data {
             .checked_sub(burned_ogy_amount)
             .expect("Bug: Burned ogy exceeds ogy_to_burn");
 
-        self.total_ogy_burned.wrapping_add(burned_ogy_amount);
+        let _ = self.total_ogy_burned.wrapping_add(burned_ogy_amount);
+    }
+
+    pub fn record_created_template(&mut self, template_id: NftTemplateId, owner: Principal) {
+        if let Some(templates) = self.template_owners.get_mut(&owner) {
+            templates.push(template_id);
+        }
+        self.template_owners.insert(owner, vec![template_id]);
+        self.next_template_id += 1;
     }
 }
 
@@ -380,6 +442,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 max_template_per_owner,
                 ogy_to_burn: Default::default(),
                 total_ogy_burned: Default::default(),
+                next_template_id: Default::default(),
             },
         ))
     }

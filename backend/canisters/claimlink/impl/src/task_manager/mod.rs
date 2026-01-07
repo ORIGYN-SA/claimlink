@@ -1,6 +1,7 @@
 use crate::state::read_state;
 use crate::task_manager::create_canister::create_canister_once;
 use crate::task_manager::install_canister::install_canister_once;
+use crate::task_manager::upload_template::upload_template_once;
 use crate::types::collections::{
     CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount, OgyTransferIndex,
 };
@@ -11,7 +12,10 @@ use candid::{Nat, Principal};
 use claimlink_api::create_collection::CreateCollectionArgs;
 use ic_cdk::call::Error as CallError;
 use icrc_ledger_types::icrc2::transfer_from::TransferFromError;
+use origyn_nft_canister_api::finalize_upload::FinalizeUploadError;
+use origyn_nft_canister_api::init_upload::InitUploadError;
 use origyn_nft_canister_api::lifecycle::InitArgs as OrigynNftInitArgs;
+use origyn_nft_canister_api::store_chunk::StoreChunkError;
 use origyn_nft_canister_api::{InitApprovalsArg, Permission, PermissionManager};
 use std::collections::HashMap;
 use std::fmt;
@@ -22,8 +26,9 @@ pub mod create_canister;
 pub mod install_canister;
 pub mod reimburse_ogy;
 pub mod retry_installation;
+pub mod upload_template;
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub enum TaskError {
     CanisterCreationError(CallError),
     InstallCodeError(CallError),
@@ -33,6 +38,10 @@ pub enum TaskError {
     CanisterCallError(String),
     InsufficientCyclesToTopUp { required: u128, available: u128 },
     ReimbursementError(TransferFromError),
+    InvalidTemplateId,
+    InitUploadError(InitUploadError),
+    StoreChunkError(StoreChunkError),
+    FinalizeUploadError(FinalizeUploadError),
 }
 
 impl fmt::Display for TaskError {
@@ -68,6 +77,14 @@ impl fmt::Display for TaskError {
             }
             TaskError::ReimbursementError(e) => {
                 write!(f, "Reimbursement failed: {:?}", e)
+            }
+            TaskError::InvalidTemplateId => write!(f, "Invalid tempalte id"),
+            TaskError::InitUploadError(e) => write!(f, "Failed to initiate upload: {:?}", e),
+            TaskError::StoreChunkError(e) => {
+                write!(f, "Failed to store file chunk: {:?}", e)
+            }
+            TaskError::FinalizeUploadError(e) => {
+                write!(f, "Failed to finalaize upload {:?}", e)
             }
         }
     }
@@ -109,7 +126,14 @@ pub async fn create_and_install_canister(
         },
     );
 
-    let _ = install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await;
+    if let Err(_e) =
+        install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await
+    {
+        return;
+    };
+
+    // upload template
+    let _ = upload_template_once(ogy_payment_index, canister_id, template_id).await;
 }
 
 pub fn build_origyn_nft_init_args(

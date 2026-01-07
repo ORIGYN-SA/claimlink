@@ -1,9 +1,10 @@
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+use candid::{CandidType, Nat};
 
+#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum GenericError {
     Other(String),
 }
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum CreateCollectionError {
     CreateOrigynNftCanisterError,
     TransferFromError(icrc_ledger_types::icrc2::transfer_from::TransferFromError),
@@ -16,4 +17,10 @@ impl From<crate::sub_canister::CreateOrigynNftCanisterError> for CreateCollectio
     fn from(_error: crate::sub_canister::CreateOrigynNftCanisterError) -> Self {
         CreateCollectionError::CreateOrigynNftCanisterError
     }
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum CreateTemplateError {
+    LimitExceeded { max_templates: Nat },
+    JsonError(String),
 }

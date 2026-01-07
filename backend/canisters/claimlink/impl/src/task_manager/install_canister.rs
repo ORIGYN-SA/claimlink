@@ -36,7 +36,7 @@ where
                 canister_id,
                 wasm_hash
             );
-            return Err(TaskError::WasmHashNotFound(wasm_hash.clone()));
+            return Err(TaskError::WasmHashNotFound(*wasm_hash));
         }
     };
 
@@ -80,7 +80,6 @@ where
                     EventType::FailedInstallation {
                         ogy_payment_index,
                         reason: e.to_string(),
-                        canister_id: Some(canister_id),
                     },
                 )
             });

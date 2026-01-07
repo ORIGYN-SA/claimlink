@@ -18,7 +18,9 @@ pub struct Wasm {
     hash: WasmHash,
 }
 
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Deserialize, Serialize, Encode, Decode)]
+#[derive(
+    Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Deserialize, Serialize, Encode, Decode, Copy,
+)]
 #[serde(from = "serde_bytes::ByteArray<N>", into = "serde_bytes::ByteArray<N>")]
 pub struct Hash<const N: usize>(#[n(0)] [u8; N]);
 
