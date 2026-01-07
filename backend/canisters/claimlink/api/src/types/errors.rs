@@ -13,12 +13,6 @@ pub enum CreateCollectionError {
     InvalidNftTemplateId,
 }
 
-impl From<crate::sub_canister::CreateOrigynNftCanisterError> for CreateCollectionError {
-    fn from(_error: crate::sub_canister::CreateOrigynNftCanisterError) -> Self {
-        CreateCollectionError::CreateOrigynNftCanisterError
-    }
-}
-
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum CreateTemplateError {
     LimitExceeded { max_templates: Nat },

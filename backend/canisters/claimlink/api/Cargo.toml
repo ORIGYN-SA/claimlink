@@ -32,3 +32,8 @@ num-bigint = { workspace = true }
 num-traits = { workspace = true }
 hex = { workspace = true }
 
+
+
+[dev-dependencies]
+proptest="1.4.0"
+

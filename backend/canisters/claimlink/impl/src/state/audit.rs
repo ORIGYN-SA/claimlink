@@ -12,7 +12,10 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::Init(init_arg) => {
             panic!("state re-initialization is not allowed: {init_arg:?}");
         }
-        EventType::Upgrade() => {}
+        EventType::Upgrade(upgrade_args) => state
+            .upgrade(upgrade_args.clone())
+            .expect("applying upgrade event should succeed"),
+
         EventType::CreateCollectionRequest {
             metadata,
             ogy_payment_index,
@@ -39,7 +42,7 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
             wasm_hash,
         } => state
             .data
-            .record_installed_canister(*ogy_payment_index, wasm_hash.clone()),
+            .record_installed_canister(*ogy_payment_index, *wasm_hash),
         EventType::FailedInstallation {
             ogy_payment_index,
             reason,

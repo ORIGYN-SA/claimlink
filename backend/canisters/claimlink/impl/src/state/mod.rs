@@ -1,12 +1,17 @@
 use bity_ic_canister_state_macros::canister_state;
+use bity_ic_types::BuildVersion;
 use candid::{CandidType, Principal};
 use claimlink_api::{
     collection::CollectionSearchParam,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
+    post_upgrade::UpgradeArgs,
 };
 use serde::{Deserialize, Serialize};
-use std::collections::{BTreeMap, HashSet};
+use std::{
+    collections::{BTreeMap, HashSet},
+    str::FromStr,
+};
 use types::TimestampNanos;
 use utils::{
     env::{CanisterEnv, Environment},
@@ -61,6 +66,66 @@ impl RuntimeState {
             .authorized_principals
             .iter()
             .any(|authordied_principal| authordied_principal.principal == caller)
+    }
+
+    pub fn upgrade(
+        &mut self,
+        UpgradeArgs {
+            commit_hash,
+            build_version,
+            origyn_nft_wasm_hash,
+            bank_principal_id,
+            cycles_management,
+            collection_request_fee,
+            ogy_transfer_fee,
+            max_creation_retries,
+            max_template_per_owner,
+        }: UpgradeArgs,
+    ) -> Result<(), String> {
+        if let Some(origyn_nft_wasm_hash) = origyn_nft_wasm_hash {
+            self.data.origyn_nft_wasm_hash = WasmHash::from_str(&origyn_nft_wasm_hash)?;
+        }
+
+        if let Some(bank_principal_id) = bank_principal_id {
+            self.data.bank_principal_id = bank_principal_id;
+        }
+
+        if let Some(cycles_management) = cycles_management {
+            self.data.cycles_management = cycles_management;
+        }
+
+        if let Some(collection_request_fee) = collection_request_fee {
+            self.data.collection_request_fee = collection_request_fee
+                .0
+                .try_into()
+                .map_err(|_| "Invlaid collection_request_fee")?;
+        }
+
+        if let Some(ogy_transfer_fee) = ogy_transfer_fee {
+            self.data.ogy_transfer_fee = ogy_transfer_fee
+                .0
+                .try_into()
+                .map_err(|_| "Invlaid ogy_transfer_fee")?;
+        }
+
+        if let Some(max_creation_retries) = max_creation_retries {
+            self.data.max_creation_retries = max_creation_retries
+                .0
+                .try_into()
+                .map_err(|_| "Invlaid max_creation_retries")?;
+        }
+
+        if let Some(max_template_per_owner) = max_template_per_owner {
+            self.data.max_template_per_owner = max_template_per_owner
+                .0
+                .try_into()
+                .map_err(|_| "Invlaid max_template_per_owner")?;
+        }
+
+        self.env.set_version(build_version);
+        self.env.set_commit_hash(commit_hash);
+
+        Ok(())
     }
 }
 
@@ -424,7 +489,11 @@ impl TryFrom<InitArg> for RuntimeState {
             .map_err(|_| "max_template_per_owner too big".to_string())?;
 
         Ok(RuntimeState::new(
-            CanisterEnv::new(value.test_mode),
+            CanisterEnv::new(
+                value.test_mode,
+                BuildVersion::new(1, 0, 0),
+                value.commit_hash,
+            ),
             Data {
                 origyn_nft_wasm_hash: WasmHash::default(),
                 active_tasks: HashSet::new(),

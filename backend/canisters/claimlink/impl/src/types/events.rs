@@ -1,16 +1,12 @@
+use crate::types::{
+    collections::{CollectionMetadata, OgyChargedAmount, OgyTransferIndex},
+    templates::NftTemplateId,
+    wasm::WasmHash,
+};
 use candid::Principal;
-use claimlink_api::{impl_storable_minicbor, init::InitArg};
+use claimlink_api::{impl_storable_minicbor, init::InitArg, post_upgrade::UpgradeArgs};
 use minicbor::{Decode, Encode};
 use types::TimestampNanos;
-
-use crate::{
-    task_manager::TaskError,
-    types::{
-        collections::{CollectionMetadata, OgyChargedAmount, OgyTransferIndex},
-        templates::NftTemplateId,
-        wasm::WasmHash,
-    },
-};
 
 /// The event describing the  canister state transition.
 #[derive(Clone, Debug, Encode, Decode, PartialEq, Eq)]
@@ -18,7 +14,7 @@ pub enum EventType {
     #[n(0)]
     Init(#[n(0)] InitArg),
     #[n(1)]
-    Upgrade(),
+    Upgrade(#[n(1)] UpgradeArgs),
     #[n(2)]
     CreateCollectionRequest {
         #[n(0)]
