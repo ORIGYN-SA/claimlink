@@ -9,7 +9,7 @@
  * - Modals, forms, and selections managed by atom reducer
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAtom } from "jotai";
 import { type Template } from "@/shared/data";
 import { Button } from "@/components/ui/button";
@@ -61,17 +61,25 @@ export function EditTemplateStepV2({
   onTemplateChange,
 }: EditTemplateStepV2Props) {
   const [state, dispatch] = useAtom(templateEditorAtom);
+  const isInitializedRef = useRef(false);
+  const prevTemplateIdRef = useRef<string | null>(null);
 
-  // Initialize atom with selected template
+  // Initialize atom with selected template (only when template ID changes)
   useEffect(() => {
-    if (selectedTemplate) {
+    if (selectedTemplate && selectedTemplate.id !== prevTemplateIdRef.current) {
+      prevTemplateIdRef.current = selectedTemplate.id;
+      isInitializedRef.current = false;
       dispatch({ type: "SET_TEMPLATE", template: selectedTemplate });
+      // Mark as initialized after a tick to allow state to settle
+      requestAnimationFrame(() => {
+        isInitializedRef.current = true;
+      });
     }
   }, [selectedTemplate, dispatch]);
 
-  // Notify parent of template changes
+  // Notify parent of template changes (only after initialization and for actual edits)
   useEffect(() => {
-    if (state.template && onTemplateChange) {
+    if (isInitializedRef.current && state.template && onTemplateChange) {
       onTemplateChange(state.template);
     }
   }, [state.template, onTemplateChange]);

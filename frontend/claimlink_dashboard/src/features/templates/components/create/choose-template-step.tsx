@@ -20,15 +20,15 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
   };
 
   return (
-    <div className="bg-white border border-[#e1e1e1] border-solid box-border content-stretch flex flex-col gap-[24px] items-center justify-center pb-[40px] pt-[32px] px-[24px] relative rounded-[16px] shrink-0 w-[714px]">
+    <div className="bg-white border border-[#e1e1e1] border-solid box-border content-stretch flex flex-col gap-[24px] items-center justify-center pb-[40px] pt-[32px] px-[24px] relative rounded-[16px] shrink-0 w-full max-w-[714px]">
       {/* Title Section */}
       <div className="content-stretch flex flex-col gap-[4px] items-center justify-center relative shrink-0 w-full">
-        <p className="font-['General_Sans:Regular',_sans-serif] leading-[32px] not-italic relative shrink-0 text-[#222526] text-[24px] text-center text-nowrap tracking-[1.2px] whitespace-pre">
+        <p className="font-['General_Sans:Regular',_sans-serif] leading-[32px] not-italic relative shrink-0 text-[#222526] text-[20px] sm:text-[24px] text-center tracking-[1.2px]">
           Choose template
         </p>
         <div className="content-stretch flex flex-col gap-[8px] items-center justify-center relative shrink-0 w-full">
           <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
-            <div className="box-border content-stretch flex flex-col gap-[8px] items-start justify-center ml-0 mt-0 relative w-[353px]">
+            <div className="box-border content-stretch flex flex-col gap-[8px] items-start justify-center ml-0 mt-0 relative w-full max-w-[353px]">
               <p className="font-['General_Sans:Regular',_sans-serif] leading-[normal] not-italic relative shrink-0 text-[#69737c] text-[13px] text-center w-full">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit.
               </p>
@@ -40,7 +40,7 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
       {/* Template Listing */}
       <div className="content-stretch flex flex-col gap-[8px] items-start relative shrink-0 w-full">
         {/* Grid with 2 columns */}
-        <div className="grid grid-cols-2 gap-2 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full">
           {templateOptions.map((template) => (
             <div
               key={template.id}
@@ -110,10 +110,10 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
               </svg>
             </div>
           )}
-          <p className="[text-underline-position:from-font] decoration-solid font-['General_Sans:Medium',_sans-serif] h-[19px] relative shrink-0 text-[#615bff] text-[14px] underline w-[280px]">
+          <p className="[text-underline-position:from-font] decoration-solid font-['General_Sans:Medium',_sans-serif] h-[19px] relative shrink-0 text-[#615bff] text-[14px] underline w-full max-w-[280px]">
             {manualTemplateOption.name}
           </p>
-          <p className="font-['General_Sans:Regular',_sans-serif] h-[19px] relative shrink-0 text-[#69737c] text-[12px] w-[280px]">
+          <p className="font-['General_Sans:Regular',_sans-serif] h-[19px] relative shrink-0 text-[#69737c] text-[12px] w-full max-w-[280px]">
             {manualTemplateOption.description}
           </p>
         </div>
@@ -121,7 +121,7 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
 
       {/* Next Button */}
       <button
-        className="bg-[#222526] box-border content-stretch flex gap-[10px] h-[48px] items-center justify-center px-[25px] py-0 relative rounded-[100px] shrink-0 w-[360px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors"
+        className="bg-[#222526] box-border content-stretch flex gap-[10px] h-[48px] items-center justify-center px-[25px] py-0 relative rounded-[100px] shrink-0 w-full sm:w-[360px] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#333333] transition-colors"
         onClick={handleNext}
         disabled={!selectedTemplate}
       >
