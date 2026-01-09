@@ -191,77 +191,77 @@ export function EditTemplateStepV2({
   // ============================================================================
 
   return (
-    <div className="w-full max-w-6xl mx-auto space-y-6">
+    <div className="w-full max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header Section */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
+      <Card className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex items-center gap-4">
-            <div className="text-sm text-[#69737c] uppercase tracking-wider">
+            <div className="text-xs sm:text-sm text-[#69737c] uppercase tracking-wider">
               Applied on {certificateCount}{" "}
               {certificateCount === 1 ? "certificate" : "certificates"}
             </div>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
             <Button
               variant="outline"
-              className="flex items-center gap-2"
+              className="flex items-center justify-center gap-2 text-sm"
               onClick={handleSaveDraft}
             >
               <Icon.Mint className="w-4 h-4" />
               Save as draft
             </Button>
-            <Button onClick={handlePreviewChanges}>Preview changes</Button>
+            <Button onClick={handlePreviewChanges} className="text-sm">Preview changes</Button>
           </div>
         </div>
       </Card>
 
       {/* Multi Language Support */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between mb-6">
+      <Card className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-lg font-medium text-[#222526]">
+            <h2 className="text-base sm:text-lg font-medium text-[#222526]">
               Multi Language Support
             </h2>
-            <p className="text-sm text-[#69737c]">
+            <p className="text-xs sm:text-sm text-[#69737c]">
               Add new languages you plan to support
             </p>
           </div>
-          <Button variant="outline" onClick={handleAddLanguage}>
+          <Button variant="outline" onClick={handleAddLanguage} className="text-sm self-start sm:self-auto">
             <Icon.Plus className="w-4 h-4 mr-2" />
             Add language
           </Button>
         </div>
 
-        <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex flex-wrap gap-2 sm:gap-4 mb-3 sm:mb-4">
           {languages.map((language: TemplateLanguage) => (
             <div
               key={language.id}
-              className="flex items-center gap-3 bg-[#f1f6f9] rounded-lg p-4 min-w-[200px] relative group"
+              className="flex items-center gap-2 sm:gap-3 bg-[#f1f6f9] rounded-lg p-2 sm:p-4 min-w-[140px] sm:min-w-[200px] relative group"
             >
-              <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center text-[#69737c] font-bold">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white rounded-lg flex items-center justify-center text-[#69737c] font-bold text-sm sm:text-base">
                 {language.code}
               </div>
-              <div className="flex-1">
-                <p className="font-medium text-[#222526]">{language.name}</p>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-[#222526] text-sm sm:text-base truncate">{language.name}</p>
                 {language.isDefault && (
-                  <p className="text-xs text-[#69737c]">Default</p>
+                  <p className="text-[10px] sm:text-xs text-[#69737c]">Default</p>
                 )}
               </div>
               {!language.isDefault && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="h-7 w-7 sm:h-8 sm:w-8 p-0 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
                   onClick={() => handleDeleteLanguageClick(language)}
                 >
-                  <Trash2 className="w-4 h-4 text-red-500" />
+                  <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-500" />
                 </Button>
               )}
             </div>
           ))}
         </div>
 
-        <div className="text-xs text-[#69737c] uppercase tracking-wider">
+        <div className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wider">
           {languages.length} {languages.length === 1 ? "language" : "languages"}
         </div>
       </Card>
@@ -296,13 +296,13 @@ export function EditTemplateStepV2({
       </Card> */}
 
       {/* Choose a search index */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
+      <Card className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="flex-1">
-            <h2 className="text-lg font-medium text-[#222526]">
+            <h2 className="text-base sm:text-lg font-medium text-[#222526]">
               Choose a search index
             </h2>
-            <p className="text-sm text-[#69737c]">
+            <p className="text-xs sm:text-sm text-[#69737c]">
               Select a field from the template that you can use to search and
               index certificates
             </p>
@@ -311,7 +311,7 @@ export function EditTemplateStepV2({
             value={state.searchIndexField}
             onValueChange={handleSearchIndexChange}
           >
-            <SelectTrigger className="w-64">
+            <SelectTrigger className="w-full sm:w-64">
               <SelectValue placeholder="Select field..." />
             </SelectTrigger>
             <SelectContent>
@@ -330,11 +330,11 @@ export function EditTemplateStepV2({
       </Card>
 
       {/* Navigation buttons */}
-      <div className="flex justify-center gap-4 pt-6">
-        <Button variant="outline" onClick={onBack}>
+      <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 pt-4 sm:pt-6">
+        <Button variant="outline" onClick={onBack} className="w-full sm:w-auto order-2 sm:order-1">
           Back
         </Button>
-        <Button onClick={handlePreviewChanges}>Next</Button>
+        <Button onClick={handlePreviewChanges} className="w-full sm:w-auto order-1 sm:order-2">Next</Button>
       </div>
 
       {/* ========================================================================== */}
@@ -346,7 +346,7 @@ export function EditTemplateStepV2({
         open={state.modals.addLanguage}
         onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
       >
-        <DialogContent className="sm:max-w-[500px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[500px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Add Language</DialogTitle>
             <DialogDescription>
@@ -429,7 +429,7 @@ export function EditTemplateStepV2({
         open={state.modals.deleteLanguage}
         onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
       >
-        <DialogContent className="sm:max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Delete Language</DialogTitle>
             <DialogDescription>
@@ -456,7 +456,7 @@ export function EditTemplateStepV2({
         open={state.modals.addField}
         onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
       >
-        <DialogContent className="sm:max-w-[600px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Add Field</DialogTitle>
             <DialogDescription>
@@ -580,7 +580,7 @@ export function EditTemplateStepV2({
         open={state.modals.editField}
         onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
       >
-        <DialogContent className="sm:max-w-[600px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[600px] max-h-[90vh] overflow-y-auto !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Edit Field</DialogTitle>
             <DialogDescription>
@@ -704,7 +704,7 @@ export function EditTemplateStepV2({
         open={state.modals.deleteField}
         onOpenChange={() => dispatch({ type: "CLOSE_ALL_MODALS" })}
       >
-        <DialogContent className="sm:max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
+        <DialogContent className="w-[calc(100%-2rem)] max-w-[425px] !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <DialogTitle>Delete Field</DialogTitle>
             <DialogDescription>

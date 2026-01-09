@@ -32,30 +32,31 @@ export function TemplateSectionCard({
   const sortedItems = getSectionItems(section);
 
   return (
-    <Card className="p-6 bg-[#f4f3f3] border-[#e1e1e1]">
+    <Card className="p-4 sm:p-6 bg-[#f4f3f3] border-[#e1e1e1]">
       {/* Section Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4 sm:mb-6">
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <h2 className="text-lg font-medium text-[#222526]">{section.name}</h2>
-            <span className="text-xs text-[#69737c] px-2 py-1 bg-white rounded">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            <h2 className="text-base sm:text-lg font-medium text-[#222526]">{section.name}</h2>
+            <span className="text-[10px] sm:text-xs text-[#69737c] px-2 py-1 bg-white rounded">
               {sortedItems.length} {sortedItems.length === 1 ? 'item' : 'items'}
             </span>
           </div>
           {section.description && (
-            <p className="text-sm text-[#69737c] mt-1">{section.description}</p>
+            <p className="text-xs sm:text-sm text-[#69737c] mt-1">{section.description}</p>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 self-start sm:self-auto">
           {/* Add Item Button */}
           {onAddItem && (
             <Button
               variant="outline"
               size="sm"
               onClick={() => onAddItem(section.id)}
+              className="text-xs sm:text-sm"
             >
-              <Icon.Plus className="w-4 h-4 mr-1" />
+              <Icon.Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
               Add Item
             </Button>
           )}
@@ -67,7 +68,7 @@ export function TemplateSectionCard({
               size="sm"
               onClick={() => onToggleSection(section.id)}
             >
-              <Icon.Menu className="w-4 h-4" />
+              <Icon.Menu className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </Button>
           )}
         </div>
@@ -75,10 +76,10 @@ export function TemplateSectionCard({
 
       {/* Section Items */}
       {!section.collapsed && (
-        <div className="space-y-4">
+        <div className="space-y-2 sm:space-y-4">
           {sortedItems.length === 0 ? (
-            <div className="bg-white rounded-lg p-8 text-center">
-              <p className="text-[#69737c] text-sm">
+            <div className="bg-white rounded-lg p-4 sm:p-8 text-center">
+              <p className="text-[#69737c] text-xs sm:text-sm">
                 No items in this section yet
               </p>
               {onAddItem && (
@@ -86,9 +87,9 @@ export function TemplateSectionCard({
                   variant="outline"
                   size="sm"
                   onClick={() => onAddItem(section.id)}
-                  className="mt-4"
+                  className="mt-3 sm:mt-4 text-xs sm:text-sm"
                 >
-                  <Icon.Plus className="w-4 h-4 mr-2" />
+                  <Icon.Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
                   Add First Item
                 </Button>
               )}
@@ -109,8 +110,8 @@ export function TemplateSectionCard({
 
       {/* Collapsed State */}
       {section.collapsed && (
-        <div className="bg-white rounded-lg p-4 text-center">
-          <p className="text-[#69737c] text-sm">
+        <div className="bg-white rounded-lg p-3 sm:p-4 text-center">
+          <p className="text-[#69737c] text-xs sm:text-sm">
             Section collapsed - {sortedItems.length} items hidden
           </p>
         </div>

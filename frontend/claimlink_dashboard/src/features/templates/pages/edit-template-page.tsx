@@ -59,17 +59,17 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
     <div className="flex flex-col min-h-screen bg-[#fcfafa]">
       <Tabs value={currentStep} onValueChange={handleTabChange} className="flex-1 flex flex-col">
         {/* Tabs Navigation */}
-        <div className="border-b border-gray-200 bg-white px-6 py-4">
+        <div className="border-b border-gray-200 bg-white px-4 sm:px-6 py-3 sm:py-4">
           <TabsList className="w-full max-w-2xl mx-auto bg-transparent h-auto p-0 gap-1">
-            <TabsTrigger 
-              value="edit" 
-              className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2"
+            <TabsTrigger
+              value="edit"
+              className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
               Edit your template
             </TabsTrigger>
-            <TabsTrigger 
-              value="preview" 
-              className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2"
+            <TabsTrigger
+              value="preview"
+              className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-2 sm:px-4 py-2 text-xs sm:text-sm"
             >
               Preview & deploy
             </TabsTrigger>
@@ -77,7 +77,7 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
         </div>
 
         {/* Tab Content */}
-        <div className="flex-1 flex items-center justify-center p-6">
+        <div className="flex-1 flex items-center justify-center p-4 sm:p-6">
           <TabsContent value="edit" className="mt-0 w-full flex justify-center">
             <EditTemplateStepV2
               selectedTemplate={selectedTemplate}
