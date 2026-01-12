@@ -52,11 +52,13 @@ export function CertificateLedger({
       className={`bg-[#fcfafa] rounded-bl-[24px] rounded-br-[24px] w-full ${className}`}
     >
       {/* Main Ledger Section */}
-      <div className="bg-[#222526] flex flex-col gap-16 px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full">
-        {/* Table Container */}
-        <div className="border border-[rgba(105,115,124,0.5)] rounded-[25px] overflow-hidden">
-          <CertificateLedgerTable transactions={currentTransactions} />
-          
+      <div className="bg-[#222526] flex flex-col gap-8 sm:gap-16 px-4 sm:px-16 py-6 sm:py-10 rounded-bl-[24px] rounded-br-[24px] w-full">
+        {/* Table Container - horizontally scrollable on mobile */}
+        <div className="border border-[rgba(105,115,124,0.5)] rounded-[16px] sm:rounded-[25px] overflow-hidden">
+          <div className="overflow-x-auto">
+            <CertificateLedgerTable transactions={currentTransactions} />
+          </div>
+
           <CertificateLedgerPagination
             currentPage={currentPage}
             totalPages={totalPages}

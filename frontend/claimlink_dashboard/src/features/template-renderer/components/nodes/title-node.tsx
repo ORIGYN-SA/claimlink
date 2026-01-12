@@ -30,7 +30,7 @@ export function TitleNode({ node }: TitleNodeProps) {
       return (
         <h2
           className={cn(
-            'text-[20px] font-semibold leading-5 text-[#061937] text-center tracking-[5px] uppercase',
+            'text-[14px] sm:text-[20px] font-semibold leading-4 sm:leading-5 text-[#061937] text-center tracking-[3px] sm:tracking-[5px] uppercase',
             node.className
           )}
         >
@@ -42,7 +42,7 @@ export function TitleNode({ node }: TitleNodeProps) {
     return (
       <h6
         className={cn(
-          'text-[14px] font-normal leading-6 text-[#69737c] tracking-[1.4px] uppercase text-center',
+          'text-[12px] sm:text-[14px] font-normal leading-5 sm:leading-6 text-[#69737c] tracking-[1px] sm:tracking-[1.4px] uppercase text-center',
           node.className
         )}
       >
@@ -57,7 +57,7 @@ export function TitleNode({ node }: TitleNodeProps) {
       return (
         <h2
           className={cn(
-            'text-[#e1e1e1] text-[16px] font-semibold leading-5 tracking-[2.24px] uppercase',
+            'text-[#e1e1e1] text-[14px] sm:text-[16px] font-semibold leading-4 sm:leading-5 tracking-[1.5px] sm:tracking-[2.24px] uppercase',
             node.className
           )}
         >
@@ -68,7 +68,7 @@ export function TitleNode({ node }: TitleNodeProps) {
     return (
       <h6
         className={cn(
-          'text-[#e1e1e1] text-[12px] font-medium leading-normal tracking-[1.2px] uppercase',
+          'text-[#e1e1e1] text-[10px] sm:text-[12px] font-medium leading-normal tracking-[1px] sm:tracking-[1.2px] uppercase',
           node.className
         )}
       >

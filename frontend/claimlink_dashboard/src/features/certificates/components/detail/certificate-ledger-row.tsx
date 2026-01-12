@@ -38,10 +38,10 @@ function TransactionBadge({ type }: TransactionBadgeProps) {
 
   return (
     <div
-      className={`${config.bgColor} border border-[rgba(225,225,225,0.5)] flex gap-2 h-7 items-center px-2 py-1 rounded-full`}
+      className={`${config.bgColor} border border-[rgba(225,225,225,0.5)] flex gap-1 sm:gap-2 h-6 sm:h-7 items-center px-1.5 sm:px-2 py-1 rounded-full`}
     >
-      <config.Icon className="size-[10px] text-[#222526]" />
-      <p className="text-[#222526] text-[12px] font-medium leading-normal">
+      <config.Icon className="size-[8px] sm:size-[10px] text-[#222526]" />
+      <p className="text-[#222526] text-[10px] sm:text-[12px] font-medium leading-normal">
         {config.label}
       </p>
     </div>
@@ -60,22 +60,22 @@ function AddressDisplay({
 }: AddressDisplayProps) {
   if (verified) {
     return (
-      <div className="flex gap-1.5 items-center">
+      <div className="flex gap-1 sm:gap-1.5 items-center">
         {/* Avatar Icon */}
-        <div className="relative size-6 shrink-0 bg-[#233169] rounded-2xl flex items-center justify-center">
-          <User className="size-3 text-white" />
+        <div className="relative size-5 sm:size-6 shrink-0 bg-[#233169] rounded-2xl flex items-center justify-center">
+          <User className="size-2.5 sm:size-3 text-white" />
         </div>
-        <p className="text-[#69737c] text-[14px] font-medium leading-4">
+        <p className="text-[#69737c] text-[12px] sm:text-[14px] font-medium leading-4 truncate">
           {addressShort}
         </p>
         {/* Verified Badge */}
-        <BadgeCheck className="size-4 shrink-0 text-[#50be8f]" />
+        <BadgeCheck className="size-3.5 sm:size-4 shrink-0 text-[#50be8f]" />
       </div>
     );
   }
 
   return (
-    <p className="text-[#69737c] text-[14px] font-medium leading-4">
+    <p className="text-[#69737c] text-[12px] sm:text-[14px] font-medium leading-4 truncate">
       {addressShort}
     </p>
   );
@@ -91,7 +91,7 @@ export function CertificateLedgerRow({
 
   return (
     <div
-      className={`${bgClass} border-b border-[#e1e1e1] last:border-b-0 flex gap-4 items-center px-6 py-4`}
+      className={`${bgClass} border-b border-[#e1e1e1] last:border-b-0 flex gap-2 sm:gap-4 items-center px-3 sm:px-6 py-3 sm:py-4`}
     >
       {/* From */}
       <div className="flex-1 min-w-0">
@@ -112,20 +112,20 @@ export function CertificateLedgerRow({
       </div>
 
       {/* Type */}
-      <div className="w-[150px] shrink-0">
+      <div className="w-[100px] sm:w-[150px] shrink-0">
         <TransactionBadge type={transaction.type} />
       </div>
 
       {/* Hash */}
-      <div className="w-[100px] shrink-0">
-        <p className="text-[#69737c] text-[14px] font-normal leading-4">
+      <div className="w-[70px] sm:w-[100px] shrink-0">
+        <p className="text-[#69737c] text-[12px] sm:text-[14px] font-normal leading-4 truncate">
           {transaction.hash}
         </p>
       </div>
 
       {/* Date */}
-      <div className="w-[100px] shrink-0">
-        <p className="text-[#69737c] text-[14px] font-normal leading-4">
+      <div className="w-[70px] sm:w-[100px] shrink-0">
+        <p className="text-[#69737c] text-[12px] sm:text-[14px] font-normal leading-4">
           {transaction.date}
         </p>
       </div>
