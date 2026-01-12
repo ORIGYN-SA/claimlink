@@ -1,6 +1,6 @@
 use bity_ic_canister_state_macros::canister_state;
 use bity_ic_types::BuildVersion;
-use candid::{CandidType, Principal};
+use candid::{CandidType, Nat, Principal};
 use claimlink_api::{
     collection::CollectionSearchParam,
     cycles::CyclesManagement,
@@ -58,8 +58,17 @@ impl RuntimeState {
             authorized_principals: self.data.authorized_principals.clone(),
             ledger_canister_id: self.data.ledger_canister_id,
             bank_principal_id: self.data.bank_principal_id,
+            cycles_management: self.data.cycles_management.clone(),
+            collection_request_fee: self.data.collection_request_fee.into(),
+            ogy_transfer_fee: self.data.ogy_transfer_fee.into(),
+            ogy_to_burn: self.data.ogy_to_burn.into(),
+            total_ogy_burned: self.data.total_ogy_burned.into(),
+            max_template_per_owner: self.data.max_template_per_owner.into(),
+            next_template_id: self.data.next_template_id.into(),
+            max_creation_retries: self.data.max_creation_retries.into(),
         }
     }
+
     pub fn is_caller_authorised_principal(&self) -> bool {
         let caller = self.env.caller();
         self.data
@@ -136,6 +145,14 @@ pub struct Metrics {
     pub ledger_canister_id: Principal,
     pub bank_principal_id: Principal,
     pub origyn_nft_wasm_hash: String,
+    pub cycles_management: CyclesManagement,
+    pub collection_request_fee: Nat,
+    pub ogy_transfer_fee: Nat,
+    pub ogy_to_burn: Nat,
+    pub total_ogy_burned: Nat,
+    pub max_template_per_owner: Nat,
+    pub next_template_id: Nat,
+    pub max_creation_retries: Nat,
 }
 
 #[derive(CandidType, Deserialize, Serialize)]
@@ -278,7 +295,7 @@ impl Data {
         self.pending_queue
             .retain(|index| *index != ogy_payment_index);
 
-        let _ = self.ogy_to_burn.wrapping_add(collection.ogy_charged);
+        self.ogy_to_burn += self.ogy_to_burn.wrapping_add(collection.ogy_charged);
     }
 
     pub fn record_failed_installation(
@@ -444,19 +461,25 @@ impl Data {
     }
 
     pub fn record_ogy_burn(&mut self, burned_ogy_amount: u128) {
-        self.ogy_to_burn
+        self.ogy_to_burn = self
+            .ogy_to_burn
             .checked_sub(burned_ogy_amount)
             .expect("Bug: Burned ogy exceeds ogy_to_burn");
 
-        let _ = self.total_ogy_burned.wrapping_add(burned_ogy_amount);
+        self.total_ogy_burned += self.total_ogy_burned.wrapping_add(burned_ogy_amount);
     }
 
     pub fn record_created_template(&mut self, template_id: NftTemplateId, owner: Principal) {
         if let Some(templates) = self.template_owners.get_mut(&owner) {
             templates.push(template_id);
+        } else {
+            self.template_owners.insert(owner, vec![template_id]);
         }
-        self.template_owners.insert(owner, vec![template_id]);
         self.next_template_id += 1;
+    }
+
+    pub fn get_template_ids_by_owner(&self, owner: &Principal) -> Vec<NftTemplateId> {
+        self.template_owners.get(owner).unwrap_or(&vec![]).to_vec()
     }
 }
 

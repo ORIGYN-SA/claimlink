@@ -5,13 +5,14 @@ use crate::task_manager::TaskError;
 use crate::types::collections::OgyTransferIndex;
 use crate::types::events::EventType;
 use crate::types::templates::NftTemplateId;
+use crate::utils::log::{DEBUG, INFO};
 use candid::{Nat, Principal};
+use ic_canister_log::log;
 use origyn_nft_canister_api::finalize_upload::Args as FinalizeUploadArgs;
 use origyn_nft_canister_api::init_upload::Args as InitUploadArgs;
 use origyn_nft_canister_api::store_chunk::Args as StoreChunkArgs;
 use origyn_nft_canister_c2c_client::{finalize_upload, init_upload, store_chunk};
 use sha2::{Digest, Sha256};
-use tracing::{debug, error, info};
 
 pub const UPLOAD_CHUNK_SIZE: u64 = 1_000_000; // 1MB
 const FILE_PATH: &str = "template.json";
@@ -22,7 +23,8 @@ pub async fn upload_template_once(
     template_id: NftTemplateId,
 ) -> Result<(), TaskError> {
     if read_state(|s| s.data.is_template_uploaded(ogy_payment_index)) {
-        info!(
+        log!(
+            INFO,
             "Template already uploaded for index {:?}",
             ogy_payment_index
         );
@@ -32,11 +34,15 @@ pub async fn upload_template_once(
     match perform_upload(canister_id, &template_id).await {
         Ok(_) => {
             mutate_state(|s| process_event(s, EventType::UploadedTemplate { ogy_payment_index }));
-            info!("Successfully uploaded template for ID: {:?}", template_id);
+            log!(
+                INFO,
+                "Successfully uploaded template for ID: {:?}",
+                template_id
+            );
             Ok(())
         }
         Err(e) => {
-            error!("Failed to upload template: {:?}", e);
+            log!(DEBUG, "Failed to upload template: {:?}", e);
             mutate_state(|s| {
                 process_event(
                     s,
@@ -66,7 +72,12 @@ async fn perform_upload(
     let file_size = raw_bytes.len() as u64;
     let file_hash = format!("{:x}", Sha256::digest(raw_bytes));
 
-    debug!("Template size: {} bytes, Hash: {}", file_size, file_hash);
+    log!(
+        DEBUG,
+        "Template size: {} bytes, Hash: {}",
+        file_size,
+        file_hash
+    );
 
     // Init Upload
     execute_init_upload(

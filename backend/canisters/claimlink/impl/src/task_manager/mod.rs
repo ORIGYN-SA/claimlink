@@ -1,10 +1,9 @@
 use crate::state::read_state;
+use crate::task_manager::burn_ogy::burn_ogy;
 use crate::task_manager::create_canister::create_canister_once;
 use crate::task_manager::install_canister::install_canister_once;
 use crate::task_manager::upload_template::upload_template_once;
-use crate::types::collections::{
-    CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount, OgyTransferIndex,
-};
+use crate::types::collections::{CollectionMetadata, OgyTransferIndex};
 use crate::types::templates::NftTemplateId;
 use crate::types::wasm::WasmHash;
 use bity_ic_types::BuildVersion;
@@ -14,11 +13,12 @@ use ic_cdk::call::Error as CallError;
 use icrc_ledger_types::icrc2::transfer_from::TransferFromError;
 use origyn_nft_canister_api::finalize_upload::FinalizeUploadError;
 use origyn_nft_canister_api::init_upload::InitUploadError;
-use origyn_nft_canister_api::lifecycle::InitArgs as OrigynNftInitArgs;
+use origyn_nft_canister_api::lifecycle::{Args as OrigynNftArgs, InitArgs as OrigynNftInitArgs};
 use origyn_nft_canister_api::store_chunk::StoreChunkError;
 use origyn_nft_canister_api::{InitApprovalsArg, Permission, PermissionManager};
 use std::collections::HashMap;
 use std::fmt;
+use std::time::Duration;
 use std::vec;
 
 pub mod burn_ogy;
@@ -134,6 +134,10 @@ pub async fn create_and_install_canister(
 
     // upload template
     let _ = upload_template_once(ogy_payment_index, canister_id, template_id).await;
+
+    ic_cdk_timers::set_timer(Duration::ZERO, || {
+        ic_cdk::futures::spawn_017_compat(burn_ogy())
+    });
 }
 
 pub fn build_origyn_nft_init_args(
@@ -141,7 +145,7 @@ pub fn build_origyn_nft_init_args(
     wasm_hash: &WasmHash,
     owner: Principal,
     metadata: &CollectionMetadata,
-) -> OrigynNftInitArgs {
+) -> OrigynNftArgs {
     let mut permissions_map = HashMap::new();
     permissions_map.insert(
         owner,
@@ -155,7 +159,7 @@ pub fn build_origyn_nft_init_args(
         ],
     );
 
-    OrigynNftInitArgs {
+    OrigynNftArgs::Init(OrigynNftInitArgs {
         test_mode,
         version: BuildVersion::default(),
         commit_hash: wasm_hash.to_string(),
@@ -179,5 +183,5 @@ pub fn build_origyn_nft_init_args(
         permitted_drift: None,
         supply_cap: None,
         tx_window: None,
-    }
+    })
 }

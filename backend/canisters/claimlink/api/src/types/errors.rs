@@ -18,3 +18,8 @@ pub enum CreateTemplateError {
     LimitExceeded { max_templates: Nat },
     JsonError(String),
 }
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum GetTemplatesByOwnerError {
+    UnauthorizedCall,
+}

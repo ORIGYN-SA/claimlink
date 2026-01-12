@@ -530,6 +530,7 @@ dependencies = [
  "futures",
  "hex",
  "http_request",
+ "ic-canister-log",
  "ic-cdk",
  "ic-cdk-macros",
  "ic-cdk-timers",
@@ -546,6 +547,7 @@ dependencies = [
  "num-traits",
  "origyn-nft-canister-api",
  "origyn-nft-canister-c2c-client",
+ "proptest",
  "serde",
  "serde_bytes",
  "serde_json",
@@ -1111,6 +1113,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-canister-log"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb82c4f617ecff6e452fe65af0489626ec7330ffe3eedd9ea14e6178eea48d1a"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "ic-cdk"
 version = "0.18.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1533,6 +1544,7 @@ dependencies = [
  "rand 0.8.5",
  "serde",
  "serde_bytes",
+ "serde_json",
  "sha2",
  "types",
  "utils",

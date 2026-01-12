@@ -2,15 +2,22 @@ use crate::{
     guards::{TaskType, TimerGuard},
     state::{audit::process_event, mutate_state, read_state},
     types::events::EventType,
+    utils::log::{DEBUG, INFO},
 };
 use bity_ic_canister_time::timestamp_nanos;
 use candid::Nat;
+use ic_canister_log::log;
 use icrc_ledger_types::icrc1::account::Account;
-use tracing::{error, info};
 
 pub async fn burn_ogy() {
     // timer guard
-    let _ = TimerGuard::new(TaskType::BurnOGY);
+    let _ = match TimerGuard::new(TaskType::BurnOGY) {
+        Ok(guard) => guard,
+        Err(e) => {
+            log!(DEBUG, "Failed retrieving burn ogy guard: {e:?}",);
+            return;
+        }
+    };
 
     let (bank_principal, ledger_id, ogy_to_burn, origyn_transfer_fee) = read_state(|s| {
         (
@@ -21,12 +28,14 @@ pub async fn burn_ogy() {
         )
     });
 
+    log!(DEBUG, "ogy to burn {ogy_to_burn}");
+
     if ogy_to_burn == 0 || ogy_to_burn < origyn_transfer_fee {
         return;
     }
 
     // Transfer OGY from claimlink canister to the bank principal to be burned
-    info!("Processing to burn {ogy_to_burn} OGY");
+    log!(INFO, "Processing to burn {ogy_to_burn} OGY");
 
     let transfer_args = icrc_ledger_types::icrc1::transfer::TransferArg {
         to: Account {
@@ -36,7 +45,7 @@ pub async fn burn_ogy() {
         amount: Nat::from(ogy_to_burn),
         fee: None,
         memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
-            format!("Burn OGY").into_bytes(),
+            "Burn OGY".to_string().into_bytes(),
         )),
         created_at_time: Some(timestamp_nanos()),
         from_subaccount: None,
@@ -46,14 +55,14 @@ pub async fn burn_ogy() {
         match icrc_ledger_canister_c2c_client::icrc1_transfer(ledger_id, &transfer_args).await {
             Ok(result) => result,
             Err(e) => {
-                error!("Failed to burn {} OGY: {e}", ogy_to_burn);
+                log!(DEBUG, "Failed to burn {} OGY: {e}", ogy_to_burn);
                 return;
             }
         };
 
     match transfer_result {
         Ok(burn_index) => mutate_state(|s| {
-            info!("Burned {ogy_to_burn} OGY with index {burn_index}");
+            log!(INFO, "Burned {ogy_to_burn} OGY with index {burn_index}");
             process_event(
                 s,
                 EventType::BurnedOGY {
@@ -63,8 +72,7 @@ pub async fn burn_ogy() {
             )
         }),
         Err(e) => {
-            error!("Failed to burn {} OGY: {e}", ogy_to_burn);
-            return;
+            log!(DEBUG, "Failed to burn {} OGY: {e}", ogy_to_burn);
         }
     }
 }

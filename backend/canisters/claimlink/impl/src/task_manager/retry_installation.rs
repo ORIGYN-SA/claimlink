@@ -1,3 +1,5 @@
+use ic_canister_log::log;
+
 use crate::{
     guards::{TaskType, TimerGuard},
     state::{audit::process_event, mutate_state, read_state},
@@ -6,11 +8,18 @@ use crate::{
         install_canister::install_canister_once, upload_template::upload_template_once,
     },
     types::events::EventType,
+    utils::log::DEBUG,
 };
 
 pub async fn retry_installation() {
-    // gaurd
-    let _gaurd = TimerGuard::new(TaskType::RetryFailedInstallation);
+    // timer guard
+    let _ = match TimerGuard::new(TaskType::RetryFailedInstallation) {
+        Ok(guard) => guard,
+        Err(e) => {
+            log!(DEBUG, "Failed retrieving retry installation guard: {e:?}",);
+            return;
+        }
+    };
 
     let (
         failed_collecctions,
@@ -55,13 +64,13 @@ pub async fn retry_installation() {
             &collection.metadata,
         );
 
-        if let Err(_) =
-            install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await
+        if (install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await)
+            .is_err()
         {
             continue;
         };
 
-        upload_template_once(
+        let _ = upload_template_once(
             ogy_payment_index,
             canister_id,
             collection.metadata.template_id,

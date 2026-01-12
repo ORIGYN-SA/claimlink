@@ -13,10 +13,11 @@ pub use claimlink_api::{
     create_template::{CreateTemplateArgs, Response as CreateTemplateResponse},
     errors::CreateTemplateError,
 };
+use serde_json::Value;
 
 #[ic_cdk::update(guard = "guards::caller_is_authorised_principal")]
 #[bity_ic_canister_tracing_macros::trace]
-pub fn create_tempalte(args: CreateTemplateArgs) -> CreateTemplateResponse {
+pub fn create_template(args: CreateTemplateArgs) -> CreateTemplateResponse {
     let caller = ic_cdk::api::msg_caller();
 
     // check if the users templates limit has been reached
@@ -33,10 +34,13 @@ pub fn create_tempalte(args: CreateTemplateArgs) -> CreateTemplateResponse {
         });
     }
 
-    let valid_json = serde_json::to_string_pretty(&args.template_json)
+    let valid_json: Value = serde_json::from_str(&args.template_json)
         .map_err(|e| CreateTemplateError::JsonError(e.to_string()))?;
 
-    let template_id = record_template(NftTemplateBytes(valid_json.into_bytes()), caller);
+    let template_id = record_template(
+        NftTemplateBytes(valid_json.to_string().into_bytes()),
+        caller,
+    );
 
     Ok(Nat::from(template_id))
 }

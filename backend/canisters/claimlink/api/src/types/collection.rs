@@ -24,7 +24,7 @@ pub struct CollectionMetadata {
 }
 
 //  Distinct states for the lifecycle
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 pub enum CollectionStatus {
     Queued,
     Created,

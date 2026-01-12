@@ -1,9 +1,8 @@
 use std::fmt::Debug;
 
 use candid::{CandidType, Encode, Principal};
+use ic_canister_log::log;
 use ic_cdk::management_canister::{install_code, CanisterInstallMode, InstallCodeArgs};
-
-use tracing::{error, info};
 
 use crate::state::audit::process_event;
 use crate::state::{mutate_state, read_state};
@@ -12,6 +11,7 @@ use crate::task_manager::TaskError;
 use crate::types::collections::OgyTransferIndex;
 use crate::types::events::EventType;
 use crate::types::wasm::WasmHash;
+use crate::utils::log::{DEBUG, INFO};
 
 pub async fn install_canister_once<I>(
     ogy_payment_index: OgyTransferIndex,
@@ -30,7 +30,7 @@ where
     let wasm = match read_stable_storage(|s| s.get_wasm(wasm_hash)) {
         Some(wasm) => wasm,
         None => {
-            error!(
+            log!(DEBUG,
                 "ERROR: failed to install canister for ogy transfer index {} at '{}': wasm hash {:?} not found",
                 ogy_payment_index,
                 canister_id,
@@ -49,7 +49,7 @@ where
     .await
     {
         Ok(_) => {
-            info!(
+            log!(INFO,
                 "successfully installed canister for ogy transfer index {} at '{}' with init args {:?}",
                 ogy_payment_index,
                 canister_id,
@@ -61,13 +61,13 @@ where
                     s,
                     EventType::InstalledWasm {
                         ogy_payment_index,
-                        wasm_hash: wasm_hash.clone(),
+                        wasm_hash: *wasm_hash,
                     },
                 )
             })
         }
         Err(e) => {
-            error!(
+            log!(DEBUG,
                 "failed to install canister for ogy transfer index {} at '{}' with init args {:?}: {}",
                 ogy_payment_index,
                 canister_id,

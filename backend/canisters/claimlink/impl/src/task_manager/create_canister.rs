@@ -1,17 +1,17 @@
 use std::vec;
 
 use candid::Principal;
+use ic_canister_log::log;
 use ic_cdk::management_canister::{
     create_canister_with_extra_cycles, CanisterSettings, CreateCanisterArgs,
 };
-
-use tracing::{error, info};
 
 use crate::state::audit::process_event;
 use crate::state::{mutate_state, read_state};
 use crate::task_manager::TaskError;
 use crate::types::collections::OgyTransferIndex;
 use crate::types::events::EventType;
+use crate::utils::log::{DEBUG, INFO};
 
 pub async fn create_canister_once(
     ogy_payment_index: OgyTransferIndex,
@@ -36,7 +36,8 @@ pub async fn create_canister_once(
     .await
     {
         Ok(canister_id_record) => {
-            info!(
+            log!(
+                INFO,
                 "created canister for {:?} for transfer index {}",
                 canister_id_record.canister_id.to_text(),
                 ogy_payment_index
@@ -54,9 +55,11 @@ pub async fn create_canister_once(
             canister_id_record.canister_id
         }
         Err(error) => {
-            error!(
+            log!(
+                DEBUG,
                 "failed to create canister collection for transfer index {:?}: {}",
-                ogy_payment_index, error
+                ogy_payment_index,
+                error
             );
             mutate_state(|s| {
                 process_event(

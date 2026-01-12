@@ -2,15 +2,23 @@ use crate::{
     guards::{TaskType, TimerGuard},
     state::{audit::process_event, mutate_state, read_state},
     types::events::EventType,
+    utils::log::DEBUG,
 };
 use bity_ic_canister_time::timestamp_nanos;
 use candid::Nat;
+use ic_canister_log::log;
 use icrc_ledger_canister::icrc1_transfer;
 use icrc_ledger_types::icrc1::account::Account;
 
 pub async fn process_reimbursements() {
     // timer guard
-    let _ = TimerGuard::new(TaskType::Reimbursement);
+    let _ = match TimerGuard::new(TaskType::Reimbursement) {
+        Ok(guard) => guard,
+        Err(e) => {
+            log!(DEBUG, "Failed retrieving reimbursement guard: {e:?}",);
+            return;
+        }
+    };
 
     let (reimbursements, ledger_id, ogy_transfer_fee) = read_state(|s| {
         (
