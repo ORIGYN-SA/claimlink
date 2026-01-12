@@ -31,10 +31,10 @@ function TemplatePreviewSection({
   selectedTemplate: TemplateWithBackground | null;
 }) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Image Preview */}
-      <div className="space-y-4">
-        <div className="aspect-square bg-[#f5f5f5] rounded-lg overflow-hidden">
+      <div className="space-y-3 sm:space-y-4">
+        <div className="aspect-square bg-[#f5f5f5] rounded-lg overflow-hidden max-w-[300px] sm:max-w-none mx-auto lg:mx-0">
           {selectedTemplate?.thumbnail ? (
             <img
               src={selectedTemplate.thumbnail}
@@ -44,9 +44,9 @@ function TemplatePreviewSection({
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#69737c]">
               <div className="text-center">
-                <div className="w-16 h-16 mx-auto mb-4 bg-[#e1e1e1] rounded-full flex items-center justify-center">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-3 sm:mb-4 bg-[#e1e1e1] rounded-full flex items-center justify-center">
                   <svg
-                    className="w-8 h-8"
+                    className="w-6 h-6 sm:w-8 sm:h-8"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -59,7 +59,7 @@ function TemplatePreviewSection({
                     />
                   </svg>
                 </div>
-                <p className="text-sm">Template Preview</p>
+                <p className="text-xs sm:text-sm">Template Preview</p>
               </div>
             </div>
           )}
@@ -67,54 +67,54 @@ function TemplatePreviewSection({
       </div>
 
       {/* Template Information */}
-      <div className="space-y-6">
+      <div className="space-y-4 sm:space-y-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-xl font-medium text-[#222526]">
+            <h3 className="text-lg sm:text-xl font-medium text-[#222526]">
               {selectedTemplate?.name}
             </h3>
             {Boolean(selectedTemplate?.metadata?.premium) && (
-              <Badge variant="secondary" className="bg-[#50be8f] text-white">
+              <Badge variant="secondary" className="bg-[#50be8f] text-white text-xs">
                 Premium
               </Badge>
             )}
           </div>
-          <p className="text-[#69737c] text-sm leading-relaxed">
+          <p className="text-[#69737c] text-xs sm:text-sm leading-relaxed">
             {selectedTemplate?.description}
           </p>
         </div>
 
         {/* Template Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-[#fcfafa] rounded-lg p-4">
-            <p className="text-xs text-[#69737c] uppercase tracking-wide mb-1">
+        <div className="grid grid-cols-2 gap-2 sm:gap-4">
+          <div className="bg-[#fcfafa] rounded-lg p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-1">
               Used in
             </p>
-            <p className="text-lg font-semibold text-[#222526]">
+            <p className="text-base sm:text-lg font-semibold text-[#222526]">
               {selectedTemplate?.certificateCount || 0} certificates
             </p>
           </div>
-          <div className="bg-[#fcfafa] rounded-lg p-4">
-            <p className="text-xs text-[#69737c] uppercase tracking-wide mb-1">
+          <div className="bg-[#fcfafa] rounded-lg p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-1">
               Category
             </p>
-            <p className="text-lg font-semibold text-[#222526] capitalize">
+            <p className="text-base sm:text-lg font-semibold text-[#222526] capitalize">
               {selectedTemplate?.category}
             </p>
           </div>
         </div>
 
-        <div className="bg-[#fcfafa] rounded-lg p-4">
-          <p className="text-xs text-[#69737c] uppercase tracking-wide mb-2">
+        <div className="bg-[#fcfafa] rounded-lg p-3 sm:p-4">
+          <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-2">
             Background Type
           </p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {selectedTemplate?.backgroundType === "custom" ? (
               <div className="contents">
                 <Badge variant="outline" className="text-xs">
                   Custom
                 </Badge>
-                <span className="text-sm text-[#222526]">
+                <span className="text-xs sm:text-sm text-[#222526]">
                   Custom background image uploaded
                 </span>
               </div>
@@ -123,7 +123,7 @@ function TemplatePreviewSection({
                 <Badge variant="outline" className="text-xs">
                   Standard
                 </Badge>
-                <span className="text-sm text-[#222526]">
+                <span className="text-xs sm:text-sm text-[#222526]">
                   Default ORIGYN background
                 </span>
               </div>
@@ -133,7 +133,7 @@ function TemplatePreviewSection({
             selectedTemplate.customBackgroundImage && (
               <div className="mt-3">
                 <p className="text-xs text-[#69737c] mb-1">Preview</p>
-                <div className="w-full h-24 rounded border border-[#e1e1e1] overflow-hidden">
+                <div className="w-full h-20 sm:h-24 rounded border border-[#e1e1e1] overflow-hidden">
                   <img
                     src={selectedTemplate.customBackgroundImage}
                     alt="Custom background"
@@ -146,12 +146,12 @@ function TemplatePreviewSection({
 
         {/* Company Info (if available) */}
         {Boolean(selectedTemplate?.metadata?.company) && (
-          <div className="bg-[#fcfafa] rounded-lg p-4">
-            <p className="text-xs text-[#69737c] uppercase tracking-wide mb-2">
+          <div className="bg-[#fcfafa] rounded-lg p-3 sm:p-4">
+            <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-2">
               Company
             </p>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-[#222526]">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-xs sm:text-sm font-medium text-[#222526]">
                 {String(selectedTemplate?.metadata?.company)}
               </span>
               {Boolean(selectedTemplate?.metadata?.verified) && (
@@ -238,12 +238,12 @@ function CertificatePreview({
   }, [origynViews, selectedLanguage]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div className="text-center">
-        <h3 className="text-xl font-semibold text-[#222526] mb-2">
+        <h3 className="text-lg sm:text-xl font-semibold text-[#222526] mb-1 sm:mb-2">
           Certificate Preview
         </h3>
-        <p className="text-[#69737c]">
+        <p className="text-[#69737c] text-sm sm:text-base">
           Preview how your certificate will look with{" "}
           {selectedTemplate?.backgroundType === "custom"
             ? "your custom background"
@@ -259,8 +259,8 @@ function CertificatePreview({
           ledgerData={mockCertificateLedger}
         />
       ) : (
-        <div className="bg-[#f5f5f5] rounded-lg p-12 text-center">
-          <p className="text-[#69737c]">
+        <div className="bg-[#f5f5f5] rounded-lg p-8 sm:p-12 text-center">
+          <p className="text-[#69737c] text-sm sm:text-base">
             No template structure available for preview.
             <br />
             Please select a template with a defined structure.
@@ -291,13 +291,13 @@ export function PreviewDeployStep({
   }, [selectedTemplate?.structure?.languages]);
 
   return (
-    <div className="w-full max-w-[1400px] mx-auto space-y-8">
+    <div className="w-full max-w-[1400px] mx-auto space-y-6 sm:space-y-8">
       {/* Header Section */}
-      <div className="text-center space-y-2">
-        <h1 className="text-2xl font-medium text-[#222526]">
+      <div className="text-center space-y-1 sm:space-y-2">
+        <h1 className="text-xl sm:text-2xl font-medium text-[#222526]">
           Preview & deploy
         </h1>
-        <p className="text-[#69737c]">
+        <p className="text-[#69737c] text-sm sm:text-base">
           Review your template: {selectedTemplate?.name || "Untitled Template"}
         </p>
       </div>
@@ -307,14 +307,14 @@ export function PreviewDeployStep({
 
       {/* Language Selector (when template has multiple languages) */}
       {availableLanguages.length > 1 && (
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-2 flex-wrap">
           {availableLanguages.map((lang) => (
             <Button
               key={lang.code}
               variant={selectedLanguage === lang.code ? "default" : "outline"}
               size="sm"
               onClick={() => setSelectedLanguage(lang.code)}
-              className={selectedLanguage === lang.code ? "bg-[#222526]" : ""}
+              className={`text-xs sm:text-sm ${selectedLanguage === lang.code ? "bg-[#222526]" : ""}`}
             >
               {lang.name}
             </Button>
@@ -329,13 +329,13 @@ export function PreviewDeployStep({
       />
 
       {/* Action Buttons */}
-      <div className="flex gap-4 justify-center pt-6">
-        <Button variant="outline" onClick={onBack} className="px-8">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center pt-4 sm:pt-6">
+        <Button variant="outline" onClick={onBack} className="w-full sm:w-auto px-8 order-2 sm:order-1">
           Back
         </Button>
         <Button
           onClick={onComplete}
-          className="px-8 bg-[#222526] hover:bg-[#333333]"
+          className="w-full sm:w-auto px-8 bg-[#222526] hover:bg-[#333333] order-1 sm:order-2"
         >
           Deploy
         </Button>

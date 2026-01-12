@@ -14,8 +14,8 @@ export function CertificateTabs({ activeTab, onTabChange }: CertificateTabsProps
   ];
 
   return (
-    <div className="bg-[#222526] flex gap-16 items-center justify-center pt-10 pb-0 px-0 rounded-tl-[24px] rounded-tr-[24px] w-full">
-      <nav className="bg-[#2e3233] border border-[#434849] rounded-full p-1 flex gap-1 items-center">
+    <div className="bg-[#222526] flex gap-4 sm:gap-16 items-center justify-center pt-6 sm:pt-10 pb-0 px-2 sm:px-0 rounded-tl-[24px] rounded-tr-[24px] w-full">
+      <nav className="bg-[#2e3233] border border-[#434849] rounded-full p-1 flex gap-0.5 sm:gap-1 items-center overflow-x-auto max-w-full">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
@@ -23,8 +23,8 @@ export function CertificateTabs({ activeTab, onTabChange }: CertificateTabsProps
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={`
-                px-4 py-4 rounded-full flex items-center justify-center gap-2.5
-                text-[14px] font-medium leading-[23px] tracking-[0.7px] uppercase whitespace-nowrap
+                px-2 sm:px-4 py-2 sm:py-4 rounded-full flex items-center justify-center gap-2.5
+                text-[10px] sm:text-[14px] font-medium leading-[18px] sm:leading-[23px] tracking-[0.5px] sm:tracking-[0.7px] uppercase whitespace-nowrap
                 transition-colors
                 ${
                   isActive

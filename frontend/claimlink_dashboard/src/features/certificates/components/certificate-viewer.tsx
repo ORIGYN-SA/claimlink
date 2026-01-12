@@ -102,8 +102,8 @@ function NoDataPlaceholder({ tab }: { tab: string }) {
   };
 
   return (
-    <div className="bg-[#222526] px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[400px] flex items-center justify-center">
-      <p className="text-[#e1e1e1] text-xl">{messages[tab] || "No data available"}</p>
+    <div className="bg-[#222526] px-4 sm:px-16 py-6 sm:py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
+      <p className="text-[#e1e1e1] text-base sm:text-xl text-center">{messages[tab] || "No data available"}</p>
     </div>
   );
 }
