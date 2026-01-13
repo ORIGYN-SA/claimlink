@@ -23,15 +23,17 @@ interface PricingSidebarProps {
   description?: string;
 }
 
-export function PricingSidebar({
+/**
+ * Inner content component - can be used standalone (e.g., in mobile sheet)
+ */
+export function PricingSidebarContent({
   pricing,
   storage,
   description = "Vestibulum eu purus eu orci commodo elementum et et lorem. Curabitur pharetra velit ut facilisis ultrices."
 }: PricingSidebarProps) {
   return (
-    <div className="w-[400px] flex-shrink-0">
-      <Card className="border-[#e1e1e1] bg-white rounded-[25px]">
-        <CardContent className="p-6 space-y-6">
+    <Card className="border-[#e1e1e1] bg-white rounded-[25px]">
+      <CardContent className="p-6 space-y-6">
           {/* General Information */}
           <div className="space-y-2">
             <h3 className="text-[#222526] font-medium text-lg">General information</h3>
@@ -103,6 +105,16 @@ export function PricingSidebar({
           </div>
         </CardContent>
       </Card>
+  );
+}
+
+/**
+ * Wrapper component with fixed width - used in desktop layout
+ */
+export function PricingSidebar(props: PricingSidebarProps) {
+  return (
+    <div className="w-[400px] flex-shrink-0">
+      <PricingSidebarContent {...props} />
     </div>
   );
 }

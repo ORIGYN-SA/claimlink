@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
+import { ChevronLeft } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { mockTemplates, getTemplateById } from '@/shared/data/templates';
 import { CollectionFormSection } from '../components/form/collection-form-section';
-import { PricingSidebar } from '../components/form/pricing-sidebar';
+import { PricingSidebar, PricingSidebarContent } from '../components/form/pricing-sidebar';
 import { useAuth } from '@/features/auth';
 import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
 import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
@@ -27,6 +29,9 @@ export function NewCollectionPage() {
   const [selectedTemplate, setSelectedTemplate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitButtonText, setSubmitButtonText] = useState('Create collection');
+
+  // Mobile pricing sheet state
+  const [showPricingSheet, setShowPricingSheet] = useState(false);
 
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -283,8 +288,10 @@ export function NewCollectionPage() {
     description: 'Storage description commodo elementum et et lorem. Curabitur pharetra velit ut facilisis ultrices.',
   };
 
+  const sidebarDescription = "Vestibulum eu purus eu orci commodo elementum et et lorem. Curabitur pharetra velit ut facilisis ultrices.";
+
   return (
-    <div className="flex gap-6 items-start">
+    <div className="flex flex-col lg:flex-row gap-6 items-start relative">
       {/* Main Form Section */}
       <CollectionFormSection
         collectionName={collectionName}
@@ -306,12 +313,39 @@ export function NewCollectionPage() {
         imageFileInputRef={fileInputRef}
       />
 
-      {/* Sidebar Information */}
-      <PricingSidebar
-        pricing={pricingInfo}
-        storage={storageInfo}
-        description="Vestibulum eu purus eu orci commodo elementum et et lorem. Curabitur pharetra velit ut facilisis ultrices."
-      />
+      {/* Desktop Sidebar - Hidden on mobile */}
+      <div className="hidden lg:block">
+        <PricingSidebar
+          pricing={pricingInfo}
+          storage={storageInfo}
+          description={sidebarDescription}
+        />
+      </div>
+
+      {/* Mobile: Floating button to open pricing sheet */}
+      <button
+        onClick={() => setShowPricingSheet(true)}
+        className="lg:hidden fixed right-0 top-1/2 -translate-y-1/2 z-40 bg-white border border-[#e1e1e1] rounded-l-xl p-2 shadow-md"
+        aria-label="Show pricing information"
+      >
+        <ChevronLeft className="w-5 h-5 text-[#222526]" />
+      </button>
+
+      {/* Mobile: Pricing Sheet */}
+      <Sheet open={showPricingSheet} onOpenChange={setShowPricingSheet}>
+        <SheetContent side="right" className="w-[85vw] max-w-[400px] p-0 overflow-y-auto">
+          <SheetHeader className="p-4 border-b border-[#e1e1e1]">
+            <SheetTitle>Collection information</SheetTitle>
+          </SheetHeader>
+          <div className="p-4">
+            <PricingSidebarContent
+              pricing={pricingInfo}
+              storage={storageInfo}
+              description={sidebarDescription}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

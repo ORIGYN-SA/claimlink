@@ -185,14 +185,15 @@ export function CollectionsPage() {
   return (
     <div className="bg-[#fcfafa] rounded-b-[20px] w-full">
       {/* Search and Filter Actions */}
-      <div className="flex gap-4 items-center w-full mb-6">
+      <div className="flex flex-wrap gap-2 md:gap-4 items-center w-full mb-6">
         {/* Search and Dropdown Actions */}
-        <div className="flex-1 flex gap-2 items-center">
+        <div className="flex-1 flex gap-2 items-center min-w-0">
           {/* Search */}
           <SearchInput
             placeholder="Search for collections"
             value={searchQuery}
             onChange={setSearchQuery}
+            className="flex-1 min-w-0"
           />
 
           {/* Status Filter */}
@@ -203,17 +204,18 @@ export function CollectionsPage() {
             onValueChange={(value) =>
               setStatusFilter(value as CollectionStatus)
             }
-            width="w-[200px]"
+            width="w-[120px] md:w-[200px]"
           />
         </div>
 
         {/* Create Collection Button */}
         <Button
           onClick={handleCreateCollection}
-          className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-3 h-12 gap-2.5"
+          className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-3 md:px-6 py-3 h-12 gap-1 md:gap-2.5 text-sm md:text-base"
         >
           <span className="text-lg">+</span>
-          Create Collection
+          <span className="hidden sm:inline">Create Collection</span>
+          <span className="sm:hidden">Create</span>
         </Button>
       </div>
 
