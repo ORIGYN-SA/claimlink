@@ -61,6 +61,10 @@ pub fn execute_query<P: CandidType, R: CandidType + DeserializeOwned>(
     payload: &P,
 ) -> R {
     pic.advance_time(Duration::from_secs(1));
+    pic.tick();
+    pic.tick();
+    pic.tick();
+    pic.tick();
     unwrap_response(pic.query_call(
         canister_id,
         sender,

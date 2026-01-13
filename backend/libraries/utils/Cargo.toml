@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 candid = { workspace = true }
 bity-ic-canister-time = { workspace = true }
+bity-ic-types = { workspace = true }
 bity-ic-stable-memory = { workspace = true }
 ciborium = { workspace = true }
 hex = { workspace = true }
@@ -18,3 +19,4 @@ ic-stable-structures = { workspace = true }
 serde = { workspace = true }
 serde_bytes = { workspace = true }
 types = { path = "../types" }
+

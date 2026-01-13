@@ -1,12 +1,19 @@
 use crate::{
-    claimlink_suite::{init::init, TestEnv},
+    claimlink_suite::{
+        init::{init, OGY_TO_PAY},
+        TestEnv,
+    },
     utils::random_principal,
 };
-use candid::Nat;
+use candid::{Nat, Principal};
+use claimlink_api::{
+    collection::{CollectionStatus, PaginationArgs},
+    create_template::CreateTemplateArgs,
+    get_collections_by_owner::GetCollectionsByOwnerArgs,
+};
 use icrc_ledger_types::icrc1::account::Account;
+use pocket_ic::PocketIc;
 use utils::consts::E8S_FEE_OGY;
-
-const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
 
 #[test]
 fn create_collection_basic() {
@@ -18,7 +25,13 @@ fn create_collection_basic() {
     } = env;
     let claimlink = canister_ids.claimlink;
 
-    let total_approval_with_fee = OGY_TO_PAY + E8S_FEE_OGY as u64;
+    let template_id = create_template(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+    );
+
+    let total_approval_with_fee = OGY_TO_PAY + E8S_FEE_OGY;
     let approval_result = crate::client::icrc1_icrc2_token::icrc2_approve(
         &mut pic,
         principal_ids.principal_100k_ogy,
@@ -43,23 +56,11 @@ fn create_collection_basic() {
         crate::client::icrc1_icrc2_token::icrc2_approve::Response::Ok(_)
     ));
 
-    let bank_account = Account {
-        owner: principal_ids.bank_principal_id,
-        subaccount: None,
-    };
-    let balance_before = crate::client::icrc1_icrc2_token::icrc1_balance_of(
-        &pic,
-        principal_ids.controller,
-        canister_ids.ogy_sns_ledger,
-        &bank_account,
-    );
-    println!("Bank balance before create_collection: {}", balance_before);
-
     let create_collection_args = claimlink_api::updates::create_collection::Args {
         name: "Test Collection".to_string(),
         symbol: "TC".to_string(),
         description: "Test Description".to_string(),
-        logo: None,
+        template_id: template_id.clone(),
     };
 
     let create_collection_result = crate::client::claimlink::create_collection(
@@ -70,48 +71,62 @@ fn create_collection_basic() {
     );
 
     assert!(create_collection_result.is_ok());
-    let _created_canister_id = create_collection_result.unwrap().origyn_nft_canister_id;
 
-    // check bank balance after create_collection
-    let balance_after = crate::client::icrc1_icrc2_token::icrc1_balance_of(
+    for _i in 0..20 {
+        pic.tick();
+    }
+
+    let collections = crate::client::claimlink::get_collections_by_owner(
         &pic,
-        principal_ids.controller,
-        canister_ids.ogy_sns_ledger,
-        &bank_account,
+        principal_ids.principal_100k_ogy,
+        canister_ids.claimlink,
+        &GetCollectionsByOwnerArgs {
+            owner: principal_ids.principal_100k_ogy,
+            pagination: PaginationArgs {
+                offset: Some(0),
+                limit: None,
+            },
+        },
     );
-    println!("Bank balance after create_collection: {}", balance_after);
 
-    // verify that the bank received the expected amount
-    let balance_increase = balance_after - balance_before;
+    print!("{:?}", collections);
+
+    assert_eq!(collections.total_count, Nat::from(1_u8));
     assert_eq!(
-        balance_increase,
-        Nat::from(OGY_TO_PAY),
-        "Bank should have received {} OGY, but got {}",
-        OGY_TO_PAY,
-        balance_increase
+        collections.collections[0].status,
+        CollectionStatus::TemplateUploaded
     );
+    assert_eq!(collections.collections[0].metadata.template_id, template_id);
 }
 
 #[test]
 fn create_collection_fails_if_insufficient_allowance() {
-    let mut env = init();
+    let env = init();
+    let TestEnv {
+        mut pic,
+        canister_ids,
+        principal_ids,
+    } = env;
+
+    let template_id = create_template(&mut pic, principal_ids.controller, canister_ids.claimlink);
 
     let create_collection_args = claimlink_api::updates::create_collection::Args {
         name: "Test Collection".to_string(),
         symbol: "TC".to_string(),
         description: "Test Description".to_string(),
-        logo: None,
+        template_id,
     };
 
     // try to create collection without approval - should fail with insufficient allowance
     let create_collection_result = crate::client::claimlink::create_collection(
-        &mut env.pic,
-        random_principal(),
-        env.canister_ids.claimlink,
+        &mut pic,
+        principal_ids.controller,
+        canister_ids.claimlink,
         &create_collection_args,
     );
 
     assert!(create_collection_result.is_err());
+    println!("{:?}", create_collection_result);
     let error = create_collection_result.unwrap_err();
     assert!(matches!(
         error,
@@ -121,4 +136,26 @@ fn create_collection_fails_if_insufficient_allowance() {
             }
         )
     ));
+}
+
+pub fn create_template(pic: &mut PocketIc, owner: Principal, canister_id: Principal) -> Nat {
+    let template_json_string = r#"
+        {
+            "name": "John Doe",
+            "age": 43,
+            "phones": [
+                "+44 1234567",
+                "+44 2345678"
+            ]
+        }"#;
+
+    crate::client::claimlink::create_template(
+        pic,
+        owner,
+        canister_id,
+        &CreateTemplateArgs {
+            template_json: template_json_string.to_string(),
+        },
+    )
+    .unwrap()
 }

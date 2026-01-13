@@ -1,36 +1,49 @@
-use bity_ic_canister_logger::LogEntry;
 use bity_ic_canister_tracing_macros::trace;
-use bity_ic_stable_memory::get_reader;
+use claimlink_api::{post_upgrade::UpgradeArgs, types::lifecycle::ClaimlinkArgs};
 use ic_cdk_macros::post_upgrade;
 use tracing::info;
 
 use crate::{
-    memory::get_upgrades_memory,
-    state::{RuntimeState, RuntimeStateToSerialize},
+    setup_timers,
+    state::{
+        audit::{process_event, replay_events},
+        init_state, mutate_state,
+    },
+    storage::events::total_event_count,
+    types::events::EventType,
 };
-
-use super::init_canister;
 
 #[post_upgrade]
 #[trace]
-fn post_upgrade() {
-    let memory = get_upgrades_memory();
-    let reader = get_reader(&memory);
+fn post_upgrade(args: Option<ClaimlinkArgs>) {
+    match args {
+        Some(ClaimlinkArgs::InitArg(_)) => {
+            ic_cdk::trap("cannot upgrade canister state with init args");
+        }
+        Some(ClaimlinkArgs::UpgradeArg(upgrade_args)) => execute_upgrade(Some(upgrade_args)),
+        None => execute_upgrade(None),
+    }
 
-    // NOTE: uncomment these lines if you want to do a normal upgrade
-    let (serializable_state, logs, traces): (
-        RuntimeStateToSerialize,
-        Vec<LogEntry>,
-        Vec<LogEntry>,
-    ) = bity_ic_serializer::deserialize(reader).unwrap();
-    let state = RuntimeState::from_serializable(serializable_state);
-
-    // let (runtime_state_v0, logs, traces): (RuntimeStateV0, Vec<LogEntry>, Vec<LogEntry>) =
-    //     serializer::deserialize(reader).unwrap();
-    // let state = RuntimeState::from(runtime_state_v0);
-
-    bity_ic_canister_logger::init_with_logs(state.env.is_test_mode(), logs, traces);
-    init_canister(state);
+    setup_timers();
 
     info!("Post upgrade complete.")
+}
+
+pub fn execute_upgrade(upgrade_args: Option<UpgradeArgs>) {
+    let start = ic_cdk::api::instruction_counter();
+
+    init_state(replay_events());
+    if let Some(args) = upgrade_args {
+        mutate_state(|s| process_event(s, EventType::Upgrade(args)))
+    }
+
+    let end = ic_cdk::api::instruction_counter();
+
+    let event_count = total_event_count();
+    let instructions_consumed = end - start;
+
+    info!(
+        "[upgrade]: replaying {event_count} events consumed {instructions_consumed} instructions ({} instructions per event on average)",
+        instructions_consumed / event_count
+    );
 }
