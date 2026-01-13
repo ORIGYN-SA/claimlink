@@ -243,7 +243,7 @@ impl Data {
                 updated_at: created_at,
                 canister_id: None,
                 wasm_hash: None,
-                is_template_uploaded: false,
+                temaplte_url: None,
             },
         );
 
@@ -282,14 +282,18 @@ impl Data {
 
     // last step of the installation, at this point collection is successfully create, installed,
     // and collection template is uploaded
-    pub fn record_uploaded_template(&mut self, ogy_payment_index: OgyTransferIndex) {
+    pub fn record_uploaded_template(
+        &mut self,
+        ogy_payment_index: OgyTransferIndex,
+        template_url: String,
+    ) {
         let collection = self
             .collection_requests
             .get_mut(&ogy_payment_index)
             .expect("Bug: collection should exist at this point");
 
         collection.status = InstallationStatus::TemplateUploaded;
-        collection.is_template_uploaded = true;
+        collection.temaplte_url = Some(template_url);
         collection.updated_at = ic_cdk::api::time();
 
         self.pending_queue
@@ -456,7 +460,7 @@ impl Data {
     pub fn is_template_uploaded(&self, ogy_payment_index: OgyTransferIndex) -> bool {
         self.collection_requests
             .get(&ogy_payment_index)
-            .map(|collection| collection.is_template_uploaded)
+            .map(|collection| collection.temaplte_url.is_some())
             .unwrap_or(false)
     }
 

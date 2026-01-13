@@ -21,6 +21,7 @@ type CollectionInfo = record {
   canister_id : opt principal;
   collection_id : nat;
   created_at : nat;
+  temaplte_url : opt text;
   wasm_hash : opt text;
   ogy_charged : nat;
 };

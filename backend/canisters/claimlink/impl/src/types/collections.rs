@@ -19,7 +19,7 @@ pub struct CollectionRequest {
     pub status: InstallationStatus,
     pub canister_id: Option<Principal>,
     pub wasm_hash: Option<WasmHash>,
-    pub is_template_uploaded: bool,
+    pub temaplte_url: Option<String>,
     pub created_at: TimestampNanos,
     pub updated_at: TimestampNanos,
 }
@@ -52,13 +52,13 @@ pub enum InstallationStatus {
 
 impl InstallationStatus {
     pub fn is_failed(&self) -> bool {
-        match self {
+        matches!(
+            self,
             InstallationStatus::Failed {
                 reason: _,
                 attempsts: _,
-            } => true,
-            _ => false,
-        }
+            }
+        )
     }
 
     pub fn attempeted_retries(&self) -> u64 {
@@ -84,7 +84,7 @@ impl From<CollectionRequest> for CollectionInfo {
             updated_at,
             canister_id,
             wasm_hash,
-            is_template_uploaded,
+            temaplte_url,
         }: CollectionRequest,
     ) -> Self {
         Self {
@@ -102,6 +102,7 @@ impl From<CollectionRequest> for CollectionInfo {
             updated_at: Nat::from(updated_at),
             canister_id,
             wasm_hash: wasm_hash.map(|hash| hash.to_string()),
+            temaplte_url,
         }
     }
 }

@@ -73,9 +73,12 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::CreatedTemplate { template_id, owner } => {
             state.data.record_created_template(*template_id, *owner);
         }
-        EventType::UploadedTemplate { ogy_payment_index } => {
-            state.data.record_uploaded_template(*ogy_payment_index)
-        }
+        EventType::UploadedTemplate {
+            ogy_payment_index,
+            template_url,
+        } => state
+            .data
+            .record_uploaded_template(*ogy_payment_index, template_url.to_string()),
     }
 }
 

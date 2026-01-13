@@ -10,6 +10,7 @@ pub struct CollectionInfo {
     pub status: CollectionStatus,
     pub canister_id: Option<Principal>,
     pub wasm_hash: Option<String>,
+    pub temaplte_url: Option<String>,
     pub created_at: Nat,
     pub updated_at: Nat,
 }

@@ -32,8 +32,16 @@ pub async fn upload_template_once(
     }
 
     match perform_upload(canister_id, &template_id).await {
-        Ok(_) => {
-            mutate_state(|s| process_event(s, EventType::UploadedTemplate { ogy_payment_index }));
+        Ok(template_url) => {
+            mutate_state(|s| {
+                process_event(
+                    s,
+                    EventType::UploadedTemplate {
+                        ogy_payment_index,
+                        template_url,
+                    },
+                )
+            });
             log!(
                 INFO,
                 "Successfully uploaded template for ID: {:?}",
@@ -61,7 +69,7 @@ pub async fn upload_template_once(
 async fn perform_upload(
     canister_id: Principal,
     template_id: &NftTemplateId,
-) -> Result<(), TaskError> {
+) -> Result<String, TaskError> {
     let template_bytes = read_stable_storage(|s| s.get_template(template_id)).ok_or_else(|| {
         TaskError::CanisterCallError(
             "Bug: template should be available in stable storage".to_string(),
@@ -107,7 +115,7 @@ async fn perform_upload(
     }
 
     //  Finalize
-    execute_finalize_upload(
+    let template_url = execute_finalize_upload(
         canister_id,
         FinalizeUploadArgs {
             file_path: FILE_PATH.to_string(),
@@ -115,7 +123,7 @@ async fn perform_upload(
     )
     .await?;
 
-    Ok(())
+    Ok(template_url)
 }
 
 // These handle the specific IC error mapping (Result<Result<T, E>, String>)
@@ -144,9 +152,9 @@ async fn execute_store_chunk(
 async fn execute_finalize_upload(
     canister_id: Principal,
     args: FinalizeUploadArgs,
-) -> Result<(), TaskError> {
+) -> Result<String, TaskError> {
     match finalize_upload(canister_id, args).await {
-        Ok(Ok(_)) => Ok(()),
+        Ok(Ok(result)) => Ok(result.url),
         Ok(Err(e)) => Err(TaskError::FinalizeUploadError(e)),
         Err(e) => Err(TaskError::CanisterCallError(e.to_string())),
     }

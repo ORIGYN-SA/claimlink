@@ -46,6 +46,8 @@ pub enum EventType {
     UploadedTemplate {
         #[cbor(n(0), with = "claimlink_api::cbor::u128")]
         ogy_payment_index: OgyTransferIndex,
+        #[n(1)]
+        template_url: String,
     },
     #[n(6)]
     FailedInstallation {
