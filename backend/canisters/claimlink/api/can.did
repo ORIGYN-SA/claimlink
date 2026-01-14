@@ -12,6 +12,12 @@ type BTreeMap = vec record {
   };
 };
 type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
+type CanisterInfo = record {
+  test_mode : bool;
+  memory_used : MemorySize;
+  now_nanos : nat64;
+  cycles_balance_in_tc : float64;
+};
 type ClaimlinkArgs = variant { UpgradeArg : UpgradeArgs; InitArg : InitArg };
 type CollectionInfo = record {
   status : CollectionStatus;
@@ -118,6 +124,22 @@ type InitArg = record {
   commit_hash : text;
   max_template_per_owner : nat;
 };
+type MemorySize = record { stable : nat64; heap : nat64 };
+type Metrics = record {
+  next_template_id : nat;
+  origyn_nft_wasm_hash : text;
+  cycles_management : CyclesManagement;
+  max_creation_retries : nat;
+  collection_request_fee : nat;
+  ogy_to_burn : nat;
+  ogy_transfer_fee : nat;
+  authorized_principals : vec AuthordiedPrincipal;
+  total_ogy_burned : nat;
+  bank_principal_id : principal;
+  ledger_canister_id : principal;
+  canister_info : CanisterInfo;
+  max_template_per_owner : nat;
+};
 type NftDetails = record {
   token_id : nat;
   owner : opt Account;
@@ -163,6 +185,7 @@ service : (ClaimlinkArgs) -> {
   get_collections_by_owner : (GetCollectionsByOwnerArgs) -> (
       CollectionsResult,
     ) query;
+  get_metrics : () -> (Metrics) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
   get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_2) query;
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;

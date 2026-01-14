@@ -1,9 +1,6 @@
-use crate::{
-    claimlink_suite::{
-        init::{init, OGY_TO_PAY},
-        TestEnv,
-    },
-    utils::random_principal,
+use crate::claimlink_suite::{
+    init::{init, OGY_TO_PAY},
+    TestEnv,
 };
 use candid::{Nat, Principal};
 use claimlink_api::{

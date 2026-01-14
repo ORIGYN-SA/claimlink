@@ -1,8 +1,8 @@
 use candid::CandidType;
 use minicbor::{Decode, Encode};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Deserialize, Clone, Eq, PartialEq, Encode, Decode, Debug)]
+#[derive(CandidType, Deserialize, Clone, Eq, PartialEq, Encode, Decode, Debug, Serialize)]
 pub struct CyclesManagement {
     #[cbor(n(0), with = "crate::cbor::u128")]
     pub cycles_for_collection_creation: u128,

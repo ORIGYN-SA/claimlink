@@ -16,7 +16,7 @@ use utils::consts::E8S_FEE_OGY;
 //const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
 
 /// Helper function to approve and create a collection
-fn create_test_collection(
+pub fn create_test_collection(
     pic: &mut pocket_ic::PocketIc,
     caller: Principal,
     claimlink_canister: Principal,

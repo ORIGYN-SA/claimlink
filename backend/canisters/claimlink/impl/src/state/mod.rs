@@ -1,22 +1,20 @@
 use bity_ic_canister_state_macros::canister_state;
 use bity_ic_types::BuildVersion;
-use candid::{CandidType, Nat, Principal};
+use bity_ic_utils::memory::MemorySize;
+use candid::Principal;
 use claimlink_api::{
     collection::CollectionSearchParam,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
+    metrics::{CanisterInfo, Metrics},
     post_upgrade::UpgradeArgs,
 };
-use serde::{Deserialize, Serialize};
 use std::{
     collections::{BTreeMap, HashSet},
     str::FromStr,
 };
 use types::TimestampNanos;
-use utils::{
-    env::{CanisterEnv, Environment},
-    memory::MemorySize,
-};
+use utils::env::{CanisterEnv, Environment};
 
 use crate::{
     guards::TaskType,
@@ -136,31 +134,6 @@ impl RuntimeState {
 
         Ok(())
     }
-}
-
-#[derive(CandidType)]
-pub struct Metrics {
-    pub canister_info: CanisterInfo,
-    pub authorized_principals: Vec<AuthordiedPrincipal>,
-    pub ledger_canister_id: Principal,
-    pub bank_principal_id: Principal,
-    pub origyn_nft_wasm_hash: String,
-    pub cycles_management: CyclesManagement,
-    pub collection_request_fee: Nat,
-    pub ogy_transfer_fee: Nat,
-    pub ogy_to_burn: Nat,
-    pub total_ogy_burned: Nat,
-    pub max_template_per_owner: Nat,
-    pub next_template_id: Nat,
-    pub max_creation_retries: Nat,
-}
-
-#[derive(CandidType, Deserialize, Serialize)]
-pub struct CanisterInfo {
-    pub now_nanos: TimestampNanos,
-    pub test_mode: bool,
-    pub memory_used: MemorySize,
-    pub cycles_balance_in_tc: f64,
 }
 
 pub struct Data {

@@ -1,7 +1,7 @@
 use crate::cycles::CyclesManagement;
 use candid::{CandidType, Nat, Principal};
 use minicbor::{Decode, Encode};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, CandidType, Encode, Decode, Clone, Debug, PartialEq, Eq)]
 pub struct InitArg {
@@ -29,7 +29,7 @@ pub struct InitArg {
     pub max_template_per_owner: Nat,
 }
 
-#[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone)]
+#[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone, Serialize)]
 pub struct AuthordiedPrincipal {
     #[n(0)]
     pub name: String,
