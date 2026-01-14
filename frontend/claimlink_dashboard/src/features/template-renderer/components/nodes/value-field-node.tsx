@@ -39,7 +39,7 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
       return (
         <h3
           className={cn(
-            'text-[72px] font-light leading-[56px] text-[#222526] text-center',
+            'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px] text-[#222526] text-center',
             node.className
           )}
         >
@@ -51,7 +51,7 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     return (
       <h5
         className={cn(
-          'text-[24px] font-medium leading-8 text-[#222526] text-center',
+          'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-[#222526] text-center',
           node.className
         )}
       >
@@ -67,7 +67,7 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
       return (
         <h3
           className={cn(
-            'text-[#f9f8f4] font-extralight italic text-[38px] leading-[50px]',
+            'text-[#f9f8f4] font-extralight italic text-[24px] sm:text-[38px] leading-[32px] sm:leading-[50px]',
             node.className
           )}
         >
@@ -79,7 +79,7 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     return (
       <p
         className={cn(
-          'text-white text-[16px] font-light leading-8',
+          'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
           node.className
         )}
       >

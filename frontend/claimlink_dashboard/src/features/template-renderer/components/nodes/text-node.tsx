@@ -24,8 +24,8 @@ export function TextNode({ node }: TextNodeProps) {
     <div
       className={cn(
         '',
-        variant === 'certificate' && 'text-[#222526] text-center',
-        variant === 'information' && 'text-white text-[16px] font-light leading-8',
+        variant === 'certificate' && 'text-[#222526] text-center text-sm sm:text-base',
+        variant === 'information' && 'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
         node.className
       )}
     >

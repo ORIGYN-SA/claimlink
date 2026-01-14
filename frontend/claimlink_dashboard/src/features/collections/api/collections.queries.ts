@@ -25,6 +25,7 @@ export const collectionKeys = {
   details: () => [...collectionKeys.all, 'detail'] as const,
   detail: (id: string) => [...collectionKeys.details(), id] as const,
   nfts: (collectionId: string) => [...collectionKeys.detail(collectionId), 'nfts'] as const,
+  template: (collectionId: string) => [...collectionKeys.detail(collectionId), 'template'] as const,
 };
 
 interface UseListMyCollectionsOptions {
@@ -252,6 +253,93 @@ export const useAllUserNfts = () => {
     enabled: !!authenticatedAgent && !!principalId && !isLoadingCollections && collections.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
+  });
+};
+
+interface UseCollectionTemplateOptions {
+  collectionId: string;
+  enabled?: boolean;
+}
+
+/**
+ * Hook to fetch a collection's template structure
+ *
+ * Retrieves the TemplateStructure stored in the collection's metadata.
+ * This is used during certificate editing to reconstruct the form.
+ */
+export const useCollectionTemplate = (options: UseCollectionTemplateOptions) => {
+  const { unauthenticatedAgent } = useAuth();
+  const { collectionId, enabled = true } = options;
+
+  return useQuery({
+    queryKey: collectionKeys.template(collectionId),
+    queryFn: async () => {
+      if (!unauthenticatedAgent) {
+        throw new Error('Agent not available');
+      }
+
+      return await CollectionsService.getCollectionTemplate(
+        unauthenticatedAgent,
+        collectionId
+      );
+    },
+    enabled: enabled && !!unauthenticatedAgent && !!collectionId,
+    staleTime: 10 * 60 * 1000, // 10 minutes - templates rarely change
+    retry: 1,
+  });
+};
+
+interface UseSetCollectionTemplateOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Hook to store a template structure in a collection's metadata
+ *
+ * Used during collection creation to persist the template for later certificate editing.
+ */
+export const useSetCollectionTemplate = (options?: UseSetCollectionTemplateOptions) => {
+  const { authenticatedAgent, isConnected } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      collectionId,
+      template,
+    }: {
+      collectionId: string;
+      template: import('@/features/templates/types/template.types').TemplateStructure;
+    }) => {
+      if (!authenticatedAgent) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!isConnected) {
+        throw new Error('Wallet not connected');
+      }
+
+      await CollectionsService.setCollectionTemplate(
+        authenticatedAgent,
+        collectionId,
+        template
+      );
+    },
+    onSuccess: (_, { collectionId }) => {
+      // Invalidate template query to refetch
+      queryClient.invalidateQueries({ queryKey: collectionKeys.template(collectionId) });
+
+      if (options?.onSuccess) {
+        options.onSuccess();
+      }
+    },
+    onError: (error: Error) => {
+      console.error('Failed to set collection template:', error);
+
+      if (options?.onError) {
+        options.onError(error);
+      }
+    },
   });
 };
 

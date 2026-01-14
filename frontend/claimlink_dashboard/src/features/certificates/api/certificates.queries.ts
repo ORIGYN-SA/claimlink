@@ -17,8 +17,8 @@ import type { TemplateStructure, CertificateFormData } from '@/features/template
 import type { FileReference } from '@/features/template-renderer/types';
 import { buildOrigynApps, convertToIcrc3Metadata, parseOrigynMetadata, type ParsedOrigynMetadata } from '@/features/template-renderer';
 import { CollectionsService } from '@/features/collections';
-import type { CertificateEventsData } from '../components/certificate-events';
-import type { CertificateLedgerData, LedgerTransaction } from '../components/certificate-ledger';
+import type { CertificateEventsData } from '../components/detail/certificate-events';
+import type { CertificateLedgerData, LedgerTransaction } from '../components/detail/certificate-ledger';
 
 /**
  * Query key factory for certificates
@@ -457,12 +457,21 @@ export interface CertificateWithParsedMetadata {
   parsedMetadata: ParsedOrigynMetadata;
 }
 
+interface UseCertificateOptions {
+  enabled?: boolean;
+}
+
 /**
  * Fetch a single certificate by collection ID and token ID
  * Returns certificate data and parsed ORIGYN metadata with templates
  */
-export const useCertificate = (collectionId: string, tokenId: string) => {
+export const useCertificate = (
+  collectionId: string,
+  tokenId: string,
+  options?: UseCertificateOptions
+) => {
   const { authenticatedAgent } = useAuth();
+  const externalEnabled = options?.enabled ?? true;
 
   return useQuery({
     queryKey: certificatesKeys.detail(`${collectionId}:${tokenId}`),
@@ -527,7 +536,7 @@ export const useCertificate = (collectionId: string, tokenId: string) => {
 
       return { certificate, parsedMetadata };
     },
-    enabled: !!authenticatedAgent && !!collectionId && !!tokenId,
+    enabled: externalEnabled && !!authenticatedAgent && !!collectionId && !!tokenId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });

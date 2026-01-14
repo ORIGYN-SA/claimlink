@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { useAtomValue } from "jotai"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
-import authStateAtom from "@/features/auth/stores/atoms"
+import authStateAtom from "@/features/auth/atoms/atoms"
 import useTransfer from "@/services/ledger/hooks/useTransfer"
 import useFetchTransferFee from "@/services/ledger/hooks/useFetchTransferFee"
 import { OGY_LEDGER_CANISTER_ID } from "@/shared/constants"

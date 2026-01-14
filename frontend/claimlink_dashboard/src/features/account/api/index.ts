@@ -11,10 +11,22 @@ export type {
 } from './account.service';
 
 export {
+  // Query keys
   accountKeys,
+  // Profile hooks
   useProfile,
   useAccountStats,
   useActivityHistory,
   useUpdateProfile,
   useDeleteAccount,
+  // Ledger hooks
+  useFetchLedgerBalance,
+  useFetchLedgerDecimals,
+  useFetchAccountTransactions,
+} from './account.queries';
+
+export type {
+  LedgerBalanceData,
+  UseFetchLedgerBalanceOptions,
+  UseFetchLedgerBalanceResult,
 } from './account.queries';

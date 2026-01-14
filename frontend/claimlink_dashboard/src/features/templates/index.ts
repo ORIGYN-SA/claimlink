@@ -1,17 +1,28 @@
 // ============================================================================
+// Pages (Entry Points)
+// ============================================================================
+
+export { TemplatesPage } from './pages/templates-page'
+export { NewTemplatePage } from './pages/new-template-page'
+export { EditTemplatePage } from './pages/edit-template-page'
+
+// ============================================================================
 // Components
 // ============================================================================
 
-export { TemplatesPage } from './components/templates-page'
 export { TemplateCard } from './components/template-card'
-export { NewTemplatePage } from './components/new-template-page'
-export { EditTemplatePage } from './components/edit-template-page'
-export { ChooseTemplateStep } from './components/choose-template-step'
-export { EditTemplateStepV2 } from './components/edit-template-step-v2'
 export { TemplateSectionCard } from './components/template-section-card'
 export { TemplateItemRow } from './components/template-item-row'
-export { PreviewDeployStep } from './components/preview-deploy-step'
-export { Stepper } from './components/stepper'
+
+// Creation workflow components
+export {
+  ChooseTemplateStep,
+  ChooseBackgroundStep,
+  UploadBackgroundStep,
+  EditTemplateStepV2,
+  PreviewDeployStep,
+  Stepper,
+} from './components/create'
 
 // ============================================================================
 // API Layer
@@ -22,12 +33,30 @@ export {
   templateKeys,
   useTemplates,
   useTemplate,
-  useCollectionTemplate,
   useTemplatesByCategory,
   useFreeTemplates,
   usePremiumTemplates,
-  useSetCollectionTemplate,
 } from './api/templates.queries'
+
+/**
+ * @deprecated Use `useCollectionTemplate` and `useSetCollectionTemplate` from '@/features/collections' instead.
+ * The collections hooks fetch/store templates in on-chain collection metadata.
+ */
+export {
+  useCollectionTemplate as useCollectionTemplateLegacy,
+  useSetCollectionTemplate as useSetCollectionTemplateLegacy,
+} from './api/templates.queries'
+
+// ============================================================================
+// Utilities
+// ============================================================================
+
+export {
+  serializeTemplateForOrigyn,
+  deserializeTemplateFromOrigyn,
+  hasTemplateStructure,
+  TEMPLATE_STRUCTURE_KEY,
+} from './utils/template-serializer'
 
 // ============================================================================
 // Types

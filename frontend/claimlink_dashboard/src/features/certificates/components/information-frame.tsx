@@ -1,4 +1,4 @@
-import { CertificateGallery } from "./certificate-gallery";
+import { CertificateGallery } from "./detail/certificate-gallery";
 
 interface InformationFrameProps {
   /** Title shown in sticky left column */
@@ -36,25 +36,25 @@ export function InformationFrame({
       className={`bg-[#fcfafa] rounded-bl-[24px] rounded-br-[24px] w-full ${className}`}
     >
       {/* Main Content Section */}
-      <div className="bg-[#222526] flex flex-col gap-16 w-full rounded-bl-[24px] rounded-br-[24px]">
+      <div className="bg-[#222526] flex flex-col gap-8 sm:gap-16 w-full rounded-bl-[24px] rounded-br-[24px]">
         {/* Two-column layout: Title (sticky) + Content */}
-        <div className="flex gap-16 px-16 py-10 w-full">
+        <div className="flex flex-col lg:flex-row gap-6 sm:gap-16 px-4 sm:px-16 py-6 sm:py-10 w-full">
           {/* Left Column - Sticky Title */}
           {hasTitle && (
-            <div className="w-[389px] shrink-0 sticky top-0 flex items-center justify-center py-10">
+            <div className="w-full lg:w-[389px] shrink-0 lg:sticky lg:top-0 flex items-center justify-center py-4 sm:py-10">
               <div className="w-full">
                 {title?.artistName && (
-                  <p className="text-[#e1e1e1] text-[16px] font-semibold leading-5 tracking-[2.24px] uppercase mb-0">
+                  <p className="text-[#e1e1e1] text-[14px] sm:text-[16px] font-semibold leading-5 tracking-[1.5px] sm:tracking-[2.24px] uppercase mb-0">
                     {title.artistName}
                   </p>
                 )}
                 {title?.artworkTitle && (
                   <p className="text-[#f9f8f4] mb-0">
-                    <span className="font-extralight italic text-[38px] leading-[50px]">
+                    <span className="font-extralight italic text-[24px] sm:text-[38px] leading-[32px] sm:leading-[50px]">
                       {title.artworkTitle}
                     </span>
                     {title?.year && (
-                      <span className="font-extralight text-[24px] leading-8">
+                      <span className="font-extralight text-[16px] sm:text-[24px] leading-6 sm:leading-8">
                         {" "}
                         {title.year}
                       </span>
@@ -66,7 +66,7 @@ export function InformationFrame({
           )}
 
           {/* Right Column - Dynamic Content */}
-          <div className={`flex-1 flex flex-col py-10 ${!hasTitle ? 'w-full' : ''}`}>
+          <div className={`flex-1 flex flex-col py-4 sm:py-10 ${!hasTitle ? 'w-full' : ''}`}>
             {children}
           </div>
         </div>

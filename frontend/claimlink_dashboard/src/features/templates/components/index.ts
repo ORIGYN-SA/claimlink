@@ -1,10 +1,15 @@
+/**
+ * Template Components
+ *
+ * Re-exports for internal feature use. External consumers should import from the feature root.
+ */
+
+// Shared components (used across the feature)
 export { TemplateCard } from './template-card'
-export { TemplatesPage } from './templates-page'
 export { TemplatesActions } from './templates-actions'
 export { TemplatesGrid } from './templates-grid'
-export { EditTemplatePage } from './edit-template-page'
-export { EditTemplateStepV2 } from './edit-template-step-v2'
 export { TemplateSectionCard } from './template-section-card'
 export { TemplateItemRow } from './template-item-row'
-export { ChooseBackgroundStep } from './choose-background-step'
-export { UploadBackgroundStep } from './upload-background-step'
+
+// Creation workflow components
+export * from './create'

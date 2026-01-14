@@ -1,7 +1,7 @@
 import { X, ArrowLeft } from "lucide-react"
 import { useAtomValue } from "jotai"
 import { Button } from "@/components/ui/button"
-import authStateAtom from "@/features/auth/stores/atoms"
+import authStateAtom from "@/features/auth/atoms/atoms"
 import icon from "@/assets/icon.svg"
 import type { WithdrawFormData } from "./types"
 

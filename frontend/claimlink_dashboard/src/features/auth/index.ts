@@ -16,4 +16,4 @@ export { SessionExpiryWatcher } from "./components/SessionExpiryWatcher";
 export { useAuth } from "./hooks/useAuth";
 export type { AuthState, Canisters } from "./types/interfaces";
 export type { RouterContext, RouterAuthContext } from "./types/router-context";
-export { default as authStateAtom } from "./stores/atoms";
+export { default as authStateAtom } from "./atoms/atoms";
