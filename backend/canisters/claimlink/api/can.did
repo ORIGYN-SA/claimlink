@@ -1,4 +1,5 @@
 type Account = record { owner : principal; subaccount : opt blob };
+type AuthordiedPrincipal = record { "principal" : principal; name : text };
 type BTreeMap = vec record {
   text;
   variant {
@@ -10,33 +11,72 @@ type BTreeMap = vec record {
     Array : vec ICRC3Value;
   };
 };
-type CollectionExistsArgs = record { canister_id : principal };
+type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
+type CanisterInfo = record {
+  test_mode : bool;
+  memory_used : MemorySize;
+  now_nanos : nat64;
+  cycles_balance_in_tc : float64;
+};
+type ClaimlinkArgs = variant { UpgradeArg : UpgradeArgs; InitArg : InitArg };
 type CollectionInfo = record {
-  creator : principal;
+  status : CollectionStatus;
+  updated_at : nat;
+  owner : principal;
+  metadata : CollectionMetadata;
+  canister_id : opt principal;
+  collection_id : nat;
+  created_at : nat;
+  temaplte_url : opt text;
+  wasm_hash : opt text;
+  ogy_charged : nat;
+};
+type CollectionMetadata = record {
   name : text;
-  canister_id : principal;
   description : text;
-  created_at : nat64;
+  template_id : nat;
   symbol : text;
+};
+type CollectionSearchParam = variant {
+  CanisterId : principal;
+  CollectionId : nat;
+};
+type CollectionStatus = variant {
+  Queued;
+  Failed : record { attempsts : nat; reason : text };
+  QuarantinedReimbursement : record { reason : text };
+  Reimbursed : record { tx_index : nat };
+  Created;
+  ReimbursingQueued;
+  Installed;
+  TemplateUploaded;
 };
 type CollectionsResult = record {
   collections : vec CollectionInfo;
   total_count : nat64;
 };
 type CreateCollectionArgs = record {
-  logo : opt text;
   name : text;
   description : text;
+  template_id : nat;
   symbol : text;
 };
 type CreateCollectionError = variant {
-  InsufficientCycles;
   ExternalCanisterError : text;
   Generic : GenericError;
   CreateOrigynNftCanisterError;
   TransferFromError : TransferFromError;
+  InvalidNftTemplateId;
 };
-type CreateCollectionResult = record { origyn_nft_canister_id : principal };
+type CreateTemplateArgs = record { template_json : text };
+type CreateTemplateError = variant {
+  JsonError : text;
+  LimitExceeded : record { max_templates : nat };
+};
+type CyclesManagement = record {
+  cycles_top_up_increment : nat;
+  cycles_for_collection_creation : nat;
+};
 type GenericError = variant { Other : text };
 type GetCollectionNftsArgs = record {
   prev : opt nat;
@@ -51,6 +91,11 @@ type GetNftDetailsArgs = record {
   canister_id : principal;
   token_ids : vec nat;
 };
+type GetTemplatesByOwnerArgs = record {
+  owner : principal;
+  pagination : PaginationArgs;
+};
+type GetTemplatesByOwnerError = variant { UnauthorizedCall };
 type ICRC3Value = variant {
   Int : int;
   Map : BTreeMap;
@@ -67,12 +112,33 @@ type ICRC3Value_1 = variant {
   Text : text;
   Array : vec ICRC3Value;
 };
-type InitArgs = record {
-  origyn_nft_commit_hash : text;
+type InitArg = record {
+  cycles_management : CyclesManagement;
   test_mode : bool;
-  authorized_principals : vec principal;
+  max_creation_retries : nat;
+  collection_request_fee : nat;
+  ogy_transfer_fee : nat;
+  authorized_principals : vec AuthordiedPrincipal;
   bank_principal_id : principal;
   ledger_canister_id : principal;
+  commit_hash : text;
+  max_template_per_owner : nat;
+};
+type MemorySize = record { stable : nat64; heap : nat64 };
+type Metrics = record {
+  next_template_id : nat;
+  origyn_nft_wasm_hash : text;
+  cycles_management : CyclesManagement;
+  max_creation_retries : nat;
+  collection_request_fee : nat;
+  ogy_to_burn : nat;
+  ogy_transfer_fee : nat;
+  authorized_principals : vec AuthordiedPrincipal;
+  total_ogy_burned : nat;
+  bank_principal_id : principal;
+  ledger_canister_id : principal;
+  canister_info : CanisterInfo;
+  max_template_per_owner : nat;
 };
 type NftDetails = record {
   token_id : nat;
@@ -80,10 +146,14 @@ type NftDetails = record {
   metadata : opt vec record { text; ICRC3Value_1 };
 };
 type PaginationArgs = record { offset : opt nat64; limit : opt nat64 };
-type Result = variant {
-  Ok : CreateCollectionResult;
-  Err : CreateCollectionError;
+type Result = variant { Ok : nat; Err : CreateCollectionError };
+type Result_1 = variant { Ok : nat; Err : CreateTemplateError };
+type Result_2 = variant {
+  Ok : TemplatesResult;
+  Err : GetTemplatesByOwnerError;
 };
+type Template = record { template_json : text; template_id : nat };
+type TemplatesResult = record { templates : vec Template; total_count : nat64 };
 type TransferFromError = variant {
   GenericError : record { message : text; error_code : nat };
   TemporarilyUnavailable;
@@ -95,16 +165,28 @@ type TransferFromError = variant {
   TooOld;
   InsufficientFunds : record { balance : nat };
 };
-service : (InitArgs) -> {
-  collection_exists : (CollectionExistsArgs) -> (bool) query;
+type UpgradeArgs = record {
+  origyn_nft_wasm_hash : opt text;
+  cycles_management : opt CyclesManagement;
+  max_creation_retries : opt nat;
+  collection_request_fee : opt nat;
+  ogy_transfer_fee : opt nat;
+  bank_principal_id : opt principal;
+  commit_hash : text;
+  build_version : BuildVersion;
+  max_template_per_owner : opt nat;
+};
+service : (ClaimlinkArgs) -> {
   create_collection : (CreateCollectionArgs) -> (Result);
-  get_collection_count : (null) -> (nat64) query;
-  get_collection_info : (CollectionExistsArgs) -> (opt CollectionInfo) query;
+  create_template : (CreateTemplateArgs) -> (Result_1);
+  get_collection_count : () -> (nat64) query;
+  get_collection_info : (CollectionSearchParam) -> (opt CollectionInfo) query;
   get_collection_nfts : (GetCollectionNftsArgs) -> (vec nat) composite_query;
   get_collections_by_owner : (GetCollectionsByOwnerArgs) -> (
       CollectionsResult,
     ) query;
+  get_metrics : () -> (Metrics) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
+  get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_2) query;
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
-  list_my_collections : (PaginationArgs) -> (CollectionsResult) query;
 }
