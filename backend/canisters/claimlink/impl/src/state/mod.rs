@@ -87,6 +87,7 @@ impl RuntimeState {
             ogy_transfer_fee,
             max_creation_retries,
             max_template_per_owner,
+            new_authorized_principals,
         }: UpgradeArgs,
     ) -> Result<(), String> {
         if let Some(origyn_nft_wasm_hash) = origyn_nft_wasm_hash {
@@ -127,6 +128,12 @@ impl RuntimeState {
                 .0
                 .try_into()
                 .map_err(|_| "Invlaid max_template_per_owner")?;
+        }
+
+        if let Some(new_authorized_principals) = new_authorized_principals {
+            self.data
+                .authorized_principals
+                .extend(new_authorized_principals);
         }
 
         self.env.set_version(build_version);

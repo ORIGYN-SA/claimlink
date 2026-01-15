@@ -1,4 +1,4 @@
-use crate::cycles::CyclesManagement;
+use crate::{cycles::CyclesManagement, init::AuthordiedPrincipal};
 use bity_ic_types::BuildVersion;
 use candid::{CandidType, Nat, Principal};
 use minicbor::{Decode, Encode};
@@ -26,4 +26,6 @@ pub struct UpgradeArgs {
     pub max_creation_retries: Option<Nat>,
     #[cbor(n(8), with = "crate::cbor::nat::option")]
     pub max_template_per_owner: Option<Nat>,
+    #[n(9)]
+    pub new_authorized_principals: Option<Vec<AuthordiedPrincipal>>,
 }
