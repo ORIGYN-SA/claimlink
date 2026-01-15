@@ -61,7 +61,11 @@ export function DashboardPage({ className }: DashboardPageProps) {
   ];
 
   const handleCertificateClick = (certificate: Certificate) => {
-    console.log('Certificate clicked:', certificate);
+    // Navigate to certificate detail page with format: collectionId:tokenId
+    navigate({
+      to: '/mint_certificate/$certificateId',
+      params: { certificateId: `${certificate.canisterId}:${certificate.id}` }
+    });
   };
 
   const handleAddCertificate = () => {

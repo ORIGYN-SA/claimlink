@@ -63,7 +63,7 @@ export const madeInItalyTemplate: Template = {
         description: "Essential certification information and formal data",
         items: [
           {
-            id: "company_name",
+            id: "name",
             type: "input",
             label: "Company Name",
             order: 1,
@@ -274,7 +274,7 @@ export const madeInItalyTemplate: Template = {
       { id: "en", code: "en", name: "English", isDefault: true },
       { id: "it", code: "it", name: "Italian" },
     ],
-    searchIndexField: "company_name",
+    searchIndexField: "name",
     metadata: {
       version: "1.0.0",
       createdBy: "system",
@@ -345,7 +345,7 @@ export const goldCertificateTemplate: Template = {
             allowCustomValue: false,
           },
           {
-            id: "product_name",
+            id: "name",
             type: "input",
             label: "Product Name",
             order: 4,

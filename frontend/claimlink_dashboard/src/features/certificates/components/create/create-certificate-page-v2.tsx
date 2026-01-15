@@ -88,9 +88,9 @@ export function CreateCertificatePageV2({
   const [editCollectionId, editTokenId] =
     mode === "edit" && certificateId ? certificateId.split(":") : [null, null];
 
-  // Initialize collection if provided
+  // Initialize collection if provided (update if URL param differs from current state)
   useEffect(() => {
-    if (initialCollectionId && !state.selectedCollection) {
+    if (initialCollectionId && initialCollectionId !== state.selectedCollection) {
       dispatch({
         type: "SET_SELECTED_COLLECTION",
         collectionId: initialCollectionId,
