@@ -1,5 +1,25 @@
-import type { CollectionInfo } from '@canisters/claimlink';
+import type { CollectionInfo, CollectionStatus as BackendCollectionStatus } from '@canisters/claimlink';
 import type { Collection } from '../types/collection.types';
+
+/**
+ * Map backend CollectionStatus to frontend status
+ */
+function mapCollectionStatus(
+  backendStatus: BackendCollectionStatus
+): 'Active' | 'Inactive' | 'Draft' {
+  // Installed or TemplateUploaded = Active (fully operational)
+  if ('Installed' in backendStatus || 'TemplateUploaded' in backendStatus) {
+    return 'Active';
+  }
+
+  // Queued, Created = Draft (in progress)
+  if ('Queued' in backendStatus || 'Created' in backendStatus) {
+    return 'Draft';
+  }
+
+  // Failed, ReimbursingQueued, QuarantinedReimbursement, Reimbursed = Inactive
+  return 'Inactive';
+}
 
 /**
  * Transform backend CollectionInfo to frontend Collection type
@@ -8,26 +28,49 @@ export function transformCollectionInfo(
   backendCollection: CollectionInfo,
   itemCount: number = 0
 ): Collection {
+  // Get canister ID if available (might be empty for queued collections)
+  const canisterPrincipal = backendCollection.canister_id[0];
+  const canisterId = canisterPrincipal
+    ? canisterPrincipal.toText()
+    : backendCollection.collection_id.toString();
+
   return {
-    id: backendCollection.canister_id.toText(),
-    title: backendCollection.name,
-    description: backendCollection.description,
+    id: canisterId,
+    title: backendCollection.metadata.name,
+    description: backendCollection.metadata.description,
     imageUrl: '', // TODO: Fetch from NFT metadata or add to CollectionInfo
     itemCount,
-    status: 'Active', // TODO: Add status to backend or compute based on activity
+    status: mapCollectionStatus(backendCollection.status),
     createdDate: formatTimestamp(backendCollection.created_at),
-    lastModified: formatTimestamp(backendCollection.created_at), // TODO: Add last_modified to backend
-    creator: backendCollection.creator.toText(),
+    lastModified: formatTimestamp(backendCollection.updated_at),
+    creator: backendCollection.owner.toText(),
   };
 }
 
 /**
- * Format timestamp (nanoseconds) to ISO date string
+ * Format timestamp to ISO date string
+ *
+ * Handles both nanoseconds (IC standard) and milliseconds formats.
+ * Returns current date if timestamp is invalid or zero.
  */
 export function formatTimestamp(timestamp: bigint): string {
-  // Backend provides milliseconds as nat64
-  const milliseconds = Number(timestamp);
-  return new Date(milliseconds).toISOString();
+  // Handle zero/invalid timestamps
+  if (!timestamp || timestamp === 0n) {
+    return new Date().toISOString();
+  }
+
+  const numValue = Number(timestamp);
+
+  // If the value is very large (> year 3000 in ms), it's likely nanoseconds
+  // Year 3000 in milliseconds is roughly 32503680000000
+  if (numValue > 32503680000000) {
+    // Convert nanoseconds to milliseconds
+    const milliseconds = numValue / 1_000_000;
+    return new Date(milliseconds).toISOString();
+  }
+
+  // Otherwise treat as milliseconds
+  return new Date(numValue).toISOString();
 }
 
 /**
@@ -58,6 +101,9 @@ export function formatCreateCollectionError(error: any): string {
   }
   if ('TransferFromError' in error) {
     return formatTransferFromError(error.TransferFromError);
+  }
+  if ('InvalidNftTemplateId' in error) {
+    return 'Invalid template ID. Please select a valid template.';
   }
   if ('Generic' in error && 'Other' in error.Generic) {
     return error.Generic.Other;

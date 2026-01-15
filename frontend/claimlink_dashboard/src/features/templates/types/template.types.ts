@@ -8,8 +8,6 @@
  * - UI component props
  */
 
-import type { Template } from "@/shared/data/templates";
-
 // ============================================================================
 // Item Types
 // ============================================================================
@@ -219,6 +217,103 @@ export interface TemplateFilters {
   search?: string;
 }
 
+export interface PaginationState {
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
+// ============================================================================
+// Template Types (Frontend)
+// ============================================================================
+
+/**
+ * Frontend Template type
+ *
+ * This is the main template type used throughout the frontend.
+ * When stored in the backend, the relevant fields are serialized to JSON.
+ */
+export interface Template {
+  id: string; // String version of backend template_id for frontend use
+  name: string;
+  description: string;
+  category: 'manual' | 'ai' | 'existing' | 'preset';
+  certificateCount?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+  thumbnail?: string;
+  metadata?: Record<string, unknown>;
+  // Template structure with sections and items
+  structure?: TemplateStructure;
+}
+
+// ============================================================================
+// Backend Template Types
+// ============================================================================
+
+/**
+ * Backend template as returned from claimlink canister
+ * Mirrors the Candid Template type
+ */
+export interface BackendTemplate {
+  template_id: bigint;
+  template_json: string;
+}
+
+/**
+ * JSON structure stored in template_json
+ * This is what gets serialized/deserialized when communicating with backend
+ */
+export interface TemplateJsonPayload {
+  name: string;
+  description: string;
+  category: 'manual' | 'ai' | 'existing' | 'preset';
+  structure: TemplateStructure;
+  metadata?: Record<string, unknown>;
+  thumbnail?: string;
+}
+
+/**
+ * Transform a backend template to frontend Template type
+ */
+export function transformBackendTemplate(backend: BackendTemplate): Template {
+  try {
+    const payload: TemplateJsonPayload = JSON.parse(backend.template_json);
+    return {
+      id: backend.template_id.toString(),
+      name: payload.name,
+      description: payload.description,
+      category: payload.category,
+      structure: payload.structure,
+      metadata: payload.metadata,
+      thumbnail: payload.thumbnail,
+    };
+  } catch (error) {
+    console.error('Failed to parse template JSON:', error);
+    return {
+      id: backend.template_id.toString(),
+      name: 'Invalid Template',
+      description: 'Failed to parse template data',
+      category: 'manual',
+    };
+  }
+}
+
+/**
+ * Serialize a frontend Template to JSON for backend storage
+ */
+export function serializeTemplateToJson(template: Template): string {
+  const payload: TemplateJsonPayload = {
+    name: template.name,
+    description: template.description,
+    category: template.category,
+    structure: template.structure!,
+    metadata: template.metadata as Record<string, unknown> | undefined,
+    thumbnail: template.thumbnail,
+  };
+  return JSON.stringify(payload);
+}
+
 // ============================================================================
 // Component Prop Types
 // ============================================================================
@@ -226,10 +321,4 @@ export interface TemplateFilters {
 export interface TemplateCardProps {
   template: Template;
   onClick?: () => void;
-}
-
-export interface PaginationState {
-  page: number;
-  pageSize: number;
-  total: number;
 }

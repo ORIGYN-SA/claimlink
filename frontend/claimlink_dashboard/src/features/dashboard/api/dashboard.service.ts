@@ -3,6 +3,7 @@ import { Principal } from '@dfinity/principal';
 import { idlFactory } from '@services/claimlink';
 import type { _SERVICE } from '@services/claimlink/interfaces';
 import { CollectionsService } from '@/features/collections/api/collections.service';
+import type { Collection } from '@/features/collections/types/collection.types';
 import type { Certificate } from '@/features/certificates/types/certificate.types';
 import {
   type EnrichedCertificate,
@@ -87,8 +88,10 @@ export class DashboardService {
   ): Promise<EnrichedCertificate[]> {
     try {
       // Step 1: Get all user's collections
-      const collectionsResult = await CollectionsService.listMyCollections(
+      const ownerPrincipal = Principal.fromText(principalId);
+      const collectionsResult = await CollectionsService.getCollectionsByOwner(
         agent,
+        ownerPrincipal,
         0,
         100 // Reasonable limit for MVP
       );
@@ -102,7 +105,7 @@ export class DashboardService {
       // Step 2: Fetch NFT details from all collections in parallel
       const actor = createActor(agent);
 
-      const certificatePromises = collections.map(async (collection) => {
+      const certificatePromises = collections.map(async (collection: Collection) => {
         try {
           const collectionPrincipal = Principal.fromText(collection.id);
 

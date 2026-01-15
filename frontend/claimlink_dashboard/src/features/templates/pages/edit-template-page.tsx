@@ -1,16 +1,17 @@
 /**
  * EditTemplatePage Component
- * 
+ *
  * Page component for editing an existing template dynamically
  * Allows users to edit template sections, items, and preview changes
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from '@tanstack/react-router';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { EditTemplateStepV2 } from '../components/create/edit-template-step-v2';
 import { PreviewDeployStep } from '../components/create/preview-deploy-step';
-import { type Template, getTemplateById } from '@/shared/data';
+import { useTemplate } from '../api/templates.queries';
+import type { Template } from '../types/template.types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -22,12 +23,19 @@ interface EditTemplatePageProps {
 
 export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
   const navigate = useNavigate();
-  
-  // Fetch template by ID
-  const initialTemplate = getTemplateById(templateId);
-  
+
+  // Fetch template by ID from backend
+  const { data: initialTemplate, isLoading, error } = useTemplate({ templateId });
+
   const [currentStep, setCurrentStep] = useState<Step>('edit');
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(initialTemplate || null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+
+  // Update selectedTemplate when initialTemplate is loaded
+  useEffect(() => {
+    if (initialTemplate) {
+      setSelectedTemplate(initialTemplate);
+    }
+  }, [initialTemplate]);
 
   // Handle tab change
   const handleTabChange = (value: string) => {
@@ -35,6 +43,34 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
       setCurrentStep(value);
     }
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#fcfafa]">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#222526]" />
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#fcfafa]">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <Card className="p-8 max-w-md">
+            <h2 className="text-xl font-semibold text-[#222526] mb-4">Error Loading Template</h2>
+            <p className="text-[#69737c] mb-6">{error.message}</p>
+            <Button onClick={() => navigate({ to: '/templates' })}>
+              Back to Templates
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   // If template not found, show error
   if (!initialTemplate) {

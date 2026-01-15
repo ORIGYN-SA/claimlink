@@ -38,7 +38,7 @@ export {
   useAllUserNfts,
   useCreateCollection,
   useCollectionTemplate,
-  useSetCollectionTemplate,
+  // Note: useSetCollectionTemplate is deprecated - templates are now linked via template_id during collection creation
 } from './api/collections.queries';
 
 export * from './api/transformers';

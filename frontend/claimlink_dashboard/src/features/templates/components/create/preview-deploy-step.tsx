@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { type Template } from "@/shared/data";
+import type { Template } from "../../types/template.types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -22,6 +22,8 @@ interface PreviewDeployStepProps {
   selectedTemplate: TemplateWithBackground | null;
   onBack?: () => void;
   onComplete?: () => void;
+  onDeploy?: (template: Template) => Promise<void>;
+  isDeploying?: boolean;
 }
 
 // Template Preview Section Component
@@ -275,9 +277,25 @@ export function PreviewDeployStep({
   selectedTemplate,
   onBack,
   onComplete,
+  onDeploy,
+  isDeploying = false,
 }: PreviewDeployStepProps) {
   // Language selection for template preview
   const [selectedLanguage, setSelectedLanguage] = useState("en");
+
+  const handleDeploy = async () => {
+    if (!selectedTemplate) return;
+
+    // If onDeploy is provided, use it (async backend deployment)
+    if (onDeploy) {
+      await onDeploy(selectedTemplate);
+    }
+
+    // Call onComplete after deployment (navigation)
+    if (onComplete) {
+      onComplete();
+    }
+  };
 
   // Get available languages from template
   const availableLanguages = useMemo(() => {
@@ -330,14 +348,27 @@ export function PreviewDeployStep({
 
       {/* Action Buttons */}
       <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 justify-center pt-4 sm:pt-6">
-        <Button variant="outline" onClick={onBack} className="w-full sm:w-auto px-8 order-2 sm:order-1">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          disabled={isDeploying}
+          className="w-full sm:w-auto px-8 order-2 sm:order-1"
+        >
           Back
         </Button>
         <Button
-          onClick={onComplete}
+          onClick={handleDeploy}
+          disabled={isDeploying || !selectedTemplate}
           className="w-full sm:w-auto px-8 bg-[#222526] hover:bg-[#333333] order-1 sm:order-2"
         >
-          Deploy
+          {isDeploying ? (
+            <span className="flex items-center gap-2">
+              <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+              Deploying...
+            </span>
+          ) : (
+            "Deploy"
+          )}
         </Button>
       </div>
     </div>

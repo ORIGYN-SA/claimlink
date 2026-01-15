@@ -3,8 +3,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { TemplatesActions } from "../components/templates-actions";
 import { Pagination, GridOnlyContainer } from "@/components/common";
 import { TemplateCard } from "../components/template-card";
-import type { Template } from "@/shared/data/templates";
-import { mockTemplates } from "@/shared/data/templates";
+import { useMyTemplates } from "../api/templates.queries";
+import type { Template } from "../types/template.types";
 
 const TemplatesPage: React.FC = () => {
   const navigate = useNavigate();
@@ -12,6 +12,13 @@ const TemplatesPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [linesPerPage, setLinesPerPage] = useState(10);
+
+  // Fetch templates from backend
+  const { data, isLoading, error } = useMyTemplates({
+    limit: 100, // Get all for client-side filtering
+  });
+
+  const templates = data?.templates ?? [];
 
   const handleTemplateClick = (template: Template) => {
     navigate({ to: '/templates/$templateId', params: { templateId: template.id } });
@@ -41,7 +48,7 @@ const TemplatesPage: React.FC = () => {
   };
 
   // Filter templates based on search and status
-  const filteredTemplates = mockTemplates.filter((template) => {
+  const filteredTemplates = templates.filter((template) => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          template.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = selectedStatus === "all" || template.category === selectedStatus;
@@ -53,6 +60,47 @@ const TemplatesPage: React.FC = () => {
   const startIndex = (currentPage - 1) * linesPerPage;
   const endIndex = startIndex + linesPerPage;
   const paginatedTemplates = filteredTemplates.slice(startIndex, endIndex);
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="space-y-6 max-w-none">
+        <TemplatesActions
+          searchQuery={searchQuery}
+          selectedStatus={selectedStatus}
+          onSearchChange={handleSearchChange}
+          onStatusChange={handleStatusChange}
+          onCreateTemplate={handleCreateTemplate}
+        />
+        <GridOnlyContainer title="My template" totalCount={0}>
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#222526]" />
+          </div>
+        </GridOnlyContainer>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-6 max-w-none">
+        <TemplatesActions
+          searchQuery={searchQuery}
+          selectedStatus={selectedStatus}
+          onSearchChange={handleSearchChange}
+          onStatusChange={handleStatusChange}
+          onCreateTemplate={handleCreateTemplate}
+        />
+        <GridOnlyContainer title="My template" totalCount={0}>
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <p className="text-red-500 mb-4">Failed to load templates</p>
+            <p className="text-sm text-gray-500">{error.message}</p>
+          </div>
+        </GridOnlyContainer>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-none">
@@ -93,6 +141,14 @@ const TemplatesPage: React.FC = () => {
             </div>
           </div>
 
+          {/* Empty state */}
+          {templates.length === 0 && (
+            <div className="md:col-span-2 flex flex-col items-center justify-center py-8 text-center">
+              <p className="text-gray-500 mb-2">No templates yet</p>
+              <p className="text-sm text-gray-400">Click "Create a template" to get started</p>
+            </div>
+          )}
+
           {/* Template Cards */}
           {paginatedTemplates.map((template) => (
             <TemplateCard
@@ -103,13 +159,15 @@ const TemplatesPage: React.FC = () => {
           ))}
         </div>
       </GridOnlyContainer>
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        itemsPerPage={linesPerPage}
-        onPageChange={handlePageChange}
-        onItemsPerPageChange={handleLinesPerPageChange}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          itemsPerPage={linesPerPage}
+          onPageChange={handlePageChange}
+          onItemsPerPageChange={handleLinesPerPageChange}
+        />
+      )}
     </div>
   );
 };

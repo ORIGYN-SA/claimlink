@@ -1,5 +1,6 @@
 import type { Agent } from '@dfinity/agent';
 import type { Principal } from '@dfinity/principal';
+import { Principal as PrincipalClass } from '@dfinity/principal';
 import { idlFactory } from '@canisters/claimlink';
 import type {
   _SERVICE,
@@ -20,6 +21,7 @@ import {
   serializeTemplateForOrigyn,
   deserializeTemplateFromOrigyn,
 } from '@/features/templates/utils/template-serializer';
+import { TemplateService } from '@/features/templates';
 
 /**
  * Create a ClaimLink canister actor
@@ -29,27 +31,6 @@ function createActor(agent: Agent): _SERVICE {
 }
 
 export class CollectionsService {
-  /**
-   * List collections owned by the calling principal
-   */
-  static async listMyCollections(
-    agent: Agent,
-    offset?: number,
-    limit?: number
-  ): Promise<{ collections: Collection[]; totalCount: number }> {
-    const actor = createActor(agent);
-    const paginationArgs = transformPaginationArgs(offset, limit);
-
-    const result: CollectionsResult = await actor.list_my_collections(paginationArgs);
-
-    return {
-      collections: result.collections.map((info) =>
-        transformCollectionInfo(info, 0)
-      ),
-      totalCount: Number(result.total_count),
-    };
-  }
-
   /**
    * List all collections in the system
    */
@@ -97,7 +78,7 @@ export class CollectionsService {
   }
 
   /**
-   * Get detailed information about a specific collection
+   * Get detailed information about a specific collection by canister ID
    */
   static async getCollectionInfo(
     agent: Agent,
@@ -105,9 +86,8 @@ export class CollectionsService {
   ): Promise<Collection | null> {
     const actor = createActor(agent);
 
-    const result: [] | [CollectionInfo] = await actor.get_collection_info({
-      canister_id: canisterId,
-    });
+    const searchParam: { CanisterId: Principal } = { CanisterId: canisterId };
+    const result: [] | [CollectionInfo] = await actor.get_collection_info(searchParam);
 
     if (result.length === 0) {
       return null;
@@ -117,17 +97,22 @@ export class CollectionsService {
   }
 
   /**
-   * Check if a collection exists
+   * Get detailed information about a specific collection by collection ID
    */
-  static async collectionExists(
+  static async getCollectionInfoById(
     agent: Agent,
-    canisterId: Principal
-  ): Promise<boolean> {
+    collectionId: bigint
+  ): Promise<Collection | null> {
     const actor = createActor(agent);
 
-    return await actor.collection_exists({
-      canister_id: canisterId,
-    });
+    const searchParam: { CollectionId: bigint } = { CollectionId: collectionId };
+    const result: [] | [CollectionInfo] = await actor.get_collection_info(searchParam);
+
+    if (result.length === 0) {
+      return null;
+    }
+
+    return transformCollectionInfo(result[0], 0);
   }
 
   /**
@@ -136,18 +121,26 @@ export class CollectionsService {
   static async getCollectionCount(agent: Agent): Promise<number> {
     const actor = createActor(agent);
 
-    const count = await actor.get_collection_count(null);
+    const count = await actor.get_collection_count();
     return Number(count);
   }
 
   /**
    * Create a new collection
+   *
+   * Note: The backend creates collections asynchronously. This method returns
+   * the collection_id, and the actual canister will be created in the background.
+   * Use `getCollectionInfoById` to poll for the collection status and canister_id.
+   *
+   * @param agent - Authenticated IC agent
+   * @param args - Collection creation arguments (name, description, symbol, template_id)
+   * @returns The collection ID (bigint converted to string)
    * @throws Error with user-friendly message if creation fails
    */
   static async createCollection(
     agent: Agent,
     args: CreateCollectionArgs
-  ): Promise<string> {
+  ): Promise<bigint> {
     const actor = createActor(agent);
 
     const result: Result = await actor.create_collection(args);
@@ -156,7 +149,48 @@ export class CollectionsService {
       throw new Error(formatCreateCollectionError(result.Err));
     }
 
-    return result.Ok.origyn_nft_canister_id.toText();
+    return result.Ok;
+  }
+
+  /**
+   * Wait for collection to be created and return the canister ID
+   *
+   * Polls the backend until the collection has a canister_id or times out.
+   *
+   * @param agent - IC agent
+   * @param collectionId - Collection ID to wait for
+   * @param maxWaitMs - Maximum time to wait (default 60 seconds)
+   * @param pollIntervalMs - Polling interval (default 2 seconds)
+   * @returns The canister ID string
+   * @throws Error if timeout or collection not found
+   */
+  static async waitForCollectionCanister(
+    agent: Agent,
+    collectionId: bigint,
+    maxWaitMs: number = 60000,
+    pollIntervalMs: number = 2000
+  ): Promise<string> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitMs) {
+      const collection = await this.getCollectionInfoById(agent, collectionId);
+
+      if (!collection) {
+        throw new Error('Collection not found');
+      }
+
+      // If we have a canister ID (not just the collection_id), return it
+      // The transformer returns collection_id.toString() if canister_id is empty
+      if (collection.id.length > 10) {
+        // Canister IDs are longer than collection ID numbers
+        return collection.id;
+      }
+
+      // Wait before polling again
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+
+    throw new Error('Timeout waiting for collection canister to be created');
   }
 
   /**
@@ -318,31 +352,92 @@ export class CollectionsService {
   }
 
   /**
-   * Fetch template structure from collection metadata
+   * Get template structure for a collection
    *
-   * Retrieves and deserializes the TemplateStructure stored in the collection's
-   * collection_metadata field.
+   * Fetches the template linked to this collection from the claimlink backend.
+   * The flow is:
+   * 1. Get collection info by canister ID to find owner and template_id
+   * 2. Fetch templates by owner
+   * 3. Find the template matching the collection's template_id
+   * 4. Return the template structure
    *
-   * @param agent - IC agent (can be unauthenticated for read-only)
-   * @param collectionCanisterId - Collection canister ID
+   * Falls back to ORIGYN metadata for backwards compatibility with older collections.
+   *
+   * @param agent - IC agent (can be unauthenticated for reads)
+   * @param collectionCanisterId - The collection's canister ID
    * @returns The template structure, or null if not found
    */
   static async getCollectionTemplate(
     agent: Agent,
     collectionCanisterId: string
   ): Promise<TemplateStructure | null> {
-    const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
-    type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+    const actor = createActor(agent);
 
-    const actor = createCanisterActor<OrigynNftService>(
-      agent,
-      collectionCanisterId,
-      origynIdlFactory
-    );
+    try {
+      // Step 1: Get collection info by canister ID
+      const searchParam = { CanisterId: PrincipalClass.fromText(collectionCanisterId) };
+      const collectionResult = await actor.get_collection_info(searchParam);
 
-    // Fetch collection metadata via ICRC7
-    const metadata = await actor.icrc7_collection_metadata();
+      if (collectionResult.length === 0) {
+        console.warn(`Collection not found for canister ID: ${collectionCanisterId}`);
+        // Fall back to ORIGYN metadata for legacy collections
+        return this.getCollectionTemplateFromOrigyn(agent, collectionCanisterId);
+      }
 
-    return deserializeTemplateFromOrigyn(metadata);
+      const collectionInfo = collectionResult[0];
+      const templateId = collectionInfo.metadata.template_id;
+      const owner = collectionInfo.owner;
+
+      // Step 2: Fetch templates by owner
+      const { templates } = await TemplateService.getTemplatesByOwner(agent, owner, { limit: 100 });
+
+      // Step 3: Find the template matching the collection's template_id
+      const template = templates.find((t) => t.id === templateId.toString());
+
+      if (!template) {
+        console.warn(`Template not found for ID: ${templateId}, falling back to ORIGYN metadata`);
+        return this.getCollectionTemplateFromOrigyn(agent, collectionCanisterId);
+      }
+
+      // Step 4: Return the template structure
+      return template.structure || null;
+    } catch (error) {
+      console.warn('Failed to fetch template from backend, falling back to ORIGYN:', error);
+      return this.getCollectionTemplateFromOrigyn(agent, collectionCanisterId);
+    }
+  }
+
+  /**
+   * Get template structure from ORIGYN collection metadata (legacy)
+   *
+   * Fetches the TemplateStructure stored in the collection's ORIGYN metadata.
+   * Used for backwards compatibility with collections created before template linking.
+   *
+   * @param agent - IC agent (can be unauthenticated for reads)
+   * @param collectionCanisterId - The collection's canister ID
+   * @returns The template structure, or null if not found
+   */
+  static async getCollectionTemplateFromOrigyn(
+    agent: Agent,
+    collectionCanisterId: string
+  ): Promise<TemplateStructure | null> {
+    try {
+      const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+      type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+
+      const actor = createCanisterActor<OrigynNftService>(
+        agent,
+        collectionCanisterId,
+        origynIdlFactory
+      );
+
+      // Fetch collection metadata via ICRC7
+      const metadata = await actor.icrc7_collection_metadata();
+
+      return deserializeTemplateFromOrigyn(metadata);
+    } catch (error) {
+      console.warn('Failed to fetch template from ORIGYN metadata:', error);
+      return null;
+    }
   }
 }

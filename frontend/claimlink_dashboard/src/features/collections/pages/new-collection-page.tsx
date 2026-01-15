@@ -3,7 +3,6 @@ import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { ChevronLeft } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
-import { mockTemplates, getTemplateById } from '@/shared/data/templates';
 import { CollectionFormSection } from '../components/form/collection-form-section';
 import { PricingSidebar, PricingSidebarContent } from '../components/form/pricing-sidebar';
 import { useAuth } from '@/features/auth';
@@ -11,7 +10,8 @@ import { useMultiTokenBalance, SUPPORTED_TOKENS } from '@/shared';
 import { OGY_LEDGER_CANISTER_ID } from '@/shared/constants';
 import useApprove from '@services/ledger/hooks/useApprove';
 import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
-import { useCreateCollection, useSetCollectionTemplate, CollectionsService } from '@/features/collections';
+import { useCreateCollection, CollectionsService } from '@/features/collections';
+import { useMyTemplates } from '@/features/templates';
 
 /**
  * SMART COMPONENT - Manages all business logic and state
@@ -65,7 +65,16 @@ export function NewCollectionPage() {
     }
   );
 
-  // Approval, creation, and template hooks
+  // Fetch user's templates from backend
+  const { data: templatesData, isLoading: isLoadingTemplates, error: templatesError } = useMyTemplates();
+  const templates = templatesData?.templates ?? [];
+
+  // Show template loading error
+  if (templatesError) {
+    console.error('Failed to load templates:', templatesError);
+  }
+
+  // Approval and creation hooks
   const approveMutation = useApprove(ogyToken?.canister_id || '', authenticatedAgent);
   const createCollectionMutation = useCreateCollection({
     onError: (error) => {
@@ -73,7 +82,6 @@ export function NewCollectionPage() {
       setIsSubmitting(false);
     },
   });
-  const setCollectionTemplateMutation = useSetCollectionTemplate();
 
   // Validation constants
   const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
@@ -136,6 +144,11 @@ export function NewCollectionPage() {
       return;
     }
 
+    if (isLoadingTemplates) {
+      toast.error('Templates are still loading. Please wait.');
+      return;
+    }
+
     if (!collectionName || !collectionSymbol || !collectionDescription) {
       toast.error('Please fill in all required fields');
       return;
@@ -146,9 +159,9 @@ export function NewCollectionPage() {
       return;
     }
 
-    // Verify the selected template exists and has a structure
-    const template = getTemplateById(selectedTemplate);
-    if (!template?.structure) {
+    // Verify the selected template exists
+    const template = templates.find((t) => t.id === selectedTemplate);
+    if (!template) {
       toast.error('Selected template is invalid. Please choose another.');
       return;
     }
@@ -192,13 +205,13 @@ export function NewCollectionPage() {
 
       toast.success('Approval granted! Creating collection...');
 
-      // Step 3: Create collection WITHOUT logo
+      // Step 3: Create collection with template_id (logo uploaded separately)
       setSubmitButtonText('Creating collection...');
       const canisterId = await createCollectionMutation.mutateAsync({
         name: collectionName,
         symbol: collectionSymbol,
         description: collectionDescription,
-        // Don't pass logo - will be uploaded separately
+        template_id: BigInt(selectedTemplate), // Template is linked at creation time
       });
 
       // Step 4: Upload and set logo if provided
@@ -233,20 +246,7 @@ export function NewCollectionPage() {
         }
       }
 
-      // Step 5: Store template structure in collection metadata
-      try {
-        setSubmitButtonText('Storing template...');
-        await setCollectionTemplateMutation.mutateAsync({
-          collectionId: canisterId,
-          template: template.structure,
-        });
-        toast.success('Template stored successfully!');
-      } catch (error) {
-        console.error('Template storage failed:', error);
-        toast.warning('Collection created, but template storage failed. Certificate editing may be limited.');
-        // Continue - collection exists, just without template for editing
-      }
-
+      // Template is automatically linked via template_id in backend
       toast.success('Collection created successfully!');
       navigate({ to: `/collections/${canisterId}` });
 
@@ -302,7 +302,7 @@ export function NewCollectionPage() {
         onCollectionDescriptionChange={setCollectionDescription}
         selectedTemplate={selectedTemplate}
         onTemplateChange={setSelectedTemplate}
-        templates={mockTemplates}
+        templates={templates}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
         submitButtonText={submitButtonText}

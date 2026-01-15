@@ -38,22 +38,23 @@ interface UseListMyCollectionsOptions {
  * Hook to fetch collections owned by the current user
  */
 export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
-  const { authenticatedAgent, isConnected } = useAuth();
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
   const { offset, limit, enabled = true } = options || {};
 
   return useQuery({
     queryKey: collectionKeys.myCollections({ offset, limit }),
     queryFn: async () => {
-      if (!authenticatedAgent) {
+      if (!authenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
-      return await CollectionsService.listMyCollections(
+      return await CollectionsService.getCollectionsByOwner(
         authenticatedAgent,
+        Principal.fromText(principalId),
         offset,
         limit
       );
     },
-    enabled: enabled && isConnected && !!authenticatedAgent,
+    enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -266,24 +267,32 @@ interface UseCollectionTemplateOptions {
  *
  * Retrieves the TemplateStructure stored in the collection's metadata.
  * This is used during certificate editing to reconstruct the form.
+ *
+ * Uses authenticatedAgent when available (required for fetching templates
+ * from backend, as get_templates_by_owner requires caller == owner).
+ * Falls back to unauthenticatedAgent for public viewing (ORIGYN metadata).
  */
 export const useCollectionTemplate = (options: UseCollectionTemplateOptions) => {
-  const { unauthenticatedAgent } = useAuth();
+  const { authenticatedAgent, unauthenticatedAgent } = useAuth();
   const { collectionId, enabled = true } = options;
+
+  // Prefer authenticated agent (required for backend template fetching)
+  // Fall back to unauthenticated for public access (ORIGYN fallback)
+  const agent = authenticatedAgent || unauthenticatedAgent;
 
   return useQuery({
     queryKey: collectionKeys.template(collectionId),
     queryFn: async () => {
-      if (!unauthenticatedAgent) {
+      if (!agent) {
         throw new Error('Agent not available');
       }
 
       return await CollectionsService.getCollectionTemplate(
-        unauthenticatedAgent,
+        agent,
         collectionId
       );
     },
-    enabled: enabled && !!unauthenticatedAgent && !!collectionId,
+    enabled: enabled && !!agent && !!collectionId,
     staleTime: 10 * 60 * 1000, // 10 minutes - templates rarely change
     retry: 1,
   });
@@ -346,19 +355,26 @@ export const useSetCollectionTemplate = (options?: UseSetCollectionTemplateOptio
 interface UseCreateCollectionOptions {
   onSuccess?: (canisterId: string) => void;
   onError?: (error: Error) => void;
+  /** If true (default), wait for canister creation and return canister ID */
+  waitForCanister?: boolean;
 }
 
 /**
  * Hook to create a new collection
  *
- * Note: Requires 15,000 OGY tokens to be approved for spending before calling
+ * Note: Requires 15,000 OGY tokens to be approved for spending before calling.
+ * The backend creates collections asynchronously. By default, this hook waits for
+ * the canister to be created and returns the canister ID (string).
+ *
+ * Set waitForCanister=false to return immediately with the collection ID (as string).
  */
 export const useCreateCollection = (options?: UseCreateCollectionOptions) => {
   const { authenticatedAgent, isConnected } = useAuth();
   const queryClient = useQueryClient();
+  const waitForCanister = options?.waitForCanister ?? true; // Default to true
 
   return useMutation({
-    mutationFn: async (args: CreateCollectionArgs) => {
+    mutationFn: async (args: CreateCollectionArgs): Promise<string> => {
       if (!authenticatedAgent) {
         throw new Error('Not authenticated');
       }
@@ -367,7 +383,19 @@ export const useCreateCollection = (options?: UseCreateCollectionOptions) => {
         throw new Error('Wallet not connected');
       }
 
-      return await CollectionsService.createCollection(authenticatedAgent, args);
+      const collectionId = await CollectionsService.createCollection(authenticatedAgent, args);
+
+      // By default, wait for canister creation and return the canister ID
+      if (waitForCanister) {
+        const canisterId = await CollectionsService.waitForCollectionCanister(
+          authenticatedAgent,
+          collectionId
+        );
+        return canisterId;
+      }
+
+      // If not waiting, return collection ID as string
+      return collectionId.toString();
     },
     onSuccess: (canisterId) => {
       // Invalidate collection queries to refetch updated data

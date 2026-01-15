@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useIsMobile } from '@/shared/hooks/useMediaQuery';
 import { ChooseTemplateStep } from '../components/create/choose-template-step';
 import { ChooseBackgroundStep } from '../components/create/choose-background-step';
 import { EditTemplateStepV2 } from '../components/create/edit-template-step-v2';
 import { PreviewDeployStep } from '../components/create/preview-deploy-step';
-import { type Template } from '@/shared/data';
+import { useCreateTemplate } from '../api/templates.queries';
+import type { Template } from '../types/template.types';
 
 type Step = 'choose' | 'background' | 'edit' | 'preview';
 
@@ -82,9 +84,23 @@ export function NewTemplatePage() {
   const [currentStep, setCurrentStep] = useState<Step>('choose');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateWithBackground | null>(null);
 
+  // Template creation mutation
+  const createTemplateMutation = useCreateTemplate({
+    onSuccess: (templateId) => {
+      toast.success(`Template created successfully! (ID: ${templateId})`);
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to create template');
+    },
+  });
+
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate({ ...template });
     setCurrentStep('background');
+  };
+
+  const handleDeploy = async (template: Template) => {
+    await createTemplateMutation.mutateAsync(template);
   };
 
   const handleBackgroundSelect = (backgroundType: 'standard' | 'custom', customImage?: string) => {
@@ -216,7 +232,9 @@ export function NewTemplatePage() {
             <PreviewDeployStep
               selectedTemplate={selectedTemplate}
               onBack={() => setCurrentStep('edit')}
+              onDeploy={handleDeploy}
               onComplete={() => navigate({ to: '/templates' })}
+              isDeploying={createTemplateMutation.isPending}
             />
           </TabsContent>
         </div>

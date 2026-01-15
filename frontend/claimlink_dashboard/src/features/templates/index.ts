@@ -31,20 +31,12 @@ export {
 export { TemplateService } from './api/templates.service'
 export {
   templateKeys,
-  useTemplates,
+  useMyTemplates,
   useTemplate,
   useTemplatesByCategory,
+  useCreateTemplate,
   useFreeTemplates,
   usePremiumTemplates,
-} from './api/templates.queries'
-
-/**
- * @deprecated Use `useCollectionTemplate` and `useSetCollectionTemplate` from '@/features/collections' instead.
- * The collections hooks fetch/store templates in on-chain collection metadata.
- */
-export {
-  useCollectionTemplate as useCollectionTemplateLegacy,
-  useSetCollectionTemplate as useSetCollectionTemplateLegacy,
 } from './api/templates.queries'
 
 // ============================================================================
@@ -62,7 +54,15 @@ export {
 // Types
 // ============================================================================
 
-export type { CreateTemplateInput, TemplateCardProps, TemplateFilters, PaginationState } from './types/template.types'
+export type {
+  Template,
+  CreateTemplateInput,
+  TemplateCardProps,
+  TemplateFilters,
+  PaginationState,
+  BackendTemplate,
+  TemplateJsonPayload,
+} from './types/template.types'
 export type {
   TemplateStructure,
   TemplateSection,
@@ -75,4 +75,9 @@ export type {
   TemplateLanguage,
   CertificateFormData,
   ValidationResult,
+} from './types/template.types'
+
+export {
+  transformBackendTemplate,
+  serializeTemplateToJson,
 } from './types/template.types'
