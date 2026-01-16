@@ -1,12 +1,27 @@
-import type { CollectionInfo, CollectionStatus as BackendCollectionStatus } from '@canisters/claimlink';
-import type { Collection } from '../types/collection.types';
+import type { CollectionInfo, CollectionStatus as CandidCollectionStatus } from '@canisters/claimlink';
+import type { Collection, BackendCollectionStatus, SimpleCollectionStatus } from '../types/collection.types';
 
 /**
- * Map backend CollectionStatus to frontend status
+ * Extract the status key from the Candid variant type
+ */
+function extractBackendStatus(candidStatus: CandidCollectionStatus): BackendCollectionStatus {
+  if ('Queued' in candidStatus) return 'Queued';
+  if ('Created' in candidStatus) return 'Created';
+  if ('Installed' in candidStatus) return 'Installed';
+  if ('TemplateUploaded' in candidStatus) return 'TemplateUploaded';
+  if ('Failed' in candidStatus) return 'Failed';
+  if ('ReimbursingQueued' in candidStatus) return 'ReimbursingQueued';
+  if ('QuarantinedReimbursement' in candidStatus) return 'QuarantinedReimbursement';
+  if ('Reimbursed' in candidStatus) return 'Reimbursed';
+  return 'Queued'; // Fallback
+}
+
+/**
+ * Map backend CollectionStatus to simplified frontend status for filtering
  */
 function mapCollectionStatus(
-  backendStatus: BackendCollectionStatus
-): 'Active' | 'Inactive' | 'Draft' {
+  backendStatus: CandidCollectionStatus
+): SimpleCollectionStatus {
   // Installed or TemplateUploaded = Active (fully operational)
   if ('Installed' in backendStatus || 'TemplateUploaded' in backendStatus) {
     return 'Active';
@@ -41,6 +56,7 @@ export function transformCollectionInfo(
     imageUrl: '', // TODO: Fetch from NFT metadata or add to CollectionInfo
     itemCount,
     status: mapCollectionStatus(backendCollection.status),
+    backendStatus: extractBackendStatus(backendCollection.status),
     createdDate: formatTimestamp(backendCollection.created_at),
     lastModified: formatTimestamp(backendCollection.updated_at),
     creator: backendCollection.owner.toText(),

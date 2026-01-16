@@ -22,12 +22,16 @@ interface CollectionFormSectionProps {
   onSubmit: () => void;
   isSubmitting?: boolean;
   submitButtonText?: string;
-  // Image upload props
+  // Image/Video upload props
   imagePreviewUrl: string | null;
   onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
   onImageRemove: () => void;
   onImageUploadClick: () => void;
   imageFileInputRef: React.RefObject<HTMLInputElement | null>;
+  /** Enable video file support in addition to images */
+  acceptVideo?: boolean;
+  /** The selected file (for video preview detection) */
+  selectedFile?: File | null;
 }
 
 /**
@@ -52,6 +56,8 @@ export function CollectionFormSection({
   onImageRemove,
   onImageUploadClick,
   imageFileInputRef,
+  acceptVideo = false,
+  selectedFile,
 }: CollectionFormSectionProps) {
   return (
     <div className="flex-1">
@@ -62,13 +68,15 @@ export function CollectionFormSection({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Image Upload Section */}
+          {/* Image/Video Upload Section */}
           <ImageUploadSection
             previewUrl={imagePreviewUrl}
             onFileSelect={onImageFileSelect}
             onRemove={onImageRemove}
             onUploadClick={onImageUploadClick}
             fileInputRef={imageFileInputRef}
+            acceptVideo={acceptVideo}
+            selectedFile={selectedFile}
           />
 
           {/* Collection Name Input */}

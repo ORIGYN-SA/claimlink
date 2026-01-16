@@ -3,6 +3,7 @@ import type { Principal } from "@dfinity/principal";
 import { idlFactory } from "@canisters/origyn_nft";
 import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "@canisters/origyn_nft";
 import { createCanisterActor, retryWithBackoff } from "@/shared/canister";
+import { buildCanisterUrl, isLocalReplica } from "@/features/template-renderer/utils/url-resolver";
 
 /**
  * Certificates Service
@@ -13,6 +14,58 @@ import { createCanisterActor, retryWithBackoff } from "@/shared/canister";
 export class CertificatesService {
   private static createActor(agent: Agent, canisterId: string): _SERVICE {
     return createCanisterActor<_SERVICE>(agent, canisterId, idlFactory);
+  }
+
+  /**
+   * Normalize an asset URL returned by the backend to the correct format.
+   *
+   * The backend may return URLs in various formats:
+   * - Relative path: "/filename.jpg" → needs canister base URL prepended
+   * - Wrong domain: "https://canister.icp0.io/..." → needs ".raw" subdomain
+   * - Already correct: pass through
+   *
+   * @param url - URL returned by finalizeUpload
+   * @param canisterId - Canister ID for building the base URL
+   * @returns Normalized URL in the correct format for the environment
+   */
+  private static normalizeAssetUrl(url: string, canisterId: string): string {
+    console.log('[Upload Debug] normalizeAssetUrl input:', { url, canisterId });
+
+    // If URL is relative (starts with /), prepend the canister base URL
+    if (url.startsWith('/')) {
+      const baseUrl = buildCanisterUrl(canisterId);
+      const normalized = `${baseUrl}${url}`;
+      console.log('[Upload Debug] Normalized relative URL:', { original: url, normalized });
+      return normalized;
+    }
+
+    // If URL is already absolute, check if it needs domain correction
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      // For production, ensure we're using .raw.icp0.io for direct asset access
+      if (!isLocalReplica()) {
+        // Convert icp0.io to raw.icp0.io if needed
+        if (url.includes('.icp0.io') && !url.includes('.raw.icp0.io')) {
+          const normalized = url.replace('.icp0.io', '.raw.icp0.io');
+          console.log('[Upload Debug] Added .raw to domain:', { original: url, normalized });
+          return normalized;
+        }
+        // Convert ic0.app to raw.icp0.io
+        if (url.includes('.ic0.app')) {
+          const normalized = url.replace('.ic0.app', '.raw.icp0.io');
+          console.log('[Upload Debug] Converted ic0.app to raw.icp0.io:', { original: url, normalized });
+          return normalized;
+        }
+      }
+      // URL is already in correct format
+      console.log('[Upload Debug] URL already in correct format:', url);
+      return url;
+    }
+
+    // URL doesn't start with / or http - treat as relative path
+    const baseUrl = buildCanisterUrl(canisterId);
+    const normalized = `${baseUrl}/${url}`;
+    console.log('[Upload Debug] Normalized path URL:', { original: url, normalized });
+    return normalized;
   }
 
   /**
@@ -126,7 +179,7 @@ export class CertificatesService {
    * @param canisterId - Canister to upload to
    * @param file - File to upload
    * @param onProgress - Optional progress callback
-   * @returns URL of the uploaded file
+   * @returns URL of the uploaded file (normalized for the current environment)
    */
   static async uploadCertificateFile(
     agent: Agent,
@@ -134,9 +187,17 @@ export class CertificatesService {
     file: File,
     onProgress?: (progress: number) => void,
   ): Promise<string> {
-    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks - DO NOT INCREASE (IC message size limit)
     const filePath = file.name;
     const fileSize = BigInt(file.size);
+
+    console.log('[Upload Debug] Starting upload:', {
+      fileName: file.name,
+      fileType: file.type,
+      fileSize: file.size,
+      canisterId,
+      totalChunks: Math.ceil(file.size / CHUNK_SIZE),
+    });
 
     // Calculate file hash (SHA-256)
     const arrayBuffer = await file.arrayBuffer();
@@ -144,8 +205,11 @@ export class CertificatesService {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
+    console.log('[Upload Debug] File hash calculated:', fileHash.substring(0, 16) + '...');
+
     // Initialize upload
     await this.initUpload(agent, canisterId, filePath, fileHash, fileSize, BigInt(CHUNK_SIZE));
+    console.log('[Upload Debug] initUpload successful');
 
     // Upload chunks
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
@@ -168,10 +232,27 @@ export class CertificatesService {
       if (onProgress) {
         onProgress(((i + 1) / totalChunks) * 100);
       }
+
+      console.log(`[Upload Debug] Chunk ${i + 1}/${totalChunks} uploaded`);
     }
 
     // Finalize and get URL
-    return await this.finalizeUpload(agent, canisterId, filePath);
+    const rawUrl = await this.finalizeUpload(agent, canisterId, filePath);
+
+    console.log('[Upload Debug] finalizeUpload returned:', {
+      rawUrl,
+      canisterId,
+      filePath,
+      isAbsolute: rawUrl.startsWith('http'),
+      hasRawDomain: rawUrl.includes('.raw.'),
+    });
+
+    // Normalize the URL for the current environment
+    const normalizedUrl = this.normalizeAssetUrl(rawUrl, canisterId);
+
+    console.log('[Upload Debug] Final normalized URL:', normalizedUrl);
+
+    return normalizedUrl;
   }
 
   /**

@@ -13,6 +13,7 @@ import type {
   InputItem,
   BadgeItem,
   ImageItem,
+  VideoItem,
   CertificateFormData,
   ValidationResult,
 } from '@/features/templates/types/template.types';
@@ -104,6 +105,10 @@ export function isImageItem(item: TemplateItem): item is ImageItem {
   return item.type === 'image';
 }
 
+export function isVideoItem(item: TemplateItem): item is VideoItem {
+  return item.type === 'video';
+}
+
 // ============================================================================
 // Icon/Visual Helpers
 // ============================================================================
@@ -117,6 +122,7 @@ export function getItemTypeIcon(type: TemplateItemType): string {
     input: 'Mint',
     badge: 'CircleStack',
     image: 'Mint',
+    video: 'Video',
   };
   return iconMap[type] || 'Mint';
 }
@@ -130,6 +136,7 @@ export function getItemTypeDisplayName(type: TemplateItemType): string {
     input: 'Input',
     badge: 'Badge',
     image: 'Image',
+    video: 'Video',
   };
   return displayNames[type] || type;
 }
@@ -235,6 +242,29 @@ export function validateField(
     }
   }
 
+  // Video validation
+  if (isVideoItem(item) && value) {
+    if (value instanceof File) {
+      // Check file size (default 50MB if not specified)
+      const maxFileSize = item.maxFileSize || 50 * 1024 * 1024;
+      if (value.size > maxFileSize) {
+        const maxMB = (maxFileSize / 1024 / 1024).toFixed(0);
+        return {
+          isValid: false,
+          error: `Video must be less than ${maxMB}MB`,
+        };
+      }
+
+      // Check file type
+      if (item.acceptedFormats && !item.acceptedFormats.includes(value.type)) {
+        return {
+          isValid: false,
+          error: `Video type not accepted. Allowed: ${item.acceptedFormats.join(', ')}`,
+        };
+      }
+    }
+  }
+
   return { isValid: true };
 }
 
@@ -286,6 +316,8 @@ export function getInitialFormData(template: Template): CertificateFormData {
         formData[item.id] = item.defaultValue;
       } else if (isImageItem(item) && item.multiple) {
         formData[item.id] = [];
+      } else if (isVideoItem(item)) {
+        formData[item.id] = ''; // Videos are single files, empty string as default
       } else {
         formData[item.id] = '';
       }
