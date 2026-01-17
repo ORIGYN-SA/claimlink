@@ -12,6 +12,7 @@ import useApprove from '@services/ledger/hooks/useApprove';
 import useFetchTransferFee from '@/services/ledger/hooks/useFetchTransferFee';
 import { useCreateCollection, CollectionsService } from '@/features/collections';
 import { useMyTemplates } from '@/features/templates';
+import { isVideoFile, validateFile } from '@/shared/config/upload.config';
 
 /**
  * SMART COMPONENT - Manages all business logic and state
@@ -83,28 +84,19 @@ export function NewCollectionPage() {
     },
   });
 
-  // Validation constants
-  const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
-  const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
-
   const handleImageFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    if (!VALID_FILE_TYPES.includes(file.type)) {
-      alert('Please upload a valid file type: JPEG, PNG, SVG, or PDF');
+    // Validate file type and size using centralized config
+    const validation = validateFile(file, 'media');
+    if (!validation.valid) {
+      toast.error(validation.message || 'Invalid file');
       return;
     }
 
-    // Validate file size
-    if (file.size > MAX_FILE_SIZE) {
-      toast.error('Image must be less than 2MB');
-      return;
-    }
-
-    // Create preview URL for images (not PDF)
-    if (file.type.startsWith('image/')) {
+    // Create preview URL for images and videos (not PDF)
+    if (file.type.startsWith('image/') || isVideoFile(file)) {
       // Clean up previous URL if exists
       if (imagePreviewUrl) {
         URL.revokeObjectURL(imagePreviewUrl);
@@ -114,7 +106,7 @@ export function NewCollectionPage() {
     }
 
     setImageFile(file);
-    console.log('Image selected:', file.name, file.type, `${(file.size / 1024).toFixed(2)}KB`);
+    console.log('File selected:', file.name, file.type, `${(file.size / 1024 / 1024).toFixed(2)}MB`);
   };
 
   const handleImageRemove = () => {
@@ -311,6 +303,8 @@ export function NewCollectionPage() {
         onImageRemove={handleImageRemove}
         onImageUploadClick={handleImageUploadClick}
         imageFileInputRef={fileInputRef}
+        acceptVideo={true}
+        selectedFile={imageFile}
       />
 
       {/* Desktop Sidebar - Hidden on mobile */}

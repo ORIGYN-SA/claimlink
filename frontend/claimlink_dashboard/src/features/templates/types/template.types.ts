@@ -12,7 +12,7 @@
 // Item Types
 // ============================================================================
 
-export type TemplateItemType = 'title' | 'input' | 'badge' | 'image';
+export type TemplateItemType = 'title' | 'input' | 'badge' | 'image' | 'video';
 
 /**
  * Base interface for all template items
@@ -85,9 +85,23 @@ export interface ImageItem extends BaseTemplateItem {
 }
 
 /**
+ * Video item - video upload field
+ */
+export interface VideoItem extends BaseTemplateItem {
+  type: 'video';
+  acceptedFormats?: string[]; // e.g., ['video/mp4', 'video/webm', 'video/quicktime']
+  maxFileSize?: number; // In bytes (default: 50MB)
+  aspectRatio?: string; // e.g., '16:9', '4:3'
+  maxDuration?: number; // Max duration in seconds
+  autoplay?: boolean; // Whether to autoplay on preview
+  loop?: boolean; // Whether to loop the video
+  muted?: boolean; // Whether to mute by default
+}
+
+/**
  * Union type for all template items
  */
-export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem;
+export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem | VideoItem;
 
 // ============================================================================
 // Section Types

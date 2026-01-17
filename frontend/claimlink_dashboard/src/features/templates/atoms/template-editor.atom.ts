@@ -44,7 +44,7 @@ export interface TemplateEditorState {
 
   fieldForm: {
     label: string;
-    type: 'input' | 'badge' | 'image' | 'title';
+    type: 'input' | 'badge' | 'image' | 'video' | 'title';
     inputType: 'text' | 'number' | 'textarea' | 'email' | 'url';
     placeholder: string;
     description: string;

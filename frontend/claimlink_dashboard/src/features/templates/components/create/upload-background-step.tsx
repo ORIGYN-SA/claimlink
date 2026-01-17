@@ -2,33 +2,46 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { UPLOAD_CONFIG, isVideoFile, validateFile } from '@/shared/config/upload.config';
 
 interface UploadBackgroundStepProps {
   onNext: (customImage: string) => void;
   onBack: () => void;
 }
 
-export function UploadBackgroundStep({ 
-  onNext, 
-  onBack 
+export function UploadBackgroundStep({
+  onNext,
+  onBack
 }: UploadBackgroundStepProps) {
-  const [uploadedImage, setUploadedImage] = useState<string>('');
+  const [uploadedMedia, setUploadedMedia] = useState<string>('');
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const isVideo = uploadedFile ? isVideoFile(uploadedFile) : false;
+
+  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setUploadedImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // Validate file using centralized config
+    const validation = validateFile(file, 'media');
+    if (!validation.valid) {
+      toast.error(validation.message || 'Invalid file');
+      return;
     }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedMedia(reader.result as string);
+      setUploadedFile(file);
+    };
+    reader.readAsDataURL(file);
   };
 
   const handleNext = () => {
-    if (uploadedImage) {
-      onNext(uploadedImage);
+    if (uploadedMedia) {
+      onNext(uploadedMedia);
     }
   };
 
@@ -39,9 +52,9 @@ export function UploadBackgroundStep({
   return (
     <div className="w-full max-w-5xl mx-auto">
       <div className="mb-8 flex items-center">
-        <Button 
-          variant="ghost" 
-          size="sm" 
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={onBack}
           className="mr-4 p-2 h-auto"
         >
@@ -52,7 +65,7 @@ export function UploadBackgroundStep({
             Upload your background
           </h2>
           <p className="text-sm text-[#69737c] max-w-md">
-            This image will appear behind your certificate content and define its visual style.
+            This media will appear behind your certificate content and define its visual style.
           </p>
         </div>
       </div>
@@ -61,18 +74,18 @@ export function UploadBackgroundStep({
         {/* Upload Area */}
         <Card className="border border-[#e1e1e1] rounded-[16px]">
           <CardContent className="p-3">
-            <div 
+            <div
               className={`bg-[rgba(205,223,236,0.15)] border-2 border-dashed border-[#e1e1e1] rounded-[4px] p-3 flex flex-col items-center justify-center min-h-[300px] cursor-pointer transition-all hover:bg-[rgba(205,223,236,0.25)]`}
               onClick={handleUploadClick}
             >
               <input
                 ref={fileInputRef}
                 type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
+                accept={UPLOAD_CONFIG.media.acceptString}
+                onChange={handleMediaUpload}
                 className="hidden"
               />
-              
+
               <div className="flex flex-col items-center justify-center text-center">
                 <div className="relative mb-4">
                   <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
@@ -81,16 +94,16 @@ export function UploadBackgroundStep({
                     </svg>
                   </div>
                 </div>
-                
+
                 <p className="text-base font-medium text-[#69737c] mb-2">
-                  <span className="text-[#615bff] font-medium">Upload</span> your products image or drag it here
+                  <span className="text-[#615bff] font-medium">Upload</span> your background image or video
                 </p>
-                
+
                 <p className="text-sm text-[#69737c] mb-4">Recommended format: 1350x950px</p>
-                
+
                 <div className="text-xs text-[#69737c] text-center space-y-1">
-                  <p className="font-semibold">JPEG, PNG, SVG, PDF</p>
-                  <p className="font-semibold">Max 2MB</p>
+                  <p className="font-semibold">{UPLOAD_CONFIG.media.formatLabel}</p>
+                  <p className="font-semibold">Images: max {UPLOAD_CONFIG.image.maxSizeMB}MB | Videos: max {UPLOAD_CONFIG.video.maxSizeMB}MB</p>
                   <p className="font-normal">Note: We recommend you to not have any text on the background.</p>
                 </div>
               </div>
@@ -104,21 +117,31 @@ export function UploadBackgroundStep({
             <div className="mb-2">
               <h3 className="text-lg font-medium text-[#222526]">Preview</h3>
             </div>
-            
+
             <div className="bg-[#232526] rounded-[8px] p-5 flex items-center justify-center min-h-[300px]">
-              <div 
-                className="border border-[#69737c] border-dashed flex gap-[10px] items-center px-[49px] py-[74px] relative rounded-[16px] w-[235px] h-[345px]"
-                style={uploadedImage ? { backgroundImage: `url(${uploadedImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+              <div
+                className="border border-[#69737c] border-dashed flex gap-[10px] items-center px-[49px] py-[74px] relative rounded-[16px] w-[235px] h-[345px] overflow-hidden"
               >
                 <div aria-hidden="true" className="absolute inset-0 pointer-events-none rounded-[16px]">
                   <div className="absolute bg-[rgba(255,255,255,0.04)] inset-0 rounded-[16px]" />
-                  {uploadedImage && (
+                  {uploadedMedia && (
                     <div className="absolute inset-0 overflow-hidden rounded-[16px]">
-                      <img 
-                        alt="" 
-                        className="absolute h-full w-full object-cover" 
-                        src={uploadedImage} 
-                      />
+                      {isVideo ? (
+                        <video
+                          src={uploadedMedia}
+                          className="absolute h-full w-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          autoPlay
+                        />
+                      ) : (
+                        <img
+                          alt=""
+                          className="absolute h-full w-full object-cover"
+                          src={uploadedMedia}
+                        />
+                      )}
                     </div>
                   )}
                 </div>
@@ -155,9 +178,9 @@ export function UploadBackgroundStep({
       </div>
 
       <div className="flex justify-center">
-        <Button 
+        <Button
           onClick={handleNext}
-          disabled={!uploadedImage}
+          disabled={!uploadedMedia}
           className="bg-[#222526] hover:bg-[#333333] text-white px-10 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next

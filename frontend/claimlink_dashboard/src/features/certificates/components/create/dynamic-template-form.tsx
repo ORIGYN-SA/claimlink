@@ -19,6 +19,7 @@ import type {
   InputItem,
   BadgeItem,
   ImageItem,
+  VideoItem,
   CertificateFormData,
 } from '@/features/templates/types/template.types';
 import {
@@ -28,9 +29,11 @@ import {
   isInputItem,
   isBadgeItem,
   isImageItem,
+  isVideoItem,
   validateField,
   getInitialFormData,
 } from '@/features/templates/utils/template-utils';
+import { UPLOAD_CONFIG, isVideoFile } from '@/shared/config/upload.config';
 
 interface DynamicTemplateFormProps {
   template: Template;
@@ -366,12 +369,122 @@ export function DynamicTemplateForm({
     );
   };
 
+  // Render Video Item
+  const renderVideoItem = (item: VideoItem) => {
+    const value = formData[item.id];
+    const file = value instanceof File ? value : null;
+    const error = errors[item.id];
+
+    // Get or create ref for this item
+    if (!fileInputRefs.current.has(item.id)) {
+      fileInputRefs.current.set(item.id, createRef<HTMLInputElement>());
+    }
+    const inputRef = fileInputRefs.current.get(item.id)!;
+
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+      const selectedFile = event.target.files?.[0];
+      if (selectedFile) {
+        handleChange(item.id, selectedFile);
+      }
+    };
+
+    const handleRemove = () => {
+      handleChange(item.id, '');
+    };
+
+    const handleUploadClick = () => {
+      inputRef.current?.click();
+    };
+
+    // Create preview URL for video
+    const previewUrl = file && isVideoFile(file) ? URL.createObjectURL(file) : null;
+
+    const formatFileTypes = () => {
+      if (!item.acceptedFormats) return UPLOAD_CONFIG.video.formatLabel;
+      return item.acceptedFormats.map((type) => type.split('/')[1].toUpperCase()).join(', ');
+    };
+
+    return (
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[#222526] flex items-center gap-1">
+          {item.label}
+          {item.required && <span className="text-red-500">*</span>}
+        </label>
+
+        {item.description && (
+          <p className="text-xs text-[#69737c]">{item.description}</p>
+        )}
+
+        <div className="flex gap-4 w-full">
+          {/* Video Preview */}
+          <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
+            {previewUrl ? (
+              <>
+                <video
+                  src={previewUrl}
+                  className="w-full h-full object-cover"
+                  muted
+                  loop
+                  playsInline
+                  autoPlay={item.autoplay !== false}
+                />
+                <button
+                  onClick={handleRemove}
+                  className="absolute top-2 right-2 bg-[#222526] hover:bg-[#222526]/90 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                  aria-label="Remove video"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </>
+            ) : (
+              <svg className="w-6 h-6 text-[#69737c]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            )}
+          </div>
+
+          {/* Upload Area */}
+          <div
+            onClick={handleUploadClick}
+            className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
+          >
+            <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center mb-3">
+              <svg className="w-4 h-4 text-[#615bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p className="text-[#615bff] font-medium mb-2">
+              Upload video
+            </p>
+            <p className="text-[#69737c] text-sm">
+              {formatFileTypes()} (max {UPLOAD_CONFIG.video.maxSizeMB}MB)
+            </p>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={item.acceptedFormats?.join(',') || UPLOAD_CONFIG.video.acceptString}
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
+        </div>
+
+        {error && (
+          <p className="text-xs text-red-500">{error}</p>
+        )}
+      </div>
+    );
+  };
+
   // Render single item based on type
   const renderItem = (item: TemplateItem) => {
     if (isTitleItem(item)) return renderTitleItem(item);
     if (isInputItem(item)) return renderInputItem(item);
     if (isBadgeItem(item)) return renderBadgeItem(item);
     if (isImageItem(item)) return renderImageItem(item);
+    if (isVideoItem(item)) return renderVideoItem(item);
     return null;
   };
 
