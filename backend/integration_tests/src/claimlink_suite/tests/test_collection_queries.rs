@@ -11,6 +11,7 @@ use claimlink_api::{
     get_collections_by_owner::GetCollectionsByOwnerArgs, types::collection::PaginationArgs,
 };
 use icrc_ledger_types::icrc1::account::Account;
+use origyn_nft_canister_api::mint::MintRequest;
 use utils::consts::E8S_FEE_OGY;
 
 //const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
@@ -477,25 +478,27 @@ fn mint_nft_to_owner(
     use icrc_ledger_types::icrc::generic_value::ICRC3Value;
 
     let mint_args = origyn_nft_canister_api::types::management::mint::Args {
-        token_owner: Account {
-            owner,
-            subaccount: None,
-        },
-        metadata: vec![
-            (
-                "icrc7:token_id".to_string(),
-                ICRC3Value::Nat(Nat::from(token_id)),
-            ),
-            (
-                "icrc7:name".to_string(),
-                ICRC3Value::Text(format!("NFT #{}", token_id)),
-            ),
-            (
-                "icrc7:description".to_string(),
-                ICRC3Value::Text(format!("Test NFT #{}", token_id)),
-            ),
-        ],
-        memo: None,
+        mint_requests: vec![MintRequest {
+            token_owner: Account {
+                owner,
+                subaccount: None,
+            },
+            metadata: vec![
+                (
+                    "icrc7:token_id".to_string(),
+                    ICRC3Value::Nat(Nat::from(token_id)),
+                ),
+                (
+                    "icrc7:name".to_string(),
+                    ICRC3Value::Text(format!("NFT #{}", token_id)),
+                ),
+                (
+                    "icrc7:description".to_string(),
+                    ICRC3Value::Text(format!("Test NFT #{}", token_id)),
+                ),
+            ],
+            memo: None,
+        }],
     };
 
     crate::client::origyn_nft::mint(pic, caller, collection_canister, &mint_args)
@@ -577,10 +580,14 @@ fn test_get_collection_nfts_with_nfts() {
     .canister_id
     .unwrap();
 
+    println!("canister id: {:?}", canister_id.to_text());
+
     // Mint 3 NFTs
     for i in 1..=3 {
         mint_nft(&mut pic, principal_ids.principal_100k_ogy, canister_id, i);
     }
+
+    println!("mint succesful");
 
     // Query NFTs in the collection
     let nfts = crate::client::claimlink::get_collection_nfts(
@@ -593,6 +600,8 @@ fn test_get_collection_nfts_with_nfts() {
             take: None,
         },
     );
+
+    println!("nfts {:?}", nfts);
 
     assert_eq!(nfts.len(), 3, "Collection should have 3 NFTs");
     assert_eq!(nfts[0], Nat::from(1u128));

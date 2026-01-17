@@ -502,7 +502,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 value.commit_hash,
             ),
             Data {
-                origyn_nft_wasm_hash: WasmHash::default(),
+                origyn_nft_wasm_hash: Default::default(),
                 active_tasks: HashSet::new(),
                 ledger_canister_id: value.ledger_canister_id,
                 authorized_principals: value.authorized_principals,

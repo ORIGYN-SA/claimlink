@@ -47,7 +47,7 @@ pub async fn process_reimbursements() {
             amount: Nat::from(reimbusement_amount),
             fee: Some(Nat::from(ogy_transfer_fee)),
             memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
-                format!("Collection reimbursement: {}", collection.metadata.symbol).into_bytes(),
+                format!("Collection reimbursement: {}", collection.ogy_payment_index).into_bytes(),
             )),
             created_at_time: Some(timestamp_nanos()),
             from_subaccount: None,

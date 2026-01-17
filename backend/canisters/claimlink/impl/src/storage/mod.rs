@@ -14,7 +14,7 @@ pub mod events;
 pub mod memory;
 
 pub(crate) const NFT_COLLECTION_BYTECODE: &[u8] =
-    include_bytes!("../../wasm/origyn_nft_canister.wasm.gz");
+    include_bytes!("../../wasm/core_nft_canister.wasm.gz");
 
 thread_local! {
     /// Persistent storage for nft template binaries indexed by unique Id.
@@ -35,7 +35,7 @@ pub struct StableStorage {
 impl StableStorage {
     /// Inserts WASM into stable storage if the hash does not already exist.
     pub fn record_wasm(&mut self, wasm: Wasm) {
-        let wasm_hash = wasm.hash().clone();
+        let wasm_hash = *wasm.hash();
 
         if !self.wasms.contains_key(&wasm_hash) {
             self.wasms.insert(wasm_hash, wasm);
@@ -92,7 +92,7 @@ where
 
 pub fn record_nft_collection_wasm() -> WasmHash {
     let wasm = Wasm::new(NFT_COLLECTION_BYTECODE.to_vec());
-    let wasm_hash = wasm.hash().clone();
+    let wasm_hash = *wasm.hash();
     mutate_stable_storage(|s| s.record_wasm(wasm));
 
     wasm_hash

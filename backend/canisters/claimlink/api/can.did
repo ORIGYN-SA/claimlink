@@ -170,6 +170,7 @@ type UpgradeArgs = record {
   cycles_management : opt CyclesManagement;
   max_creation_retries : opt nat;
   collection_request_fee : opt nat;
+  new_authorized_principals : opt vec AuthordiedPrincipal;
   ogy_transfer_fee : opt nat;
   bank_principal_id : opt principal;
   commit_hash : text;

@@ -16,6 +16,7 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
             .upgrade(upgrade_args.clone())
             .expect("applying upgrade event should succeed"),
 
+        EventType::RecordedWasm(wasm_hash) => state.data.origyn_nft_wasm_hash = *wasm_hash,
         EventType::CreateCollectionRequest {
             metadata,
             ogy_payment_index,
