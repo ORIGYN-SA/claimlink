@@ -40,11 +40,12 @@ type Args_1 = record {
   file_size : nat64;
   chunk_size : opt nat64;
 };
-type Args_2 = record {
+type MintRequest = record {
   metadata : vec record { text; ICRC3Value };
   memo : opt blob;
   token_owner : Account;
 };
+type Args_2 = record { mint_requests : vec MintRequest };
 type Args_3 = record { authorized_principals : vec principal };
 type Args_4 = record { minting_authorities : vec principal };
 type Args_5 = record { chunk_id : nat; file_path : text; chunk_data : blob };

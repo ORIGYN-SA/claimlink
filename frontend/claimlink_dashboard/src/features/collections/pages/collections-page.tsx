@@ -97,7 +97,7 @@ export function CollectionsPage() {
       width: "120px",
       render: (collection: Collection) => (
         <div className="flex items-center">
-          <CollectionStatusBadge status={collection.status} />
+          <CollectionStatusBadge backendStatus={collection.backendStatus} />
         </div>
       ),
     },

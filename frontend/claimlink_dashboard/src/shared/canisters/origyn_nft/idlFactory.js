@@ -381,10 +381,13 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : IDL.Record({}),
     'Err' : InitUploadError,
   });
-  const Args_2 = IDL.Record({
+  const MintRequest = IDL.Record({
     'metadata' : IDL.Vec(IDL.Tuple(IDL.Text, ICRC3Value)),
     'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
     'token_owner' : Account,
+  });
+  const Args_2 = IDL.Record({
+    'mint_requests' : IDL.Vec(MintRequest),
   });
   const MintError = IDL.Variant({
     'TokenAlreadyExists' : IDL.Null,

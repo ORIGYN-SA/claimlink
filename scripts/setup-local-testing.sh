@@ -192,7 +192,7 @@ deploy_claimlink_backend() {
   bank_principal_id = principal \"$BANK_PRINCIPAL\";
   cycles_management = record {
     cycles_top_up_increment = 500_000_000_000 : nat;
-    cycles_for_collection_creation = 2_000_000_000_000 : nat;
+    cycles_for_collection_creation = 7_000_000_000_000 : nat;
   };
   collection_request_fee = 1_500_000_000_000 : nat;
   ogy_transfer_fee = 200_000 : nat;
@@ -206,8 +206,8 @@ deploy_claimlink_backend() {
     # Fund the canister with cycles for collection creation
     echo ""
     echo "Funding ClaimLink Backend with cycles for development..."
-    dfx canister deposit-cycles 10000000000000 claimlink_backend --network local
-    print_success "Added 10T cycles to ClaimLink Backend"
+    dfx canister deposit-cycles 30000000000000 claimlink_backend --network local
+    print_success "Added 30T cycles to ClaimLink Backend"
 }
 
 # Generate frontend .env.local file

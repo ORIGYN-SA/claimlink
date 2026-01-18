@@ -47,4 +47,10 @@ export * from './api/transformers';
 // Types
 // ============================================================================
 
-export type { Collection, ViewMode, CollectionStatus } from './types/collection.types'
+export type {
+  Collection,
+  ViewMode,
+  CollectionStatus,
+  BackendCollectionStatus,
+  SimpleCollectionStatus,
+} from './types/collection.types'
