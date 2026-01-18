@@ -183,5 +183,6 @@ pub fn build_origyn_nft_init_args(
         permitted_drift: None,
         supply_cap: None,
         tx_window: None,
+        base_url: None,
     })
 }
