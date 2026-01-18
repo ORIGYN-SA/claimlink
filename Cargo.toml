@@ -64,7 +64,7 @@ time = { version = "0.3.36", features = [
 
 # Bity crates
 bity-ic-candid-gen = "0.1.0"
-bity-ic-canister-client = "0.2.4"
+bity-ic-canister-client = "0.2.5"
 bity-ic-canister-logger = "0.2.0"
 bity-ic-canister-state-macros = "0.1.0"
 bity-ic-canister-time = "0.2.1"

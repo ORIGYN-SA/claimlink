@@ -52,6 +52,7 @@ fn upgrade_claimlink() {
             max_creation_retries: Some(10_u8.into()),
             max_template_per_owner: Some(10_u8.into()),
             new_authorized_principals: None,
+            ledger_canister_id: None,
         }),
     );
 

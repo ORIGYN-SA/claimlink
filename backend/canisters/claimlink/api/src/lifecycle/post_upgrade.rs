@@ -28,4 +28,6 @@ pub struct UpgradeArgs {
     pub max_template_per_owner: Option<Nat>,
     #[n(9)]
     pub new_authorized_principals: Option<Vec<AuthordiedPrincipal>>,
+    #[cbor(n(10), with = "crate::cbor::principal::option")]
+    pub ledger_canister_id: Option<Principal>,
 }

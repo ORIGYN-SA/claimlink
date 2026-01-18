@@ -88,6 +88,7 @@ impl RuntimeState {
             max_creation_retries,
             max_template_per_owner,
             new_authorized_principals,
+            ledger_canister_id,
         }: UpgradeArgs,
     ) -> Result<(), String> {
         if let Some(origyn_nft_wasm_hash) = origyn_nft_wasm_hash {
@@ -96,6 +97,10 @@ impl RuntimeState {
 
         if let Some(bank_principal_id) = bank_principal_id {
             self.data.bank_principal_id = bank_principal_id;
+        }
+
+        if let Some(ledger_canister_id) = ledger_canister_id {
+            self.data.ledger_canister_id = ledger_canister_id;
         }
 
         if let Some(cycles_management) = cycles_management {

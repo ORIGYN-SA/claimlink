@@ -173,6 +173,7 @@ type UpgradeArgs = record {
   new_authorized_principals : opt vec AuthordiedPrincipal;
   ogy_transfer_fee : opt nat;
   bank_principal_id : opt principal;
+  ledger_canister_id : opt principal;
   commit_hash : text;
   build_version : BuildVersion;
   max_template_per_owner : opt nat;

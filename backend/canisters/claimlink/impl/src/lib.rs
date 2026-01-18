@@ -17,7 +17,7 @@ use queries::*;
 use updates::*;
 
 use crate::task_manager::{
-    burn_ogy::burn_ogy, reimburse_ogy::process_reimbursements,
+    burn_ogy::burn_ogy, intercanistercall::fetch_ledger_fee, reimburse_ogy::process_reimbursements,
     retry_installation::retry_installation,
 };
 
@@ -38,6 +38,10 @@ pub fn setup_timers() {
 
     ic_cdk_timers::set_timer_interval(PROCESS_OGY_BURN, || {
         ic_cdk::futures::spawn_017_compat(burn_ogy())
+    });
+
+    ic_cdk_timers::set_timer_interval(Duration::from_secs(1 * 60), || {
+        ic_cdk::futures::spawn_017_compat(fetch_ledger_fee())
     });
 }
 
