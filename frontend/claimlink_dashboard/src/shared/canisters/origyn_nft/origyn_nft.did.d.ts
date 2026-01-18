@@ -169,9 +169,9 @@ export interface InitArgs {
   'symbol' : string,
   'approval_init' : InitApprovalsArg,
 }
-export type InitUploadError = { 'NotEnoughStorage' : null } |
+export type InitUploadError = { 'ConcurrentManagementCall' : null } |
   { 'FileAlreadyExists' : null } |
-  { 'InvalidChunkSize' : null };
+  { 'StorageCanisterError' : string };
 export interface IsApprovedArg {
   'token_id' : bigint,
   'from_subaccount' : [] | [Uint8Array | number[]],
