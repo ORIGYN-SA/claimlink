@@ -194,6 +194,67 @@ export class CollectionsService {
   }
 
   /**
+   * Wait for collection to be installed (WASM ready)
+   *
+   * Polls the backend until the collection reaches 'Installed' or 'TemplateUploaded' status.
+   * This must be called before uploading files to the collection canister.
+   *
+   * Collection status flow: Queued → Created → Installed → TemplateUploaded
+   *
+   * @param agent - IC agent
+   * @param collectionId - Collection ID to wait for
+   * @param onStatusChange - Optional callback for status updates
+   * @param maxWaitMs - Maximum time to wait (default 120 seconds - WASM install can take time)
+   * @param pollIntervalMs - Polling interval (default 3 seconds)
+   * @returns Object with canister ID and final status
+   * @throws Error if timeout, collection not found, or collection failed
+   */
+  static async waitForCollectionInstalled(
+    agent: Agent,
+    collectionId: bigint,
+    onStatusChange?: (status: string, canisterId?: string) => void,
+    maxWaitMs: number = 120000,
+    pollIntervalMs: number = 3000
+  ): Promise<{ canisterId: string; status: string }> {
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWaitMs) {
+      const collection = await this.getCollectionInfoById(agent, collectionId);
+
+      if (!collection) {
+        throw new Error('Collection not found');
+      }
+
+      const { backendStatus, id } = collection;
+      const hasCanisterId = id.length > 10; // Canister IDs are longer than numeric collection IDs
+
+      // Notify about status change
+      onStatusChange?.(backendStatus, hasCanisterId ? id : undefined);
+
+      // Check for failure states
+      if (backendStatus === 'Failed') {
+        throw new Error('Collection creation failed. Please try again.');
+      }
+      if (backendStatus === 'ReimbursingQueued' || backendStatus === 'QuarantinedReimbursement' || backendStatus === 'Reimbursed') {
+        throw new Error(`Collection creation was cancelled. Status: ${backendStatus}`);
+      }
+
+      // Check for success states - collection is ready for uploads
+      if (backendStatus === 'Installed' || backendStatus === 'TemplateUploaded') {
+        if (!hasCanisterId) {
+          throw new Error('Collection installed but canister ID not available');
+        }
+        return { canisterId: id, status: backendStatus };
+      }
+
+      // Wait before polling again
+      await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
+    }
+
+    throw new Error('Timeout waiting for collection to be installed. Please check the collection status later.');
+  }
+
+  /**
    * Get list of NFT token IDs in a collection
    *
    * Note: Uses "NFT" terminology to match the IC canister API (get_collection_nfts).

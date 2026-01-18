@@ -16,11 +16,16 @@ export interface Account {
   subaccount: [] | [Uint8Array | number[]];
 }
 
-// Mint request structure (Args_2 in IDL)
-export interface MintArgs {
+// Single mint request
+export interface MintRequest {
   metadata: Array<[string, ICRC3Value]>;
   token_owner: Account;
   memo: [] | [Uint8Array | number[]];
+}
+
+// Mint args structure (Args_2 in IDL) - wraps requests for batch minting
+export interface MintArgs {
+  mint_requests: MintRequest[];
 }
 
 export type MintError =

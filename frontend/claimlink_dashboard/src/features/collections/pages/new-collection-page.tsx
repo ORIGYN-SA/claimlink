@@ -78,6 +78,9 @@ export function NewCollectionPage() {
   // Approval and creation hooks
   const approveMutation = useApprove(ogyToken?.canister_id || '', authenticatedAgent);
   const createCollectionMutation = useCreateCollection({
+    // Don't wait for canister here - we'll use waitForCollectionInstalled instead
+    // to ensure WASM is installed before attempting logo upload
+    waitForCanister: false,
     onError: (error) => {
       toast.error(error.message);
       setIsSubmitting(false);
@@ -198,15 +201,36 @@ export function NewCollectionPage() {
       toast.success('Approval granted! Creating collection...');
 
       // Step 3: Create collection with template_id (logo uploaded separately)
+      // Note: With waitForCanister=false, this returns collection_id as string
+      // The canister is created asynchronously in the backend
       setSubmitButtonText('Creating collection...');
-      const canisterId = await createCollectionMutation.mutateAsync({
+      const collectionIdStr = await createCollectionMutation.mutateAsync({
         name: collectionName,
         symbol: collectionSymbol,
         description: collectionDescription,
         template_id: BigInt(selectedTemplate), // Template is linked at creation time
       });
 
-      // Step 4: Upload and set logo if provided
+      toast.success('Collection queued! Waiting for canister installation...');
+
+      // Step 4: Wait for collection to be installed (WASM ready)
+      // This is required before we can upload files to the canister
+      setSubmitButtonText('Installing canister...');
+      const collectionId = BigInt(collectionIdStr);
+      const { canisterId } = await CollectionsService.waitForCollectionInstalled(
+        authenticatedAgent!,
+        collectionId,
+        (status) => {
+          // Update UI with current status
+          const statusText = status === 'Queued' ? 'Queued...'
+            : status === 'Created' ? 'Creating canister...'
+            : status === 'Installed' ? 'Canister ready!'
+            : `Status: ${status}`;
+          setSubmitButtonText(statusText);
+        }
+      );
+
+      // Step 5: Upload and set logo if provided (now safe - canister is installed)
       if (imageFile) {
         try {
           setSubmitButtonText('Uploading logo...');

@@ -70,7 +70,7 @@ export class CertificatesService {
 
   /**
    * Mint a certificate (NFT with ORIGYN badge)
-   * Request structure based on IDL Args_2: { metadata, token_owner, memo }
+   * Request structure based on IDL Args_2: { mint_requests: [{ metadata, token_owner, memo }] }
    */
   static async mintCertificate(
     agent: Agent,
@@ -90,7 +90,8 @@ export class CertificatesService {
       memo: memoValue,
     };
 
-    const result = await actor.mint(mintRequest);
+    // Wrap in mint_requests array (batch minting interface)
+    const result = await actor.mint({ mint_requests: [mintRequest] });
 
     if ("Err" in result) {
       throw new Error(`Minting failed: ${Object.keys(result.Err)[0]}`);

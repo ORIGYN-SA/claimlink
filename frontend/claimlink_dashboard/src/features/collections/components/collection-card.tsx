@@ -59,7 +59,7 @@ export function CollectionCard({ collection, onClick, className }: CollectionCar
           <span className="text-[13px] font-medium text-[#69737c] leading-normal">
             {collection.lastModified}
           </span>
-          <CollectionStatusBadge status={collection.status} />
+          <CollectionStatusBadge backendStatus={collection.backendStatus} />
         </div>
       </div>
     </Card>
