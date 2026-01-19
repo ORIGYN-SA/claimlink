@@ -266,6 +266,7 @@ export const madeInItalyTemplate: Template = {
             maxFileSize: 10485760,
             multiple: true,
             maxImages: 12,
+            acceptVideo: true, // Allow videos in the gallery
           },
         ],
       },
