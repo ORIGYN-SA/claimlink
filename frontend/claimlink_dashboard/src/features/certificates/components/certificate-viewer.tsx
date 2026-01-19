@@ -16,6 +16,8 @@ import {
   type ParsedOrigynMetadata,
   type RenderDataSource,
   type MetadataFieldValue,
+  resolveTokenAssetUrl,
+  resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
 
 /**
@@ -172,8 +174,19 @@ export function CertificateViewer({
             lang
           );
 
-          // TODO: Extract gallery images from metadata.library when available
-          const galleryImages: Array<{ url: string; legend: string }> = [];
+          // Extract gallery images from metadata.library
+          const galleryImages: Array<{ url: string; legend: string }> =
+            templateData.metadata.library
+              .filter((item) => item.content_type?.startsWith('image/'))
+              .map((item) => {
+                const url = item.location_type === 'collection'
+                  ? resolveCollectionAssetUrl(templateData.canisterId, item.library_id)
+                  : resolveTokenAssetUrl(templateData.canisterId, templateData.tokenId, item.library_id);
+                return {
+                  url,
+                  legend: item.title || item.filename || '',
+                };
+              });
 
           return (
             <InformationFrame

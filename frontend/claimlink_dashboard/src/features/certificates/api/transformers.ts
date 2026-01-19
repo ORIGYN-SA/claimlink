@@ -110,18 +110,73 @@ export function getCertificateTitle(
 }
 
 /**
+ * Extract first URL from a FileReference array stored in ICRC3 metadata
+ */
+function extractFileReferenceUrl(
+  metadata: Array<[string, ICRC3Value]>,
+  key: string
+): string | null {
+  const item = metadata.find(([k]) => k === key);
+  if (!item) return null;
+
+  const value = item[1];
+
+  // FileReference array: Array of Maps with 'id' and 'path' keys
+  if ('Array' in value && value.Array.length > 0) {
+    const firstItem = value.Array[0];
+    if ('Map' in firstItem) {
+      const pathEntry = firstItem.Map.find(([k]) => k === 'path');
+      if (pathEntry && 'Text' in pathEntry[1]) {
+        return pathEntry[1].Text;
+      }
+    }
+  }
+
+  // Single FileReference: Map with 'id' and 'path' keys
+  if ('Map' in value) {
+    const pathEntry = value.Map.find(([k]: [string, ICRC3Value]) => k === 'path');
+    if (pathEntry && 'Text' in pathEntry[1]) {
+      return pathEntry[1].Text;
+    }
+  }
+
+  return null;
+}
+
+/**
  * Get certificate image URL from metadata
- * Tries multiple field names in priority order
+ * Tries multiple field names in priority order:
+ * 1. Standard string fields (image, item_image, thumbnail)
+ * 2. FileReference array fields from templates (product_images, gallery_images, etc.)
  */
 export function getCertificateImageUrl(
   metadata: Array<[string, ICRC3Value]>
 ): string {
-  return (
+  // First, try standard string fields
+  const stringImage =
     extractTextValue(metadata, 'image') ||
     extractTextValue(metadata, 'item_image') ||
-    extractTextValue(metadata, 'thumbnail') ||
-    ''
-  );
+    extractTextValue(metadata, 'thumbnail');
+
+  if (stringImage) return stringImage;
+
+  // Then, try FileReference array fields from templates
+  const fileRefFields = [
+    'product_images',
+    'gallery_images',
+    'detail_images',
+    'files-media',
+    'main_image',
+    'primary_image',
+    'certificate_image',
+  ];
+
+  for (const field of fileRefFields) {
+    const url = extractFileReferenceUrl(metadata, field);
+    if (url) return url;
+  }
+
+  return '';
 }
 
 /**

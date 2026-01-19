@@ -9,7 +9,7 @@ import { Principal } from '@dfinity/principal';
 import { useAuth } from '@/features/auth';
 import { CollectionsService } from './collections.service';
 import type { CreateCollectionArgs } from '@canisters/claimlink';
-import { CertificatesService } from '@/features/certificates';
+import { CertificatesService, getCertificateTitle, getCertificateImageUrl } from '@/features/certificates';
 import type { Certificate } from '@/features/certificates/types/certificate.types';
 
 /**
@@ -275,32 +275,15 @@ export const useAllUserNfts = () => {
             tokenIds
           );
 
-          // Parse metadata into Certificate objects
-          const getMetadataValue = (metadata: Array<[string, any]>, key: string): string => {
-            const item = metadata.find(([k]) => k === key);
-            if (!item) return '';
-            return item[1].Text || item[1].Nat?.toString() || item[1].Int?.toString() || '';
-          };
-
+          // Parse metadata into Certificate objects using shared transformers
           return tokenIds.map((tokenId, index) => {
             const metadata = metadataResults[index];
 
-            const certificateTitle =
-              getMetadataValue(metadata, 'item_artwork_title') ||
-              getMetadataValue(metadata, 'item_name') ||
-              getMetadataValue(metadata, 'name') ||
-              `Certificate #${tokenId}`;
-
-            const certificateImage =
-              getMetadataValue(metadata, 'image') ||
-              getMetadataValue(metadata, 'item_image') ||
-              '';
-
             return {
               id: tokenId.toString(),
-              title: certificateTitle,
+              title: getCertificateTitle(metadata, tokenId),
               collectionName: collection.title,
-              imageUrl: certificateImage,
+              imageUrl: getCertificateImageUrl(metadata),
               status: 'Minted',
               date: new Date().toLocaleDateString(),
               canisterId: collection.id,

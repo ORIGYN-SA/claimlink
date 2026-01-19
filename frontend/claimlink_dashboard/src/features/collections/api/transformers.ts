@@ -53,7 +53,7 @@ export function transformCollectionInfo(
     id: canisterId,
     title: backendCollection.metadata.name,
     description: backendCollection.metadata.description,
-    imageUrl: '', // TODO: Fetch from NFT metadata or add to CollectionInfo
+    imageUrl: '', // Populated by query hooks via CollectionsService.getCollectionLogo()
     itemCount,
     status: mapCollectionStatus(backendCollection.status),
     backendStatus: extractBackendStatus(backendCollection.status),

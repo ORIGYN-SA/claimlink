@@ -189,11 +189,13 @@ export class CertificatesService {
     onProgress?: (progress: number) => void,
   ): Promise<string> {
     const CHUNK_SIZE = 1024 * 1024; // 1MB chunks - DO NOT INCREASE (IC message size limit)
-    const filePath = file.name;
+    // Prefix filename with timestamp to avoid conflicts (same pattern as NFT repo)
+    const filePath = `${Date.now()}_${file.name}`;
     const fileSize = BigInt(file.size);
 
     console.log('[Upload Debug] Starting upload:', {
       fileName: file.name,
+      filePath,
       fileType: file.type,
       fileSize: file.size,
       canisterId,
