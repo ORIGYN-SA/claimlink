@@ -49,10 +49,13 @@ export interface Args_1 {
   'file_size' : bigint,
   'chunk_size' : [] | [bigint],
 }
-export interface Args_2 {
+export interface MintRequest {
   'metadata' : Array<[string, ICRC3Value]>,
   'memo' : [] | [Uint8Array | number[]],
   'token_owner' : Account,
+}
+export interface Args_2 {
+  'mint_requests' : Array<MintRequest>,
 }
 export interface Args_3 { 'authorized_principals' : Array<Principal> }
 export interface Args_4 { 'minting_authorities' : Array<Principal> }
