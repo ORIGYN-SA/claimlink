@@ -232,11 +232,11 @@ VITE_NFT_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_CERTIFICATE_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_LEDGER_CANISTER_ID=$OGY_LEDGER_ID
 
-# CRITICAL: Use local IC replica
-VITE_IC_HOST=http://localhost:8080
+# CRITICAL: Use local IC replica (port 4943 matches ORIGYN NFT test_mode URLs)
+VITE_IC_HOST=http://localhost:4943
 
 # NFID Configuration for localhost signing
-VITE_NFID_LOCALHOST_TARGETS=http://localhost:5173,http://localhost:8080
+VITE_NFID_LOCALHOST_TARGETS=http://localhost:5173,http://localhost:4943
 VITE_NFID_DERIVATION_ORIGIN=http://localhost:5173
 EOF
 
