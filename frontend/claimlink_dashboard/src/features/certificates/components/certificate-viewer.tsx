@@ -179,9 +179,18 @@ export function CertificateViewer({
             templateData.metadata.library
               .filter((item) => item.content_type?.startsWith('image/'))
               .map((item) => {
-                const url = item.location_type === 'collection'
-                  ? resolveCollectionAssetUrl(templateData.canisterId, item.library_id)
-                  : resolveTokenAssetUrl(templateData.canisterId, templateData.tokenId, item.library_id);
+                // Check if library_id is already a full URL (from ClaimLink upload)
+                // or a relative path (needs URL resolution)
+                let url: string;
+                if (item.library_id.startsWith('http://') || item.library_id.startsWith('https://')) {
+                  // Already a full URL - use directly
+                  url = item.library_id;
+                } else {
+                  // Relative path - resolve to full URL
+                  url = item.location_type === 'collection'
+                    ? resolveCollectionAssetUrl(templateData.canisterId, item.library_id)
+                    : resolveTokenAssetUrl(templateData.canisterId, templateData.tokenId, item.library_id);
+                }
                 return {
                   url,
                   legend: item.title || item.filename || '',
