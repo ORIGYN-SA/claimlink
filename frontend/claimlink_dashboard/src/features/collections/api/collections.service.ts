@@ -469,6 +469,51 @@ export class CollectionsService {
   }
 
   /**
+   * Get collection logo from ORIGYN NFT canister metadata
+   *
+   * Fetches the logo URL stored in the ORIGYN NFT canister's ICRC7 collection metadata.
+   * This is separate from ClaimLink backend metadata.
+   *
+   * @param agent - IC agent (can be unauthenticated for reads)
+   * @param collectionCanisterId - The collection's canister ID
+   * @returns Logo URL string, or empty string if not found
+   */
+  static async getCollectionLogo(
+    agent: Agent,
+    collectionCanisterId: string
+  ): Promise<string> {
+    try {
+      const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+      type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+
+      const actor = createCanisterActor<OrigynNftService>(
+        agent,
+        collectionCanisterId,
+        origynIdlFactory
+      );
+
+      // Fetch collection metadata via ICRC7
+      const metadata = await actor.icrc7_collection_metadata();
+
+      // Find the logo field in metadata
+      // ICRC7 metadata is an array of [string, ICRC3Value] tuples
+      for (const [key, value] of metadata) {
+        if (key === 'icrc7:logo' || key === 'logo') {
+          // Logo can be stored as Text directly or in a nested structure
+          if ('Text' in value) {
+            return value.Text;
+          }
+        }
+      }
+
+      return '';
+    } catch (error) {
+      console.warn('Failed to fetch collection logo from ORIGYN metadata:', error);
+      return '';
+    }
+  }
+
+  /**
    * Get template structure from ORIGYN collection metadata (legacy)
    *
    * Fetches the TemplateStructure stored in the collection's ORIGYN metadata.

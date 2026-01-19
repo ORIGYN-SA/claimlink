@@ -36,6 +36,8 @@ interface UseListMyCollectionsOptions {
 
 /**
  * Hook to fetch collections owned by the current user
+ *
+ * Also fetches logo URLs from ORIGYN NFT canisters for each collection.
  */
 export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
   const { authenticatedAgent, principalId, isConnected } = useAuth();
@@ -47,12 +49,40 @@ export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
       if (!authenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
-      return await CollectionsService.getCollectionsByOwner(
+
+      const result = await CollectionsService.getCollectionsByOwner(
         authenticatedAgent,
         Principal.fromText(principalId),
         offset,
         limit
       );
+
+      // Fetch logos for all collections in parallel
+      // Only fetch for collections that have a valid canister ID (not numeric collection_id)
+      const collectionsWithLogos = await Promise.all(
+        result.collections.map(async (collection) => {
+          // Skip logo fetch for collections that don't have a deployed canister yet
+          if (collection.id.length <= 10) {
+            return collection;
+          }
+
+          try {
+            const logoUrl = await CollectionsService.getCollectionLogo(
+              authenticatedAgent,
+              collection.id
+            );
+            return { ...collection, imageUrl: logoUrl };
+          } catch {
+            // If logo fetch fails, return collection without logo
+            return collection;
+          }
+        })
+      );
+
+      return {
+        ...result,
+        collections: collectionsWithLogos,
+      };
     },
     enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
     staleTime: 5 * 60 * 1000, // 5 minutes
@@ -68,6 +98,8 @@ interface UseListAllCollectionsOptions {
 
 /**
  * Hook to fetch all collections in the system
+ *
+ * Also fetches logo URLs from ORIGYN NFT canisters for each collection.
  */
 export const useListAllCollections = (options?: UseListAllCollectionsOptions) => {
   const { unauthenticatedAgent } = useAuth();
@@ -79,11 +111,37 @@ export const useListAllCollections = (options?: UseListAllCollectionsOptions) =>
       if (!unauthenticatedAgent) {
         throw new Error('Agent not available');
       }
-      return await CollectionsService.listAllCollections(
+
+      const result = await CollectionsService.listAllCollections(
         unauthenticatedAgent,
         offset,
         limit
       );
+
+      // Fetch logos for all collections in parallel
+      const collectionsWithLogos = await Promise.all(
+        result.collections.map(async (collection) => {
+          // Skip logo fetch for collections that don't have a deployed canister yet
+          if (collection.id.length <= 10) {
+            return collection;
+          }
+
+          try {
+            const logoUrl = await CollectionsService.getCollectionLogo(
+              unauthenticatedAgent,
+              collection.id
+            );
+            return { ...collection, imageUrl: logoUrl };
+          } catch {
+            return collection;
+          }
+        })
+      );
+
+      return {
+        ...result,
+        collections: collectionsWithLogos,
+      };
     },
     enabled: enabled && !!unauthenticatedAgent,
     staleTime: 5 * 60 * 1000,
@@ -98,6 +156,8 @@ interface UseFetchCollectionInfoOptions {
 
 /**
  * Hook to fetch detailed information about a specific collection
+ *
+ * Fetches both ClaimLink backend metadata and ORIGYN NFT logo in parallel.
  */
 export const useFetchCollectionInfo = (options: UseFetchCollectionInfoOptions) => {
   const { unauthenticatedAgent } = useAuth();
@@ -111,16 +171,22 @@ export const useFetchCollectionInfo = (options: UseFetchCollectionInfoOptions) =
       }
 
       const principal = Principal.fromText(canisterId);
-      const collection = await CollectionsService.getCollectionInfo(
-        unauthenticatedAgent,
-        principal
-      );
+
+      // Fetch collection info and logo in parallel
+      const [collection, logoUrl] = await Promise.all([
+        CollectionsService.getCollectionInfo(unauthenticatedAgent, principal),
+        CollectionsService.getCollectionLogo(unauthenticatedAgent, canisterId),
+      ]);
 
       if (!collection) {
         throw new Error('Collection not found');
       }
 
-      return collection;
+      // Merge logo URL into collection
+      return {
+        ...collection,
+        imageUrl: logoUrl,
+      };
     },
     enabled: enabled && !!unauthenticatedAgent && !!canisterId,
     staleTime: 5 * 60 * 1000,
