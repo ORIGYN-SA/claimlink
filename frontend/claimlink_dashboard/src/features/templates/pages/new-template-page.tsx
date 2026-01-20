@@ -6,21 +6,20 @@ import { useIsMobile } from '@/shared/hooks/useMediaQuery';
 import { ChooseTemplateStep } from '../components/create/choose-template-step';
 import { ChooseBackgroundStep } from '../components/create/choose-background-step';
 import { EditTemplateStepV2 } from '../components/create/edit-template-step-v2';
-import { CodeEditorStep } from '../components/create/code-editor-step';
 import { PreviewDeployStep } from '../components/create/preview-deploy-step';
 import { useCreateTemplate } from '../api/templates.queries';
 import type { Template } from '../types/template.types';
 
-type Step = 'choose' | 'background' | 'edit' | 'code' | 'preview';
+type Step = 'choose' | 'background' | 'edit' | 'preview';
+type EditorMode = 'ui' | 'code';
 
 const STEPS_PRESET: Step[] = ['choose', 'background', 'edit', 'preview'];
-const STEPS_CODE: Step[] = ['choose', 'code', 'preview'];
+const STEPS_SCRATCH: Step[] = ['choose', 'edit', 'preview'];
 
 const stepLabels: Record<Step, string> = {
   choose: 'Choose template',
   background: 'Choose your background',
   edit: 'Edit your template',
-  code: 'Code your template',
   preview: 'Preview & deploy'
 };
 
@@ -87,10 +86,11 @@ export function NewTemplatePage() {
   const isMobile = useIsMobile();
   const [currentStep, setCurrentStep] = useState<Step>('choose');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateWithBackground | null>(null);
-  const [isCodeItMode, setIsCodeItMode] = useState(false);
+  const [isScratchMode, setIsScratchMode] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>('ui');
 
   // Get the appropriate steps array based on mode
-  const steps = isCodeItMode ? STEPS_CODE : STEPS_PRESET;
+  const steps = isScratchMode ? STEPS_SCRATCH : STEPS_PRESET;
 
   // Template creation mutation
   const createTemplateMutation = useCreateTemplate({
@@ -105,12 +105,13 @@ export function NewTemplatePage() {
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate({ ...template });
 
-    // Check if "Code It" option was selected
-    if (template.category === 'manual' || template.id === 'code_it') {
-      setIsCodeItMode(true);
-      setCurrentStep('code'); // Skip background, go directly to code editor
+    // Check if "Make one from scratch" option was selected
+    if (template.category === 'manual' || template.id === 'from_scratch') {
+      setIsScratchMode(true);
+      setEditorMode('ui'); // Start with UI editor by default
+      setCurrentStep('edit'); // Skip background, go directly to edit step
     } else {
-      setIsCodeItMode(false);
+      setIsScratchMode(false);
       setCurrentStep('background');
     }
   };
@@ -161,9 +162,9 @@ export function NewTemplatePage() {
 
   // Get the back step from the editing step
   const handleEditBack = () => {
-    if (isCodeItMode) {
+    if (isScratchMode) {
       setCurrentStep('choose');
-      setIsCodeItMode(false);
+      setIsScratchMode(false);
     } else {
       setCurrentStep('background');
     }
@@ -218,23 +219,16 @@ export function NewTemplatePage() {
               onNext={handleEditNext}
               onBack={handleEditBack}
               onTemplateChange={(updatedTemplate) => setSelectedTemplate(updatedTemplate)}
-            />
-          </TabsContent>
-
-          <TabsContent value="code" className="mt-0 w-full flex justify-center">
-            {/* JSON Code Editor for developers */}
-            <CodeEditorStep
-              selectedTemplate={selectedTemplate}
-              onNext={handleEditNext}
-              onBack={handleEditBack}
-              onTemplateChange={(updatedTemplate) => setSelectedTemplate(updatedTemplate)}
+              editorMode={editorMode}
+              onEditorModeChange={setEditorMode}
+              isScratchMode={isScratchMode}
             />
           </TabsContent>
 
           <TabsContent value="preview" className="mt-0 w-full flex justify-center">
             <PreviewDeployStep
               selectedTemplate={selectedTemplate}
-              onBack={() => setCurrentStep(isCodeItMode ? 'code' : 'edit')}
+              onBack={() => setCurrentStep('edit')}
               onDeploy={handleDeploy}
               onComplete={() => navigate({ to: '/templates' })}
               isDeploying={createTemplateMutation.isPending}

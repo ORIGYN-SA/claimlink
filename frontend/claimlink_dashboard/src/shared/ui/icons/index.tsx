@@ -32,6 +32,7 @@ import {
   ArrowDownTrayIcon as Download,
   ArrowPathRoundedSquareIcon as Reset,
   CodeBracketIcon as Code,
+  Squares2X2Icon as Grid,
 } from "@heroicons/react/24/outline";
 import {
   ExclamationTriangleIcon as Warning,
@@ -201,6 +202,7 @@ const Icon = {
   Download,
   Reset,
   Code,
+  Grid,
 };
 
 export default Icon;

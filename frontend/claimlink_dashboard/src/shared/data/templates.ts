@@ -525,11 +525,11 @@ export const mockTemplates: Template[] = [
 // Template options for the choose template page
 export const templateOptions: Template[] = mockTemplates;
 
-// Manual template option (for developers who want to code their own)
+// Manual template option (for users who want to start from scratch)
 export const manualTemplateOption: Template = {
-  id: "code_it",
-  name: "Code it",
-  description: "Create manually your template with your developers",
+  id: "from_scratch",
+  name: "Make one from scratch",
+  description: "Build your own template using the visual editor or JSON code",
   category: "manual",
   structure: {
     sections: [

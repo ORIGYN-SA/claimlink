@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Trash2, AlertTriangle, Info, Sparkles } from "lucide-react";
 import Icon from "@/shared/ui/icons";
 import { TemplateSectionCard } from "../template-section-card";
+import { CodeEditorStep } from "./code-editor-step";
 import { templateEditorAtom } from "../../atoms/template-editor.atom";
 import type {
   TemplateItem,
@@ -55,11 +56,16 @@ import {
   type SemanticFieldPreset,
 } from "@/features/templates/utils/template-validation";
 
+type EditorMode = 'ui' | 'code';
+
 interface EditTemplateStepV2Props {
   selectedTemplate: Template | null;
   onNext?: () => void;
   onBack?: () => void;
   onTemplateChange?: (template: Template) => void;
+  editorMode?: EditorMode;
+  onEditorModeChange?: (mode: EditorMode) => void;
+  isScratchMode?: boolean;
 }
 
 export function EditTemplateStepV2({
@@ -67,6 +73,9 @@ export function EditTemplateStepV2({
   onNext,
   onBack,
   onTemplateChange,
+  editorMode = 'ui',
+  onEditorModeChange,
+  isScratchMode = false,
 }: EditTemplateStepV2Props) {
   const [state, dispatch] = useAtom(templateEditorAtom);
   const isInitializedRef = useRef(false);
@@ -210,9 +219,8 @@ export function EditTemplateStepV2({
     console.log("Toggle section:", sectionId);
   };
 
-  const handleSaveDraft = () => {
-    // TODO: Implement save draft
-    console.log("Save draft");
+  const handleReorderItems = (sectionId: string, activeId: string, overId: string) => {
+    dispatch({ type: "REORDER_ITEMS", sectionId, activeId, overId });
   };
 
   const handlePreviewChanges = () => {
@@ -250,22 +258,45 @@ export function EditTemplateStepV2({
             </div>
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-            <Button
-              variant="outline"
-              className="flex items-center justify-center gap-2 text-sm"
-              onClick={handleSaveDraft}
-            >
-              <Icon.Mint className="w-4 h-4" />
-              Save as draft
-            </Button>
+            {isScratchMode && onEditorModeChange && (
+              <Button
+                variant="outline"
+                className="flex items-center justify-center gap-2 text-sm"
+                onClick={() => onEditorModeChange(editorMode === 'ui' ? 'code' : 'ui')}
+              >
+                {editorMode === 'ui' ? (
+                  <>
+                    <Icon.Code className="w-4 h-4" />
+                    Switch to Code
+                  </>
+                ) : (
+                  <>
+                    <Icon.Grid className="w-4 h-4" />
+                    Switch to UI
+                  </>
+                )}
+              </Button>
+            )}
             <Button onClick={handlePreviewChanges} className="text-sm">Preview changes</Button>
           </div>
         </div>
       </Card>
 
-      {/* Validation Warnings Panel */}
-      {validationResult.warnings.length > 0 && (
-        <Card className="p-4 sm:p-6 border-amber-200 bg-amber-50">
+      {/* Code Editor Mode */}
+      {editorMode === 'code' ? (
+        <CodeEditorStep
+          selectedTemplate={state.template}
+          onTemplateChange={(updatedTemplate) => {
+            dispatch({ type: "UPDATE_TEMPLATE", template: updatedTemplate });
+            onTemplateChange?.(updatedTemplate);
+          }}
+          embedded={true}
+        />
+      ) : (
+        <>
+          {/* Validation Warnings Panel */}
+          {validationResult.warnings.length > 0 && (
+            <Card className="p-4 sm:p-6 border-amber-200 bg-amber-50">
           <div className="flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
@@ -403,6 +434,7 @@ export function EditTemplateStepV2({
           onDeleteItem={handleDeleteItem}
           onInfoItem={handleInfoItem}
           onToggleSection={handleToggleSection}
+          onReorderItems={handleReorderItems}
         />
       ))}
 
@@ -455,6 +487,8 @@ export function EditTemplateStepV2({
           </Select>
         </div>
       </Card>
+        </>
+      )}
 
       {/* Navigation buttons */}
       <div className="flex flex-col sm:flex-row justify-center gap-2 sm:gap-4 pt-4 sm:pt-6">
