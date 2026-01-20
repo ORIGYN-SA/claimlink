@@ -27,6 +27,8 @@ pub struct InitArg {
     pub max_creation_retries: Nat,
     #[cbor(n(9), with = "crate::cbor::nat")]
     pub max_template_per_owner: Nat,
+    #[n(10)]
+    pub base_url: Option<String>,
 }
 
 #[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone, Serialize)]

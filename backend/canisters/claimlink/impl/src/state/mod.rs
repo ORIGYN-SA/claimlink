@@ -196,6 +196,8 @@ pub struct Data {
 
     // failed collections to be reimbursed
     pub reimbursement_queue: Vec<OgyTransferIndex>,
+
+    pub base_url: Option<String>,
 }
 
 impl Data {
@@ -524,6 +526,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 ogy_to_burn: Default::default(),
                 total_ogy_burned: Default::default(),
                 next_template_id: Default::default(),
+                base_url: value.base_url,
             },
         ))
     }

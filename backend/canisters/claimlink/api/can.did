@@ -113,6 +113,7 @@ type ICRC3Value_1 = variant {
   Array : vec ICRC3Value;
 };
 type InitArg = record {
+  base_url : opt text;
   cycles_management : CyclesManagement;
   test_mode : bool;
   max_creation_retries : nat;

@@ -27,6 +27,7 @@ pub async fn retry_installation() {
         max_creation_retries,
         test_mode,
         wasm_hash,
+        base_url,
     ) = read_state(|s| {
         (
             s.data.get_failed_installations(),
@@ -34,6 +35,7 @@ pub async fn retry_installation() {
             s.data.max_creation_retries,
             s.env.is_test_mode(),
             s.data.origyn_nft_wasm_hash,
+            s.data.base_url.clone(),
         )
     });
 
@@ -62,6 +64,7 @@ pub async fn retry_installation() {
             &wasm_hash,
             collection.owner,
             &collection.metadata,
+            base_url.clone(),
         );
 
         if (install_canister_once(ogy_payment_index, canister_id, &wasm_hash, &nft_init_args).await)

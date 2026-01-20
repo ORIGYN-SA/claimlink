@@ -135,13 +135,14 @@ fn install_canisters(pic: &mut PocketIc, principal_ids: &PrincipalIds) -> Canist
         bank_principal_id: principal_ids.bank_principal_id,
         commit_hash: "a1b2c3d4e5f67890abcdef1234567890abcTESTTEST".to_string(),
         cycles_management: CyclesManagement {
-            cycles_for_collection_creation: 7_000_000_000_000,
+            cycles_for_collection_creation: 2_500_000_000_000,
             cycles_top_up_increment: 5_000_000_000_000,
         },
         collection_request_fee: OGY_TO_PAY.into(),
         ogy_transfer_fee: E8S_FEE_OGY.into(),
         max_creation_retries: 5_u8.into(),
         max_template_per_owner: MAX_TEMPLATES_PER_OWNER.into(),
+        base_url: Some(String::from("https://{canister_id}.raw.icp0.io")),
     });
 
     install_canister(

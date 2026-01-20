@@ -97,10 +97,11 @@ pub async fn create_and_install_canister(
     template_id: NftTemplateId,
     wasm_hash: WasmHash,
 ) {
-    let (cycles_for_canister_creation, test_mode) = read_state(|s| {
+    let (cycles_for_canister_creation, test_mode, base_url) = read_state(|s| {
         (
             s.data.cycles_management.cycles_for_collection_creation,
             s.env.is_test_mode(),
+            s.data.base_url.clone(),
         )
     });
 
@@ -124,6 +125,7 @@ pub async fn create_and_install_canister(
             description: args.description,
             template_id,
         },
+        base_url,
     );
 
     if let Err(_e) =
@@ -145,6 +147,7 @@ pub fn build_origyn_nft_init_args(
     wasm_hash: &WasmHash,
     owner: Principal,
     metadata: &CollectionMetadata,
+    base_url: Option<String>,
 ) -> OrigynNftArgs {
     let mut permissions_map = HashMap::new();
     permissions_map.insert(
@@ -183,6 +186,6 @@ pub fn build_origyn_nft_init_args(
         permitted_drift: None,
         supply_cap: None,
         tx_window: None,
-        base_url: None,
+        base_url,
     })
 }
