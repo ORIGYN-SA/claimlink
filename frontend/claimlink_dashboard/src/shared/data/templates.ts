@@ -531,4 +531,41 @@ export const manualTemplateOption: Template = {
   name: "Code it",
   description: "Create manually your template with your developers",
   category: "manual",
+  structure: {
+    sections: [
+      {
+        id: "section_certificate",
+        name: "Certificate",
+        order: 1,
+        collapsible: false,
+        description: "Essential certification information",
+        items: [
+          {
+            id: "name",
+            type: "input",
+            label: "Certificate Name",
+            order: 1,
+            required: true,
+            inputType: "text",
+            placeholder: "Enter certificate name",
+          },
+        ],
+      },
+      {
+        id: "section_information",
+        name: "Information",
+        order: 2,
+        collapsible: true,
+        description: "Additional information and details",
+        items: [],
+      },
+    ],
+    languages: [
+      { id: "en", code: "en", name: "English", isDefault: true },
+    ],
+    metadata: {
+      version: "1.0.0",
+      createdBy: "user",
+    },
+  },
 };

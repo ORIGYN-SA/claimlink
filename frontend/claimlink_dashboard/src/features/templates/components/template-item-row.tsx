@@ -98,7 +98,7 @@ export function TemplateItemRow({
             title="Edit item"
             className="h-7 w-7 sm:h-8 sm:w-8 p-0"
           >
-            <Icon.Mint className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Icon.Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Button>
         )}
         {onDelete && !item.immutable && (

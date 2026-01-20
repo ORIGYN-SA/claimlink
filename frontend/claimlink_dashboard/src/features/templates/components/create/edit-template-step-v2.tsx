@@ -7,9 +7,12 @@
  * Uses templateEditorAtom for state management (Phase 3 migration)
  * - Consolidated 12 useState calls into single atom
  * - Modals, forms, and selections managed by atom reducer
+ *
+ * Includes validation warnings and semantic field presets for
+ * proper certificate display compatibility.
  */
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useMemo } from "react";
 import { useAtom } from "jotai";
 import { type Template } from "@/shared/data";
 import { Button } from "@/components/ui/button";
@@ -33,7 +36,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2 } from "lucide-react";
+import { Trash2, AlertTriangle, Info, Sparkles } from "lucide-react";
 import Icon from "@/shared/ui/icons";
 import { TemplateSectionCard } from "../template-section-card";
 import { templateEditorAtom } from "../../atoms/template-editor.atom";
@@ -46,6 +49,11 @@ import {
   getTemplateSections,
   getTemplateLanguages,
 } from "@/features/templates/utils/template-utils";
+import {
+  validateTemplateForDisplay,
+  SEMANTIC_FIELD_PRESETS,
+  type SemanticFieldPreset,
+} from "@/features/templates/utils/template-validation";
 
 interface EditTemplateStepV2Props {
   selectedTemplate: Template | null;
@@ -84,6 +92,11 @@ export function EditTemplateStepV2({
     }
   }, [state.template, onTemplateChange]);
 
+  // Memoized validation warnings
+  const validationResult = useMemo(() => {
+    return validateTemplateForDisplay(state.template?.structure);
+  }, [state.template?.structure]);
+
   if (!state.template || !state.template.structure) {
     return (
       <div className="w-full max-w-6xl mx-auto space-y-6">
@@ -103,6 +116,41 @@ export function EditTemplateStepV2({
 
   // Get all items for search index dropdown
   const allItems = sections.flatMap((section) => section.items);
+
+  // Helper to add a semantic field preset
+  const handleAddSemanticField = (preset: SemanticFieldPreset, sectionId: string) => {
+    if (!state.template?.structure) return;
+
+    // Check if field with this ID already exists
+    const existingField = allItems.find(item => item.id === preset.item.id);
+    if (existingField) {
+      // Field already exists, don't add duplicate
+      console.log(`Field with ID "${preset.item.id}" already exists`);
+      return;
+    }
+
+    const updatedSections = state.template.structure.sections?.map(
+      (section) => {
+        if (section.id === sectionId) {
+          const newOrder = section.items.length;
+          return {
+            ...section,
+            items: [...section.items, { ...preset.item, order: newOrder }],
+          };
+        }
+        return section;
+      }
+    );
+
+    const updatedTemplate: Template = {
+      ...state.template,
+      structure: {
+        ...state.template.structure,
+        sections: updatedSections,
+      },
+    };
+    dispatch({ type: "UPDATE_TEMPLATE", template: updatedTemplate });
+  };
 
   // ============================================================================
   // Event Handlers - Language
@@ -212,6 +260,85 @@ export function EditTemplateStepV2({
             </Button>
             <Button onClick={handlePreviewChanges} className="text-sm">Preview changes</Button>
           </div>
+        </div>
+      </Card>
+
+      {/* Validation Warnings Panel */}
+      {validationResult.warnings.length > 0 && (
+        <Card className="p-4 sm:p-6 border-amber-200 bg-amber-50">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+            <div className="flex-1">
+              <h3 className="text-sm font-medium text-amber-800 mb-2">
+                Template Validation Warnings
+              </h3>
+              <ul className="space-y-2">
+                {validationResult.warnings.map((warning, i) => (
+                  <li key={i} className="flex items-start gap-2 text-sm text-amber-700">
+                    {warning.severity === 'warning' ? (
+                      <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    ) : (
+                      <Info className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                    )}
+                    <span>{warning.message}</span>
+                  </li>
+                ))}
+              </ul>
+              {validationResult.warnings.some(w => w.suggestedIds) && (
+                <p className="text-xs text-amber-600 mt-3">
+                  Use the "Quick Add" buttons below to add recommended fields with standard IDs.
+                </p>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {/* Quick Add Semantic Fields */}
+      <Card className="p-4 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0 mb-4">
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-5 h-5 text-[#50be8f]" />
+            <div>
+              <h2 className="text-base sm:text-lg font-medium text-[#222526]">
+                Quick Add Standard Fields
+              </h2>
+              <p className="text-xs sm:text-sm text-[#69737c]">
+                Add fields with recommended IDs for proper certificate display
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {SEMANTIC_FIELD_PRESETS.map((preset) => {
+            const alreadyExists = allItems.some(item => item.id === preset.item.id);
+            const isNeeded =
+              (preset.semantic === 'title' && !validationResult.hasTitleField) ||
+              (preset.semantic === 'image' && !validationResult.hasImageField) ||
+              (preset.semantic === 'description' && !validationResult.hasDescriptionField);
+
+            return (
+              <Button
+                key={preset.item.id}
+                variant={isNeeded ? "default" : "outline"}
+                size="sm"
+                disabled={alreadyExists}
+                onClick={() => {
+                  // Add to first section (Certificate) by default
+                  const targetSection = sections[0]?.id || '';
+                  if (targetSection) {
+                    handleAddSemanticField(preset, targetSection);
+                  }
+                }}
+                className={`text-xs ${isNeeded ? 'bg-[#50be8f] hover:bg-[#45a87d]' : ''}`}
+                title={preset.description}
+              >
+                <Icon.Plus className="w-3 h-3 mr-1" />
+                {preset.label}
+                {alreadyExists && <span className="ml-1 text-[10px]">(exists)</span>}
+              </Button>
+            );
+          })}
         </div>
       </Card>
 
@@ -465,6 +592,15 @@ export function EditTemplateStepV2({
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            {/* Info tip about standard fields */}
+            <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm">
+              <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
+              <div className="text-blue-700">
+                <strong>Tip:</strong> For certificate title, images, or description fields, use the{" "}
+                <span className="font-medium">"Quick Add Standard Fields"</span> section above.
+                Those fields use standard IDs that ensure proper certificate display.
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="field-label">Field Label *</Label>
               <Input
