@@ -27,6 +27,8 @@ import type {
   SeparatorNode,
   CollectionImageNode,
   GalleryNode,
+  ImageNode,
+  VideoNode,
   FormTemplateCategory,
   LocalizedContent,
   TemplateLanguageConfig,
@@ -371,56 +373,100 @@ function generateExperienceTemplate(
   );
 
   if (informationSection) {
-    // Find text/about content (textarea fields)
-    const textItems: TemplateItem[] = informationSection.items.filter(
-      (i) => i.type === "input" && (i as any).inputType === "textarea",
-    );
+    // Sort items by order
+    const sortedItems = [...informationSection.items].sort((a, b) => a.order - b.order);
 
-    // Find image galleries
-    const galleryItems: ImageItem[] = informationSection.items.filter(
-      (i) => i.type === "image" && (i as ImageItem).multiple,
-    ) as ImageItem[];
+    // Process all items in the Information section
+    sortedItems.forEach((item: TemplateItem) => {
+      // Handle input fields (text, textarea, number, etc.)
+      if (item.type === "input") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
 
-    // Add text sections with title
-    textItems.forEach((item: TemplateItem) => {
-      nodes.push({
-        id: generateNodeId(),
-        type: "title",
-        title: toLocalizedContent(item.label, languages),
-      } as TitleNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "valueField",
+          className: (item as any).inputType === "textarea" ? "expirianceTextBlock" : undefined,
+          fields: [item.id],
+        } as ValueFieldNode);
 
-      nodes.push({
-        id: generateNodeId(),
-        type: "valueField",
-        className: "expirianceTextBlock",
-        fields: [item.id],
-      } as ValueFieldNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle badge fields
+      else if (item.type === "badge") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
 
-      nodes.push({
-        id: generateNodeId(),
-        type: "separator",
-      } as SeparatorNode);
-    });
+        nodes.push({
+          id: generateNodeId(),
+          type: "valueField",
+          fields: [item.id],
+        } as ValueFieldNode);
 
-    // Add galleries
-    galleryItems.forEach((item: ImageItem) => {
-      nodes.push({
-        id: generateNodeId(),
-        type: "title",
-        title: toLocalizedContent(item.label, languages),
-      } as TitleNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle image galleries
+      else if (item.type === "image") {
+        const imageItem = item as ImageItem;
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
 
-      nodes.push({
-        id: generateNodeId(),
-        type: "gallery",
-        pointer: item.id,
-        field: item.id,
-      } as GalleryNode);
+        if (imageItem.multiple) {
+          // Gallery for multiple images
+          nodes.push({
+            id: generateNodeId(),
+            type: "gallery",
+            pointer: item.id,
+            field: item.id,
+          } as GalleryNode);
+        } else {
+          // Single image
+          nodes.push({
+            id: generateNodeId(),
+            type: "image",
+            field: item.id,
+          } as ImageNode);
+        }
 
-      nodes.push({
-        id: generateNodeId(),
-        type: "separator",
-      } as SeparatorNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle video fields
+      else if (item.type === "video") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "video",
+          field: item.id,
+        } as VideoNode);
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
     });
   }
 

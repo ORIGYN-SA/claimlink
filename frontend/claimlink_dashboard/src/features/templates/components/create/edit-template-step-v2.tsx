@@ -250,34 +250,59 @@ export function EditTemplateStepV2({
     <div className="w-full max-w-6xl mx-auto space-y-4 sm:space-y-6">
       {/* Header Section */}
       <Card className="p-4 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-          <div className="flex items-center gap-4">
-            <div className="text-xs sm:text-sm text-[#69737c] uppercase tracking-wider">
-              Applied on {certificateCount}{" "}
-              {certificateCount === 1 ? "certificate" : "certificates"}
-            </div>
+        <div className="flex flex-col gap-4">
+          {/* Template Name */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+            <Label htmlFor="template-name" className="text-sm font-medium text-[#222526] sm:w-32 flex-shrink-0">
+              Template Name
+            </Label>
+            <Input
+              id="template-name"
+              value={state.template?.name || ""}
+              onChange={(e) => {
+                if (state.template) {
+                  const updatedTemplate: Template = {
+                    ...state.template,
+                    name: e.target.value,
+                  };
+                  dispatch({ type: "UPDATE_TEMPLATE", template: updatedTemplate });
+                }
+              }}
+              placeholder="Enter template name..."
+              className="flex-1 max-w-md"
+            />
           </div>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
-            {isScratchMode && onEditorModeChange && (
-              <Button
-                variant="outline"
-                className="flex items-center justify-center gap-2 text-sm"
-                onClick={() => onEditorModeChange(editorMode === 'ui' ? 'code' : 'ui')}
-              >
-                {editorMode === 'ui' ? (
-                  <>
-                    <Icon.Code className="w-4 h-4" />
-                    Switch to Code
-                  </>
-                ) : (
-                  <>
-                    <Icon.Grid className="w-4 h-4" />
-                    Switch to UI
-                  </>
-                )}
-              </Button>
-            )}
-            <Button onClick={handlePreviewChanges} className="text-sm">Preview changes</Button>
+
+          {/* Actions Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 pt-2 border-t border-[#e1e1e1]">
+            <div className="flex items-center gap-4">
+              <div className="text-xs sm:text-sm text-[#69737c] uppercase tracking-wider">
+                Applied on {certificateCount}{" "}
+                {certificateCount === 1 ? "certificate" : "certificates"}
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+              {isScratchMode && onEditorModeChange && (
+                <Button
+                  variant="outline"
+                  className="flex items-center justify-center gap-2 text-sm"
+                  onClick={() => onEditorModeChange(editorMode === 'ui' ? 'code' : 'ui')}
+                >
+                  {editorMode === 'ui' ? (
+                    <>
+                      <Icon.Code className="w-4 h-4" />
+                      Switch to Code
+                    </>
+                  ) : (
+                    <>
+                      <Icon.Grid className="w-4 h-4" />
+                      Switch to UI
+                    </>
+                  )}
+                </Button>
+              )}
+              <Button onClick={handlePreviewChanges} className="text-sm">Preview changes</Button>
+            </div>
           </div>
         </div>
       </Card>

@@ -51,10 +51,10 @@ export function TemplateItemRow({
       <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         {/* Drag Handle */}
         <div
-          className="cursor-grab active:cursor-grabbing hidden sm:block touch-none"
+          className="cursor-grab active:cursor-grabbing hidden sm:flex items-center justify-center w-6 h-8 touch-none rounded hover:bg-[#f0f0f0] transition-colors"
           {...dragHandleProps}
         >
-          <Icon.Menu className="text-[#69737c] hover:text-[#222526] transition-colors" />
+          <Icon.DragHandle className="text-[#b0b0b0] hover:text-[#69737c] transition-colors" />
         </div>
 
         {/* Icon */}
