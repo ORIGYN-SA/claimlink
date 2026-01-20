@@ -261,19 +261,20 @@ export function DynamicTemplateForm({
     );
   };
 
-  // Render Image Item
+  // Render Image Item (supports videos when acceptVideo is true)
   const renderImageItem = (item: ImageItem) => {
     const value = formData[item.id];
     const files = Array.isArray(value) ? value : value ? [value] : [];
     const error = errors[item.id];
+    const acceptVideo = item.acceptVideo === true;
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = Array.from(event.target.files || []);
-      
+
       if (item.multiple) {
         const currentFiles = Array.isArray(value) ? value : [];
         const maxImages = item.maxImages || 10;
-        
+
         // Limit total number of files
         const newFiles = [...currentFiles, ...selectedFiles].slice(0, maxImages);
         handleChange(item.id, newFiles);
@@ -302,18 +303,27 @@ export function DynamicTemplateForm({
       inputRef.current?.click();
     };
 
-    // Get preview URLs
-    const previewUrls = files.map((file) => {
-      if (file instanceof File && file.type.startsWith('image/')) {
-        return URL.createObjectURL(file);
+    // Get preview URLs and track which are videos
+    const previews = files.map((file) => {
+      if (file instanceof File) {
+        const isVideo = isVideoFile(file);
+        if (file.type.startsWith('image/') || isVideo) {
+          return { url: URL.createObjectURL(file), isVideo };
+        }
       }
       return null;
-    }).filter((url): url is string => url !== null);
+    }).filter((preview): preview is { url: string; isVideo: boolean } => preview !== null);
 
     const formatFileTypes = () => {
+      if (acceptVideo) {
+        return UPLOAD_CONFIG.media.formatLabel;
+      }
       if (!item.acceptedFormats) return 'All image types';
       return item.acceptedFormats.map((type) => type.split('/')[1].toUpperCase()).join(', ');
     };
+
+    // Get the first file for selectedFile prop
+    const firstFile = files[0] instanceof File ? files[0] : null;
 
     return (
       <div className="space-y-2">
@@ -321,30 +331,41 @@ export function DynamicTemplateForm({
           {item.label}
           {item.required && <span className="text-red-500">*</span>}
         </label>
-        
+
         {item.description && (
           <p className="text-xs text-[#69737c]">{item.description}</p>
         )}
 
         <ImageUploadSection
-          previewUrl={previewUrls[0] || null}
+          previewUrl={previews[0]?.url || null}
           onFileSelect={handleFileSelect}
           onRemove={() => handleRemove(0)}
           onUploadClick={handleUploadClick}
           fileInputRef={inputRef}
-          uploadText={`Upload ${item.multiple ? 'images' : 'image'} or drag ${item.multiple ? 'them' : 'it'} here`}
+          uploadText={`Upload ${item.multiple ? (acceptVideo ? 'media' : 'images') : (acceptVideo ? 'file' : 'image')} or drag ${item.multiple ? 'them' : 'it'} here`}
           acceptedFormats={formatFileTypes()}
+          acceptVideo={acceptVideo}
+          selectedFile={firstFile}
         />
 
         {item.multiple && files.length > 1 && (
           <div className="grid grid-cols-4 gap-2 mt-2">
-            {previewUrls.slice(1).map((url, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={url}
-                  alt={`Preview ${index + 2}`}
-                  className="w-full h-20 object-cover rounded"
-                />
+            {previews.slice(1).map((preview, index) => (
+              <div key={index} className="relative w-full h-20">
+                {preview.isVideo ? (
+                  <video
+                    src={preview.url}
+                    className="w-full h-full object-cover rounded"
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={preview.url}
+                    alt={`Preview ${index + 2}`}
+                    className="w-full h-full object-cover rounded"
+                  />
+                )}
                 <button
                   onClick={() => handleRemove(index + 1)}
                   className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
@@ -358,7 +379,7 @@ export function DynamicTemplateForm({
 
         {item.multiple && item.maxImages && (
           <p className="text-xs text-[#69737c]">
-            {files.length} / {item.maxImages} images
+            {files.length} / {item.maxImages} {acceptVideo ? 'files' : 'images'}
           </p>
         )}
 

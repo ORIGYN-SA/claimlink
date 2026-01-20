@@ -1,15 +1,30 @@
 /**
  * TemplateSectionCard Component
- * 
+ *
  * Displays a template section with all its items
  * Used in the edit template step
+ * Supports drag-and-drop reordering of items
  */
 
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import Icon from '@/shared/ui/icons';
 import type { TemplateSection, TemplateItem } from '@/features/templates/types/template.types';
-import { TemplateItemRow } from './template-item-row';
+import { SortableTemplateItemRow } from './sortable-template-item-row';
 import { getSectionItems } from '@/features/templates/utils/template-utils';
 
 interface TemplateSectionCardProps {
@@ -19,6 +34,7 @@ interface TemplateSectionCardProps {
   onDeleteItem?: (item: TemplateItem) => void;
   onInfoItem?: (item: TemplateItem) => void;
   onToggleSection?: (sectionId: string) => void;
+  onReorderItems?: (sectionId: string, activeId: string, overId: string) => void;
 }
 
 export function TemplateSectionCard({
@@ -28,8 +44,29 @@ export function TemplateSectionCard({
   onDeleteItem,
   onInfoItem,
   onToggleSection,
+  onReorderItems,
 }: TemplateSectionCardProps) {
   const sortedItems = getSectionItems(section);
+
+  // Configure drag-and-drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // 8px movement required before drag starts
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      onReorderItems?.(section.id, active.id as string, over.id as string);
+    }
+  };
 
   return (
     <Card className="p-4 sm:p-6 bg-[#f4f3f3] border-[#e1e1e1]">
@@ -95,15 +132,26 @@ export function TemplateSectionCard({
               )}
             </div>
           ) : (
-            sortedItems.map((item) => (
-              <TemplateItemRow
-                key={item.id}
-                item={item}
-                onEdit={onEditItem}
-                onDelete={onDeleteItem}
-                onInfo={onInfoItem}
-              />
-            ))
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={sortedItems.map((i) => i.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {sortedItems.map((item) => (
+                  <SortableTemplateItemRow
+                    key={item.id}
+                    item={item}
+                    onEdit={onEditItem}
+                    onDelete={onDeleteItem}
+                    onInfo={onInfoItem}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       )}

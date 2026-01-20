@@ -10,12 +10,13 @@ import Icon from '@/shared/ui/icons';
 import type { TemplateItem } from '@/features/templates/types/template.types';
 import { getItemTypeDisplayName, getItemTypeIcon } from '@/features/templates/utils/template-utils';
 
-interface TemplateItemRowProps {
+export interface TemplateItemRowProps {
   item: TemplateItem;
   onEdit?: (item: TemplateItem) => void;
   onDelete?: (item: TemplateItem) => void;
   onInfo?: (item: TemplateItem) => void;
   isDragging?: boolean;
+  dragHandleProps?: Record<string, unknown>;
 }
 
 export function TemplateItemRow({
@@ -24,6 +25,7 @@ export function TemplateItemRow({
   onDelete,
   onInfo,
   isDragging = false,
+  dragHandleProps,
 }: TemplateItemRowProps) {
   const typeDisplayName = getItemTypeDisplayName(item.type);
   const iconName = getItemTypeIcon(item.type);
@@ -48,8 +50,11 @@ export function TemplateItemRow({
     >
       <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         {/* Drag Handle */}
-        <div className="cursor-grab active:cursor-grabbing hidden sm:block">
-          <Icon.Menu className="text-[#e1e1e1]" />
+        <div
+          className="cursor-grab active:cursor-grabbing hidden sm:block touch-none"
+          {...dragHandleProps}
+        >
+          <Icon.Menu className="text-[#69737c] hover:text-[#222526] transition-colors" />
         </div>
 
         {/* Icon */}
@@ -98,7 +103,7 @@ export function TemplateItemRow({
             title="Edit item"
             className="h-7 w-7 sm:h-8 sm:w-8 p-0"
           >
-            <Icon.Mint className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+            <Icon.Pencil className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </Button>
         )}
         {onDelete && !item.immutable && (

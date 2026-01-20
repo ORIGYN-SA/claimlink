@@ -74,6 +74,7 @@ export interface BadgeItem extends BaseTemplateItem {
 
 /**
  * Image item - image upload field
+ * Can also accept videos when acceptVideo is true (for mixed media galleries)
  */
 export interface ImageItem extends BaseTemplateItem {
   type: 'image';
@@ -82,6 +83,7 @@ export interface ImageItem extends BaseTemplateItem {
   aspectRatio?: string; // e.g., '16:9', '1:1'
   multiple?: boolean; // Allow multiple images (gallery)
   maxImages?: number; // Max number of images for gallery
+  acceptVideo?: boolean; // Allow video files in addition to images (for mixed media galleries)
 }
 
 /**

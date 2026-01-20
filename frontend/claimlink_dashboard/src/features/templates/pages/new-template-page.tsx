@@ -11,8 +11,10 @@ import { useCreateTemplate } from '../api/templates.queries';
 import type { Template } from '../types/template.types';
 
 type Step = 'choose' | 'background' | 'edit' | 'preview';
+type EditorMode = 'ui' | 'code';
 
-const STEPS: Step[] = ['choose', 'background', 'edit', 'preview'];
+const STEPS_PRESET: Step[] = ['choose', 'background', 'edit', 'preview'];
+const STEPS_SCRATCH: Step[] = ['choose', 'edit', 'preview'];
 
 const stepLabels: Record<Step, string> = {
   choose: 'Choose template',
@@ -23,18 +25,19 @@ const stepLabels: Record<Step, string> = {
 
 interface MobileStepperProps {
   currentStep: Step;
+  steps: Step[];
   onStepClick: (step: Step) => void;
   isStepAccessible: (step: Step) => boolean;
 }
 
-function MobileStepper({ currentStep, onStepClick, isStepAccessible }: MobileStepperProps) {
-  const currentIndex = STEPS.indexOf(currentStep);
+function MobileStepper({ currentStep, steps, onStepClick, isStepAccessible }: MobileStepperProps) {
+  const currentIndex = steps.indexOf(currentStep);
 
   return (
     <div className="flex flex-col items-center gap-4 py-4 bg-white border-b border-gray-200 px-6">
       {/* Step circles with connecting lines */}
       <div className="flex items-center">
-        {STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const isActive = step === currentStep;
           const isCompleted = index < currentIndex;
           const isAccessible = isStepAccessible(step);
@@ -58,7 +61,7 @@ function MobileStepper({ currentStep, onStepClick, isStepAccessible }: MobileSte
               >
                 {index + 1}
               </button>
-              {index < STEPS.length - 1 && (
+              {index < steps.length - 1 && (
                 <div className={`w-8 h-px ${index < currentIndex ? 'bg-[#222526]' : 'bg-gray-300'}`} />
               )}
             </div>
@@ -83,6 +86,11 @@ export function NewTemplatePage() {
   const isMobile = useIsMobile();
   const [currentStep, setCurrentStep] = useState<Step>('choose');
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateWithBackground | null>(null);
+  const [isScratchMode, setIsScratchMode] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>('ui');
+
+  // Get the appropriate steps array based on mode
+  const steps = isScratchMode ? STEPS_SCRATCH : STEPS_PRESET;
 
   // Template creation mutation
   const createTemplateMutation = useCreateTemplate({
@@ -96,7 +104,16 @@ export function NewTemplatePage() {
 
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate({ ...template });
-    setCurrentStep('background');
+
+    // Check if "Make one from scratch" option was selected
+    if (template.category === 'manual' || template.id === 'from_scratch') {
+      setIsScratchMode(true);
+      setEditorMode('ui'); // Start with UI editor by default
+      setCurrentStep('edit'); // Skip background, go directly to edit step
+    } else {
+      setIsScratchMode(false);
+      setCurrentStep('background');
+    }
   };
 
   const handleDeploy = async (template: Template) => {
@@ -115,41 +132,41 @@ export function NewTemplatePage() {
   };
 
   const handleTabChange = (value: string) => {
-    // Only allow navigation to completed steps or current step
-    if (value === 'choose') {
-      setCurrentStep('choose');
-    } else if (value === 'background' && (currentStep === 'background' || currentStep === 'edit' || currentStep === 'preview')) {
-      setCurrentStep('background');
-    } else if (value === 'edit' && (currentStep === 'edit' || currentStep === 'preview')) {
-      setCurrentStep('edit');
-    } else if (value === 'preview' && currentStep === 'preview') {
-      setCurrentStep('preview');
+    const step = value as Step;
+    if (isStepAccessible(step)) {
+      setCurrentStep(step);
     }
   };
 
-  // Determine which steps are accessible
-  const isBackgroundAccessible = currentStep === 'background' || currentStep === 'edit' || currentStep === 'preview';
-  const isEditAccessible = currentStep === 'edit' || currentStep === 'preview';
-  const isPreviewAccessible = currentStep === 'preview';
-
+  // Determine which steps are accessible based on current mode and step
   const isStepAccessible = (step: Step): boolean => {
-    switch (step) {
-      case 'choose':
-        return true;
-      case 'background':
-        return isBackgroundAccessible;
-      case 'edit':
-        return isEditAccessible;
-      case 'preview':
-        return isPreviewAccessible;
-      default:
-        return false;
-    }
+    const currentIndex = steps.indexOf(currentStep);
+    const stepIndex = steps.indexOf(step);
+
+    // Step is accessible if it's before or equal to current step
+    // (and it exists in the current steps array)
+    if (stepIndex === -1) return false;
+    return stepIndex <= currentIndex;
   };
 
   const handleStepClick = (step: Step) => {
     if (isStepAccessible(step)) {
       setCurrentStep(step);
+    }
+  };
+
+  // Get the next step after the editing step
+  const handleEditNext = () => {
+    setCurrentStep('preview');
+  };
+
+  // Get the back step from the editing step
+  const handleEditBack = () => {
+    if (isScratchMode) {
+      setCurrentStep('choose');
+      setIsScratchMode(false);
+    } else {
+      setCurrentStep('background');
     }
   };
 
@@ -160,39 +177,23 @@ export function NewTemplatePage() {
         {isMobile ? (
           <MobileStepper
             currentStep={currentStep}
+            steps={steps}
             onStepClick={handleStepClick}
             isStepAccessible={isStepAccessible}
           />
         ) : (
           <div className="border-b border-gray-200 bg-white px-6 py-4">
             <TabsList className="w-full max-w-2xl mx-auto bg-transparent h-auto p-0 gap-1">
-              <TabsTrigger
-                value="choose"
-                className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2"
-              >
-                Choose template
-              </TabsTrigger>
-              <TabsTrigger
-                value="background"
-                disabled={!isBackgroundAccessible}
-                className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2 disabled:opacity-40"
-              >
-                Choose your background
-              </TabsTrigger>
-              <TabsTrigger
-                value="edit"
-                disabled={!isEditAccessible}
-                className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2 disabled:opacity-40"
-              >
-                Edit your template
-              </TabsTrigger>
-              <TabsTrigger
-                value="preview"
-                disabled={!isPreviewAccessible}
-                className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2 disabled:opacity-40"
-              >
-                Preview & deploy
-              </TabsTrigger>
+              {steps.map((step) => (
+                <TabsTrigger
+                  key={step}
+                  value={step}
+                  disabled={!isStepAccessible(step)}
+                  className="flex-1 data-[state=active]:bg-[#615bff] data-[state=active]:text-white rounded-md px-4 py-2 disabled:opacity-40"
+                >
+                  {stepLabels[step]}
+                </TabsTrigger>
+              ))}
             </TabsList>
           </div>
         )}
@@ -212,19 +213,15 @@ export function NewTemplatePage() {
           </TabsContent>
 
           <TabsContent value="edit" className="mt-0 w-full flex justify-center">
-            {/* OLD: Static hard-coded template editor */}
-            {/* <EditTemplateStep
-              selectedTemplate={selectedTemplate}
-              onNext={() => setCurrentStep('preview')}
-              onBack={() => setCurrentStep('choose')}
-            /> */}
-            
-            {/* NEW: Dynamic data-driven template editor with sections and items */}
+            {/* Dynamic data-driven template editor with sections and items */}
             <EditTemplateStepV2
               selectedTemplate={selectedTemplate}
-              onNext={() => setCurrentStep('preview')}
-              onBack={() => setCurrentStep('background')}
+              onNext={handleEditNext}
+              onBack={handleEditBack}
               onTemplateChange={(updatedTemplate) => setSelectedTemplate(updatedTemplate)}
+              editorMode={editorMode}
+              onEditorModeChange={setEditorMode}
+              isScratchMode={isScratchMode}
             />
           </TabsContent>
 

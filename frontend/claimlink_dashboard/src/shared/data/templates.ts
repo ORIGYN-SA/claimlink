@@ -266,6 +266,7 @@ export const madeInItalyTemplate: Template = {
             maxFileSize: 10485760,
             multiple: true,
             maxImages: 12,
+            acceptVideo: true, // Allow videos in the gallery
           },
         ],
       },
@@ -524,10 +525,47 @@ export const mockTemplates: Template[] = [
 // Template options for the choose template page
 export const templateOptions: Template[] = mockTemplates;
 
-// Manual template option (for developers who want to code their own)
+// Manual template option (for users who want to start from scratch)
 export const manualTemplateOption: Template = {
-  id: "code_it",
-  name: "Code it",
-  description: "Create manually your template with your developers",
+  id: "from_scratch",
+  name: "Make one from scratch",
+  description: "Build your own template using the visual editor or JSON code",
   category: "manual",
+  structure: {
+    sections: [
+      {
+        id: "section_certificate",
+        name: "Certificate",
+        order: 1,
+        collapsible: false,
+        description: "Essential certification information",
+        items: [
+          {
+            id: "name",
+            type: "input",
+            label: "Certificate Name",
+            order: 1,
+            required: true,
+            inputType: "text",
+            placeholder: "Enter certificate name",
+          },
+        ],
+      },
+      {
+        id: "section_information",
+        name: "Information",
+        order: 2,
+        collapsible: true,
+        description: "Additional information and details",
+        items: [],
+      },
+    ],
+    languages: [
+      { id: "en", code: "en", name: "English", isDefault: true },
+    ],
+    metadata: {
+      version: "1.0.0",
+      createdBy: "user",
+    },
+  },
 };

@@ -82,7 +82,10 @@ export type TemplateEditorAction =
   | { type: 'RESET_FIELD_FORM' }
   | { type: 'ADD_FIELD' }
   | { type: 'EDIT_FIELD' }
-  | { type: 'DELETE_FIELD' };
+  | { type: 'DELETE_FIELD' }
+
+  // Reorder actions
+  | { type: 'REORDER_ITEMS'; sectionId: string; activeId: string; overId: string };
 
 // ============================================================================
 // Initial State
@@ -483,6 +486,46 @@ export function templateEditorReducer(
         template: updatedTemplate,
         modals: { ...state.modals, deleteField: false },
         selectedField: null,
+      };
+    }
+
+    // Reorder items within a section
+    case 'REORDER_ITEMS': {
+      if (!state.template?.structure) return state;
+
+      const updatedSections = state.template.structure.sections?.map((section) => {
+        if (section.id !== action.sectionId) return section;
+
+        const items = [...section.items];
+        const oldIndex = items.findIndex(i => i.id === action.activeId);
+        const newIndex = items.findIndex(i => i.id === action.overId);
+
+        if (oldIndex === -1 || newIndex === -1) return section;
+
+        // Move item from oldIndex to newIndex
+        const [removed] = items.splice(oldIndex, 1);
+        items.splice(newIndex, 0, removed);
+
+        // Update order values to match new positions
+        const reorderedItems = items.map((item, index) => ({
+          ...item,
+          order: index,
+        }));
+
+        return { ...section, items: reorderedItems };
+      });
+
+      const updatedTemplate: Template = {
+        ...state.template,
+        structure: {
+          ...state.template.structure,
+          sections: updatedSections,
+        },
+      };
+
+      return {
+        ...state,
+        template: updatedTemplate,
       };
     }
 

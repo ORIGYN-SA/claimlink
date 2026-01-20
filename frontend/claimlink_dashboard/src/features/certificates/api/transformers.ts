@@ -1,9 +1,11 @@
 import type { ICRC3Value } from '@canisters/origyn_nft';
+import { RESERVED_FIELDS } from '@/shared/constants/reserved-fields';
 
 /**
  * Certificate Transformers
  *
- * Functions to transform ICRC3 metadata values to frontend certificate types
+ * Functions to transform ICRC3 metadata values to frontend certificate types.
+ * Uses centralized RESERVED_FIELDS constants for field name lookups.
  */
 
 /**
@@ -94,19 +96,20 @@ export function extractMetadataValue(
 
 /**
  * Get certificate title from metadata
- * Tries multiple field names in priority order
+ * Tries multiple field names in priority order based on RESERVED_FIELDS.TITLE
+ * @see RESERVED_FIELDS.TITLE in shared/constants/reserved-fields.ts
  */
 export function getCertificateTitle(
   metadata: Array<[string, ICRC3Value]>,
   tokenId: bigint
 ): string {
-  const title =
-    extractTextValue(metadata, 'item_artwork_title') ||
-    extractTextValue(metadata, 'item_name') ||
-    extractTextValue(metadata, 'name') ||
-    extractTextValue(metadata, 'title');
+  // Try each reserved title field in priority order
+  for (const fieldId of RESERVED_FIELDS.TITLE) {
+    const value = extractTextValue(metadata, fieldId);
+    if (value) return value;
+  }
 
-  return title || `Certificate #${tokenId}`;
+  return `Certificate #${tokenId}`;
 }
 
 /**
@@ -145,34 +148,23 @@ function extractFileReferenceUrl(
 
 /**
  * Get certificate image URL from metadata
- * Tries multiple field names in priority order:
- * 1. Standard string fields (image, item_image, thumbnail)
- * 2. FileReference array fields from templates (product_images, gallery_images, etc.)
+ * Tries multiple field names in priority order based on RESERVED_FIELDS:
+ * 1. Standard string fields (IMAGE_STRING)
+ * 2. FileReference array fields from templates (IMAGE_FILE_REFERENCE)
+ * @see RESERVED_FIELDS.IMAGE_STRING and RESERVED_FIELDS.IMAGE_FILE_REFERENCE
  */
 export function getCertificateImageUrl(
   metadata: Array<[string, ICRC3Value]>
 ): string {
   // First, try standard string fields
-  const stringImage =
-    extractTextValue(metadata, 'image') ||
-    extractTextValue(metadata, 'item_image') ||
-    extractTextValue(metadata, 'thumbnail');
-
-  if (stringImage) return stringImage;
+  for (const fieldId of RESERVED_FIELDS.IMAGE_STRING) {
+    const value = extractTextValue(metadata, fieldId);
+    if (value) return value;
+  }
 
   // Then, try FileReference array fields from templates
-  const fileRefFields = [
-    'product_images',
-    'gallery_images',
-    'detail_images',
-    'files-media',
-    'main_image',
-    'primary_image',
-    'certificate_image',
-  ];
-
-  for (const field of fileRefFields) {
-    const url = extractFileReferenceUrl(metadata, field);
+  for (const fieldId of RESERVED_FIELDS.IMAGE_FILE_REFERENCE) {
+    const url = extractFileReferenceUrl(metadata, fieldId);
     if (url) return url;
   }
 

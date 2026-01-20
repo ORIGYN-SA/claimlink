@@ -2,11 +2,13 @@
  * ICRC3 Metadata Converter
  *
  * Converts buildOrigynApps output to ICRC3Value metadata format for minting.
+ * Uses centralized RESERVED_FIELDS constants for field name lookups.
  */
 
 import type { ICRC3Value } from '@canisters/origyn_nft';
 import type { OrigynAppEntry, FileReference, LocalizedContent } from '../types';
 import type { CertificateFormData } from '@/features/templates/types/template.types';
+import { RESERVED_FIELDS } from '@/shared/constants/reserved-fields';
 
 /**
  * Convert a JavaScript value to ICRC3Value
@@ -107,6 +109,23 @@ export interface ConvertToIcrc3Options {
 }
 
 /**
+ * Helper to extract first non-empty string value from form data using a list of field IDs
+ */
+function extractFirstValue(
+  formData: CertificateFormData,
+  fieldIds: readonly string[],
+  fallback: string
+): string {
+  for (const fieldId of fieldIds) {
+    const value = formData[fieldId];
+    if (typeof value === 'string' && value.trim()) {
+      return value;
+    }
+  }
+  return fallback;
+}
+
+/**
  * Convert buildOrigynApps output to ICRC3 metadata array for minting
  *
  * @param apps - The __apps array from buildOrigynApps
@@ -121,22 +140,15 @@ export function convertToIcrc3Metadata(
 ): Array<[string, ICRC3Value]> {
   const metadata: Array<[string, ICRC3Value]> = [];
 
-  // Extract name from form data or options
+  // Extract name from form data or options using RESERVED_FIELDS.TITLE
   const name =
     options.name ||
-    (formData.company_name as string) ||
-    (formData.name as string) ||
-    (formData.certificate_title as string) ||
-    (formData.product_name as string) ||
-    'Certificate';
+    extractFirstValue(formData, RESERVED_FIELDS.TITLE, 'Certificate');
 
-  // Extract description from form data or options
+  // Extract description from form data or options using RESERVED_FIELDS.DESCRIPTION
   const description =
     options.description ||
-    (formData.short_description as string) ||
-    (formData.description as string) ||
-    (formData.about as string) ||
-    '';
+    extractFirstValue(formData, RESERVED_FIELDS.DESCRIPTION, '');
 
   // Add standard metadata fields
   metadata.push(['name', { Text: name }]);

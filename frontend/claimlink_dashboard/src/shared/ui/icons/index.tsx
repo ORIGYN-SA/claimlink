@@ -28,6 +28,11 @@ import {
   Square3Stack3DIcon as SquareStack,
   ArrowTrendingDownIcon as TrendingDown,
   ArrowTrendingUpIcon as TrendingUp,
+  PencilSquareIcon as Pencil,
+  ArrowDownTrayIcon as Download,
+  ArrowPathRoundedSquareIcon as Reset,
+  CodeBracketIcon as Code,
+  Squares2X2Icon as Grid,
 } from "@heroicons/react/24/outline";
 import {
   ExclamationTriangleIcon as Warning,
@@ -193,6 +198,11 @@ const Icon = {
   Receipt,
   TrendingDown,
   TrendingUp,
+  Pencil,
+  Download,
+  Reset,
+  Code,
+  Grid,
 };
 
 export default Icon;
