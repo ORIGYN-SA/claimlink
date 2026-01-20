@@ -65,6 +65,12 @@ export function TemplateContextProvider({
     ): string => {
       if (!path) return '';
 
+      // If path is already an absolute URL, return it directly
+      // This handles URLs from ClaimLink uploads which store full URLs
+      if (path.startsWith('http://') || path.startsWith('https://')) {
+        return path;
+      }
+
       // Preview mode: check for local files
       if (dataSource.type === 'preview') {
         const fileMap = dataSource.files;
@@ -81,7 +87,7 @@ export function TemplateContextProvider({
         }
       }
 
-      // On-chain mode: build canister URL
+      // On-chain mode: build canister URL for relative paths
       if (isCollectionAsset) {
         return resolveCollectionAssetUrl(canisterId, path);
       }

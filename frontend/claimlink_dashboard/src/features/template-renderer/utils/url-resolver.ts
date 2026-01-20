@@ -51,7 +51,7 @@ export function buildCanisterUrl(canisterId: string): string {
  *
  * @param canisterId - The canister ID hosting the NFT
  * @param tokenId - The token/NFT ID
- * @param path - The file path (e.g., "1.jpg", "video.mp4")
+ * @param path - The file path (e.g., "1.jpg", "video.mp4") or full URL
  * @returns Full URL to the asset
  */
 export function resolveTokenAssetUrl(
@@ -68,6 +68,11 @@ export function resolveTokenAssetUrl(
     return '';
   }
 
+  // If path is already an absolute URL, return it directly
+  if (path.startsWith('http://') || path.startsWith('https://')) {
+    return path;
+  }
+
   const baseUrl = buildCanisterUrl(canisterId);
   return `${baseUrl}/-/${tokenId}/-/${path}`;
 }
@@ -81,7 +86,7 @@ export function resolveTokenAssetUrl(
  * like logos, badges, and signature images.
  *
  * @param canisterId - The canister ID hosting the collection
- * @param libId - The library asset ID (e.g., "certificatelogo.png")
+ * @param libId - The library asset ID (e.g., "certificatelogo.png") or full URL
  * @returns Full URL to the asset
  */
 export function resolveCollectionAssetUrl(
@@ -94,6 +99,11 @@ export function resolveCollectionAssetUrl(
       libId,
     });
     return '';
+  }
+
+  // If libId is already an absolute URL, return it directly
+  if (libId.startsWith('http://') || libId.startsWith('https://')) {
+    return libId;
   }
 
   const baseUrl = buildCanisterUrl(canisterId);

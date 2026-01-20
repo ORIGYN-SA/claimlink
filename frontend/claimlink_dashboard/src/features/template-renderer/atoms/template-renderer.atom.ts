@@ -76,6 +76,12 @@ export const resolveAssetUrlAtom = atom((get) => {
   return (path: string, isCollectionAsset = false): string => {
     if (!path) return '';
 
+    // If path is already an absolute URL, return it directly
+    // This handles URLs from ClaimLink uploads which store full URLs
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return path;
+    }
+
     // Preview mode: check for local files
     if (state.dataSource.type === 'preview') {
       const fileMap = state.dataSource.files;
@@ -92,7 +98,7 @@ export const resolveAssetUrlAtom = atom((get) => {
       }
     }
 
-    // On-chain mode: build canister URL
+    // On-chain mode: build canister URL for relative paths
     if (isCollectionAsset) {
       return resolveCollectionAssetUrl(state.canisterId, path);
     }

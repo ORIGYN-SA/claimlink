@@ -263,26 +263,25 @@ export function CreateCertificatePageV2({
     dispatch({ type: "CLEAR_ALL_VALIDATION_ERRORS" });
 
     // Extract file fields from form data
+    // DynamicTemplateForm stores files directly as File or File[] (not wrapped in { file: File })
     const newFileFields = new Map<string, File[]>();
     Object.entries(data).forEach(([key, value]) => {
-      // Handle single file fields
-      if (value && typeof value === "object" && "file" in value) {
-        const file = (value as { file: File }).file;
-        newFileFields.set(key, [file]);
+      // Handle single File object directly
+      if (value instanceof File) {
+        newFileFields.set(key, [value]);
       }
-      // Handle multiple file fields (array of files)
-      else if (Array.isArray(value)) {
-        const files: { file: File }[] = [];
-        for (const item of value) {
-          if (typeof item === "object" && item !== null && "file" in item) {
-            files.push(item as { file: File });
-          }
-        }
+      // Handle array of File objects
+      else if (Array.isArray(value) && value.length > 0) {
+        const files = value.filter((item): item is File => item instanceof File);
         if (files.length > 0) {
-          newFileFields.set(
-            key,
-            files.map((f) => f.file),
-          );
+          newFileFields.set(key, files);
+        }
+      }
+      // Legacy support: Handle wrapped { file: File } objects
+      else if (value && typeof value === "object" && "file" in value) {
+        const file = (value as { file: File }).file;
+        if (file instanceof File) {
+          newFileFields.set(key, [file]);
         }
       }
     });

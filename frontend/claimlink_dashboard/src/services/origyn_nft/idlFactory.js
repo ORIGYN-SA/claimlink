@@ -373,9 +373,9 @@ export const idlFactory = ({ IDL }) => {
     'chunk_size' : IDL.Opt(IDL.Nat64),
   });
   const InitUploadError = IDL.Variant({
-    'NotEnoughStorage' : IDL.Null,
+    'ConcurrentManagementCall' : IDL.Null,
     'FileAlreadyExists' : IDL.Null,
-    'InvalidChunkSize' : IDL.Null,
+    'StorageCanisterError' : IDL.Text,
   });
   const Result_11 = IDL.Variant({
     'Ok' : IDL.Record({}),

@@ -48,7 +48,7 @@
       "type": "persistent"
     },
     "local": {
-      "bind": "localhost:8080",
+      "bind": "localhost:4943",
       "type": "ephemeral"
     }
   }

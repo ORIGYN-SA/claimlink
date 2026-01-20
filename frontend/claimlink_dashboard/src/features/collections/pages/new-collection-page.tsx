@@ -232,31 +232,53 @@ export function NewCollectionPage() {
 
       // Step 5: Upload and set logo if provided (now safe - canister is installed)
       if (imageFile) {
-        try {
-          setSubmitButtonText('Uploading logo...');
-          toast.info('Uploading collection logo...');
+        // Retry mechanism for logo upload (ORIGYN NFT canister doesn't allow concurrent management calls)
+        const maxRetries = 3;
+        let lastError: Error | null = null;
 
-          // Upload directly to the newly created collection canister
-          const logoUrl = await CollectionsService.uploadLogoToCollection(
-            authenticatedAgent!,
-            canisterId,
-            imageFile,
-            (progress) => {
-              setSubmitButtonText(`Uploading logo... ${Math.round(progress)}%`);
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+          try {
+            // Delay before each attempt to allow previous management operations to complete
+            const delayMs = 5000;
+            setSubmitButtonText(attempt === 1 ? 'Preparing logo upload...' : `Retrying logo upload (${attempt}/${maxRetries})...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+
+            setSubmitButtonText(attempt === 1 ? 'Uploading logo...' : `Uploading logo (attempt ${attempt})...`);
+            toast.info(attempt === 1 ? 'Uploading collection logo...' : `Retrying logo upload (attempt ${attempt}/${maxRetries})...`);
+
+            // Upload directly to the newly created collection canister
+            const logoUrl = await CollectionsService.uploadLogoToCollection(
+              authenticatedAgent!,
+              canisterId,
+              imageFile,
+              (progress) => {
+                setSubmitButtonText(`Uploading logo... ${Math.round(progress)}%`);
+              }
+            );
+
+            // Update collection metadata with logo URL
+            setSubmitButtonText('Updating collection...');
+            await CollectionsService.updateCollectionMetadata(
+              authenticatedAgent!,
+              canisterId,
+              { logo: logoUrl }
+            );
+
+            toast.success('Logo uploaded successfully!');
+            lastError = null;
+            break; // Success - exit retry loop
+          } catch (error) {
+            console.error(`Logo upload attempt ${attempt} failed:`, error);
+            lastError = error as Error;
+
+            if (attempt < maxRetries) {
+              toast.warning(`Logo upload failed, retrying... (${attempt}/${maxRetries})`);
             }
-          );
+          }
+        }
 
-          // Update collection metadata with logo URL
-          setSubmitButtonText('Updating collection...');
-          await CollectionsService.updateCollectionMetadata(
-            authenticatedAgent!,
-            canisterId,
-            { logo: logoUrl }
-          );
-
-          toast.success('Logo uploaded successfully!');
-        } catch (error) {
-          console.error('Logo upload failed:', error);
+        if (lastError) {
+          console.error('Logo upload failed after all retries:', lastError);
           toast.warning('Collection created, but logo upload failed. You can add it later.');
           // Continue - collection exists, just without logo
         }

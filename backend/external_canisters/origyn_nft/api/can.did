@@ -200,9 +200,9 @@ type InitArgs = record {
   approval_init : InitApprovalsArg;
 };
 type InitUploadError = variant {
-  NotEnoughStorage;
+  ConcurrentManagementCall;
   FileAlreadyExists;
-  InvalidChunkSize;
+  StorageCanisterError : text;
 };
 type IsApprovedArg = record {
   token_id : nat;
