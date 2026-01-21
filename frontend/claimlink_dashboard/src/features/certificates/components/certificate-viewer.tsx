@@ -79,6 +79,8 @@ export interface TemplateData {
   tokenId: string;
   /** Language code for display */
   language?: string;
+  /** Whether to show placeholders for missing values (preview mode) */
+  showPlaceholders?: boolean;
 }
 
 interface CertificateViewerProps {
@@ -123,6 +125,7 @@ export function CertificateViewer({
     ? {
         type: 'onchain',
         metadata: templateData.metadata,
+        showPlaceholders: templateData.showPlaceholders,
       }
     : null;
 

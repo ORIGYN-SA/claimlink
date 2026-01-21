@@ -18,7 +18,7 @@ interface ValueFieldNodeProps {
 }
 
 export function ValueFieldNode({ node }: ValueFieldNodeProps) {
-  const { getFieldValue, variant } = useTemplateContext();
+  const { getFieldValue, variant, showPlaceholders } = useTemplateContext();
 
   // Get values for all fields and join them
   const value = node.fields
@@ -26,7 +26,11 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     .filter((v) => v !== null && v !== '')
     .join(', ');
 
-  if (!value) {
+  // Show placeholder if no value and placeholders enabled
+  const isPlaceholder = !value && showPlaceholders;
+  const displayValue = value || (showPlaceholders ? 'Sample text content' : null);
+
+  if (!displayValue) {
     return null;
   }
 
@@ -40,11 +44,12 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
         <h3
           className={cn(
             'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px] text-[#222526] text-center',
+            isPlaceholder && 'text-gray-400 italic',
             node.className
           )}
         >
           {node.preText}
-          <span className="whitespace-pre-wrap">{value}</span>
+          <span className="whitespace-pre-wrap">{displayValue}</span>
         </h3>
       );
     }
@@ -52,11 +57,12 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
       <h5
         className={cn(
           'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-[#222526] text-center',
+          isPlaceholder && 'text-gray-400 italic',
           node.className
         )}
       >
         {node.preText}
-        <span className="whitespace-pre-wrap">{value}</span>
+        <span className="whitespace-pre-wrap">{displayValue}</span>
       </h5>
     );
   }
@@ -68,11 +74,12 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
         <h3
           className={cn(
             'text-[#f9f8f4] font-extralight italic text-[24px] sm:text-[38px] leading-[32px] sm:leading-[50px]',
+            isPlaceholder && 'text-gray-500',
             node.className
           )}
         >
           {node.preText}
-          <span className="whitespace-pre-wrap">{value}</span>
+          <span className="whitespace-pre-wrap">{displayValue}</span>
         </h3>
       );
     }
@@ -80,11 +87,12 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
       <p
         className={cn(
           'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
+          isPlaceholder && 'text-gray-500 italic',
           node.className
         )}
       >
         {node.preText}
-        <span className="whitespace-pre-wrap">{value}</span>
+        <span className="whitespace-pre-wrap">{displayValue}</span>
       </p>
     );
   }
@@ -94,12 +102,13 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     <h5
       className={cn(
         'font-semibold text-sm leading-[22px] tracking-[-0.15px] text-[#151515]',
+        isPlaceholder && 'text-gray-400 italic font-normal',
         node.className
       )}
     >
       {node.preText}
       <pre className="whitespace-pre-wrap font-sans text-inherit inline">
-        {value}
+        {displayValue}
       </pre>
     </h5>
   );

@@ -244,6 +244,7 @@ export function TemplateContextProvider({
       collectionId,
       language,
       variant,
+      showPlaceholders: dataSource.showPlaceholders ?? false,
       resolveAssetUrl,
       getFieldValue,
       getFileArray,

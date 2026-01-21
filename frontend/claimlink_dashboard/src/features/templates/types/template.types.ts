@@ -12,7 +12,7 @@
 // Item Types
 // ============================================================================
 
-export type TemplateItemType = 'title' | 'input' | 'badge' | 'image' | 'video';
+export type TemplateItemType = 'title' | 'input' | 'badge' | 'image' | 'video' | 'readonly';
 
 /**
  * Base interface for all template items
@@ -49,11 +49,11 @@ export interface TitleItem extends BaseTemplateItem {
 }
 
 /**
- * Input item - text/number/textarea input field
+ * Input item - text/number/textarea/date input field
  */
 export interface InputItem extends BaseTemplateItem {
   type: 'input';
-  inputType: 'text' | 'number' | 'textarea' | 'email' | 'url';
+  inputType: 'text' | 'number' | 'textarea' | 'email' | 'url' | 'date';
   placeholder?: string;
   defaultValue?: string;
   multiline?: boolean;
@@ -101,9 +101,17 @@ export interface VideoItem extends BaseTemplateItem {
 }
 
 /**
+ * Readonly item - displays static text that cannot be edited
+ */
+export interface ReadonlyItem extends BaseTemplateItem {
+  type: 'readonly';
+  defaultValue?: string;
+}
+
+/**
  * Union type for all template items
  */
-export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem | VideoItem;
+export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem | VideoItem | ReadonlyItem;
 
 // ============================================================================
 // Section Types

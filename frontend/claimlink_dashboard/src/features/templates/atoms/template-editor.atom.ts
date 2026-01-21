@@ -44,8 +44,9 @@ export interface TemplateEditorState {
 
   fieldForm: {
     label: string;
-    type: 'input' | 'badge' | 'image' | 'video' | 'title';
-    inputType: 'text' | 'number' | 'textarea' | 'email' | 'url';
+    // UI dropdown types - some map to input with different inputType
+    type: 'input' | 'textarea' | 'date' | 'badge' | 'image' | 'video' | 'title' | 'readonly';
+    inputType: 'text' | 'number' | 'textarea' | 'email' | 'url' | 'date';
     placeholder: string;
     description: string;
     required: boolean;
@@ -196,13 +197,26 @@ export function templateEditorReducer(
           ? (action.field as any).badgeStyle || 'default'
           : 'default';
 
+      // Determine UI type - reverse map from stored type to UI dropdown value
+      let uiType: TemplateEditorState['fieldForm']['type'] = action.field.type as any;
+      if (action.field.type === 'input') {
+        const storedInputType = (action.field as any).inputType;
+        if (storedInputType === 'textarea') {
+          uiType = 'textarea';
+        } else if (storedInputType === 'date') {
+          uiType = 'date';
+        } else {
+          uiType = 'input';
+        }
+      }
+
       return {
         ...state,
         modals: { ...state.modals, editField: true },
         selectedField: action.field,
         fieldForm: {
           label: action.field.label,
-          type: action.field.type,
+          type: uiType,
           inputType,
           placeholder,
           description: action.field.description || '',
@@ -355,6 +369,25 @@ export function templateEditorReducer(
             placeholder: state.fieldForm.placeholder,
           };
           break;
+        case 'textarea':
+          // Textarea is an input with inputType='textarea'
+          newField = {
+            ...baseProps,
+            type: 'input',
+            inputType: 'textarea',
+            placeholder: state.fieldForm.placeholder,
+            multiline: true,
+            rows: 4,
+          };
+          break;
+        case 'date':
+          // Date is an input with inputType='date'
+          newField = {
+            ...baseProps,
+            type: 'input',
+            inputType: 'date',
+          };
+          break;
         case 'badge':
           newField = {
             ...baseProps,
@@ -368,11 +401,23 @@ export function templateEditorReducer(
             type: 'image',
           };
           break;
+        case 'video':
+          newField = {
+            ...baseProps,
+            type: 'video',
+          };
+          break;
         case 'title':
           newField = {
             ...baseProps,
             type: 'title',
             style: 'h3',
+          };
+          break;
+        case 'readonly':
+          newField = {
+            ...baseProps,
+            type: 'readonly',
           };
           break;
         default:
@@ -425,21 +470,59 @@ export function templateEditorReducer(
               required: state.fieldForm.required,
             };
 
-            if (state.fieldForm.type === 'input') {
-              return {
-                ...baseUpdate,
-                type: 'input' as const,
-                inputType: state.fieldForm.inputType,
-                placeholder: state.fieldForm.placeholder,
-              };
-            } else if (state.fieldForm.type === 'badge') {
-              return {
-                ...baseUpdate,
-                type: 'badge' as const,
-                badgeStyle: state.fieldForm.badgeStyle,
-              };
-            } else {
-              return baseUpdate;
+            // Map UI type back to storage type
+            switch (state.fieldForm.type) {
+              case 'input':
+                return {
+                  ...baseUpdate,
+                  type: 'input' as const,
+                  inputType: state.fieldForm.inputType,
+                  placeholder: state.fieldForm.placeholder,
+                };
+              case 'textarea':
+                return {
+                  ...baseUpdate,
+                  type: 'input' as const,
+                  inputType: 'textarea' as const,
+                  placeholder: state.fieldForm.placeholder,
+                  multiline: true,
+                  rows: 4,
+                };
+              case 'date':
+                return {
+                  ...baseUpdate,
+                  type: 'input' as const,
+                  inputType: 'date' as const,
+                };
+              case 'badge':
+                return {
+                  ...baseUpdate,
+                  type: 'badge' as const,
+                  badgeStyle: state.fieldForm.badgeStyle,
+                };
+              case 'image':
+                return {
+                  ...baseUpdate,
+                  type: 'image' as const,
+                };
+              case 'video':
+                return {
+                  ...baseUpdate,
+                  type: 'video' as const,
+                };
+              case 'title':
+                return {
+                  ...baseUpdate,
+                  type: 'title' as const,
+                  style: 'h3' as const,
+                };
+              case 'readonly':
+                return {
+                  ...baseUpdate,
+                  type: 'readonly' as const,
+                };
+              default:
+                return baseUpdate;
             }
           }),
         })

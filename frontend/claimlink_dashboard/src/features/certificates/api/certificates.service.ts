@@ -250,6 +250,18 @@ export class CertificatesService {
       hasRawDomain: rawUrl.includes('.raw.'),
     });
 
+    // Enhanced debug logging for multi-chunk analysis
+    console.log('[Upload Debug] Multi-chunk analysis:', {
+      fileName: file.name,
+      fileSize: file.size,
+      totalChunks,
+      isMultiChunk: totalChunks > 1,
+      rawUrlFromFinalize: rawUrl,
+      urlPattern: rawUrl.includes('/-/') ? 'token-asset' : rawUrl.includes('/collection/-/') ? 'collection-asset' : 'unknown',
+      chunkSize: CHUNK_SIZE,
+      expectedChunkCount: Math.ceil(file.size / CHUNK_SIZE),
+    });
+
     // Normalize the URL for the current environment
     const normalizedUrl = this.normalizeAssetUrl(rawUrl, canisterId);
 

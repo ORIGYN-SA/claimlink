@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, X, Play } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Play, ImageIcon } from 'lucide-react';
 import type { GalleryNode as GalleryNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
 import { cn } from '@/lib/utils';
@@ -37,7 +37,7 @@ interface GalleryNodeProps {
 }
 
 export function GalleryNode({ node }: GalleryNodeProps) {
-  const { getFileArray, resolveAssetUrl } = useTemplateContext();
+  const { getFileArray, resolveAssetUrl, showPlaceholders } = useTemplateContext();
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -64,6 +64,33 @@ export function GalleryNode({ node }: GalleryNodeProps) {
       }));
 
   if (!mediaItems.length) {
+    // Show placeholder gallery if enabled
+    if (showPlaceholders) {
+      return (
+        <div className={cn('w-full', node.className)}>
+          <div className="relative max-w-[1024px] mx-auto">
+            {/* Placeholder main area */}
+            <div className="relative aspect-[4/3] bg-gray-200 rounded-lg overflow-hidden flex items-center justify-center border-2 border-dashed border-gray-300">
+              <div className="text-gray-400 text-center p-4">
+                <ImageIcon className="w-12 h-12 mx-auto mb-2" />
+                <span className="text-sm">Gallery placeholder</span>
+              </div>
+            </div>
+          </div>
+          {/* Placeholder thumbnails */}
+          <div className="flex gap-2 mt-4 max-w-[1024px] mx-auto">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex-shrink-0 w-16 h-16 rounded-md bg-gray-200 border-2 border-dashed border-gray-300 flex items-center justify-center"
+              >
+                <ImageIcon className="w-4 h-4 text-gray-400" />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
     return null;
   }
 

@@ -236,6 +236,7 @@ function CertificatePreview({
       canisterId: "preview-canister",
       tokenId: "preview-token",
       language: selectedLanguage,
+      showPlaceholders: true, // Enable placeholders for custom fields in preview
     };
   }, [origynViews, selectedLanguage]);
 

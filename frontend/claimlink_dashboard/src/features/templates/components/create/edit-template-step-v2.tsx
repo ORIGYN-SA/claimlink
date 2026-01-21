@@ -695,6 +695,7 @@ export function EditTemplateStepV2({
                   <SelectItem value="textarea">Text Area</SelectItem>
                   <SelectItem value="date">Date</SelectItem>
                   <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
                   <SelectItem value="badge">Badge</SelectItem>
                   <SelectItem value="readonly">Read Only</SelectItem>
                 </SelectContent>
@@ -819,6 +820,7 @@ export function EditTemplateStepV2({
                   <SelectItem value="textarea">Text Area</SelectItem>
                   <SelectItem value="date">Date</SelectItem>
                   <SelectItem value="image">Image</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
                   <SelectItem value="badge">Badge</SelectItem>
                   <SelectItem value="readonly">Read Only</SelectItem>
                 </SelectContent>
