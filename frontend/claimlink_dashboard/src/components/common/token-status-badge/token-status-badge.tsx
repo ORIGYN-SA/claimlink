@@ -58,16 +58,16 @@ export function TokenStatusBadge({ status, className }: TokenStatusBadgeProps) {
 
   return (
     <div className={cn(
-      "flex items-center gap-2 px-2 py-1 rounded-full border border-solid",
+      "flex items-center gap-1 md:gap-2 px-1.5 md:px-2 py-0.5 md:py-1 rounded-full border border-solid max-w-full overflow-hidden",
       config.className,
       className
     )}>
       <div className={cn(
-        "w-2.5 h-2.5 rounded-full border",
+        "w-2 h-2 md:w-2.5 md:h-2.5 rounded-full border shrink-0",
         config.dotColor,
         config.dotBorder
       )} />
-      <span className="text-[12px] font-medium leading-normal whitespace-nowrap">
+      <span className="text-[10px] md:text-[12px] font-medium leading-normal truncate">
         {config.text}
       </span>
     </div>

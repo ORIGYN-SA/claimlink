@@ -52,10 +52,10 @@ export function FieldNode({ node }: FieldNodeProps) {
           node.className
         )}
       >
-        <p className="text-[14px] font-normal leading-6 text-[#69737c] tracking-[1.4px] uppercase">
+        <p className="text-[12px] sm:text-[14px] font-normal leading-5 sm:leading-6 text-[#69737c] tracking-[1px] sm:tracking-[1.4px] uppercase">
           {title}
         </p>
-        <p className="text-[24px] font-medium leading-8 text-[#222526]">
+        <p className="text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-[#222526]">
           {value}
         </p>
       </div>
@@ -67,14 +67,14 @@ export function FieldNode({ node }: FieldNodeProps) {
     return (
       <div
         className={cn(
-          'flex items-start justify-between py-4 border-t border-[rgba(239,236,227,0.25)]',
+          'flex flex-col sm:flex-row items-start sm:justify-between gap-1 sm:gap-0 py-3 sm:py-4 border-t border-[rgba(239,236,227,0.25)]',
           node.className
         )}
       >
-        <p className="text-[#e1e1e1] text-[12px] font-normal leading-6 tracking-[1.2px] uppercase w-[159px] shrink-0">
+        <p className="text-[#e1e1e1] text-[10px] sm:text-[12px] font-normal leading-5 sm:leading-6 tracking-[1px] sm:tracking-[1.2px] uppercase w-full sm:w-[159px] shrink-0">
           {title}
         </p>
-        <p className="flex-1 text-white text-[16px] font-light leading-8 text-right">
+        <p className="flex-1 text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8 text-left sm:text-right">
           {value}
         </p>
       </div>

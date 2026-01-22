@@ -1,14 +1,16 @@
-// Dashboard components exports
-export { DashboardPage } from "./dashboard-page"
-export { StatCard } from "./stat-card"
-export { WelcomeCard } from "./welcome-card"
-export { FeedCard } from "./feed-card"
-export { MintCard } from "./mint-card"
-export { CertificateListCard } from "./certificate-list-card"
+// Card components
+export * from "./cards"
 
-// New section components
+// Section components
+export * from "./sections"
+
+// Root-level components
 export { DashboardActions } from "./dashboard-actions"
-export { TotalStatusSection } from "./total-status-section"
-export { LastCertificateOwnersSection } from "./last-certificate-owners-section"
-export { LastSentCertificatesSection } from "./last-sent-certificates-section"
-export { LastMintedCertificatesSection } from "./last-minted-certificates-section"
+
+// Loading and error states
+export {
+  StatusSectionSkeleton,
+  StatusSectionError,
+  CertificatesSectionSkeleton,
+  CertificatesSectionError,
+} from "./dashboard-skeletons"

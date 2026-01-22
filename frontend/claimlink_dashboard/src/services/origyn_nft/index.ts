@@ -1,5 +1,5 @@
-export { OrigynNftService } from './api/origyn-nft.service';
-export { useMintNft, useMintNftWithTemplate } from './hooks/useMintNft';
-export { useUploadImage } from './hooks/useUploadImage';
-export { useCollectionNfts } from './hooks/useCollectionNfts';
-export * from './interfaces';
+// Export IDL factory and types only
+// Hooks and services have been migrated to @/features/certificates
+
+export { idlFactory } from './idlFactory';
+export type * from './interfaces';

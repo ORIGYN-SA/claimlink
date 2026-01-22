@@ -1,3 +1,19 @@
+/**
+ * ClaimLink Canister Interface
+ *
+ * IMPORTANT: This interface uses "NFT" terminology (get_nft_details, NftDetails, get_collection_nfts)
+ * because all tokens are ORIGYN NFTs at the technical/IC level (ICRC-7 standard).
+ *
+ * In the ClaimLink frontend, these same tokens are referred to as "Certificates" in the UI
+ * because they represent verified real-world assets (gold, diamonds, watches).
+ *
+ * Naming Convention:
+ * - Backend/IC APIs: Use "NFT" (this file)
+ * - Frontend UI: Use "Certificate" (components, pages, types)
+ * - Transform layer: Bridges between NFT (technical) and Certificate (business)
+ *
+ * This is intentional - there's only ONE token type, just different terminology at different layers.
+ */
 import type { Principal } from "@dfinity/principal";
 import type { ActorMethod } from "@dfinity/agent";
 import type { IDL } from "@dfinity/candid";

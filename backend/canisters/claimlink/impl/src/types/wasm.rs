@@ -1,15 +1,15 @@
-// module for handling NFT collections wasm types
+use claimlink_api::impl_storable_minicbor;
 use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteArray;
+use sha2::Digest;
+use std::fmt::{Debug, Display, Formatter};
 use std::str::FromStr;
-
-use crate::impl_storable_minicbor;
 
 const WASM_HASH_LENGTH: usize = 32;
 
-/// `Wasm` is a wrapper around a wasm binary and its memoized hash.
-/// It provides a type-safe way to handle wasm binaries for different canisters.
+pub type WasmHash = Hash<WASM_HASH_LENGTH>;
+
 #[derive(Debug, Encode, Decode)]
 pub struct Wasm {
     #[n(0)]
@@ -18,11 +18,9 @@ pub struct Wasm {
     hash: WasmHash,
 }
 
-pub type WasmHash = Hash<WASM_HASH_LENGTH>;
-
-/// Fixed-size hash type used for Wasm module hashes (32 bytes = 64 hex chars).
-/// The const generic `N` lets us reuse this for any hash length (e.g. 32-byte SHA-256).
-#[derive(Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Deserialize, Serialize, Encode, Decode)]
+#[derive(
+    Clone, Eq, PartialEq, Ord, PartialOrd, Debug, Deserialize, Serialize, Encode, Decode, Copy,
+)]
 #[serde(from = "serde_bytes::ByteArray<N>", into = "serde_bytes::ByteArray<N>")]
 pub struct Hash<const N: usize>(#[n(0)] [u8; N]);
 
@@ -32,8 +30,12 @@ impl<const N: usize> Default for Hash<N> {
     }
 }
 
-// These two impls let Serde treat `Hash<N>` as a byte array transparently
-// (required because Serde doesn't know how to serialize fixed-size arrays >32 by default)
+impl<const N: usize> Display for Hash<N> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", hex::encode(self.0))
+    }
+}
+
 impl<const N: usize> From<ByteArray<N>> for Hash<N> {
     fn from(value: ByteArray<N>) -> Self {
         Self(value.into_array())
@@ -64,29 +66,70 @@ impl<const N: usize> From<Hash<N>> for [u8; N] {
     }
 }
 
-/// Parses a hash from its hexadecimal string representation.
-/// Example: "a1b2c3...64 hex chars" → Hash<32>
+impl Wasm {
+    /// Creates a new Wasm container and pre-calculates the SHA-256 hash.
+    pub fn new(binary: Vec<u8>) -> Self {
+        let hash = sha2::Sha256::digest(&binary).into();
+        Self {
+            binary,
+            hash: Hash(hash),
+        }
+    }
+
+    pub fn to_bytes(self) -> Vec<u8> {
+        self.binary
+    }
+
+    pub fn hash(&self) -> &WasmHash {
+        &self.hash
+    }
+}
+
+impl Clone for Wasm {
+    /// Clone existing hash to avoid expensive re-calculation of the SHA-256 digest.
+    fn clone(&self) -> Self {
+        Self {
+            binary: self.binary.clone(),
+            hash: self.hash.clone(),
+        }
+    }
+}
+
+impl PartialEq for Wasm {
+    fn eq(&self, other: &Self) -> bool {
+        self.binary.eq(&other.binary)
+    }
+}
+
+impl From<Vec<u8>> for Wasm {
+    fn from(v: Vec<u8>) -> Self {
+        Self::new(v)
+    }
+}
+
+impl From<&[u8]> for Wasm {
+    fn from(value: &[u8]) -> Self {
+        Self::new(value.to_vec())
+    }
+}
+
 impl<const N: usize> FromStr for Hash<N> {
     type Err = String;
 
+    /// Validates and decodes a hex string into a fixed-size byte array.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let expected_num_hex_chars = N * 2;
-
-        // Enforce exact length to prevent accidental truncation or padding issues
-        if s.len() != expected_num_hex_chars {
+        if s.len() != N * 2 {
             return Err(format!(
-                "Invalid hash: expected {} characters, got {}",
-                expected_num_hex_chars,
-                s.len()
+                "Hash length mismatch: expected {} hex chars",
+                N * 2
             ));
         }
 
         let mut bytes = [0u8; N];
-        // `hex::decode_to_slice` writes directly into the array and fails on invalid chars
-        hex::decode_to_slice(s, &mut bytes).map_err(|e| format!("Invalid hex string: {}", e))?;
-
+        hex::decode_to_slice(s, &mut bytes).map_err(|e| e.to_string())?;
         Ok(Self(bytes))
     }
 }
 
 impl_storable_minicbor!(Wasm);
+impl_storable_minicbor!(WasmHash);

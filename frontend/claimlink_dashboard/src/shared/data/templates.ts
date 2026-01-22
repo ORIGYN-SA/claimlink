@@ -1,4 +1,4 @@
-import type { TemplateStructure } from "@/features/templates/types/template-structure.types";
+import type { TemplateStructure } from "@/features/templates/types/template.types";
 
 // Template data type - unified for all use cases
 export interface Template {
@@ -56,13 +56,14 @@ export const madeInItalyTemplate: Template = {
   structure: {
     sections: [
       {
-        id: "section_intro",
-        name: "Certificate Introduction",
+        id: "section_certificate",
+        name: "Certificate",
         order: 1,
         collapsible: false,
+        description: "Essential certification information and formal data",
         items: [
           {
-            id: "company_name",
+            id: "name",
             type: "input",
             label: "Company Name",
             order: 1,
@@ -113,19 +114,11 @@ export const madeInItalyTemplate: Template = {
             allowCustomValue: false,
             predefinedValues: ["ORIGYN Foundation"],
           },
-        ],
-      },
-      {
-        id: "section_certificate",
-        name: "Certificate",
-        order: 2,
-        collapsible: false,
-        items: [
           {
             id: "vat_number",
             type: "input",
             label: "VAT Number",
-            order: 1,
+            order: 5,
             required: true,
             inputType: "text",
             placeholder: "IT12345678901",
@@ -138,7 +131,7 @@ export const madeInItalyTemplate: Template = {
             id: "certification_date",
             type: "input",
             label: "Certification Date",
-            order: 2,
+            order: 6,
             required: true,
             inputType: "text",
             placeholder: "DD/MM/YYYY",
@@ -147,7 +140,7 @@ export const madeInItalyTemplate: Template = {
             id: "certification_expiration",
             type: "input",
             label: "Valid Until",
-            order: 3,
+            order: 7,
             required: true,
             inputType: "text",
             placeholder: "DD/MM/YYYY",
@@ -156,7 +149,7 @@ export const madeInItalyTemplate: Template = {
             id: "product_images",
             type: "image",
             label: "Product Images",
-            order: 4,
+            order: 8,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
             maxFileSize: 10485760,
@@ -166,11 +159,11 @@ export const madeInItalyTemplate: Template = {
         ],
       },
       {
-        id: "section_about",
-        name: "About",
-        order: 3,
+        id: "section_information",
+        name: "Information",
+        order: 2,
         collapsible: true,
-        description: "Tell us about your company and products",
+        description: "About the company, experience, and craftsmanship",
         items: [
           {
             id: "about_company",
@@ -214,20 +207,11 @@ export const madeInItalyTemplate: Template = {
             inputType: "url",
             placeholder: "https://example.com",
           },
-        ],
-      },
-      {
-        id: "section_experience",
-        name: "Experience",
-        order: 4,
-        collapsible: true,
-        description: "Share the product experience and craftsmanship",
-        items: [
           {
             id: "craftsmanship",
             type: "input",
             label: "Craftsmanship Details",
-            order: 1,
+            order: 5,
             required: false,
             inputType: "textarea",
             placeholder: "Describe the traditional Italian techniques used...",
@@ -238,7 +222,7 @@ export const madeInItalyTemplate: Template = {
             id: "materials",
             type: "input",
             label: "Materials Used",
-            order: 2,
+            order: 6,
             required: false,
             inputType: "textarea",
             placeholder: "List the Italian materials and their origins...",
@@ -249,7 +233,7 @@ export const madeInItalyTemplate: Template = {
             id: "production_process",
             type: "input",
             label: "Production Process",
-            order: 3,
+            order: 7,
             required: false,
             inputType: "textarea",
             placeholder: "Describe how the product is made...",
@@ -260,7 +244,7 @@ export const madeInItalyTemplate: Template = {
             id: "additional_certifications",
             type: "badge",
             label: "Additional Certifications",
-            order: 4,
+            order: 8,
             required: false,
             badgeStyle: "success",
             allowCustomValue: true,
@@ -276,12 +260,13 @@ export const madeInItalyTemplate: Template = {
             id: "gallery_images",
             type: "image",
             label: "Experience Gallery",
-            order: 5,
+            order: 9,
             required: false,
             acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
             maxFileSize: 10485760,
             multiple: true,
             maxImages: 12,
+            acceptVideo: true, // Allow videos in the gallery
           },
         ],
       },
@@ -290,7 +275,7 @@ export const madeInItalyTemplate: Template = {
       { id: "en", code: "en", name: "English", isDefault: true },
       { id: "it", code: "it", name: "Italian" },
     ],
-    searchIndexField: "company_name",
+    searchIndexField: "name",
     metadata: {
       version: "1.0.0",
       createdBy: "system",
@@ -323,9 +308,11 @@ export const goldCertificateTemplate: Template = {
   structure: {
     sections: [
       {
-        id: "section_intro",
-        name: "Certificate Introduction",
+        id: "section_certificate",
+        name: "Certificate",
         order: 1,
+        collapsible: false,
+        description: "Essential certification information and formal data",
         items: [
           {
             id: "dealer_name",
@@ -358,18 +345,11 @@ export const goldCertificateTemplate: Template = {
             defaultValue: "ORIGYN - Gold Standard",
             allowCustomValue: false,
           },
-        ],
-      },
-      {
-        id: "section_certificate",
-        name: "Certificate",
-        order: 2,
-        items: [
           {
-            id: "product_name",
+            id: "name",
             type: "input",
             label: "Product Name",
-            order: 1,
+            order: 4,
             required: true,
             inputType: "text",
             placeholder: "e.g., 1oz Gold Bar, Gold Coin, etc.",
@@ -378,7 +358,7 @@ export const goldCertificateTemplate: Template = {
             id: "weight",
             type: "input",
             label: "Weight (grams)",
-            order: 2,
+            order: 5,
             required: true,
             inputType: "number",
             placeholder: "e.g., 31.1035 (1 troy oz)",
@@ -387,7 +367,7 @@ export const goldCertificateTemplate: Template = {
             id: "purity",
             type: "badge",
             label: "Purity (Karat)",
-            order: 3,
+            order: 6,
             required: true,
             badgeStyle: "default",
             allowCustomValue: false,
@@ -397,7 +377,7 @@ export const goldCertificateTemplate: Template = {
             id: "serial_number",
             type: "input",
             label: "Serial Number",
-            order: 4,
+            order: 7,
             required: true,
             inputType: "text",
             placeholder: "Unique serial/bar number",
@@ -406,7 +386,7 @@ export const goldCertificateTemplate: Template = {
             id: "assay_date",
             type: "input",
             label: "Assay Date",
-            order: 5,
+            order: 8,
             required: true,
             inputType: "text",
             placeholder: "DD/MM/YYYY",
@@ -415,7 +395,7 @@ export const goldCertificateTemplate: Template = {
             id: "product_images",
             type: "image",
             label: "Product Images",
-            order: 6,
+            order: 9,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
@@ -425,10 +405,11 @@ export const goldCertificateTemplate: Template = {
         ],
       },
       {
-        id: "section_about",
-        name: "About",
-        order: 3,
+        id: "section_information",
+        name: "Information",
+        order: 2,
         collapsible: true,
+        description: "Product details, provenance, and additional information",
         items: [
           {
             id: "origin",
@@ -468,19 +449,11 @@ export const goldCertificateTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., 999.9",
           },
-        ],
-      },
-      {
-        id: "section_experience",
-        name: "Experience",
-        order: 4,
-        collapsible: true,
-        items: [
           {
             id: "provenance",
             type: "input",
             label: "Provenance & History",
-            order: 1,
+            order: 5,
             required: false,
             inputType: "textarea",
             placeholder: "Ownership history and any notable background...",
@@ -491,7 +464,7 @@ export const goldCertificateTemplate: Template = {
             id: "storage_notes",
             type: "input",
             label: "Storage Recommendations",
-            order: 2,
+            order: 6,
             required: false,
             inputType: "textarea",
             placeholder: "Recommended storage conditions...",
@@ -502,7 +475,7 @@ export const goldCertificateTemplate: Template = {
             id: "certifications",
             type: "badge",
             label: "Additional Certifications",
-            order: 3,
+            order: 7,
             required: false,
             badgeStyle: "info",
             allowCustomValue: true,
@@ -517,7 +490,7 @@ export const goldCertificateTemplate: Template = {
             id: "detail_images",
             type: "image",
             label: "Detail Images",
-            order: 4,
+            order: 8,
             required: false,
             acceptedFormats: ["image/jpeg", "image/png"],
             maxFileSize: 10485760,
@@ -552,10 +525,47 @@ export const mockTemplates: Template[] = [
 // Template options for the choose template page
 export const templateOptions: Template[] = mockTemplates;
 
-// Manual template option (for developers who want to code their own)
+// Manual template option (for users who want to start from scratch)
 export const manualTemplateOption: Template = {
-  id: "code_it",
-  name: "Code it",
-  description: "Create manually your template with your developers",
+  id: "from_scratch",
+  name: "Make one from scratch",
+  description: "Build your own template using the visual editor or JSON code",
   category: "manual",
+  structure: {
+    sections: [
+      {
+        id: "section_certificate",
+        name: "Certificate",
+        order: 1,
+        collapsible: false,
+        description: "Essential certification information",
+        items: [
+          {
+            id: "name",
+            type: "input",
+            label: "Certificate Name",
+            order: 1,
+            required: true,
+            inputType: "text",
+            placeholder: "Enter certificate name",
+          },
+        ],
+      },
+      {
+        id: "section_information",
+        name: "Information",
+        order: 2,
+        collapsible: true,
+        description: "Additional information and details",
+        items: [],
+      },
+    ],
+    languages: [
+      { id: "en", code: "en", name: "English", isDefault: true },
+    ],
+    metadata: {
+      version: "1.0.0",
+      createdBy: "user",
+    },
+  },
 };

@@ -411,10 +411,12 @@ export type RenderDataSource =
       type: 'preview';
       formData: Record<string, unknown>;
       files: Map<string, File | File[]>;
+      showPlaceholders?: boolean;
     }
   | {
       type: 'onchain';
       metadata: ParsedOrigynMetadata;
+      showPlaceholders?: boolean;
     };
 
 /**
@@ -433,6 +435,8 @@ export interface TemplateRenderContext {
   language: string;
   /** Rendering variant for styling */
   variant: TemplateVariant;
+  /** Whether to show placeholders for missing values (preview mode) */
+  showPlaceholders: boolean;
   /** Resolve asset URL for a file path */
   resolveAssetUrl: (path: string, isCollectionAsset?: boolean) => string;
   /** Get field value from metadata by field name */

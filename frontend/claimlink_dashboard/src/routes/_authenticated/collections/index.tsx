@@ -1,0 +1,15 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { DashboardLayout } from "@/components/layout";
+import { CollectionsPage } from "@/features/collections";
+
+export const Route = createFileRoute("/_authenticated/collections/")({
+  component: RouteComponent,
+});
+
+function RouteComponent() {
+  return (
+    <DashboardLayout>
+      <CollectionsPage />
+    </DashboardLayout>
+  );
+}

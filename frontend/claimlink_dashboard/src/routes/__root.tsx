@@ -1,18 +1,29 @@
-import { Outlet, createRootRoute } from "@tanstack/react-router";
-import AuthProvider from "@/features/auth/providers/AuthProvider";
-// Import IdentityKit styles
-import "@nfid/identitykit/react/styles.css";
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
+import type { RouterContext } from "@/features/auth/types/router-context";
 import { Toaster } from "@/components/ui/sonner";
+import { SessionExpiryWatcher } from "@/features/auth/components/SessionExpiryWatcher";
 
-export const Route = createRootRoute({
+/**
+ * Root route with typed context.
+ *
+ * The context is passed from main.tsx via RouterProvider:
+ * - auth.isConnected: Whether user is authenticated
+ * - auth.principalId: User's IC principal ID
+ * - auth.authenticatedAgent: Agent for authenticated calls
+ * - auth.unauthenticatedAgent: Agent for public queries
+ *
+ * Child routes access this via context parameter in beforeLoad.
+ */
+export const Route = createRootRouteWithContext<RouterContext>()({
   component: RootComponent,
 });
 
 function RootComponent() {
   return (
-    <AuthProvider>
+    <>
+      <SessionExpiryWatcher />
       <Outlet />
       <Toaster />
-    </AuthProvider>
+    </>
   );
 }

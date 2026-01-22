@@ -181,15 +181,24 @@ deploy_claimlink_backend() {
     echo "  - bank_principal_id: $BANK_PRINCIPAL"
     echo ""
 
-    dfx deploy claimlink_backend --argument "(record {
+    dfx deploy claimlink_backend --argument "(variant { InitArg = record {
   test_mode = true;
+  commit_hash = \"local-test-v1\";
   ledger_canister_id = principal \"$OGY_LEDGER_ID\";
   authorized_principals = vec {
-    principal \"$CONTROLLER_PRINCIPAL\";
+    record { name = \"controller\"; \"principal\" = principal \"$CONTROLLER_PRINCIPAL\"; };
+    record { name = \"nfid\"; \"principal\" = principal \"mk3po-2rero-6inmo-h4i2f-bl64j-aztzo-xhpgm-odagi-qjncn-os2ve-zqe\"; };
   };
   bank_principal_id = principal \"$BANK_PRINCIPAL\";
-  origyn_nft_commit_hash = \"local-test-v1\";
-})"
+  cycles_management = record {
+    cycles_top_up_increment = 500_000_000_000 : nat;
+    cycles_for_collection_creation = 7_000_000_000_000 : nat;
+  };
+  collection_request_fee = 1_500_000_000_000 : nat;
+  ogy_transfer_fee = 200_000 : nat;
+  max_creation_retries = 3 : nat;
+  max_template_per_owner = 100 : nat;
+}})"
 
     CLAIMLINK_BACKEND_ID=$(dfx canister id claimlink_backend)
     print_success "ClaimLink Backend deployed: $CLAIMLINK_BACKEND_ID"
@@ -197,8 +206,8 @@ deploy_claimlink_backend() {
     # Fund the canister with cycles for collection creation
     echo ""
     echo "Funding ClaimLink Backend with cycles for development..."
-    dfx canister deposit-cycles 10000000000000 claimlink_backend --network local
-    print_success "Added 10T cycles to ClaimLink Backend"
+    dfx canister deposit-cycles 30000000000000 claimlink_backend --network local
+    print_success "Added 30T cycles to ClaimLink Backend"
 }
 
 # Generate frontend .env.local file
@@ -223,11 +232,11 @@ VITE_NFT_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_CERTIFICATE_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_LEDGER_CANISTER_ID=$OGY_LEDGER_ID
 
-# CRITICAL: Use local IC replica
-VITE_IC_HOST=http://localhost:8080
+# CRITICAL: Use local IC replica (port 4943 matches ORIGYN NFT test_mode URLs)
+VITE_IC_HOST=http://localhost:4943
 
 # NFID Configuration for localhost signing
-VITE_NFID_LOCALHOST_TARGETS=http://localhost:5173,http://localhost:8080
+VITE_NFID_LOCALHOST_TARGETS=http://localhost:5173,http://localhost:4943
 VITE_NFID_DERIVATION_ORIGIN=http://localhost:5173
 EOF
 

@@ -1,31 +1,68 @@
+// ============================================================================
+// Pages (Entry Points)
+// ============================================================================
+
+export { TemplatesPage } from './pages/templates-page'
+export { NewTemplatePage } from './pages/new-template-page'
+export { EditTemplatePage } from './pages/edit-template-page'
+
+// ============================================================================
 // Components
-export { TemplatesPage } from './components/templates-page'
+// ============================================================================
+
 export { TemplateCard } from './components/template-card'
-export { NewTemplatePage } from './components/new-template-page'
-export { EditTemplatePage } from './components/edit-template-page'
-export { ChooseTemplateStep } from './components/choose-template-step'
-export { EditTemplateStep } from './components/edit-template-step' // OLD: Keep for backwards compatibility
-export { EditTemplateStepV2 } from './components/edit-template-step-v2' // NEW: Data-driven template editor
 export { TemplateSectionCard } from './components/template-section-card'
 export { TemplateItemRow } from './components/template-item-row'
-export { PreviewDeployStep } from './components/preview-deploy-step'
-export { Stepper } from './components/stepper'
 
-// API / Service Layer
+// Creation workflow components
+export {
+  ChooseTemplateStep,
+  ChooseBackgroundStep,
+  UploadBackgroundStep,
+  EditTemplateStepV2,
+  PreviewDeployStep,
+  Stepper,
+} from './components/create'
+
+// ============================================================================
+// API Layer
+// ============================================================================
+
 export { TemplateService } from './api/templates.service'
 export {
   templateKeys,
-  useTemplates,
+  useMyTemplates,
   useTemplate,
-  useCollectionTemplate,
   useTemplatesByCategory,
+  useCreateTemplate,
   useFreeTemplates,
   usePremiumTemplates,
-  useSetCollectionTemplate,
 } from './api/templates.queries'
 
+// ============================================================================
+// Utilities
+// ============================================================================
+
+export {
+  serializeTemplateForOrigyn,
+  deserializeTemplateFromOrigyn,
+  hasTemplateStructure,
+  TEMPLATE_STRUCTURE_KEY,
+} from './utils/template-serializer'
+
+// ============================================================================
 // Types
-export type { CreateTemplateInput, TemplateCardProps, TemplateFilters, PaginationState } from './types/template.types'
+// ============================================================================
+
+export type {
+  Template,
+  CreateTemplateInput,
+  TemplateCardProps,
+  TemplateFilters,
+  PaginationState,
+  BackendTemplate,
+  TemplateJsonPayload,
+} from './types/template.types'
 export type {
   TemplateStructure,
   TemplateSection,
@@ -38,4 +75,9 @@ export type {
   TemplateLanguage,
   CertificateFormData,
   ValidationResult,
+} from './types/template.types'
+
+export {
+  transformBackendTemplate,
+  serializeTemplateToJson,
 } from './types/template.types'

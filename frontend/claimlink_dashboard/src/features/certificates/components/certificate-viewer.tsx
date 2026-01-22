@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { CertificateTabs, type CertificateTab } from "./certificate-tabs";
+import { CertificateTabs, type CertificateTab } from "./detail/certificate-tabs";
 import {
   CertificateEvents,
   type CertificateEventsData,
-} from "./certificate-events";
+} from "./detail/certificate-events";
 import {
   CertificateLedger,
   type CertificateLedgerData,
-} from "./certificate-ledger";
+} from "./detail/certificate-ledger";
 import { CertificateFrame } from "./certificate-frame";
 import { InformationFrame } from "./information-frame";
 import {
@@ -16,6 +16,8 @@ import {
   type ParsedOrigynMetadata,
   type RenderDataSource,
   type MetadataFieldValue,
+  resolveTokenAssetUrl,
+  resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
 
 /**
@@ -77,6 +79,8 @@ export interface TemplateData {
   tokenId: string;
   /** Language code for display */
   language?: string;
+  /** Whether to show placeholders for missing values (preview mode) */
+  showPlaceholders?: boolean;
 }
 
 interface CertificateViewerProps {
@@ -102,8 +106,8 @@ function NoDataPlaceholder({ tab }: { tab: string }) {
   };
 
   return (
-    <div className="bg-[#222526] px-16 py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[400px] flex items-center justify-center">
-      <p className="text-[#e1e1e1] text-xl">{messages[tab] || "No data available"}</p>
+    <div className="bg-[#222526] px-4 sm:px-16 py-6 sm:py-10 rounded-bl-[24px] rounded-br-[24px] w-full min-h-[300px] sm:min-h-[400px] flex items-center justify-center">
+      <p className="text-[#e1e1e1] text-base sm:text-xl text-center">{messages[tab] || "No data available"}</p>
     </div>
   );
 }
@@ -121,6 +125,7 @@ export function CertificateViewer({
     ? {
         type: 'onchain',
         metadata: templateData.metadata,
+        showPlaceholders: templateData.showPlaceholders,
       }
     : null;
 
@@ -172,8 +177,28 @@ export function CertificateViewer({
             lang
           );
 
-          // TODO: Extract gallery images from metadata.library when available
-          const galleryImages: Array<{ url: string; legend: string }> = [];
+          // Extract gallery images from metadata.library
+          const galleryImages: Array<{ url: string; legend: string }> =
+            templateData.metadata.library
+              .filter((item) => item.content_type?.startsWith('image/'))
+              .map((item) => {
+                // Check if library_id is already a full URL (from ClaimLink upload)
+                // or a relative path (needs URL resolution)
+                let url: string;
+                if (item.library_id.startsWith('http://') || item.library_id.startsWith('https://')) {
+                  // Already a full URL - use directly
+                  url = item.library_id;
+                } else {
+                  // Relative path - resolve to full URL
+                  url = item.location_type === 'collection'
+                    ? resolveCollectionAssetUrl(templateData.canisterId, item.library_id)
+                    : resolveTokenAssetUrl(templateData.canisterId, templateData.tokenId, item.library_id);
+                }
+                return {
+                  url,
+                  legend: item.title || item.filename || '',
+                };
+              });
 
           return (
             <InformationFrame

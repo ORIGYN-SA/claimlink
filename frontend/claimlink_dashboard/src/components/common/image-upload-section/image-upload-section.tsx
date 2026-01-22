@@ -1,4 +1,5 @@
 import { Upload, X } from 'lucide-react';
+import { isVideoFile, UPLOAD_CONFIG } from '@/shared/config/upload.config';
 
 interface ImageUploadSectionProps {
   previewUrl: string | null;
@@ -8,12 +9,22 @@ interface ImageUploadSectionProps {
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   uploadText?: string;
   acceptedFormats?: string;
+  /**
+   * Enable video file support in addition to images
+   * When true, accepts video files (MP4, WebM, MOV) up to 50MB
+   */
+  acceptVideo?: boolean;
+  /**
+   * The selected file (used for video preview detection)
+   */
+  selectedFile?: File | null;
 }
 
 /**
  * DUMB COMPONENT - Pure presentation
  * Receives all data and handlers via props
  * Reusable across collections, certificates, and other features
+ * Supports both image and video uploads with proper preview handling
  */
 export function ImageUploadSection({
   previewUrl,
@@ -23,11 +34,26 @@ export function ImageUploadSection({
   fileInputRef,
   uploadText = "Upload your image",
   acceptedFormats = "JPEG, PNG, SVG, PDF",
+  acceptVideo = false,
+  selectedFile,
 }: ImageUploadSectionProps) {
   const handleRemoveClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     onRemove();
   };
+
+  // Determine accept attribute based on whether video is enabled
+  const acceptAttribute = acceptVideo
+    ? UPLOAD_CONFIG.media.acceptString
+    : UPLOAD_CONFIG.image.acceptString;
+
+  // Check if the selected file is a video
+  const isVideo = selectedFile ? isVideoFile(selectedFile) : false;
+
+  // Default format text based on acceptVideo
+  const defaultFormats = acceptVideo
+    ? UPLOAD_CONFIG.media.formatLabel
+    : UPLOAD_CONFIG.image.formatLabel;
 
   return (
     <div className="flex gap-4 w-full">
@@ -35,15 +61,26 @@ export function ImageUploadSection({
       <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
         {previewUrl ? (
           <>
-            <img
-              src={previewUrl}
-              alt="Preview"
-              className="w-full h-full object-cover"
-            />
+            {isVideo ? (
+              <video
+                src={previewUrl}
+                className="w-full h-full object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+              />
+            ) : (
+              <img
+                src={previewUrl}
+                alt="Preview"
+                className="w-full h-full object-cover"
+              />
+            )}
             <button
               onClick={handleRemoveClick}
               className="absolute top-2 right-2 bg-[#222526] hover:bg-[#222526]/90 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-              aria-label="Remove image"
+              aria-label="Remove file"
             >
               <X className="w-4 h-4" />
             </button>
@@ -65,12 +102,12 @@ export function ImageUploadSection({
           {uploadText}
         </p>
         <p className="text-[#69737c] text-sm">
-          {acceptedFormats}
+          {acceptedFormats || defaultFormats}
         </p>
         <input
           ref={fileInputRef}
           type="file"
-          accept="image/jpeg,image/jpg,image/png,image/svg+xml,application/pdf"
+          accept={acceptAttribute}
           onChange={onFileSelect}
           className="hidden"
         />
@@ -78,4 +115,3 @@ export function ImageUploadSection({
     </div>
   );
 }
-

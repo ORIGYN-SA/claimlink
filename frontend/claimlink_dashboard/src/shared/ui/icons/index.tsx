@@ -28,6 +28,11 @@ import {
   Square3Stack3DIcon as SquareStack,
   ArrowTrendingDownIcon as TrendingDown,
   ArrowTrendingUpIcon as TrendingUp,
+  PencilSquareIcon as Pencil,
+  ArrowDownTrayIcon as Download,
+  ArrowPathRoundedSquareIcon as Reset,
+  CodeBracketIcon as Code,
+  Squares2X2Icon as Grid,
 } from "@heroicons/react/24/outline";
 import {
   ExclamationTriangleIcon as Warning,
@@ -132,6 +137,29 @@ const Insights = ({ size }: { size: number }) => {
   );
 };
 
+// Drag handle icon (grip dots pattern)
+const DragHandle = ({ className }: { className?: string }) => {
+  return (
+    <svg
+      width="10"
+      height="16"
+      viewBox="0 0 10 16"
+      fill="currentColor"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      {/* Left column of dots */}
+      <circle cx="2" cy="2" r="1.5" />
+      <circle cx="2" cy="8" r="1.5" />
+      <circle cx="2" cy="14" r="1.5" />
+      {/* Right column of dots */}
+      <circle cx="8" cy="2" r="1.5" />
+      <circle cx="8" cy="8" r="1.5" />
+      <circle cx="8" cy="14" r="1.5" />
+    </svg>
+  );
+};
+
 const Receipt = ({ size }: { size: number }) => {
   return (
     <svg
@@ -193,6 +221,12 @@ const Icon = {
   Receipt,
   TrendingDown,
   TrendingUp,
+  Pencil,
+  Download,
+  Reset,
+  Code,
+  Grid,
+  DragHandle,
 };
 
 export default Icon;

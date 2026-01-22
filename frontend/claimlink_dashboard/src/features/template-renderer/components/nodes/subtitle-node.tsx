@@ -16,7 +16,7 @@ export function SubTitleNode({ node }: SubTitleNodeProps) {
   const text = useLocalizedText(node.title);
 
   return (
-    <p className={cn('text-base text-[#5f5f5f]', node.className)}>
+    <p className={cn('text-sm sm:text-base text-[#5f5f5f]', node.className)}>
       {text}
     </p>
   );

@@ -33,6 +33,9 @@ origyn-nft-canister-c2c-client = { path = '../../../external_canisters/origyn_nf
 types = { path = "../../../libraries/types" }
 utils = { path = "../../../libraries/utils" }
 
+
+
+sha2 = { workspace = true }
 candid = { workspace = true }
 canfund = { workspace = true }
 minicbor = { workspace = true }
@@ -43,10 +46,17 @@ hex = { workspace = true }
 ic-cdk = { workspace = true }
 ic-cdk-macros = { workspace = true }
 ic-cdk-timers = { workspace = true }
+ic-canister-log = { workspace = true }
 ic-ledger-types = { workspace = true }
 ic-stable-structures = { workspace = true }
 ic0 = { workspace = true }
 icrc-ledger-types = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_bytes = { workspace = true }
+serde_json = { workspace = true }
 tracing = { workspace = true }
+
+
+[dev-dependencies]
+proptest="1.4.0"
+

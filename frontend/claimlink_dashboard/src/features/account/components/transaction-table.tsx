@@ -3,7 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Copy } from 'lucide-react';
 import { StandardizedListView } from '@/components/common/standardized-list-view';
 import { Pagination } from '@/components/common/pagination';
-import type { DisplayTransaction } from '../types/transaction-history.types';
+import type { DisplayTransaction } from '../types/account.types';
 
 interface TransactionTableProps {
   transactions: DisplayTransaction[];

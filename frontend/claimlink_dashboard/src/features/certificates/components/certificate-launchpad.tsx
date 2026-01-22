@@ -1,6 +1,8 @@
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { CertificateQRCode } from "./detail/certificate-qr-code";
+import { QRCodeService } from "../api/qr.service";
 
 interface CertificateLaunchpadProps {
   imageUrl: string;
@@ -11,7 +13,9 @@ interface CertificateLaunchpadProps {
   description: string;
   issuerLogo?: string;
   issuerName: string;
-  qrCodeUrl?: string;
+  qrCodeUrl?: string; // Deprecated: kept for backward compatibility
+  canisterId?: string; // Collection canister ID for QR generation
+  tokenId?: string; // Token ID for QR generation
   className?: string;
 }
 
@@ -24,9 +28,15 @@ export function CertificateLaunchpad({
   description,
   issuerLogo,
   issuerName,
-  qrCodeUrl,
+  qrCodeUrl, // Deprecated
+  canisterId,
+  tokenId,
   className,
 }: CertificateLaunchpadProps) {
+  // Generate QR code URL using new service (preferred method)
+  const qrValue = canisterId && tokenId
+    ? QRCodeService.getCertificateVerificationUrl(canisterId, tokenId)
+    : qrCodeUrl; // Fallback to old prop for backward compatibility
   return (
     <div
       className={cn(
@@ -96,12 +106,14 @@ export function CertificateLaunchpad({
 
               {/* Claim Certificate Card */}
               <div className="flex-1 bg-white border border-[#e1e1e1] rounded-2xl p-4 flex gap-4 items-center">
-                {qrCodeUrl && (
+                {qrValue && (
                   <div className="w-16 h-16 relative shrink-0">
-                    <img
-                      src={qrCodeUrl}
-                      alt="QR Code"
-                      className="w-full h-full object-contain"
+                    <CertificateQRCode
+                      value={qrValue}
+                      size={64}
+                      level="L"
+                      showLogo={false} // No logo at small size
+                      className="w-full h-full"
                     />
                   </div>
                 )}

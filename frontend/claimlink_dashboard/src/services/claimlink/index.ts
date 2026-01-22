@@ -1,15 +1,5 @@
-// Export hooks
-export { useListMyCollections, collectionKeys } from './hooks/useListMyCollections';
-export { useListAllCollections } from './hooks/useListAllCollections';
-export { useFetchCollectionInfo } from './hooks/useFetchCollectionInfo';
-export { useCreateCollection } from './hooks/useCreateCollection';
-export { useAllUserNfts } from './hooks/useAllUserNfts';
+// Export IDL factory and types only
+// Hooks and services have been migrated to @/features/collections
 
-// Export service
-export { CollectionService } from './api/collection.service';
-
-// Export types
+export { idlFactory } from './idlFactory';
 export type * from './interfaces';
-
-// Export transformers
-export * from './api/transformers';

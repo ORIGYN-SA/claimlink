@@ -23,25 +23,25 @@ export function AddTokenCard({
       <Card
         className={cn(
           "relative bg-[rgba(205,223,236,0.15)] border-dashed border-[#e1e1e1]",
-          "flex flex-col items-center justify-center p-3 gap-4 rounded-[16px]",
+          "flex flex-col items-center justify-center p-2 md:p-3 gap-3 md:gap-4 rounded-[16px]",
           "cursor-pointer hover:bg-[rgba(205,223,236,0.25)] transition-colors",
-          "h-[320px]",
+          "min-h-[260px] md:min-h-[320px] h-auto",
           className
         )}
         onClick={onClick}
       >
-        <div className="flex flex-col items-center gap-3.5 w-[226px]">
+        <div className="flex flex-col items-center gap-2 md:gap-3.5 w-full max-w-[226px] px-2">
           {/* Plus Icon */}
-          <div className="w-10 h-10 flex items-center justify-center bg-[#e1e1e1] rounded-full">
-            <Plus className="w-6 h-6 text-[#69737c]" />
+          <div className="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center bg-[#e1e1e1] rounded-full">
+            <Plus className="w-5 h-5 md:w-6 md:h-6 text-[#69737c]" />
           </div>
 
           {/* Content */}
-          <div className="flex flex-col items-center text-center w-full gap-2">
-            <h3 className="text-[14px] font-medium text-[#061937] tracking-[0.7px] uppercase leading-[23px]">
+          <div className="flex flex-col items-center text-center w-full gap-1 md:gap-2">
+            <h3 className="text-[12px] md:text-[14px] font-medium text-[#061937] tracking-[0.7px] uppercase leading-tight md:leading-[23px]">
               {title}
             </h3>
-            <p className="text-[13px] font-light text-[#69737c] leading-normal">
+            <p className="text-[11px] md:text-[13px] font-light text-[#69737c] leading-normal">
               {description}
             </p>
           </div>

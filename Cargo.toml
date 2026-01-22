@@ -32,6 +32,7 @@ hex = "0.4.3"
 ic-cdk = "0.18.5"
 ic-cdk-macros = "0.18.5"
 ic-cdk-timers = "0.12.2"
+ic-canister-log = "0.2.0"
 ic-ledger-types = "0.15.0"
 ic-stable-structures = "0.6.9"
 ic-transport-types = "0.41.0"
@@ -63,7 +64,7 @@ time = { version = "0.3.36", features = [
 
 # Bity crates
 bity-ic-candid-gen = "0.1.0"
-bity-ic-canister-client = "0.2.4"
+bity-ic-canister-client = "0.2.5"
 bity-ic-canister-logger = "0.2.0"
 bity-ic-canister-state-macros = "0.1.0"
 bity-ic-canister-time = "0.2.1"
@@ -75,3 +76,4 @@ bity-ic-storage-canister-api = "0.2.0"
 bity-ic-subcanister-manager = "0.3.1"
 bity-ic-types = "0.1.0"
 bity-ic-utils = "0.2.0"
+

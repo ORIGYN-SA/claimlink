@@ -4,11 +4,15 @@
  * Dynamic template rendering system for ORIGYN NFT certificates.
  *
  * Exports:
+ * - Atoms: Jotai state management (NEW - migrated from Context)
  * - Components: TemplateRenderer, TemplateBlock, individual nodes
  * - Hooks: useTemplateContext, useFieldValue, useFileArray, etc.
  * - Utils: URL resolution, date formatting, template conversion
  * - Types: All ORIGYN template types
  */
+
+// Atoms (NEW - Jotai state management)
+export * from './atoms';
 
 // Components
 export {
@@ -55,7 +59,6 @@ export {
   isExpired,
   isExpiringSoon,
   // Template Conversion
-  convertToOrigynTemplate,
   convertToFormTemplate,
   convertFieldValueToOrigyn,
   convertFormDataToOrigynMetadata,

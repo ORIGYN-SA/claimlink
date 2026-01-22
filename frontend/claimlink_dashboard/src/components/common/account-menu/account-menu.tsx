@@ -7,7 +7,7 @@ import { UserProfileSection } from "./user-profile-section";
 import { WalletBalanceSection } from "./wallet-balance-section";
 import { LastTransactionSection } from "./last-transaction-section";
 import { useAuth } from "@/features/auth/hooks/useAuth";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   useMultiTokenBalance,
   SUPPORTED_TOKENS,
@@ -31,6 +31,7 @@ export function AccountMenu({
 }: AccountMenuProps) {
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const navigate = useNavigate();
+  const router = useRouter();
   const {
     disconnect,
     principalId,
@@ -103,6 +104,13 @@ export function AccountMenu({
 
   const handleSignOut = () => {
     disconnect();
+    onOpenChange(false);
+
+    // Invalidate router state and navigate to login
+    // This ensures route loaders re-run with updated auth context
+    router.invalidate().then(() => {
+      navigate({ to: "/login" });
+    });
   };
 
   const handleWithdrawClick = () => {

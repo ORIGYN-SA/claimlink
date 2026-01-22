@@ -5,6 +5,6 @@ pub use claimlink_api::queries::get_collection_count::{
 
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
-pub fn get_collection_count(_args: GetCollectionCountArgs) -> GetCollectionCountResponse {
-    read_state(|state| state.data.collections.borrow().len() as u64)
+pub fn get_collection_count() -> GetCollectionCountResponse {
+    read_state(|state| state.data.collection_requests.len() as u64)
 }

@@ -17,7 +17,7 @@ import type {
   BadgeItem,
   ImageItem,
   TemplateLanguage,
-} from '@/features/templates/types/template-structure.types';
+} from '@/features/templates/types/template.types';
 
 import type {
   TemplateNode,
@@ -373,13 +373,11 @@ export function convertFormDataToOrigynMetadata(
   for (const [fieldId, value] of Object.entries(formData)) {
     // Find the field definition to determine type
     let isLanguageField = true;
-    let isDateField = false;
 
     for (const section of structure.sections) {
       const item = section.items.find((i) => i.id === fieldId);
       if (item && item.type === 'input') {
-        const inputItem = item as InputItem;
-        isDateField = inputItem.inputType === 'number'; // Dates might be stored as numbers
+        // Field type checking could be extended here if needed
       }
     }
 

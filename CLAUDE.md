@@ -4,11 +4,20 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ClaimLink is an NFT and Certificate minting platform built on the Internet Computer (ICP). It consists of a Rust-based backend canister system and a React/TypeScript frontend dashboard. The project uses a monorepo structure managed with Cargo workspaces (backend) and pnpm (frontend).
+ClaimLink is a certificate minting platform built on the Internet Computer (ICP). It consists of a Rust-based backend canister system and a React/TypeScript frontend dashboard. The project uses a monorepo structure managed with Cargo workspaces (backend) and pnpm (frontend).
 
-**Two Token Types:**
-- **Certificates**: Integrator-only, verified real-world assets (gold, diamonds, watches) with ORIGYN badge
-- **NFTs**: Public minting, digital collectibles
+**Token Architecture:**
+All tokens in ClaimLink are ORIGYN NFTs (ICRC-7 standard) at the technical level. They represent verified real-world assets (gold, diamonds, watches) with the ORIGYN badge.
+
+**Naming Convention (Important!):**
+- **Backend/IC APIs**: Use "NFT" terminology (e.g., `get_nft_details`, `NftDetails`, `get_collection_nfts`)
+  - This reflects the technical reality - all tokens are ORIGYN NFTs implementing ICRC-7 standard
+- **Frontend/UI**: Use "Certificate" terminology (e.g., `Certificate` type, `MintCertificatePage`)
+  - This reflects the business domain - tokens represent certified real-world assets
+- **Service/Transform Layer**: Bridges between NFT (technical) and Certificate (business) domains
+  - Example: `transformNftDetailsToCertificate()` converts IC API responses to frontend types
+
+This dual naming is **intentional** and should be maintained. There is only ONE token type, just different terminology at different layers.
 
 ## Essential Commands
 
@@ -196,7 +205,7 @@ const [isOpen, setIsOpen] = useState(false);
 const authState = useAtom(authStateAtom);
 
 // Layer 3: Server State (TanStack Query)
-const { data } = useNFTs();
+const { data } = useCertificates();
 ```
 
 **Rules:**
@@ -210,18 +219,23 @@ Always use the service layer for IC canister interactions:
 
 ```typescript
 // features/[feature]/api/[feature].service.ts - Business logic
-export class NFTService {
-  static async fetchNFTs(): Promise<NFT[]> {
+// Note: Service layer may use "NFT" terminology when calling IC APIs,
+// then transform to "Certificate" types for frontend consumption
+export class CertificatesService {
+  static async fetchCertificates(): Promise<Certificate[]> {
     const actor = Actor.createActor(idlFactory, { agent, canisterId });
-    return await actor.get_nfts();
+    // IC API uses "nft" terminology (technical layer)
+    const nftDetails = await actor.get_nft_details({ token_ids });
+    // Transform to Certificate type (business layer)
+    return nftDetails.map(transformNftDetailsToCertificate);
   }
 }
 
 // features/[feature]/api/[feature].queries.ts - React Query hooks
-export const useNFTs = () => {
+export const useCertificates = () => {
   return useQuery({
-    queryKey: nftKeys.list(),
-    queryFn: () => NFTService.fetchNFTs(),
+    queryKey: certificatesKeys.list(),
+    queryFn: () => CertificatesService.fetchCertificates(),
   });
 };
 ```
@@ -297,9 +311,9 @@ Route tree is auto-generated in `routeTree.gen.ts` by TanStack Router plugin. **
 
 - **Components**: kebab-case (`token-card.tsx`)
 - **Routes**: kebab-case or snake_case matching URL (`mint_certificate.tsx`)
-- **Hooks**: camelCase with "use" prefix (`useFetchNFTs.tsx`)
-- **Services**: kebab-case with suffix (`nfts.service.ts`, `nfts.queries.ts`)
-- **Types**: kebab-case with suffix (`token.types.ts`)
+- **Hooks**: camelCase with "use" prefix (`useCertificates.tsx`)
+- **Services**: kebab-case with suffix (`certificates.service.ts`, `certificates.queries.ts`)
+- **Types**: kebab-case with suffix (`certificate.types.ts`)
 
 ### Design System
 

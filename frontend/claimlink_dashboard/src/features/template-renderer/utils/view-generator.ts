@@ -15,7 +15,7 @@ import type {
   TemplateSection,
   TemplateItem,
   ImageItem,
-} from '@/features/templates/types/template-structure.types';
+} from "@/features/templates/types/template.types";
 
 import type {
   TemplateNode,
@@ -24,39 +24,39 @@ import type {
   TitleNode,
   TextNode,
   ValueFieldNode,
-  FieldNode,
   SeparatorNode,
   CollectionImageNode,
   GalleryNode,
+  ImageNode,
+  VideoNode,
   FormTemplateCategory,
   LocalizedContent,
   TemplateLanguageConfig,
-} from '../types';
+} from "../types";
 
-import {
-  convertToOrigynTemplate,
-  convertToFormTemplate,
-} from './template-converter';
+import { convertToFormTemplate } from "./template-converter";
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
 function generateNodeId(): string {
-  return Math.random().toString(36).substring(2, 15) +
-    Math.random().toString(36).substring(2, 15);
+  return (
+    Math.random().toString(36).substring(2, 15) +
+    Math.random().toString(36).substring(2, 15)
+  );
 }
 
 function toLocalizedContent(
   text: string,
-  languages: TemplateLanguageConfig[] = [{ key: 'en', name: 'English' }]
+  languages: TemplateLanguageConfig[] = [{ key: "en", name: "English" }],
 ): LocalizedContent {
   const content: LocalizedContent = {};
   languages.forEach((lang) => {
     content[lang.key] = text;
   });
-  if (!content['en']) {
-    content['en'] = text;
+  if (!content["en"]) {
+    content["en"] = text;
   }
   return content;
 }
@@ -77,109 +77,153 @@ function toLocalizedContent(
  */
 function generateCertificateTemplate(
   structure: TemplateStructure,
-  languages: TemplateLanguageConfig[]
+  languages: TemplateLanguageConfig[],
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
 
-  // Certificate title
-  nodes.push({
-    id: generateNodeId(),
-    type: 'text',
-    className: 'certificateTitleText',
-    text: toLocalizedContent('Made In Italy Certificate', languages),
-  } as TextNode);
-
-  // Collection logo
-  nodes.push({
-    id: generateNodeId(),
-    type: 'collectionImage',
-    className: 'certificateLogoImg',
-    libId: 'certificatelogo.png',
-  } as CollectionImageNode);
-
-  // Find key fields from sections
-  const certificateSection = structure.sections.find(
-    (s) => s.name === 'Certificate' || s.name === 'Certificate Introduction'
+  // Find Certificate section (order: 1) - needed early to get title
+  const certificateSection: TemplateSection | undefined = structure.sections.find(
+    (s) => s.name === "Certificate",
   );
 
-  if (certificateSection) {
-    // Add key fields
-    certificateSection.items
-      .filter((item) => item.type !== 'image')
-      .slice(0, 6) // Limit to first 6 fields
-      .forEach((item) => {
-        // Title
-        nodes.push({
-          id: generateNodeId(),
-          type: 'title',
-          title: toLocalizedContent(item.label, languages),
-        } as TitleNode);
-
-        // Value
-        nodes.push({
-          id: generateNodeId(),
-          type: 'valueField',
-          className: item.id === 'company_name' ? 'companyName' : undefined,
-          fields: [item.id],
-        } as ValueFieldNode);
-      });
-  }
-
-  // Add certification expiration if exists
-  const aboutSection = structure.sections.find((s) => s.name === 'About');
-  if (aboutSection) {
-    const expirationField = aboutSection.items.find(
-      (i) => i.label.toLowerCase().includes('expiration') ||
-             i.label.toLowerCase().includes('valid')
-    );
-    if (expirationField) {
-      nodes.push({
-        id: generateNodeId(),
-        type: 'title',
-        title: toLocalizedContent('Certification Valid Until', languages),
-      } as TitleNode);
-
-      nodes.push({
-        id: generateNodeId(),
-        type: 'valueField',
-        fields: [expirationField.id],
-      } as ValueFieldNode);
-    }
-  }
-
-  // Certified by section
+  // Collection logo (with bottom margin to match static layout)
   nodes.push({
     id: generateNodeId(),
-    type: 'title',
-    title: toLocalizedContent('Certified by', languages),
+    type: "collectionImage",
+    className: "certificateLogoImg h-12 object-contain mb-[100px]",
+    libId: "certificatelogo.png",
+  } as CollectionImageNode);
+
+  // Certificate title (extract from template structure or use default)
+  const titleItem: TemplateItem | undefined = certificateSection?.items.find((i) => i.type === "title");
+  const certificateTitle =
+    (titleItem as any)?.defaultValue || titleItem?.label || "Certificate";
+
+  nodes.push({
+    id: generateNodeId(),
+    type: "title",
+    className: "mainTitle",
+    title: toLocalizedContent(certificateTitle, languages),
   } as TitleNode);
 
-  nodes.push({
-    id: generateNodeId(),
-    type: 'text',
-    className: 'h5text',
-    text: toLocalizedContent('ORIGYN', languages),
-  } as TextNode);
+  if (certificateSection) {
+    // Container for all fields with gap-10
+    const fieldsContainer: ElementsNode = {
+      id: generateNodeId(),
+      type: "elements",
+      className: "flex flex-col gap-10 items-center justify-center w-full",
+      content: [],
+    };
 
-  // Signature
-  nodes.push({
+    // Add key fields from Certificate section
+    const certFields: TemplateItem[] = certificateSection.items
+      .filter(
+        (item) =>
+          item.type !== "image" &&
+          item.type !== "title" &&
+          item.type !== "badge",
+      )
+      .slice(0, 8); // Show up to 8 fields
+
+    certFields.forEach((item: TemplateItem) => {
+        // First field gets larger spacing (gap-4, py-2) to emphasize it as the main asset/name
+        const isFirstField: boolean =
+          certificateSection.items.indexOf(item) === 0 || item.order === 1;
+        const isNameField: boolean = item.id.includes("name");
+        const isMainField: boolean = isFirstField || isNameField;
+
+        const fieldGroup: ElementsNode = {
+          id: generateNodeId(),
+          type: "elements",
+          className: `flex flex-col ${isMainField ? "gap-4" : "gap-1"} items-center text-center w-full ${isMainField ? "py-2" : ""}`,
+          content: [
+            // Title/Label
+            {
+              id: generateNodeId(),
+              type: "title",
+              title: toLocalizedContent(item.label, languages),
+            } as TitleNode,
+            // Value
+            {
+              id: generateNodeId(),
+              type: "valueField",
+              className: isMainField ? "companyName" : undefined,
+              fields: [item.id],
+            } as ValueFieldNode,
+          ],
+        };
+
+        fieldsContainer.content!.push(fieldGroup);
+      });
+
+    nodes.push(fieldsContainer);
+  }
+
+  // Signature Section with gap-2, py-4, mt-6
+  const signatureSection: ElementsNode = {
     id: generateNodeId(),
-    type: 'collectionImage',
-    className: 'signatureImage',
-    libId: 'signature.png',
-  } as CollectionImageNode);
+    type: "elements",
+    className: "flex flex-col gap-2 items-center w-full py-4 mt-6",
+    content: [
+      // Signature image
+      {
+        id: generateNodeId(),
+        type: "collectionImage",
+        className: "signatureImage h-[100px] w-[178px] object-contain",
+        libId: "signature.png",
+      } as CollectionImageNode,
+      // Certified by field group (gap-1)
+      {
+        id: generateNodeId(),
+        type: "elements",
+        className: "flex flex-col gap-1 items-center text-center w-full",
+        content: [
+          {
+            id: generateNodeId(),
+            type: "title",
+            title: toLocalizedContent("Certified by", languages),
+          } as TitleNode,
+          {
+            id: generateNodeId(),
+            type: "text",
+            className: "text-[24px] font-medium leading-8 text-[#222526]",
+            text: toLocalizedContent("ORIGYN", languages),
+          } as TextNode,
+        ],
+      } as ElementsNode,
+    ],
+  };
+
+  nodes.push(signatureSection);
+
+  // ORIGYN Logo Bottom with gap-4, mt-10, mb-6
+  const origynLogoSection: ElementsNode = {
+    id: generateNodeId(),
+    type: "elements",
+    className: "flex flex-col gap-4 items-center mt-10 mb-6",
+    content: [
+      {
+        id: generateNodeId(),
+        type: "collectionImage",
+        className: "h-[90px] w-[92px] object-contain",
+        libId: "origynlogo.png",
+      } as CollectionImageNode,
+    ],
+  };
+
+  nodes.push(origynLogoSection);
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {
     id: generateNodeId(),
-    type: 'elements',
+    type: "elements",
     content: nodes,
   };
 
   const columnsNode: ColumnsNode = {
     id: generateNodeId(),
-    type: 'columns',
-    columns: { columns: '1', smColumns: '1' },
+    type: "columns",
+    columns: { columns: "1", smColumns: "1" },
     content: [elementsNode],
   };
 
@@ -201,59 +245,61 @@ function generateCertificateTemplate(
  */
 function generateUserViewTemplate(
   structure: TemplateStructure,
-  languages: TemplateLanguageConfig[]
+  languages: TemplateLanguageConfig[],
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
 
-  // Find primary identifier field
-  const certificateSection = structure.sections.find(
-    (s) => s.name === 'Certificate' || s.name === 'Certificate Introduction'
+  // Find Certificate section
+  const certificateSection: TemplateSection | undefined = structure.sections.find(
+    (s) => s.name === "Certificate",
   );
 
-  const primaryField = certificateSection?.items.find(
-    (i) => i.label.toLowerCase().includes('name') ||
-           i.label.toLowerCase().includes('company') ||
-           i.label.toLowerCase().includes('title')
+  const primaryField: TemplateItem | undefined = certificateSection?.items.find(
+    (i) =>
+      i.label.toLowerCase().includes("name") ||
+      i.label.toLowerCase().includes("company") ||
+      i.label.toLowerCase().includes("title"),
   );
 
   if (primaryField) {
     nodes.push({
       id: generateNodeId(),
-      type: 'title',
+      type: "title",
       title: toLocalizedContent(primaryField.label, languages),
     } as TitleNode);
 
     nodes.push({
       id: generateNodeId(),
-      type: 'valueField',
+      type: "valueField",
       fields: [primaryField.id],
     } as ValueFieldNode);
   }
 
   nodes.push({
     id: generateNodeId(),
-    type: 'separator',
+    type: "separator",
   } as SeparatorNode);
 
   // Certification valid until
   nodes.push({
     id: generateNodeId(),
-    type: 'title',
-    title: toLocalizedContent('Certification valid until', languages),
+    type: "title",
+    title: toLocalizedContent("Certification valid until", languages),
   } as TitleNode);
 
   // Look for expiration field
-  const allItems = structure.sections.flatMap((s) => s.items);
-  const expirationField = allItems.find(
-    (i) => i.label.toLowerCase().includes('expiration') ||
-           i.label.toLowerCase().includes('valid') ||
-           i.label.toLowerCase().includes('expires')
+  const allItems: TemplateItem[] = structure.sections.flatMap((s) => s.items);
+  const expirationField: TemplateItem | undefined = allItems.find(
+    (i) =>
+      i.label.toLowerCase().includes("expiration") ||
+      i.label.toLowerCase().includes("valid") ||
+      i.label.toLowerCase().includes("expires"),
   );
 
   if (expirationField) {
     nodes.push({
       id: generateNodeId(),
-      type: 'valueField',
+      type: "valueField",
       fields: [expirationField.id],
     } as ValueFieldNode);
   }
@@ -261,27 +307,27 @@ function generateUserViewTemplate(
   // Certifications badge
   nodes.push({
     id: generateNodeId(),
-    type: 'title',
-    title: toLocalizedContent('Certifications', languages),
+    type: "title",
+    title: toLocalizedContent("Certifications", languages),
   } as TitleNode);
 
   nodes.push({
     id: generateNodeId(),
-    type: 'collectionImage',
-    libId: 'certimage.png',
+    type: "collectionImage",
+    libId: "certimage.png",
   } as CollectionImageNode);
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {
     id: generateNodeId(),
-    type: 'elements',
+    type: "elements",
     content: nodes,
   };
 
   const columnsNode: ColumnsNode = {
     id: generateNodeId(),
-    type: 'columns',
-    columns: { columns: '1', smColumns: '1' },
+    type: "columns",
+    columns: { columns: "1", smColumns: "1" },
     content: [elementsNode],
   };
 
@@ -293,106 +339,148 @@ function generateUserViewTemplate(
 // ============================================================================
 
 /**
- * Generate the full experience page template
+ * Generate the full experience page template (Information tab)
  *
  * Layout:
  * - Collection logo
- * - Video (if available)
- * - About section with full text
- * - Gallery
- * - All other content
- * - Attachments
+ * - Information section content (text fields, galleries, etc.)
+ * - About, experience, and additional details
+ *
+ * Maps to: Information tab
  */
 function generateExperienceTemplate(
   structure: TemplateStructure,
-  languages: TemplateLanguageConfig[]
+  languages: TemplateLanguageConfig[],
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
 
   // Collection logo at top
   nodes.push({
     id: generateNodeId(),
-    type: 'collectionImage',
-    className: 'collectionlogo',
-    libId: 'collectionlogo.png',
+    type: "collectionImage",
+    className: "collectionlogo",
+    libId: "collectionlogo.png",
   } as CollectionImageNode);
 
   nodes.push({
     id: generateNodeId(),
-    type: 'separator',
+    type: "separator",
   } as SeparatorNode);
 
-  // Process sections in order
-  const sortedSections = [...structure.sections].sort((a, b) => a.order - b.order);
+  // Find Information section (order: 2)
+  const informationSection: TemplateSection | undefined = structure.sections.find(
+    (s) => s.name === "Information",
+  );
 
-  sortedSections.forEach((section) => {
-    // Find image galleries
-    const galleryItems = section.items.filter(
-      (i) => i.type === 'image' && (i as ImageItem).multiple
-    );
+  if (informationSection) {
+    // Sort items by order
+    const sortedItems = [...informationSection.items].sort((a, b) => a.order - b.order);
 
-    // Find text/about content
-    const textItems = section.items.filter(
-      (i) => i.type === 'input' &&
-             (i.label.toLowerCase().includes('about') ||
-              i.label.toLowerCase().includes('description') ||
-              i.label.toLowerCase().includes('process'))
-    );
+    // Process all items in the Information section
+    sortedItems.forEach((item: TemplateItem) => {
+      // Handle input fields (text, textarea, number, etc.)
+      if (item.type === "input") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
 
-    // Add text sections with title
-    textItems.forEach((item) => {
-      nodes.push({
-        id: generateNodeId(),
-        type: 'title',
-        title: toLocalizedContent(item.label, languages),
-      } as TitleNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "valueField",
+          className: (item as any).inputType === "textarea" ? "expirianceTextBlock" : undefined,
+          fields: [item.id],
+        } as ValueFieldNode);
 
-      nodes.push({
-        id: generateNodeId(),
-        type: 'valueField',
-        className: 'expirianceTextBlock',
-        fields: [item.id],
-      } as ValueFieldNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle badge fields
+      else if (item.type === "badge") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
 
-      nodes.push({
-        id: generateNodeId(),
-        type: 'separator',
-      } as SeparatorNode);
+        nodes.push({
+          id: generateNodeId(),
+          type: "valueField",
+          fields: [item.id],
+        } as ValueFieldNode);
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle image galleries
+      else if (item.type === "image") {
+        const imageItem = item as ImageItem;
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
+
+        if (imageItem.multiple) {
+          // Gallery for multiple images
+          nodes.push({
+            id: generateNodeId(),
+            type: "gallery",
+            pointer: item.id,
+            field: item.id,
+          } as GalleryNode);
+        } else {
+          // Single image
+          nodes.push({
+            id: generateNodeId(),
+            type: "image",
+            field: item.id,
+          } as ImageNode);
+        }
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle video fields
+      else if (item.type === "video") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "video",
+          field: item.id,
+        } as VideoNode);
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
     });
-
-    // Add galleries
-    galleryItems.forEach((item) => {
-      nodes.push({
-        id: generateNodeId(),
-        type: 'title',
-        title: toLocalizedContent(item.label, languages),
-      } as TitleNode);
-
-      nodes.push({
-        id: generateNodeId(),
-        type: 'gallery',
-        pointer: item.id,
-        field: item.id,
-      } as GalleryNode);
-
-      nodes.push({
-        id: generateNodeId(),
-        type: 'separator',
-      } as SeparatorNode);
-    });
-  });
+  }
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {
     id: generateNodeId(),
-    type: 'elements',
+    type: "elements",
     content: nodes,
   };
 
   const columnsNode: ColumnsNode = {
     id: generateNodeId(),
-    type: 'columns',
-    columns: { columns: '1', smColumns: '1' },
+    type: "columns",
+    columns: { columns: "1", smColumns: "1" },
     content: [elementsNode],
   };
 
@@ -428,20 +516,23 @@ export interface GeneratedOrigynViews {
  * @returns All 4 ORIGYN views plus metadata
  */
 export function generateOrigynViews(
-  structure: TemplateStructure
+  structure: TemplateStructure,
 ): GeneratedOrigynViews {
   // Convert languages to ORIGYN format
-  const languages: TemplateLanguageConfig[] = structure.languages?.map((lang) => ({
-    key: lang.code,
-    name: lang.name,
-  })) || [{ key: 'en', name: 'English' }];
+  const languages: TemplateLanguageConfig[] = structure.languages?.map(
+    (lang) => ({
+      key: lang.code,
+      name: lang.name,
+    }),
+  ) || [{ key: "en", name: "English" }];
 
   // Find a suitable search field (usually company/product name)
-  const allItems = structure.sections.flatMap((s) => s.items);
-  const searchField = allItems.find(
-    (i) => i.label.toLowerCase().includes('name') ||
-           i.label.toLowerCase().includes('company') ||
-           i.label.toLowerCase().includes('title')
+  const allItems: TemplateItem[] = structure.sections.flatMap((s) => s.items);
+  const searchField: string | undefined = allItems.find(
+    (i) =>
+      i.label.toLowerCase().includes("name") ||
+      i.label.toLowerCase().includes("company") ||
+      i.label.toLowerCase().includes("title"),
   )?.id;
 
   return {
@@ -458,12 +549,14 @@ export function generateOrigynViews(
  * Generate only the certificate template view
  */
 export function generateCertificateView(
-  structure: TemplateStructure
+  structure: TemplateStructure,
 ): TemplateNode[] {
-  const languages: TemplateLanguageConfig[] = structure.languages?.map((lang) => ({
-    key: lang.code,
-    name: lang.name,
-  })) || [{ key: 'en', name: 'English' }];
+  const languages: TemplateLanguageConfig[] = structure.languages?.map(
+    (lang) => ({
+      key: lang.code,
+      name: lang.name,
+    }),
+  ) || [{ key: "en", name: "English" }];
 
   return generateCertificateTemplate(structure, languages);
 }
@@ -471,13 +564,13 @@ export function generateCertificateView(
 /**
  * Generate only the user view template
  */
-export function generateUserView(
-  structure: TemplateStructure
-): TemplateNode[] {
-  const languages: TemplateLanguageConfig[] = structure.languages?.map((lang) => ({
-    key: lang.code,
-    name: lang.name,
-  })) || [{ key: 'en', name: 'English' }];
+export function generateUserView(structure: TemplateStructure): TemplateNode[] {
+  const languages: TemplateLanguageConfig[] = structure.languages?.map(
+    (lang) => ({
+      key: lang.code,
+      name: lang.name,
+    }),
+  ) || [{ key: "en", name: "English" }];
 
   return generateUserViewTemplate(structure, languages);
 }
@@ -486,12 +579,14 @@ export function generateUserView(
  * Generate only the experience template
  */
 export function generateExperienceView(
-  structure: TemplateStructure
+  structure: TemplateStructure,
 ): TemplateNode[] {
-  const languages: TemplateLanguageConfig[] = structure.languages?.map((lang) => ({
-    key: lang.code,
-    name: lang.name,
-  })) || [{ key: 'en', name: 'English' }];
+  const languages: TemplateLanguageConfig[] = structure.languages?.map(
+    (lang) => ({
+      key: lang.code,
+      name: lang.name,
+    }),
+  ) || [{ key: "en", name: "English" }];
 
   return generateExperienceTemplate(structure, languages);
 }
