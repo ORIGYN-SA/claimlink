@@ -20,6 +20,18 @@ pub enum CreateTemplateError {
 }
 
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum UpdateTemplateError {
+    JsonError(String),
+    TemplateNotFound,
+    UnauthorizedCall,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum DeleteTemplateError {
+    UnauthorizedCall,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum GetTemplatesByOwnerError {
     UnauthorizedCall,
 }

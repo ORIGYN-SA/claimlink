@@ -61,6 +61,10 @@ impl StableStorage {
         }
     }
 
+    pub fn delete_nft_template(&mut self, template_id: NftTemplateId) {
+        self.templates.remove(&template_id);
+    }
+
     pub fn get_template(&self, temaplte_id: &NftTemplateId) -> Option<NftTemplateBytes> {
         self.templates.get(temaplte_id)
     }
