@@ -273,43 +273,33 @@ export class CertificatesService {
   /**
    * Update certificate metadata
    *
-   * Note: This method attempts to update token metadata on ORIGYN NFT canister.
-   * The actual capability depends on the ORIGYN NFT implementation.
-   * Some fields may be immutable after minting.
+   * Calls update_nft_metadata on the ORIGYN NFT canister to update token metadata.
    *
    * @param agent - Authenticated agent
    * @param canisterId - Collection canister ID
    * @param tokenId - Token ID to update
    * @param metadata - New metadata values
-   * @throws Error if update is not supported or fails
+   * @returns The token ID on success
+   * @throws Error if update fails
    */
   static async updateCertificate(
     agent: Agent,
     canisterId: string,
     tokenId: bigint,
     metadata: Array<[string, ICRC3Value]>
-  ): Promise<void> {
+  ): Promise<bigint> {
     const actor = this.createActor(agent, canisterId);
 
-    // Attempt to call update_token_metadata if available
-    // Note: This may not be supported by all ORIGYN NFT versions
-    try {
-      // @ts-ignore - update_token_metadata may not be in types
-      const result = await actor.update_token_metadata?.({
-        token_id: tokenId,
-        metadata: metadata,
-      });
+    const result = await actor.update_nft_metadata({
+      token_id: tokenId,
+      metadata,
+    });
 
-      if (result && 'Err' in result) {
-        throw new Error(`Update failed: ${Object.keys(result.Err)[0]}`);
-      }
-    } catch (error) {
-      console.error('[CertificatesService.updateCertificate] Update not supported:', error);
-      throw new Error(
-        'Certificate metadata update is not supported by this collection. ' +
-        'Most fields are immutable after minting.'
-      );
+    if ('Err' in result) {
+      throw new Error(`Update failed: ${Object.keys(result.Err)[0]}`);
     }
+
+    return result.Ok;
   }
 
   /**

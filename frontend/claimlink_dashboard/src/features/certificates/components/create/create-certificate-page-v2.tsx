@@ -21,7 +21,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { certificateCreatorAtom } from "@/features/certificates/atoms/certificate-creator.atom";
 import type { Template } from "@/shared/data/templates";
-import type { CertificateFormData } from "@/features/templates/types/template.types";
+import type { CertificateFormData, TemplateStructure as TemplateStructureType } from "@/features/templates/types/template.types";
+import type { MetadataFieldValue, FileReference } from "@/features/template-renderer/types/origyn-template.types";
 import {
   validateFormData,
   getTemplateProgress,
@@ -35,28 +36,45 @@ import {
 } from "@/features/certificates";
 import { useCollectionTemplate } from "@/features/collections";
 import { mockTemplates } from "@/shared/data/templates";
-import type { TemplateStructure } from "@/features/templates/types/template.types";
 
 /**
  * Reconstruct CertificateFormData from parsed on-chain metadata
+ *
+ * Handles MetadataFieldValue objects by extracting the actual string content,
+ * preventing [object Object] from appearing in form inputs.
  */
 function reconstructFormData(
-  metadata: Record<string, any>,
-  template: TemplateStructure,
+  metadata: Record<string, MetadataFieldValue | FileReference[] | string>,
+  template: TemplateStructureType,
 ): CertificateFormData {
   const formData: CertificateFormData = {};
 
-  // Iterate through template items and extract values from metadata
   template.sections.forEach((section) => {
     section.items.forEach((item) => {
       const value = metadata[item.id];
+      if (value === undefined || value === null) return;
 
-      if (value !== undefined && value !== null) {
-        // For file/image fields, keep URL references
-        if (item.type === "image" && typeof value === "string") {
-          formData[item.id] = value; // URL string
-        } else {
-          formData[item.id] = value;
+      if (typeof value === 'string') {
+        formData[item.id] = value;
+      } else if (Array.isArray(value)) {
+        // FileReference[] - for image fields, use the first file's path
+        if (item.type === 'image' && value.length > 0) {
+          formData[item.id] = (value[0] as FileReference).path;
+        }
+      } else if (typeof value === 'object' && 'content' in value) {
+        // MetadataFieldValue - extract the actual string
+        const content = (value as MetadataFieldValue).content;
+        if (typeof content === 'string') {
+          formData[item.id] = content;
+        } else if (typeof content === 'object' && content !== null) {
+          // LocalizedContent: { en: "...", fr: "..." } or DateContent: { date: number }
+          if ('date' in content) {
+            formData[item.id] = String(content.date);
+          } else {
+            formData[item.id] = (content as Record<string, string>)['en']
+              || Object.values(content)[0]
+              || '';
+          }
         }
       }
     });
@@ -129,7 +147,7 @@ export function CreateCertificatePageV2({
 
       // Get template from collection metadata (stored TemplateStructure)
       // Fall back to mock templates for legacy collections
-      let templateStructure: TemplateStructure | null = collectionTemplateStructure ?? null;
+      let templateStructure: TemplateStructureType | null = collectionTemplateStructure ?? null;
 
       if (!templateStructure) {
         // Legacy fallback: try to find a mock template that matches

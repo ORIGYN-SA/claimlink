@@ -38,6 +38,7 @@ export {
   useAllUserNfts,
   useCreateCollection,
   useCollectionTemplate,
+  useUpdateCollectionMetadata,
   // Note: useSetCollectionTemplate is deprecated - templates are now linked via template_id during collection creation
 } from './api/collections.queries';
 

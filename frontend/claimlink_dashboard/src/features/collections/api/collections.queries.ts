@@ -401,6 +401,75 @@ export const useSetCollectionTemplate = (options?: UseSetCollectionTemplateOptio
   });
 };
 
+interface UseUpdateCollectionMetadataOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+interface UpdateCollectionMetadataArgs {
+  collectionCanisterId: string;
+  name?: string;
+  description?: string;
+  logoFile?: File;
+}
+
+/**
+ * Hook to update collection metadata (name, description, logo)
+ *
+ * Optionally uploads a new logo file, then calls updateCollectionMetadata
+ * with the changed fields.
+ */
+export const useUpdateCollectionMetadata = (options?: UseUpdateCollectionMetadataOptions) => {
+  const { authenticatedAgent, isConnected } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ collectionCanisterId, name, description, logoFile }: UpdateCollectionMetadataArgs) => {
+      if (!authenticatedAgent) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!isConnected) {
+        throw new Error('Wallet not connected');
+      }
+
+      let logoUrl: string | undefined;
+
+      // Upload new logo if provided
+      if (logoFile) {
+        logoUrl = await CollectionsService.uploadLogoToCollection(
+          authenticatedAgent,
+          collectionCanisterId,
+          logoFile
+        );
+      }
+
+      // Update metadata with changed fields
+      const updates: { logo?: string; name?: string; description?: string } = {};
+      if (logoUrl) updates.logo = logoUrl;
+      if (name !== undefined) updates.name = name;
+      if (description !== undefined) updates.description = description;
+
+      if (Object.keys(updates).length > 0) {
+        await CollectionsService.updateCollectionMetadata(
+          authenticatedAgent,
+          collectionCanisterId,
+          updates
+        );
+      }
+    },
+    onSuccess: (_, { collectionCanisterId }) => {
+      queryClient.invalidateQueries({ queryKey: collectionKeys.detail(collectionCanisterId) });
+      queryClient.invalidateQueries({ queryKey: collectionKeys.all });
+      options?.onSuccess?.();
+    },
+    onError: (error: Error) => {
+      console.error('Failed to update collection metadata:', error);
+      options?.onError?.(error);
+    },
+  });
+};
+
 interface UseCreateCollectionOptions {
   onSuccess?: (canisterId: string) => void;
   onError?: (error: Error) => void;
