@@ -5,10 +5,14 @@ use claimlink_api::queries::{
     get_metrics, get_nft_details, get_templates_by_owner,
     /* get_user_nfts, */ list_all_collections,
 };
-use claimlink_api::updates::{create_collection, create_template};
+use claimlink_api::updates::{
+    create_collection, create_template, delete_template, update_template,
+};
 
 generate_update_call!(create_collection);
 generate_update_call!(create_template);
+generate_update_call!(delete_template);
+generate_update_call!(update_template);
 
 generate_query_call!(list_all_collections);
 generate_query_call!(get_collection_info);

@@ -15,7 +15,6 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::Upgrade(upgrade_args) => state
             .upgrade(upgrade_args.clone())
             .expect("applying upgrade event should succeed"),
-
         EventType::RecordedWasm(wasm_hash) => state.data.origyn_nft_wasm_hash = *wasm_hash,
         EventType::CreateCollectionRequest {
             metadata,
@@ -80,6 +79,9 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         } => state
             .data
             .record_uploaded_template(*ogy_payment_index, template_url.to_string()),
+        EventType::DeletedTemplate { template_id, owner } => {
+            state.data.record_deleted_template(*template_id, *owner)
+        }
     }
 }
 

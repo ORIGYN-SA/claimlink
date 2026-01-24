@@ -8,7 +8,6 @@ use crate::{
     },
 };
 use candid::{Nat, Principal};
-
 pub use claimlink_api::{
     create_template::{CreateTemplateArgs, Response as CreateTemplateResponse},
     errors::CreateTemplateError,

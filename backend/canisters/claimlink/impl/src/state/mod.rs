@@ -1,4 +1,5 @@
 use bity_ic_canister_state_macros::canister_state;
+
 use bity_ic_types::BuildVersion;
 use bity_ic_utils::memory::MemorySize;
 use candid::Principal;
@@ -467,6 +468,12 @@ impl Data {
             self.template_owners.insert(owner, vec![template_id]);
         }
         self.next_template_id += 1;
+    }
+
+    pub fn record_deleted_template(&mut self, template_id: NftTemplateId, owner: Principal) {
+        if let Some(templates) = self.template_owners.get_mut(&owner) {
+            templates.retain(|id| *id != template_id);
+        }
     }
 
     pub fn get_template_ids_by_owner(&self, owner: &Principal) -> Vec<NftTemplateId> {

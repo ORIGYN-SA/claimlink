@@ -91,6 +91,13 @@ pub enum EventType {
         #[cbor(n(1), with = "claimlink_api::cbor::principal")]
         owner: Principal,
     },
+    #[n(13)]
+    DeletedTemplate {
+        #[n(0)]
+        template_id: NftTemplateId,
+        #[cbor(n(1), with = "claimlink_api::cbor::principal")]
+        owner: Principal,
+    },
 }
 
 #[derive(Encode, Decode, Debug, PartialEq, Eq)]
