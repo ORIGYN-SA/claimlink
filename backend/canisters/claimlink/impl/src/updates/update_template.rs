@@ -16,7 +16,7 @@ pub fn update_template(args: UpdateTemplateArgs) -> UpdateTemplateResponse {
     let caller = ic_cdk::api::msg_caller();
 
     let template_id: NftTemplateId = args.template_id.0.try_into().expect("Invlaid template id");
-    if read_state(|s| s.data.owns_template(&caller, template_id)) {
+    if !read_state(|s| s.data.owns_template(&caller, template_id)) {
         return Err(UpdateTemplateError::UnauthorizedCall);
     };
 

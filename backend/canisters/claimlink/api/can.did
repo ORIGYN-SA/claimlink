@@ -77,6 +77,7 @@ type CyclesManagement = record {
   cycles_top_up_increment : nat;
   cycles_for_collection_creation : nat;
 };
+type DeleteTemplateError = variant { UnauthorizedCall };
 type GenericError = variant { Other : text };
 type GetCollectionNftsArgs = record {
   prev : opt nat;
@@ -95,7 +96,6 @@ type GetTemplatesByOwnerArgs = record {
   owner : principal;
   pagination : PaginationArgs;
 };
-type GetTemplatesByOwnerError = variant { UnauthorizedCall };
 type ICRC3Value = variant {
   Int : int;
   Map : BTreeMap;
@@ -149,10 +149,9 @@ type NftDetails = record {
 type PaginationArgs = record { offset : opt nat64; limit : opt nat64 };
 type Result = variant { Ok : nat; Err : CreateCollectionError };
 type Result_1 = variant { Ok : nat; Err : CreateTemplateError };
-type Result_2 = variant {
-  Ok : TemplatesResult;
-  Err : GetTemplatesByOwnerError;
-};
+type Result_2 = variant { Ok; Err : DeleteTemplateError };
+type Result_3 = variant { Ok : TemplatesResult; Err : DeleteTemplateError };
+type Result_4 = variant { Ok; Err : UpdateTemplateError };
 type Template = record { template_json : text; template_id : nat };
 type TemplatesResult = record { templates : vec Template; total_count : nat64 };
 type TransferFromError = variant {
@@ -165,6 +164,15 @@ type TransferFromError = variant {
   CreatedInFuture : record { ledger_time : nat64 };
   TooOld;
   InsufficientFunds : record { balance : nat };
+};
+type UpdateTemplateArgs = record {
+  new_tempalte_json : text;
+  template_id : nat;
+};
+type UpdateTemplateError = variant {
+  UnauthorizedCall;
+  JsonError : text;
+  TemplateNotFound;
 };
 type UpgradeArgs = record {
   origyn_nft_wasm_hash : opt text;
@@ -182,6 +190,7 @@ type UpgradeArgs = record {
 service : (ClaimlinkArgs) -> {
   create_collection : (CreateCollectionArgs) -> (Result);
   create_template : (CreateTemplateArgs) -> (Result_1);
+  delete_template : (nat) -> (Result_2);
   get_collection_count : () -> (nat64) query;
   get_collection_info : (CollectionSearchParam) -> (opt CollectionInfo) query;
   get_collection_nfts : (GetCollectionNftsArgs) -> (vec nat) composite_query;
@@ -190,6 +199,7 @@ service : (ClaimlinkArgs) -> {
     ) query;
   get_metrics : () -> (Metrics) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
-  get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_2) query;
+  get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_3) query;
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
+  update_template : (UpdateTemplateArgs) -> (Result_4);
 }

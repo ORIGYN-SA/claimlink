@@ -56,9 +56,7 @@ impl StableStorage {
         temaplte_id: NftTemplateId,
         template_bytes: NftTemplateBytes,
     ) {
-        if !self.templates.contains_key(&temaplte_id) {
-            self.templates.insert(temaplte_id, template_bytes);
-        }
+        self.templates.insert(temaplte_id, template_bytes);
     }
 
     pub fn delete_nft_template(&mut self, template_id: NftTemplateId) {
