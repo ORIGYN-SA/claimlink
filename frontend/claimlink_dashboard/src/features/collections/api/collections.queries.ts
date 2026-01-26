@@ -39,6 +39,13 @@ interface UseListMyCollectionsOptions {
  *
  * Also fetches logo URLs from ORIGYN NFT canisters for each collection.
  */
+/**
+ * Hook to fetch collections owned by the current user
+ *
+ * Data sources:
+ * - ClaimLink backend: Registry data (owner, status, creation date)
+ * - ORIGYN NFT canister: Authoritative source for name, description, logo
+ */
 export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
   const { authenticatedAgent, principalId, isConnected } = useAuth();
   const { offset, limit, enabled = true } = options || {};
@@ -57,23 +64,29 @@ export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
         limit
       );
 
-      // Fetch logos for all collections in parallel
-      // Only fetch for collections that have a valid canister ID (not numeric collection_id)
-      const collectionsWithLogos = await Promise.all(
+      // Fetch ORIGYN data (name, description, logo) for all collections in parallel
+      // ORIGYN is authoritative for editable metadata
+      const collectionsWithOrigynData = await Promise.all(
         result.collections.map(async (collection) => {
-          // Skip logo fetch for collections that don't have a deployed canister yet
+          // Skip ORIGYN fetch for collections that don't have a deployed canister yet
           if (collection.id.length <= 10) {
             return collection;
           }
 
           try {
-            const logoUrl = await CollectionsService.getCollectionLogo(
-              authenticatedAgent,
-              collection.id
-            );
-            return { ...collection, imageUrl: logoUrl };
+            const [origynInfo, logoUrl] = await Promise.all([
+              CollectionsService.getOrigynCollectionInfo(authenticatedAgent, collection.id),
+              CollectionsService.getCollectionLogo(authenticatedAgent, collection.id),
+            ]);
+
+            return {
+              ...collection,
+              title: origynInfo.name || collection.title,
+              description: origynInfo.description ?? collection.description,
+              imageUrl: logoUrl,
+            };
           } catch {
-            // If logo fetch fails, return collection without logo
+            // If ORIGYN fetch fails, return collection with ClaimLink data
             return collection;
           }
         })
@@ -81,7 +94,7 @@ export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
 
       return {
         ...result,
-        collections: collectionsWithLogos,
+        collections: collectionsWithOrigynData,
       };
     },
     enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
@@ -99,7 +112,9 @@ interface UseListAllCollectionsOptions {
 /**
  * Hook to fetch all collections in the system
  *
- * Also fetches logo URLs from ORIGYN NFT canisters for each collection.
+ * Data sources:
+ * - ClaimLink backend: Registry data (owner, status, creation date)
+ * - ORIGYN NFT canister: Authoritative source for name, description, logo
  */
 export const useListAllCollections = (options?: UseListAllCollectionsOptions) => {
   const { unauthenticatedAgent } = useAuth();
@@ -118,20 +133,27 @@ export const useListAllCollections = (options?: UseListAllCollectionsOptions) =>
         limit
       );
 
-      // Fetch logos for all collections in parallel
-      const collectionsWithLogos = await Promise.all(
+      // Fetch ORIGYN data (name, description, logo) for all collections in parallel
+      // ORIGYN is authoritative for editable metadata
+      const collectionsWithOrigynData = await Promise.all(
         result.collections.map(async (collection) => {
-          // Skip logo fetch for collections that don't have a deployed canister yet
+          // Skip ORIGYN fetch for collections that don't have a deployed canister yet
           if (collection.id.length <= 10) {
             return collection;
           }
 
           try {
-            const logoUrl = await CollectionsService.getCollectionLogo(
-              unauthenticatedAgent,
-              collection.id
-            );
-            return { ...collection, imageUrl: logoUrl };
+            const [origynInfo, logoUrl] = await Promise.all([
+              CollectionsService.getOrigynCollectionInfo(unauthenticatedAgent, collection.id),
+              CollectionsService.getCollectionLogo(unauthenticatedAgent, collection.id),
+            ]);
+
+            return {
+              ...collection,
+              title: origynInfo.name || collection.title,
+              description: origynInfo.description ?? collection.description,
+              imageUrl: logoUrl,
+            };
           } catch {
             return collection;
           }
@@ -140,7 +162,7 @@ export const useListAllCollections = (options?: UseListAllCollectionsOptions) =>
 
       return {
         ...result,
-        collections: collectionsWithLogos,
+        collections: collectionsWithOrigynData,
       };
     },
     enabled: enabled && !!unauthenticatedAgent,
@@ -157,7 +179,11 @@ interface UseFetchCollectionInfoOptions {
 /**
  * Hook to fetch detailed information about a specific collection
  *
- * Fetches both ClaimLink backend metadata and ORIGYN NFT logo in parallel.
+ * Data sources:
+ * - ClaimLink backend: Registry data (owner, status, creation date)
+ * - ORIGYN NFT canister: Authoritative source for name, description, logo
+ *
+ * ORIGYN values take precedence for editable fields (name, description).
  */
 export const useFetchCollectionInfo = (options: UseFetchCollectionInfoOptions) => {
   const { unauthenticatedAgent } = useAuth();
@@ -172,9 +198,12 @@ export const useFetchCollectionInfo = (options: UseFetchCollectionInfoOptions) =
 
       const principal = Principal.fromText(canisterId);
 
-      // Fetch collection info and logo in parallel
-      const [collection, logoUrl] = await Promise.all([
+      // Fetch from all sources in parallel:
+      // - ClaimLink: registry data (owner, status, dates)
+      // - ORIGYN: authoritative name/description and logo
+      const [collection, origynInfo, logoUrl] = await Promise.all([
         CollectionsService.getCollectionInfo(unauthenticatedAgent, principal),
+        CollectionsService.getOrigynCollectionInfo(unauthenticatedAgent, canisterId),
         CollectionsService.getCollectionLogo(unauthenticatedAgent, canisterId),
       ]);
 
@@ -182,9 +211,11 @@ export const useFetchCollectionInfo = (options: UseFetchCollectionInfoOptions) =
         throw new Error('Collection not found');
       }
 
-      // Merge logo URL into collection
+      // Merge: ORIGYN values take precedence for name/description
       return {
         ...collection,
+        title: origynInfo.name || collection.title,
+        description: origynInfo.description ?? collection.description,
         imageUrl: logoUrl,
       };
     },

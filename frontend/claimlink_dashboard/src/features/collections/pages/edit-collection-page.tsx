@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
 import { toast } from 'sonner';
 import { useFetchCollectionInfo, useUpdateCollectionMetadata } from '../api/collections.queries';
 import { EditCollectionFormSection } from '../components/form/edit-collection-form-section';
@@ -15,6 +16,8 @@ interface EditCollectionPageProps {
  * to persist changes to the ORIGYN NFT canister.
  */
 export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
+  const navigate = useNavigate();
+
   // Fetch real collection data
   const { data: collection, isLoading, isError } = useFetchCollectionInfo({
     canisterId: collectionId,
@@ -42,6 +45,7 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
   const updateMutation = useUpdateCollectionMetadata({
     onSuccess: () => {
       toast.success('Collection updated successfully');
+      navigate({ to: '/collections/$collectionId', params: { collectionId } });
     },
     onError: (error) => {
       toast.error(`Failed to update collection: ${error.message}`);

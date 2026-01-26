@@ -226,6 +226,11 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
                 <h2 className="text-xl font-medium text-foreground mb-3">
                   {collection.title}
                 </h2>
+                {collection.description && (
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {collection.description}
+                  </p>
+                )}
                 <Badge variant="secondary" className="text-xs">
                   Deployed
                 </Badge>

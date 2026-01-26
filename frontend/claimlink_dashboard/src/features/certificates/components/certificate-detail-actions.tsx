@@ -108,7 +108,7 @@ export function CertificateDetailActions({
             {/* Edit Certificate Button */}
             <button
               onClick={onEditTemplate}
-              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
+              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
             >
               <span className="text-[14px] font-normal text-[#222526]">
                 Edit Certificate
@@ -121,7 +121,7 @@ export function CertificateDetailActions({
             {/* Log New Event Button */}
             <button
               onClick={onLogEvent}
-              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
+              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
             >
               <span className="text-[14px] font-normal text-[#222526]">
                 Log New Event

@@ -282,17 +282,26 @@ export function CreateCertificatePageV2({
 
     // Extract file fields from form data
     // DynamicTemplateForm stores files directly as File or File[] (not wrapped in { file: File })
-    const newFileFields = new Map<string, File[]>();
+    // Also handle URL strings (existing images from on-chain data)
+    const newFileFields = new Map<string, (File | string)[]>();
     Object.entries(data).forEach(([key, value]) => {
       // Handle single File object directly
       if (value instanceof File) {
         newFileFields.set(key, [value]);
       }
-      // Handle array of File objects
+      // Handle URL string (existing image from on-chain data)
+      else if (typeof value === "string" && value.startsWith("http")) {
+        newFileFields.set(key, [value]);
+      }
+      // Handle array of File objects or URL strings
       else if (Array.isArray(value) && value.length > 0) {
-        const files = value.filter((item): item is File => item instanceof File);
-        if (files.length > 0) {
-          newFileFields.set(key, files);
+        const filesOrUrls = value.filter(
+          (item): item is File | string =>
+            item instanceof File ||
+            (typeof item === "string" && item.startsWith("http"))
+        );
+        if (filesOrUrls.length > 0) {
+          newFileFields.set(key, filesOrUrls);
         }
       }
       // Legacy support: Handle wrapped { file: File } objects
@@ -304,9 +313,10 @@ export function CreateCertificatePageV2({
       }
     });
 
-    // Update file fields in state
-    newFileFields.forEach((files, key) => {
-      dispatch({ type: "SET_FILE_FIELD", field: key, files });
+    // Update file fields in state (cast to File[] for backward compatibility)
+    // The actual File vs string distinction is handled in the mutation
+    newFileFields.forEach((filesOrUrls, key) => {
+      dispatch({ type: "SET_FILE_FIELD", field: key, files: filesOrUrls as File[] });
     });
   };
 

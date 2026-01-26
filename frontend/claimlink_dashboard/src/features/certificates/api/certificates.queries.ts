@@ -174,8 +174,8 @@ interface MintCertificateWithTemplateArgs {
   template: TemplateStructure;
   /** Form data collected from the user */
   formData: CertificateFormData;
-  /** Files to upload (field ID -> File array) */
-  files?: Map<string, File[]>;
+  /** Files to upload (field ID -> File array, can include URL strings for existing files) */
+  files?: Map<string, (File | string)[]>;
   /** Override name (optional, extracted from formData if not provided) */
   name?: string;
   /** Override description (optional, extracted from formData if not provided) */
@@ -210,6 +210,12 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
 
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
+
+            // Skip URL strings (shouldn't appear during minting, but handle for type safety)
+            if (typeof file === 'string') {
+              refs.push({ id: file, path: file });
+              continue;
+            }
 
             // Upload file with progress tracking
             const uploadedUrl = await CertificatesService.uploadCertificateFile(

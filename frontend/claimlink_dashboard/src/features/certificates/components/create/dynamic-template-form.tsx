@@ -305,6 +305,13 @@ export function DynamicTemplateForm({
 
     // Get preview URLs and track which are videos
     const previews = files.map((file) => {
+      // Handle URL strings (existing images from on-chain data)
+      if (typeof file === 'string') {
+        const ext = file.split('.').pop()?.toLowerCase();
+        const isVideo = ['mp4', 'webm', 'mov', 'avi'].includes(ext || '');
+        return { url: file, isVideo };
+      }
+      // Handle File objects (new uploads)
       if (file instanceof File) {
         const isVideo = isVideoFile(file);
         if (file.type.startsWith('image/') || isVideo) {
