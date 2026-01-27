@@ -53,6 +53,8 @@ export function CertificateDetailPage({
         canisterId,
         tokenId,
         language: 'en',
+        // Include background from template structure if available
+        background: templateStructure?.background,
       };
     }
 
@@ -89,6 +91,8 @@ export function CertificateDetailPage({
           canisterId,
           tokenId,
           language: 'en',
+          // Include background from template structure
+          background: templateStructure.background,
         };
       } catch (error) {
         console.error('Failed to generate template views:', error);

@@ -68,6 +68,8 @@ export const PublicCertificatePage = ({
         canisterId,
         tokenId: token,
         language: "en",
+        // Include background from template structure if available
+        background: templateStructure?.background,
       };
     }
 
@@ -103,6 +105,8 @@ export const PublicCertificatePage = ({
           canisterId,
           tokenId: token,
           language: "en",
+          // Include background from template structure
+          background: templateStructure.background,
         };
       } catch (error) {
         console.error("Failed to generate template views:", error);
