@@ -20,6 +20,8 @@ import {
 import {
   useDashboardStatusCounts,
   useDashboardRecentCertificates,
+  useDashboardRecentOwners,
+  useDashboardSentCertificates,
 } from "../api/dashboard.queries";
 import type { Certificate } from "@/features/certificates/types/certificate.types";
 
@@ -48,17 +50,14 @@ export function DashboardPage({ className }: DashboardPageProps) {
     error: certificatesError,
   } = useDashboardRecentCertificates(9);
 
-  // Mock data for sections we're not touching (Last Certificate Owners and Last Sent Certificates)
-  const certificateOwners = [
-    { title: "John Doe", date: "20 Feb, 2024" },
-    { title: "Jane Smith", date: "19 Feb, 2024" },
-    { title: "Bob Johnson", date: "18 Feb, 2024" },
-  ];
+  // Fetch real data for certificate owners and sent certificates
+  const {
+    data: certificateOwners = [],
+  } = useDashboardRecentOwners(5);
 
-  const sentCertificates = [
-    { title: "Sample Certificate 1", date: "20 Feb, 2024" },
-    { title: "Sample Certificate 2", date: "19 Feb, 2024" },
-  ];
+  const {
+    data: sentCertificates = [],
+  } = useDashboardSentCertificates(5);
 
   const handleCertificateClick = (certificate: Certificate) => {
     // Navigate to certificate detail page with format: collectionId:tokenId

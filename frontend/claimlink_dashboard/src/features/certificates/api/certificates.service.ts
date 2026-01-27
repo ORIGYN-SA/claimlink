@@ -17,6 +17,18 @@ export class CertificatesService {
   }
 
   /**
+   * Sanitize a filename to be safe for use in file paths.
+   * Removes special characters, spaces, and normalizes the name.
+   */
+  private static sanitizeFilename(filename: string): string {
+    return filename
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '_')  // Replace special chars with underscore
+      .replace(/_+/g, '_')             // Remove consecutive underscores
+      .replace(/^_|_$/g, '');          // Remove leading/trailing underscores
+  }
+
+  /**
    * Normalize an asset URL returned by the backend to the correct format.
    *
    * The backend may return URLs in various formats:
@@ -189,8 +201,9 @@ export class CertificatesService {
     onProgress?: (progress: number) => void,
   ): Promise<string> {
     const CHUNK_SIZE = 1024 * 1024; // 1MB chunks - DO NOT INCREASE (IC message size limit)
-    // Prefix filename with timestamp to avoid conflicts (same pattern as NFT repo)
-    const filePath = `${Date.now()}_${file.name}`;
+    // Prefix filename with timestamp and sanitize to avoid conflicts (same pattern as NFT repo)
+    const sanitizedName = this.sanitizeFilename(file.name);
+    const filePath = `${Date.now()}_${sanitizedName}`;
     const fileSize = BigInt(file.size);
 
     console.log('[Upload Debug] Starting upload:', {

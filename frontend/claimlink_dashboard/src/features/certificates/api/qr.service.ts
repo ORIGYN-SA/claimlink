@@ -31,8 +31,8 @@ export class QRCodeService {
       return `https://${frontendCanisterId}.icp0.io/certificate/${collectionId}:${tokenId}`;
     }
 
-    // Development: Use localhost
-    return `http://localhost:5173/certificate/${collectionId}:${tokenId}`;
+    // Development: Use current origin for flexibility
+    return `${window.location.origin}/certificate/${collectionId}:${tokenId}`;
   }
 
   /**

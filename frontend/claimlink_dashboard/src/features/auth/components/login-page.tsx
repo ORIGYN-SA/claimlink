@@ -2,7 +2,6 @@
 import { useEffect } from 'react'
 import { useNavigate, useSearch } from '@tanstack/react-router'
 import { WalletConnectionSection } from "./wallet-connection-section"
-import { IntegratorLoginSection } from "./integrator-login-section"
 import { LoginFooter } from "./login-footer"
 import { useAuth } from '../hooks/useAuth'
 
@@ -85,10 +84,7 @@ export function LoginPage() {
           
           {/* Wallet Connection Section */}
           <WalletConnectionSection />
-          
-          {/* Integrator Login Section */}
-          <IntegratorLoginSection />
-          
+
           {/* Footer */}
           <LoginFooter />
         </div>

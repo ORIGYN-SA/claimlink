@@ -12,14 +12,14 @@ const navItems: {
     icon: <LayoutGrid />,
   },
   {
-    title: "Collections",
-    url: "/collections",
-    icon: <Layers />,
-  },
-  {
     title: "Templates",
     url: "/templates",
     icon: <BookCopy />,
+  },
+  {
+    title: "Collections",
+    url: "/collections",
+    icon: <Layers />,
   },
   {
     title: "Mint Certificate",

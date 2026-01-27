@@ -14,7 +14,7 @@ type Step = 'choose' | 'background' | 'edit' | 'preview';
 type EditorMode = 'ui' | 'code';
 
 const STEPS_PRESET: Step[] = ['choose', 'background', 'edit', 'preview'];
-const STEPS_SCRATCH: Step[] = ['choose', 'edit', 'preview'];
+const STEPS_SCRATCH: Step[] = ['choose', 'background', 'edit', 'preview'];
 
 const stepLabels: Record<Step, string> = {
   choose: 'Choose template',
@@ -109,7 +109,7 @@ export function NewTemplatePage() {
     if (template.category === 'manual' || template.id === 'from_scratch') {
       setIsScratchMode(true);
       setEditorMode('ui'); // Start with UI editor by default
-      setCurrentStep('edit'); // Skip background, go directly to edit step
+      setCurrentStep('background'); // Include background step for scratch mode too
     } else {
       setIsScratchMode(false);
       setCurrentStep('background');
