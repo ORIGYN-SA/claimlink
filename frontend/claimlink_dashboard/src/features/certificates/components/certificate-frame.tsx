@@ -1,5 +1,6 @@
 import stampStandard from "@assets/stamp_standard.svg";
 import logoTransparent from "@assets/logo_transparent.svg";
+import type { TemplateBackground } from "@/features/templates/types/template.types";
 
 interface CertificateFrameProps {
   /** Company logo URL (displayed in header, inverted to white) */
@@ -10,6 +11,8 @@ interface CertificateFrameProps {
   children: React.ReactNode;
   /** Additional CSS classes */
   className?: string;
+  /** Background configuration (custom image/video or standard gradient) */
+  background?: TemplateBackground;
 }
 
 /**
@@ -27,7 +30,10 @@ export function CertificateFrame({
   tokenId,
   children,
   className = "",
+  background,
 }: CertificateFrameProps) {
+  const hasCustomBackground = background?.type === 'custom' && background.dataUri;
+  const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
   return (
     <div
       className={`bg-[#fcfafa] rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full ${className}`}
@@ -41,16 +47,40 @@ export function CertificateFrame({
             {/* Navy Header Background - positioned behind header content */}
             <div className="absolute top-0 left-0 right-0 h-[100px] sm:h-[156px] bg-[#061937] rounded-t-2xl" />
 
-            {/* Gradient Background at Bottom */}
-            <div className="absolute bottom-0 left-0 right-0 h-[300px] sm:h-[400px] overflow-hidden opacity-60">
-              <div
-                className="absolute inset-0"
-                style={{
-                  background:
-                    "radial-gradient(ellipse at center bottom, rgba(168,237,234,0.4) 0%, rgba(254,214,227,0.3) 30%, rgba(210,153,194,0.2) 50%, transparent 70%)",
-                }}
-              />
-            </div>
+            {/* Background - Custom image/video or standard gradient */}
+            {hasCustomBackground ? (
+              <div className="absolute inset-0 overflow-hidden rounded-2xl">
+                {isVideoBackground ? (
+                  <video
+                    src={background.dataUri}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    muted
+                    loop
+                    playsInline
+                    autoPlay
+                  />
+                ) : (
+                  <img
+                    src={background.dataUri}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                {/* Overlay for readability */}
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/30" />
+              </div>
+            ) : (
+              /* Standard Gradient Background at Bottom */
+              <div className="absolute bottom-0 left-0 right-0 h-[300px] sm:h-[400px] overflow-hidden opacity-60">
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      "radial-gradient(ellipse at center bottom, rgba(168,237,234,0.4) 0%, rgba(254,214,227,0.3) 30%, rgba(210,153,194,0.2) 50%, transparent 70%)",
+                  }}
+                />
+              </div>
+            )}
 
             {/* Certificate Content */}
             <div className="relative z-10 px-4 sm:px-16 pt-10 sm:pt-16 pb-6 sm:pb-10 flex flex-col items-center">

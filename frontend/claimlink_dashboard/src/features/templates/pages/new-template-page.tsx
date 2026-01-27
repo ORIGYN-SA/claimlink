@@ -8,7 +8,7 @@ import { ChooseBackgroundStep } from '../components/create/choose-background-ste
 import { EditTemplateStepV2 } from '../components/create/edit-template-step-v2';
 import { PreviewDeployStep } from '../components/create/preview-deploy-step';
 import { useCreateTemplate } from '../api/templates.queries';
-import type { Template } from '../types/template.types';
+import type { Template, TemplateBackground } from '../types/template.types';
 
 type Step = 'choose' | 'background' | 'edit' | 'preview';
 type EditorMode = 'ui' | 'code';
@@ -117,7 +117,29 @@ export function NewTemplatePage() {
   };
 
   const handleDeploy = async (template: Template) => {
-    await createTemplateMutation.mutateAsync(template);
+    // Build background configuration from selected template state
+    let background: TemplateBackground = { type: 'standard' };
+
+    if (selectedTemplate?.backgroundType === 'custom' && selectedTemplate.customBackgroundImage) {
+      background = {
+        type: 'custom',
+        dataUri: selectedTemplate.customBackgroundImage,
+        mediaType: selectedTemplate.customBackgroundImage.startsWith('data:video') ? 'video' : 'image',
+      };
+    }
+
+    // Merge background into template structure before saving
+    const templateWithBackground: Template = {
+      ...template,
+      structure: template.structure
+        ? {
+            ...template.structure,
+            background,
+          }
+        : undefined,
+    };
+
+    await createTemplateMutation.mutateAsync(templateWithBackground);
   };
 
   const handleBackgroundSelect = (backgroundType: 'standard' | 'custom', customImage?: string) => {

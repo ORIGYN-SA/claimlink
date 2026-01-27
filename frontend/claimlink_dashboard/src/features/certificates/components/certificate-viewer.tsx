@@ -19,6 +19,7 @@ import {
   resolveTokenAssetUrl,
   resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
+import type { TemplateBackground } from "@/features/templates/types/template.types";
 
 /**
  * Helper to extract string value from metadata field
@@ -81,6 +82,8 @@ export interface TemplateData {
   language?: string;
   /** Whether to show placeholders for missing values (preview mode) */
   showPlaceholders?: boolean;
+  /** Background configuration for certificate rendering */
+  background?: TemplateBackground;
 }
 
 interface CertificateViewerProps {
@@ -144,6 +147,7 @@ export function CertificateViewer({
             <CertificateFrame
               companyLogo={companyLogo}
               tokenId={templateData.tokenId}
+              background={templateData.background}
             >
               <TemplateRenderer
                 template={templateData.certificateTemplate}

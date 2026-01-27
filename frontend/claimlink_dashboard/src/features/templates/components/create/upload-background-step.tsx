@@ -1,9 +1,14 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { UPLOAD_CONFIG, isVideoFile, validateFile } from '@/shared/config/upload.config';
+import { UPLOAD_CONFIG, isVideoFile, validateFileType } from '@/shared/config/upload.config';
+import {
+  compressImageToDataUri,
+  validateVideoSize,
+  MAX_BACKGROUND_SIZE_BYTES,
+} from '@/shared/utils/image-compression';
 
 interface UploadBackgroundStepProps {
   onNext: (customImage: string) => void;
@@ -16,27 +21,56 @@ export function UploadBackgroundStep({
 }: UploadBackgroundStepProps) {
   const [uploadedMedia, setUploadedMedia] = useState<string>('');
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [wasCompressed, setWasCompressed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const isVideo = uploadedFile ? isVideoFile(uploadedFile) : false;
+  const maxSizeMB = (MAX_BACKGROUND_SIZE_BYTES / (1024 * 1024)).toFixed(1);
 
-  const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file using centralized config
-    const validation = validateFile(file, 'media');
-    if (!validation.valid) {
-      toast.error(validation.message || 'Invalid file');
+    // Validate file type using centralized config
+    const typeValidation = validateFileType(file, 'media');
+    if (!typeValidation.valid) {
+      toast.error(typeValidation.message || 'Invalid file type');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setUploadedMedia(reader.result as string);
+    setIsCompressing(true);
+    setWasCompressed(false);
+
+    try {
+      let dataUri: string;
+
+      if (isVideoFile(file)) {
+        // Videos cannot be compressed - validate size strictly
+        dataUri = await validateVideoSize(file, MAX_BACKGROUND_SIZE_BYTES);
+      } else {
+        // Compress images to fit within limit
+        const result = await compressImageToDataUri(file, MAX_BACKGROUND_SIZE_BYTES);
+        dataUri = result.dataUri;
+
+        if (result.wasCompressed) {
+          setWasCompressed(true);
+          const originalMB = (result.originalSize / (1024 * 1024)).toFixed(2);
+          const compressedMB = (result.compressedSize / (1024 * 1024)).toFixed(2);
+          toast.info(
+            `Image compressed from ${originalMB}MB to ${compressedMB}MB to fit within template limits.`
+          );
+        }
+      }
+
+      setUploadedMedia(dataUri);
       setUploadedFile(file);
-    };
-    reader.readAsDataURL(file);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to process file';
+      toast.error(message);
+    } finally {
+      setIsCompressing(false);
+    }
   };
 
   const handleNext = () => {
@@ -75,8 +109,8 @@ export function UploadBackgroundStep({
         <Card className="border border-[#e1e1e1] rounded-[16px]">
           <CardContent className="p-3">
             <div
-              className={`bg-[rgba(205,223,236,0.15)] border-2 border-dashed border-[#e1e1e1] rounded-[4px] p-3 flex flex-col items-center justify-center min-h-[300px] cursor-pointer transition-all hover:bg-[rgba(205,223,236,0.25)]`}
-              onClick={handleUploadClick}
+              className={`bg-[rgba(205,223,236,0.15)] border-2 border-dashed border-[#e1e1e1] rounded-[4px] p-3 flex flex-col items-center justify-center min-h-[300px] transition-all ${isCompressing ? 'cursor-wait' : 'cursor-pointer hover:bg-[rgba(205,223,236,0.25)]'}`}
+              onClick={isCompressing ? undefined : handleUploadClick}
             >
               <input
                 ref={fileInputRef}
@@ -84,28 +118,47 @@ export function UploadBackgroundStep({
                 accept={UPLOAD_CONFIG.media.acceptString}
                 onChange={handleMediaUpload}
                 className="hidden"
+                disabled={isCompressing}
               />
 
               <div className="flex flex-col items-center justify-center text-center">
-                <div className="relative mb-4">
-                  <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
-                    <svg className="w-6 h-6 text-[#222526]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </div>
-                </div>
+                {isCompressing ? (
+                  <>
+                    <div className="relative mb-4">
+                      <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-[#222526] animate-spin" />
+                      </div>
+                    </div>
+                    <p className="text-base font-medium text-[#69737c] mb-2">
+                      Optimizing image...
+                    </p>
+                    <p className="text-sm text-[#69737c]">
+                      Compressing to fit within template size limits
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="relative mb-4">
+                      <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
+                        <svg className="w-6 h-6 text-[#222526]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        </svg>
+                      </div>
+                    </div>
 
-                <p className="text-base font-medium text-[#69737c] mb-2">
-                  <span className="text-[#615bff] font-medium">Upload</span> your background image or video
-                </p>
+                    <p className="text-base font-medium text-[#69737c] mb-2">
+                      <span className="text-[#615bff] font-medium">Upload</span> your background image or video
+                    </p>
 
-                <p className="text-sm text-[#69737c] mb-4">Recommended format: 1350x950px</p>
+                    <p className="text-sm text-[#69737c] mb-4">Recommended format: 1350x950px</p>
 
-                <div className="text-xs text-[#69737c] text-center space-y-1">
-                  <p className="font-semibold">{UPLOAD_CONFIG.media.formatLabel}</p>
-                  <p className="font-semibold">Images: max {UPLOAD_CONFIG.image.maxSizeMB}MB | Videos: max {UPLOAD_CONFIG.video.maxSizeMB}MB</p>
-                  <p className="font-normal">Note: We recommend you to not have any text on the background.</p>
-                </div>
+                    <div className="text-xs text-[#69737c] text-center space-y-1">
+                      <p className="font-semibold">{UPLOAD_CONFIG.media.formatLabel}</p>
+                      <p className="font-semibold">Images: auto-compressed | Videos: max {maxSizeMB}MB</p>
+                      <p className="font-normal">Note: We recommend you to not have any text on the background.</p>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </CardContent>
@@ -114,8 +167,13 @@ export function UploadBackgroundStep({
         {/* Preview Area */}
         <Card className="border border-[#e1e1e1] rounded-[16px]">
           <CardContent className="p-3">
-            <div className="mb-2">
+            <div className="mb-2 flex items-center justify-between">
               <h3 className="text-lg font-medium text-[#222526]">Preview</h3>
+              {wasCompressed && uploadedMedia && (
+                <span className="text-xs text-[#50be8f] bg-[#50be8f]/10 px-2 py-1 rounded">
+                  Optimized
+                </span>
+              )}
             </div>
 
             <div className="bg-[#232526] rounded-[8px] p-5 flex items-center justify-center min-h-[300px]">
@@ -180,7 +238,7 @@ export function UploadBackgroundStep({
       <div className="flex justify-center">
         <Button
           onClick={handleNext}
-          disabled={!uploadedMedia}
+          disabled={!uploadedMedia || isCompressing}
           className="bg-[#222526] hover:bg-[#333333] text-white px-10 py-2 rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
           Next

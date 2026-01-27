@@ -161,6 +161,23 @@ export interface TemplateTranslations {
 }
 
 // ============================================================================
+// Background Types
+// ============================================================================
+
+/**
+ * Template background configuration
+ * Supports standard gradient or custom image/video backgrounds
+ * Custom backgrounds are stored as base64 data URIs (max ~1.5MB to fit within 2MB template limit)
+ */
+export interface TemplateBackground {
+  type: 'standard' | 'custom';
+  /** Base64 data URI for custom backgrounds (max ~1.5MB) */
+  dataUri?: string;
+  /** Media type for custom backgrounds */
+  mediaType?: 'image' | 'video';
+}
+
+// ============================================================================
 // Complete Template Structure
 // ============================================================================
 
@@ -169,6 +186,8 @@ export interface TemplateStructure {
   languages: TemplateLanguage[];
   translations?: TemplateTranslations;
   searchIndexField?: string; // Field ID to use as search index
+  /** Background configuration for certificate rendering */
+  background?: TemplateBackground;
   metadata?: {
     version?: string;
     createdBy?: string;
