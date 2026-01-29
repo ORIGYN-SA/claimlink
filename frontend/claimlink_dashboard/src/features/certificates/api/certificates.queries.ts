@@ -632,6 +632,10 @@ interface CertificateTransactionHistoryResult {
 /**
  * Hook to fetch and parse ICRC3 transaction history for a certificate
  * Returns both events and ledger data
+ *
+ * This fetches:
+ * 1. ICRC3 transaction history (mint, transfer, burn, update)
+ * 2. Custom events stored in NFT metadata (appraisal, service, etc.)
  */
 export const useCertificateTransactionHistory = (
   collectionCanisterId: string,
@@ -654,13 +658,20 @@ export const useCertificateTransactionHistory = (
         tokenId,
       });
 
-      // Fetch last 100 blocks (adjust as needed)
-      const blocksResult = await CertificatesService.getTransactionHistory(
-        authenticatedAgent,
-        collectionCanisterId,
-        0n,
-        100n
-      );
+      // Fetch both transaction history and NFT metadata in parallel
+      const [blocksResult, metadataResults] = await Promise.all([
+        CertificatesService.getTransactionHistory(
+          authenticatedAgent,
+          collectionCanisterId,
+          0n,
+          100n
+        ),
+        CertificatesService.getCertificateMetadata(
+          authenticatedAgent,
+          collectionCanisterId,
+          [BigInt(tokenId)]
+        ),
+      ]);
 
       console.log('[useCertificateTransactionHistory] Blocks fetched:', {
         total_blocks: blocksResult.blocks.length,
@@ -670,6 +681,36 @@ export const useCertificateTransactionHistory = (
       // Parse blocks into events and transactions
       const events: CertificateEventsData['events'] = [];
       const transactions: LedgerTransaction[] = [];
+
+      // First, extract custom events from NFT metadata
+      const metadata = metadataResults[0] || [];
+      for (const [key, value] of metadata) {
+        // Look for event_* keys (custom events added via the form)
+        if (key.startsWith('event_') && 'Map' in value) {
+          const eventMap = new Map(value.Map);
+          const eventDate = extractText(eventMap.get('date'));
+          const eventCategory = extractText(eventMap.get('category'));
+          const eventDescription = extractText(eventMap.get('description'));
+          const eventTimestamp = extractNat(eventMap.get('timestamp'));
+          const attachmentUrl = extractText(eventMap.get('attachment_url'));
+          const attachmentFilename = extractText(eventMap.get('attachment_filename'));
+
+          if (eventDescription) {
+            const categoryLabel = eventCategory
+              ? eventCategory.charAt(0).toUpperCase() + eventCategory.slice(1)
+              : 'Event';
+
+            events.push({
+              date: eventDate || (eventTimestamp ? formatTimestamp(eventTimestamp * 1000000n) : 'Unknown date'),
+              dateTimestamp: eventTimestamp ? Number(eventTimestamp) : undefined,
+              category: eventCategory as any,
+              description: `${categoryLabel}: ${eventDescription}`,
+              attachmentUrl: attachmentUrl || undefined,
+              attachmentFilename: attachmentFilename || undefined,
+            });
+          }
+        }
+      }
 
       for (const blockWithId of blocksResult.blocks) {
         const block = blockWithId.block;
@@ -722,25 +763,39 @@ export const useCertificateTransactionHistory = (
 
           if (!relatedToToken) continue;
 
-          const date = timestamp ? formatTimestamp(timestamp) : 'Unknown date';
-          const dateRelative = timestamp ? formatRelativeTime(timestamp) : 'Unknown time';
+          const date = timestamp ? formatTimestamp(timestamp) : formatTimestamp(BigInt(Date.now()) * 1000000n);
+          const dateRelative = timestamp ? formatRelativeTime(timestamp) : 'Recently';
 
-          // Create event
+          // Create event description based on transaction type
           let eventDescription = '';
+          let shouldIncludeInEvents = true;
+
           if (txType === '7mint') {
-            eventDescription = `Certificate minted to ${shortenPrincipal(toPrincipal)}`;
+            eventDescription = toPrincipal
+              ? `Certificate minted to ${shortenPrincipal(toPrincipal)}`
+              : 'Certificate minted';
           } else if (txType === '7transfer') {
-            eventDescription = `Transferred from ${shortenPrincipal(fromPrincipal)} to ${shortenPrincipal(toPrincipal)}`;
+            eventDescription = `Transferred from ${shortenPrincipal(fromPrincipal || 'Unknown')} to ${shortenPrincipal(toPrincipal || 'Unknown')}`;
           } else if (txType === '7burn') {
-            eventDescription = `Certificate burned by ${shortenPrincipal(fromPrincipal)}`;
+            eventDescription = `Certificate burned by ${shortenPrincipal(fromPrincipal || 'Owner')}`;
+          } else if (txType === '7update_token' || txType === '37update') {
+            eventDescription = 'Certificate metadata updated';
+          } else if (txType) {
+            // Skip unknown transaction types from events (but keep in ledger)
+            eventDescription = `Transaction: ${txType.replace(/^7/, '')}`;
+            shouldIncludeInEvents = false;
           } else {
-            eventDescription = `Transaction: ${txType}`;
+            shouldIncludeInEvents = false;
           }
 
-          events.push({
-            date,
-            description: eventDescription,
-          });
+          // Only add meaningful events (skip raw transaction types)
+          if (shouldIncludeInEvents && eventDescription) {
+            events.push({
+              date,
+              dateTimestamp: timestamp ? Number(timestamp / 1000000n) : undefined,
+              description: eventDescription,
+            });
+          }
 
           // Create transaction for ledger
           let transactionType: LedgerTransaction['type'] = 'Transferred';
@@ -769,8 +824,14 @@ export const useCertificateTransactionHistory = (
         transactions_count: transactions.length,
       });
 
-      // Reverse to show most recent first
-      events.reverse();
+      // Sort events by timestamp (most recent first)
+      events.sort((a, b) => {
+        const tsA = a.dateTimestamp || 0;
+        const tsB = b.dateTimestamp || 0;
+        return tsB - tsA;
+      });
+
+      // Reverse transactions to show most recent first
       transactions.reverse();
 
       return {
@@ -800,14 +861,13 @@ function extractNat(value: ICRC3Value | undefined): bigint | null {
 
 function blobToPrincipalText(blob: Uint8Array | number[]): string {
   try {
-    // Convert blob to principal text representation
+    // Convert blob to Principal using @dfinity/principal
     const bytes = blob instanceof Uint8Array ? blob : new Uint8Array(blob);
-    // Simple hex representation for now
-    return Array.from(bytes)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('');
+    const principal = Principal.fromUint8Array(bytes);
+    return principal.toText();
   } catch (e) {
-    return 'Unknown';
+    console.warn('[blobToPrincipalText] Failed to decode principal:', e);
+    return '';
   }
 }
 
@@ -840,4 +900,124 @@ function formatRelativeTime(nanoseconds: bigint): string {
   if (hours > 0) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
   if (minutes > 0) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
   return `${seconds} second${seconds > 1 ? 's' : ''} ago`;
+}
+
+// ============================================================================
+// Add Certificate Event
+// ============================================================================
+
+import type { EventCategory } from '../components/detail/certificate-events';
+
+interface AddCertificateEventInput {
+  canisterId: string;
+  tokenId: string;
+  event: {
+    date: string;
+    category: EventCategory;
+    description: string;
+    file?: File;
+  };
+}
+
+interface UseAddCertificateEventOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Hook for adding an event to a certificate's history
+ *
+ * This stores the event in the certificate's metadata by:
+ * 1. Fetching existing metadata
+ * 2. Adding the new event to it
+ * 3. Updating with the merged metadata
+ *
+ * This ensures we don't overwrite existing certificate data.
+ */
+export const useAddCertificateEvent = (options?: UseAddCertificateEventOptions) => {
+  const { authenticatedAgent } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: AddCertificateEventInput) => {
+      if (!authenticatedAgent) {
+        throw new Error('Not authenticated');
+      }
+
+      // Step 1: Fetch existing metadata to preserve it
+      const existingMetadata = await CertificatesService.getCertificateMetadata(
+        authenticatedAgent,
+        input.canisterId,
+        [BigInt(input.tokenId)]
+      );
+
+      console.log('[useAddCertificateEvent] Existing metadata fields:',
+        existingMetadata[0]?.map(([key]) => key) || []
+      );
+
+      let attachmentUrl: string | undefined;
+      let attachmentFilename: string | undefined;
+
+      // Upload file if provided
+      if (input.event.file) {
+        attachmentUrl = await CertificatesService.uploadCertificateFile(
+          authenticatedAgent,
+          input.canisterId,
+          input.event.file
+        );
+        attachmentFilename = input.event.file.name;
+      }
+
+      // Build event metadata in ICRC3 format
+      const eventRecord: Array<[string, ICRC3Value]> = [
+        ['date', { Text: input.event.date }],
+        ['category', { Text: input.event.category }],
+        ['description', { Text: input.event.description }],
+        ['timestamp', { Nat: BigInt(Date.now()) }],
+      ];
+
+      if (attachmentUrl) {
+        eventRecord.push(['attachment_url', { Text: attachmentUrl }]);
+      }
+      if (attachmentFilename) {
+        eventRecord.push(['attachment_filename', { Text: attachmentFilename }]);
+      }
+
+      // Step 2: Merge existing metadata with new event
+      const eventKey = `event_${Date.now()}`;
+      const mergedMetadata: Array<[string, ICRC3Value]> = [
+        ...(existingMetadata[0] || []),
+        [eventKey, { Map: eventRecord }],
+      ];
+
+      console.log('[useAddCertificateEvent] Updating with merged metadata, total fields:', mergedMetadata.length);
+
+      // Step 3: Update with the full merged metadata
+      await CertificatesService.updateCertificate(
+        authenticatedAgent,
+        input.canisterId,
+        BigInt(input.tokenId),
+        mergedMetadata
+      );
+
+      return { success: true };
+    },
+    onSuccess: (_, variables) => {
+      console.log('[useAddCertificateEvent] Successfully added event');
+
+      // Invalidate certificate queries to refetch with new event
+      queryClient.invalidateQueries({
+        queryKey: certificatesKeys.detail(`${variables.canisterId}:${variables.tokenId}`),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['certificate-transaction-history', variables.canisterId, variables.tokenId],
+      });
+
+      options?.onSuccess?.();
+    },
+    onError: (error: Error) => {
+      console.error('[useAddCertificateEvent] Failed to add event:', error);
+      options?.onError?.(error);
+    },
+  });
 };

@@ -136,12 +136,13 @@ export function CertificateDetailPage({
     };
   }, [certificate, parsedMetadata]);
 
-  const handleEditTemplate = () => {
-    navigate({
-      to: '/mint_certificate/$certificateId/edit',
-      params: { certificateId: `${certificate.canisterId}:${certificate.tokenId || certificate.id}` },
-    });
-  };
+  // DISABLED: Certificate editing has been removed. Certificates are immutable after minting.
+  // const handleEditTemplate = () => {
+  //   navigate({
+  //     to: '/mint_certificate/$certificateId/edit',
+  //     params: { certificateId: `${certificate.canisterId}:${certificate.tokenId || certificate.id}` },
+  //   });
+  // };
 
   const handleLogEvent = () => {
     // TODO: Open log event dialog/page
@@ -195,7 +196,7 @@ export function CertificateDetailPage({
           certificate.canisterId || '',
           certificate.tokenId || certificate.id
         )}
-        onEditTemplate={handleEditTemplate}
+        // onEditTemplate={handleEditTemplate} // DISABLED: Certificate editing removed
         onLogEvent={handleLogEvent}
         onDownloadQR={handleDownloadQR}
         onTransferOwnership={handleTransferOwnership}

@@ -6,8 +6,8 @@
  * to leave room for template metadata, sections, and translations.
  */
 
-/** Maximum background data URI size (1.5MB leaves room for other template data) */
-export const MAX_BACKGROUND_SIZE_BYTES = 1.5 * 1024 * 1024;
+/** Maximum background data URI size (1MB leaves room for other template data) */
+export const MAX_BACKGROUND_SIZE_BYTES = 1 * 1024 * 1024;
 
 /** Minimum quality to attempt before giving up */
 const MIN_QUALITY = 0.1;

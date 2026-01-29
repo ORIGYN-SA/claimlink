@@ -14,7 +14,7 @@ import type { FilterOption } from "@/components/common";
 import { CollectionStatusBadge } from "../components/collection-status-badge";
 import { useListMyCollections } from "@/features/collections";
 import type { Collection, CollectionStatus } from "../types/collection.types";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export function CollectionsPage() {
@@ -119,11 +119,12 @@ export function CollectionsPage() {
     navigate({ to: `/collections/${collection.id}` });
   };
 
-  const handleEditCollection = (collection: Collection) => {
-    // TODO: Navigate to edit page when implemented
-    toast.info(`Edit collection: ${collection.title}`);
-    console.log("Edit collection:", collection);
-  };
+  // DISABLED: Collection editing has been removed. Collections are immutable after creation.
+  // const handleEditCollection = (collection: Collection) => {
+  //   // TODO: Navigate to edit page when implemented
+  //   toast.info(`Edit collection: ${collection.title}`);
+  //   console.log("Edit collection:", collection);
+  // };
 
   const handleDeleteCollection = (collection: Collection) => {
     // TODO: Implement delete confirmation dialog
@@ -138,11 +139,12 @@ export function CollectionsPage() {
       icon: Eye,
       onClick: handleViewCollection,
     },
-    {
-      label: "Edit Collection",
-      icon: Edit,
-      onClick: handleEditCollection,
-    },
+    // DISABLED: Collection editing has been removed. Collections are immutable after creation.
+    // {
+    //   label: "Edit Collection",
+    //   icon: Edit,
+    //   onClick: handleEditCollection,
+    // },
     {
       label: "Delete Collection",
       icon: Trash2,

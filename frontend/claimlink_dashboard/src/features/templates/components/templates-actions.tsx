@@ -23,7 +23,6 @@ const TemplatesActions: React.FC<TemplatesActionsProps> = ({
     { value: 'all', label: 'Status' },
     { value: 'existing', label: 'Existing' },
     { value: 'manual', label: 'Manual' },
-    { value: 'ai', label: 'AI Generated' }
   ];
   return (
     <div className="flex gap-[16px] items-center">

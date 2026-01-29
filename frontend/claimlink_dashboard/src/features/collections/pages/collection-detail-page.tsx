@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Grid, List, Info, Edit } from 'lucide-react'
+import { Grid, List, Info } from 'lucide-react'
 import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog, TokenStatusBadge } from '@/components/common'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
 import { useCollectionCertificates } from '@/features/certificates'
@@ -330,14 +330,15 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
                 </Button>
               </div>
 
-              <Button 
-                variant="outline" 
+              {/* DISABLED: Collection editing has been removed. Collections are immutable after creation. */}
+              {/* <Button
+                variant="outline"
                 className="gap-2"
                 onClick={() => navigate({ to: '/collections/$collectionId/edit', params: { collectionId } })}
               >
                 <Edit className="w-4 h-4" />
                 Edit collection
-              </Button>
+              </Button> */}
             </div>
           </div>
 

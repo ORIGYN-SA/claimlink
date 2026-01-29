@@ -201,11 +201,37 @@ export interface TemplateStructure {
 // ============================================================================
 
 /**
+ * Localized value for multi-language support
+ * Key is the language code (e.g., 'en', 'it'), value is the text in that language
+ */
+export interface LocalizedValue {
+  [languageCode: string]: string;
+}
+
+/**
  * Form data structure when creating a certificate from a template
  * Key is the item ID, value is the user's input
+ *
+ * For text fields with multi-language support, the value can be a LocalizedValue
+ * object containing translations for each supported language.
  */
 export interface CertificateFormData {
-  [itemId: string]: string | string[] | File | File[];
+  [itemId: string]: string | string[] | File | File[] | LocalizedValue;
+}
+
+/**
+ * Check if a value is a LocalizedValue object
+ */
+export function isLocalizedValue(value: unknown): value is LocalizedValue {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  // Check if it's a File
+  if (value instanceof File) {
+    return false;
+  }
+  // Check that all values are strings
+  return Object.values(value).every(v => typeof v === 'string');
 }
 
 /**

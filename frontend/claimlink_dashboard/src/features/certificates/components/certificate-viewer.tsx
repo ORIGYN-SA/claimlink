@@ -55,6 +55,8 @@ interface CertificateViewerProps {
   eventsData?: CertificateEventsData;
   /** Ledger tab data (blockchain ownership history) */
   ledgerData?: CertificateLedgerData;
+  /** Callback when an event is added (to refresh data) */
+  onEventAdded?: () => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -81,6 +83,7 @@ export function CertificateViewer({
   templateData,
   eventsData,
   ledgerData,
+  onEventAdded,
   className,
 }: CertificateViewerProps) {
   const [activeTab, setActiveTab] = useState<CertificateTab>("certificate");
@@ -192,7 +195,14 @@ export function CertificateViewer({
       case "events":
         // Events tab shows blockchain event data
         if (eventsData) {
-          return <CertificateEvents data={eventsData} />;
+          return (
+            <CertificateEvents
+              data={eventsData}
+              canisterId={templateData?.canisterId}
+              tokenId={templateData?.tokenId}
+              onEventAdded={onEventAdded}
+            />
+          );
         }
         return <NoDataPlaceholder tab="events" />;
 
