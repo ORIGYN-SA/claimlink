@@ -52,6 +52,13 @@ export const RESERVED_FIELDS = {
   DESCRIPTION: ['short_description', 'description', 'about'] as const,
 
   /**
+   * Fields used for company logo display in certificate header.
+   * Logo is inverted to white for visibility on the dark navy header.
+   * @see CertificateFrame component
+   */
+  COMPANY_LOGO: ['company_logo', 'logo', 'brand_logo'] as const,
+
+  /**
    * Fields that can auto-detect as search index.
    * Matched by label containing these keywords.
    * @see view-generator.ts
@@ -70,7 +77,7 @@ export const ALL_IMAGE_FIELDS = [
 /**
  * Semantic field types for the UI
  */
-export type SemanticFieldType = 'title' | 'image' | 'description' | 'custom';
+export type SemanticFieldType = 'title' | 'image' | 'description' | 'company_logo' | 'custom';
 
 /**
  * Recommended default field IDs for each semantic type.
@@ -83,6 +90,7 @@ export const RECOMMENDED_FIELD_IDS: Record<
   title: 'name',
   image: 'product_images',
   description: 'short_description',
+  company_logo: 'company_logo',
 };
 
 /**
@@ -107,13 +115,21 @@ export function isDescriptionFieldId(fieldId: string): boolean {
 }
 
 /**
+ * Check if a field ID is reserved for company logo display
+ */
+export function isCompanyLogoFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_LOGO as readonly string[]).includes(fieldId);
+}
+
+/**
  * Check if a field ID is reserved for any semantic purpose
  */
 export function isReservedFieldId(fieldId: string): boolean {
   return (
     isTitleFieldId(fieldId) ||
     isImageFieldId(fieldId) ||
-    isDescriptionFieldId(fieldId)
+    isDescriptionFieldId(fieldId) ||
+    isCompanyLogoFieldId(fieldId)
   );
 }
 
@@ -125,6 +141,7 @@ export function getAllReservedFieldIds(): string[] {
     ...RESERVED_FIELDS.TITLE,
     ...ALL_IMAGE_FIELDS,
     ...RESERVED_FIELDS.DESCRIPTION,
+    ...RESERVED_FIELDS.COMPANY_LOGO,
   ];
 }
 
@@ -137,5 +154,6 @@ export function getFieldSemanticPurpose(
   if (isTitleFieldId(fieldId)) return 'title';
   if (isImageFieldId(fieldId)) return 'image';
   if (isDescriptionFieldId(fieldId)) return 'description';
+  if (isCompanyLogoFieldId(fieldId)) return 'company_logo';
   return null;
 }

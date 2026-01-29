@@ -193,8 +193,12 @@ function TemplatePreviewSection({
   );
 }
 
+// Placeholder SVG for company logo preview (simple company icon)
+const PLACEHOLDER_LOGO_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40"><rect fill="#e1e1e1" width="120" height="40" rx="4"/><text x="60" y="24" font-family="system-ui, sans-serif" font-size="12" fill="#69737c" text-anchor="middle">Company Logo</text></svg>`)}`;
+
 // Mock form data for preview
 const MOCK_PREVIEW_DATA: Record<string, string> = {
+  company_logo: PLACEHOLDER_LOGO_SVG,
   company_name: "Sample Company",
   vat_number: "IT01450040702",
   certification_expiration: "2024-12-31",

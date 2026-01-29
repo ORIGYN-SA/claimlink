@@ -16,6 +16,10 @@ import {
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
+import {
+  extractTextFromMetadata,
+  extractImageFromMetadata,
+} from "../utils/metadata-extractors";
 
 export interface PublicCertificatePageProps {
   collectionId: string;
@@ -116,6 +120,36 @@ export const PublicCertificatePage = ({
 
     return undefined;
   }, [data, templateStructure, collectionId, tokenId]);
+
+  // Extract issuer info from on-chain metadata
+  const issuerInfo = useMemo(() => {
+    if (!data) return { logo: undefined, name: 'ORIGYN' };
+
+    const { certificate, parsedMetadata } = data;
+
+    if (parsedMetadata?.metadata) {
+      const companyLogo = extractImageFromMetadata(
+        parsedMetadata.metadata.company_logo,
+        collectionId,
+        tokenId
+      );
+      const companyName = extractTextFromMetadata(
+        parsedMetadata.metadata.company_name
+      ) || extractTextFromMetadata(
+        parsedMetadata.metadata.name
+      );
+
+      return {
+        logo: companyLogo,
+        name: companyName || certificate.collectionName || 'ORIGYN',
+      };
+    }
+
+    return {
+      logo: undefined,
+      name: certificate.collectionName || 'ORIGYN',
+    };
+  }, [data, collectionId, tokenId]);
 
   const handleDownloadQR = async () => {
     if (!qrCanvasRef.current || !data) {
@@ -224,7 +258,8 @@ export const PublicCertificatePage = ({
           status={certificate.status}
           title={certificate.title}
           description={certificate.description || "ORIGYN Certified Asset"}
-          issuerName={certificate.certifiedBy || "ORIGYN"}
+          issuerLogo={issuerInfo.logo}
+          issuerName={issuerInfo.name}
           canisterId={collectionId}
           tokenId={tokenId}
           className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"

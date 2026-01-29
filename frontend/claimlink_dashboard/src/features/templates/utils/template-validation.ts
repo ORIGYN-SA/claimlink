@@ -26,6 +26,7 @@ export type TemplateWarningType =
   | 'missing_title'
   | 'missing_image'
   | 'missing_description'
+  | 'missing_company_logo'
   | 'non_standard_id';
 
 /**
@@ -49,6 +50,7 @@ export interface TemplateValidationResult {
   hasTitleField: boolean;
   hasImageField: boolean;
   hasDescriptionField: boolean;
+  hasCompanyLogoField: boolean;
 }
 
 /**
@@ -79,6 +81,7 @@ export function validateTemplateForDisplay(
       hasTitleField: false,
       hasImageField: false,
       hasDescriptionField: false,
+      hasCompanyLogoField: false,
     };
   }
 
@@ -124,11 +127,26 @@ export function validateTemplateForDisplay(
     });
   }
 
+  // Check for company logo field
+  const hasCompanyLogoField = RESERVED_FIELDS.COMPANY_LOGO.some((id) =>
+    allFieldIds.includes(id)
+  );
+  if (!hasCompanyLogoField) {
+    warnings.push({
+      type: 'missing_company_logo',
+      message:
+        'No company logo field found. Certificate header will not display a logo.',
+      severity: 'warning',
+      suggestedIds: RESERVED_FIELDS.COMPANY_LOGO,
+    });
+  }
+
   return {
     warnings,
     hasTitleField,
     hasImageField,
     hasDescriptionField,
+    hasCompanyLogoField,
   };
 }
 
@@ -178,6 +196,21 @@ export function getFieldIdPurposeDescription(fieldId: string): string | null {
  * Each preset creates a field with the recommended ID for its semantic purpose.
  */
 export const SEMANTIC_FIELD_PRESETS = [
+  {
+    label: 'Company Logo',
+    description: 'Logo displayed in certificate header (inverted to white)',
+    semantic: 'company_logo' as const,
+    item: {
+      id: 'company_logo',
+      type: 'image' as const,
+      label: 'Company Logo',
+      required: true,
+      multiple: false,
+      maxImages: 1,
+      acceptedFormats: ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'],
+      order: 0,
+    },
+  },
   {
     label: 'Certificate Name',
     description: 'The main title/name displayed on certificate cards',

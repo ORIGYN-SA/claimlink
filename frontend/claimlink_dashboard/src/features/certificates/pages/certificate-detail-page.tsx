@@ -14,6 +14,10 @@ import {
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
+import {
+  extractTextFromMetadata,
+  extractImageFromMetadata,
+} from "../utils/metadata-extractors";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -103,6 +107,35 @@ export function CertificateDetailPage({
     return undefined;
   }, [certificate, parsedMetadata, templateStructure]);
 
+  // Extract issuer info from on-chain metadata
+  const issuerInfo = useMemo(() => {
+    const canisterId = certificate.canisterId || '';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    if (parsedMetadata?.metadata) {
+      const companyLogo = extractImageFromMetadata(
+        parsedMetadata.metadata.company_logo,
+        canisterId,
+        tokenId
+      );
+      const companyName = extractTextFromMetadata(
+        parsedMetadata.metadata.company_name
+      ) || extractTextFromMetadata(
+        parsedMetadata.metadata.name
+      );
+
+      return {
+        logo: companyLogo,
+        name: companyName || certificate.collectionName || 'ORIGYN',
+      };
+    }
+
+    return {
+      logo: undefined,
+      name: certificate.collectionName || 'ORIGYN',
+    };
+  }, [certificate, parsedMetadata]);
+
   const handleEditTemplate = () => {
     navigate({
       to: '/mint_certificate/$certificateId/edit',
@@ -178,8 +211,8 @@ export function CertificateDetailPage({
         }
         title={certificate.title}
         description={certificate.description || "Certificate details"}
-        issuerLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=64&h=64&fit=crop"
-        issuerName={certificate.certifiedBy || "ORIGYN"}
+        issuerLogo={issuerInfo.logo}
+        issuerName={issuerInfo.name}
         canisterId={certificate.canisterId}
         tokenId={certificate.tokenId || certificate.id}
         className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"

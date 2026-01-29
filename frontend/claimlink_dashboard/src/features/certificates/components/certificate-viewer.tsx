@@ -15,52 +15,14 @@ import {
   type TemplateNode,
   type ParsedOrigynMetadata,
   type RenderDataSource,
-  type MetadataFieldValue,
   resolveTokenAssetUrl,
   resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
-
-/**
- * Helper to extract string value from metadata field
- * Handles both plain strings and MetadataFieldValue objects
- */
-function extractMetadataValue(
-  value: unknown,
-  language: string = 'en'
-): string | undefined {
-  if (!value) return undefined;
-
-  // Plain string
-  if (typeof value === 'string') return value;
-
-  // MetadataFieldValue object
-  if (typeof value === 'object' && value !== null && 'content' in value) {
-    const metaValue = value as MetadataFieldValue;
-    const content = metaValue.content;
-
-    // String content
-    if (typeof content === 'string') return content;
-
-    // Localized content object
-    if (typeof content === 'object' && content !== null && !('date' in content)) {
-      const localized = content as Record<string, string>;
-      // Try requested language first, then English, then first available
-      if (localized[language]) return localized[language];
-      if (localized['en']) return localized['en'];
-      const keys = Object.keys(localized);
-      if (keys.length > 0) return localized[keys[0]];
-    }
-
-    // Date content - format it
-    if (typeof content === 'object' && content !== null && 'date' in content) {
-      const date = new Date((content as { date: number }).date);
-      return date.toLocaleDateString();
-    }
-  }
-
-  return undefined;
-}
+import {
+  extractTextFromMetadata,
+  extractImageFromMetadata,
+} from "../utils/metadata-extractors";
 
 /**
  * Template data for dynamic rendering from ORIGYN NFT metadata
@@ -137,10 +99,11 @@ export function CertificateViewer({
       case "certificate":
         // Use CertificateFrame wrapper with TemplateRenderer for content
         if (templateData?.certificateTemplate && dataSource) {
-          // Get company logo from metadata if available
-          const companyLogo = extractMetadataValue(
+          // Get company logo from metadata if available (image field)
+          const companyLogo = extractImageFromMetadata(
             templateData.metadata.metadata.company_logo,
-            templateData.language || 'en'
+            templateData.canisterId,
+            templateData.tokenId
           );
 
           return (
@@ -168,15 +131,15 @@ export function CertificateViewer({
           const lang = templateData.language || 'en';
 
           // Extract title info from metadata using helper
-          const companyName = extractMetadataValue(
+          const companyName = extractTextFromMetadata(
             templateData.metadata.metadata.company_name,
             lang
           );
-          const certificateTitle = extractMetadataValue(
+          const certificateTitle = extractTextFromMetadata(
             templateData.metadata.metadata.certificate_title,
             lang
           );
-          const year = extractMetadataValue(
+          const year = extractTextFromMetadata(
             templateData.metadata.metadata.certification_date,
             lang
           );
