@@ -361,6 +361,24 @@ export function convertFieldValueToOrigyn(
 }
 
 /**
+ * Check if a value is a LocalizedValue object (has language code keys with string values)
+ */
+function isLocalizedValueObject(value: unknown): value is Record<string, string> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  if (value instanceof File || value instanceof Date) {
+    return false;
+  }
+  // Check that all values are strings and keys look like language codes (short strings)
+  const entries = Object.entries(value);
+  if (entries.length === 0) return false;
+  return entries.every(([key, val]) =>
+    typeof key === 'string' && key.length <= 5 && typeof val === 'string'
+  );
+}
+
+/**
  * Convert form data to ORIGYN metadata format
  */
 export function convertFormDataToOrigynMetadata(
@@ -383,6 +401,15 @@ export function convertFormDataToOrigynMetadata(
 
     // Skip file fields - they're handled separately
     if (value instanceof File || (Array.isArray(value) && value[0] instanceof File)) {
+      continue;
+    }
+
+    // Handle LocalizedValue objects (multi-language support)
+    if (isLocalizedValueObject(value)) {
+      metadata[fieldId] = {
+        language: 'true',
+        content: value as LocalizedContent,
+      };
       continue;
     }
 

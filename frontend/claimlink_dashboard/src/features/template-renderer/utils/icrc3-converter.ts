@@ -109,7 +109,34 @@ export interface ConvertToIcrc3Options {
 }
 
 /**
+ * Check if a value is a LocalizedValue object (has language code keys with string values)
+ */
+function isLocalizedValue(value: unknown): value is Record<string, string> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  if (value instanceof File) {
+    return false;
+  }
+  // Check that all values are strings and keys look like language codes
+  const entries = Object.entries(value);
+  if (entries.length === 0) return false;
+  return entries.every(([key, val]) =>
+    typeof key === 'string' && key.length <= 5 && typeof val === 'string'
+  );
+}
+
+/**
+ * Extract the primary (default) language value from a LocalizedValue
+ */
+function extractPrimaryLanguageValue(value: Record<string, string>): string {
+  // Prefer 'en' (English) as default, then lowercase 'en', then first available
+  return value['en'] || value['EN'] || Object.values(value)[0] || '';
+}
+
+/**
  * Helper to extract first non-empty string value from form data using a list of field IDs
+ * Handles both plain strings and LocalizedValue objects
  */
 function extractFirstValue(
   formData: CertificateFormData,
@@ -120,6 +147,13 @@ function extractFirstValue(
     const value = formData[fieldId];
     if (typeof value === 'string' && value.trim()) {
       return value;
+    }
+    // Handle LocalizedValue objects - extract the primary language
+    if (isLocalizedValue(value)) {
+      const primaryValue = extractPrimaryLanguageValue(value);
+      if (primaryValue.trim()) {
+        return primaryValue;
+      }
     }
   }
   return fallback;
@@ -167,6 +201,15 @@ export function convertToIcrc3Metadata(
       metadata.push([key, { Text: value }]);
     } else if (typeof value === 'number') {
       metadata.push([key, { Int: BigInt(value) }]);
+    } else if (isLocalizedValue(value)) {
+      // Handle LocalizedValue - store primary value as string and full translations as Map
+      const primaryValue = extractPrimaryLanguageValue(value);
+      metadata.push([key, { Text: primaryValue }]);
+      // Also store the full localized content with a suffix for multi-language support
+      const localizedEntries = Object.entries(value).map(
+        ([lang, text]) => [lang, { Text: text }] as [string, ICRC3Value]
+      );
+      metadata.push([`${key}_localized`, { Map: localizedEntries }]);
     }
   });
 

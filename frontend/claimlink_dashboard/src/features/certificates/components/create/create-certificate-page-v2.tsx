@@ -305,10 +305,11 @@ export function CreateCertificatePageV2({
         }
       }
       // Legacy support: Handle wrapped { file: File } objects
-      else if (value && typeof value === "object" && "file" in value) {
-        const file = (value as { file: File }).file;
-        if (file instanceof File) {
-          newFileFields.set(key, [file]);
+      // Skip LocalizedValue objects (they have short string keys like 'en', 'it', not 'file')
+      else if (value && typeof value === "object" && "file" in value && !Array.isArray(value)) {
+        const maybeFile = (value as Record<string, unknown>).file;
+        if (maybeFile instanceof File) {
+          newFileFields.set(key, [maybeFile]);
         }
       }
     });
