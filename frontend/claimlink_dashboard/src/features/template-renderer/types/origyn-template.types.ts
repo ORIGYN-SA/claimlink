@@ -432,10 +432,11 @@ export interface ParsedOrigynMetadata {
 /**
  * Template rendering variant - controls visual styling
  * - 'default': Standard template rendering
- * - 'certificate': Certificate view styling (centered, formal typography)
+ * - 'certificate': Certificate view styling (centered, formal typography, dark text)
+ * - 'custom-certificate': Custom background certificate (centered, formal typography, light text)
  * - 'information': Information tab styling (dark background, light text)
  */
-export type TemplateVariant = 'default' | 'certificate' | 'information';
+export type TemplateVariant = 'default' | 'certificate' | 'custom-certificate' | 'information';
 
 /**
  * Data source for rendering - either preview (local) or on-chain

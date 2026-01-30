@@ -25,6 +25,7 @@ export function TextNode({ node }: TextNodeProps) {
       className={cn(
         '',
         variant === 'certificate' && 'text-[#222526] text-center text-sm sm:text-base',
+        variant === 'custom-certificate' && 'text-[#fcfafa] text-center text-sm sm:text-base',
         variant === 'information' && 'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
         node.className
       )}

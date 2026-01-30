@@ -16,12 +16,23 @@ interface CertificateFrameProps {
 }
 
 /**
- * CertificateFrame provides the visual "certificate" styling wrapper:
+ * CertificateFrame provides the visual "certificate" styling wrapper.
+ *
+ * Standard background layout:
  * - Dark outer wrapper with rounded corners
- * - 950px white certificate paper with navy header
+ * - 950px white certificate paper with navy header badge
  * - Stamp positioned at top center
+ * - Company logo left, token ID right in header
  * - ORIGYN logo at bottom
  * - Gradient at bottom
+ *
+ * Custom background layout (Figma design):
+ * - Full-bleed background image/video covering entire component
+ * - Glass panel overlay (semi-transparent dark) with rounded corners
+ * - Company logo centered at top inside panel
+ * - Stamp floats above the glass panel
+ * - Footer with white ORIGYN logo + "POWERED BY ORIGYN" + token ID
+ * - No navy curved badge
  *
  * The `children` slot is where dynamic TemplateRenderer content is placed.
  */
@@ -34,6 +45,93 @@ export function CertificateFrame({
 }: CertificateFrameProps) {
   const hasCustomBackground = background?.type === 'custom' && background.dataUri;
   const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
+
+  // Custom background layout - completely different structure per Figma design
+  if (hasCustomBackground) {
+    return (
+      <div
+        className={`rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full overflow-hidden ${className}`}
+      >
+        {/* Full-bleed background wrapper */}
+        <div className="relative w-full min-h-[600px] sm:min-h-[800px]">
+          {/* Background media - full bleed */}
+          <div className="absolute inset-0">
+            {isVideoBackground ? (
+              <video
+                src={background.dataUri}
+                className="absolute inset-0 w-full h-full object-cover"
+                muted
+                loop
+                playsInline
+                autoPlay
+              />
+            ) : (
+              <img
+                src={background.dataUri}
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            )}
+          </div>
+
+          {/* Content container with padding */}
+          <div className="relative z-10 px-4 sm:px-16 py-6 sm:py-10 flex flex-col items-center min-h-[600px] sm:min-h-[800px]">
+            {/* Glass panel overlay */}
+            <div className="w-full max-w-[950px] bg-[rgba(2,2,2,0.2)] backdrop-blur-sm rounded-[32px] sm:rounded-[48px] px-6 sm:px-16 pt-8 sm:pt-12 pb-6 sm:pb-10 flex flex-col items-center relative">
+              {/* Stamp - floats above the glass panel */}
+              <div className="absolute -top-[35px] sm:-top-[55px] left-0 right-0 z-20 flex justify-center">
+                <img
+                  alt="Blockchain Certified"
+                  src={stampStandard}
+                  className="w-[70px] h-[70px] sm:w-[110px] sm:h-[110px]"
+                />
+              </div>
+
+              {/* Company Logo - centered at top inside panel */}
+              <div className="flex justify-center w-full mb-8 sm:mb-12 mt-8 sm:mt-10">
+                {companyLogo ? (
+                  <img
+                    alt="Company Logo"
+                    src={companyLogo}
+                    className="h-[32px] sm:h-[48px] object-contain brightness-0 invert"
+                  />
+                ) : (
+                  <div className="h-[32px] sm:h-[48px]" />
+                )}
+              </div>
+
+              {/* Dynamic Content Slot */}
+              <div className="flex flex-col gap-8 sm:gap-10 items-center justify-center w-full flex-1">
+                {children}
+              </div>
+
+              {/* Footer: ORIGYN logo + Token ID */}
+              <div className="flex flex-col gap-2 sm:gap-3 items-center mt-10 sm:mt-14 mb-2 sm:mb-4">
+                <img
+                  alt="ORIGYN"
+                  src={logoTransparent}
+                  className="h-[40px] w-[42px] sm:h-[56px] sm:w-[58px] object-contain brightness-0 invert"
+                />
+                <p className="text-[8px] sm:text-[10px] font-light leading-4 sm:leading-5 text-white/80 tracking-[2px] sm:tracking-[3px] uppercase text-center">
+                  Powered by origyn
+                </p>
+                <div className="flex items-center gap-2 mt-2">
+                  <p className="text-[10px] sm:text-[12px] font-normal leading-5 text-white/60 tracking-[2px] sm:tracking-[3px] uppercase">
+                    token id:
+                  </p>
+                  <p className="text-[12px] sm:text-[14px] font-semibold leading-5 text-white tracking-[1.5px] sm:tracking-[2px] uppercase">
+                    {tokenId}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Standard background layout - original design
   return (
     <div
       className={`bg-[#fcfafa] rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full ${className}`}
@@ -44,40 +142,16 @@ export function CertificateFrame({
         <div className="w-full max-w-[950px] mx-auto relative rounded-2xl overflow-hidden">
           {/* Background with Gradient */}
           <div className="bg-[#fcfafa] rounded-2xl relative">
-            {/* Background - Custom image/video or standard gradient */}
-            {hasCustomBackground ? (
-              <div className="absolute inset-0 overflow-hidden rounded-2xl">
-                {isVideoBackground ? (
-                  <video
-                    src={background.dataUri}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    muted
-                    loop
-                    playsInline
-                    autoPlay
-                  />
-                ) : (
-                  <img
-                    src={background.dataUri}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                )}
-                {/* Overlay for readability */}
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/30" />
-              </div>
-            ) : (
-              /* Standard Gradient Background at Bottom */
-              <div className="absolute bottom-0 left-0 right-0 h-[300px] sm:h-[400px] overflow-hidden opacity-60">
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    background:
-                      "radial-gradient(ellipse at center bottom, rgba(168,237,234,0.4) 0%, rgba(254,214,227,0.3) 30%, rgba(210,153,194,0.2) 50%, transparent 70%)",
-                  }}
-                />
-              </div>
-            )}
+            {/* Standard Gradient Background at Bottom */}
+            <div className="absolute bottom-0 left-0 right-0 h-[300px] sm:h-[400px] overflow-hidden opacity-60">
+              <div
+                className="absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at center bottom, rgba(168,237,234,0.4) 0%, rgba(254,214,227,0.3) 30%, rgba(210,153,194,0.2) 50%, transparent 70%)",
+                }}
+              />
+            </div>
 
             {/* Navy curved badge holder from Figma */}
             <div className="absolute top-0 left-0 right-0 z-10 flex justify-center">

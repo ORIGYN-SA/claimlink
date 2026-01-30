@@ -109,6 +109,9 @@ export function CertificateViewer({
             templateData.tokenId
           );
 
+          // Determine variant based on background type
+          const variant = templateData.background?.type === 'custom' ? 'custom-certificate' : 'certificate';
+
           return (
             <CertificateFrame
               companyLogo={companyLogo}
@@ -121,7 +124,7 @@ export function CertificateViewer({
                 canisterId={templateData.canisterId}
                 tokenId={templateData.tokenId}
                 language={templateData.language || 'en'}
-                variant="certificate"
+                variant={variant}
               />
             </CertificateFrame>
           );
