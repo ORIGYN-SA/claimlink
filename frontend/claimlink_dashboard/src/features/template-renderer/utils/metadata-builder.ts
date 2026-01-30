@@ -3,17 +3,24 @@
  *
  * Builds the complete ORIGYN __apps structure for minting certificates.
  * Combines template, metadata, and file references into the standard format.
+ *
+ * Supports both:
+ * - TemplateStructure (legacy format) - uses view-generator to create template views
+ * - TemplateNode[] (tree format) - uses tree directly as template views
  */
 
 import type {
   TemplateStructure,
   CertificateFormData,
+  Template,
 } from "@/features/templates/types/template.types";
 
-import type { OrigynAppEntry, FileReference } from "../types";
+import type { OrigynAppEntry, FileReference, TemplateNode, RootNode } from "../types";
+import { isRootNode } from "../types";
 
 import { generateOrigynViews } from "./view-generator";
 import { convertFormDataToOrigynMetadata } from "./template-converter";
+import { getTemplateFormat } from "@/features/templates/utils/template-compat";
 
 // ============================================================================
 // Types
@@ -23,8 +30,8 @@ import { convertFormDataToOrigynMetadata } from "./template-converter";
  * Configuration for building ORIGYN apps
  */
 export interface BuildOrigynAppsConfig {
-  /** ClaimLink template structure */
-  template: TemplateStructure;
+  /** ClaimLink template - supports both TemplateStructure and TemplateNode[] formats */
+  template: TemplateStructure | TemplateNode[];
   /** Form data from certificate creation */
   formData: CertificateFormData;
   /** File references for uploaded files */
@@ -152,23 +159,57 @@ function buildLibraryItems(
 /**
  * Build the public.metadata app entry
  *
- * Contains all certificate field values in ORIGYN format
+ * Contains all certificate field values in ORIGYN format.
+ * Supports both TemplateStructure and TemplateNode[] formats.
  */
 export function buildMetadataApp(
   formData: CertificateFormData,
-  template: TemplateStructure,
+  template: TemplateStructure | TemplateNode[],
   files: Map<string, FileReference[]>,
   writerPrincipal?: string,
 ): OrigynAppEntry {
-  // Convert form data to ORIGYN metadata format
-  const metadata = convertFormDataToOrigynMetadata(
-    formData as Record<string, unknown>,
-    template,
-  );
+  let metadata: Record<string, unknown>;
+
+  // Check if template is in tree format
+  if (Array.isArray(template)) {
+    // Tree format - convert form data directly
+    // For tree format, form data is already in the correct structure
+    // Just wrap values in ORIGYN format (with language support)
+    metadata = {};
+    for (const [fieldId, value] of Object.entries(formData)) {
+      // Skip file fields - they're handled separately
+      if (value instanceof File || (Array.isArray(value) && value[0] instanceof File)) {
+        continue;
+      }
+
+      // Check if value is already a localized object
+      if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+        metadata[fieldId] = {
+          language: 'true',
+          content: value,
+        };
+      } else if (typeof value === 'string') {
+        metadata[fieldId] = {
+          language: 'true',
+          content: { en: value },
+        };
+      } else {
+        metadata[fieldId] = {
+          content: String(value ?? ''),
+        };
+      }
+    }
+  } else {
+    // Legacy TemplateStructure format
+    metadata = convertFormDataToOrigynMetadata(
+      formData as Record<string, unknown>,
+      template,
+    );
+  }
 
   // Add file references to metadata
   files.forEach((fileRefs, pointer) => {
-    (metadata as Record<string, unknown>)[pointer] = fileRefs;
+    metadata[pointer] = fileRefs;
   });
 
   return {
@@ -187,13 +228,41 @@ export function buildMetadataApp(
 /**
  * Build the public.metadata.template app entry
  *
- * Contains all 4 template views and language configuration
+ * Contains all 4 template views and language configuration.
+ * Supports both TemplateStructure and TemplateNode[] formats.
  */
 export function buildTemplateApp(
-  template: TemplateStructure,
+  template: TemplateStructure | TemplateNode[],
   writerPrincipal?: string,
 ): OrigynAppEntry {
-  // Generate all ORIGYN views
+  // Check if template is already in tree format
+  if (Array.isArray(template)) {
+    // Tree format - use directly as template views
+    const root = template[0] as RootNode | undefined;
+    const languages = (isRootNode(root as TemplateNode) ? root?.languages : undefined) || [{ key: 'en', name: 'English' }];
+    const searchField = isRootNode(root as TemplateNode) ? root?.searchIndexField : undefined;
+
+    return {
+      app_id: "public.metadata.template",
+      read: "public",
+      write: writerPrincipal
+        ? { type: "allow", list: [writerPrincipal] }
+        : undefined,
+      permissions: writerPrincipal
+        ? { type: "allow", list: [writerPrincipal] }
+        : undefined,
+      data: {
+        template: template,
+        userViewTemplate: template, // Same template for user view
+        certificateTemplate: template, // Same template for certificate view
+        formTemplate: [], // Form template needs separate handling
+        languages,
+        searchField,
+      },
+    };
+  }
+
+  // Legacy TemplateStructure format - generate views
   const views = generateOrigynViews(template);
 
   return {

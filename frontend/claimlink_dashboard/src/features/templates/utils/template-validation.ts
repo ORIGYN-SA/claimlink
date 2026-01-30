@@ -3,6 +3,10 @@
  *
  * Validates templates for display compatibility and provides warnings
  * when templates are missing fields needed for proper certificate display.
+ *
+ * Supports both:
+ * - TemplateStructure (legacy format during transition)
+ * - TemplateNode[] (new tree format)
  */
 
 import {
@@ -11,8 +15,11 @@ import {
   isTitleFieldId,
   isImageFieldId,
   isDescriptionFieldId,
+  isCompanyLogoFieldId,
 } from '@/shared/constants/reserved-fields';
 import type { TemplateStructure } from '../types/template.types';
+import type { TemplateNode } from '@/features/template-renderer/types/origyn-template.types';
+import { getAllFieldIds as getTreeFieldIds } from './template-tree-utils';
 
 /**
  * Warning severity levels
@@ -54,22 +61,41 @@ export interface TemplateValidationResult {
 }
 
 /**
- * Get all field IDs from a template structure
+ * Get all field IDs from a template structure (legacy format)
  */
-function getAllFieldIds(structure: TemplateStructure): string[] {
+function getAllFieldIdsFromStructure(structure: TemplateStructure): string[] {
   return structure.sections?.flatMap((s) => s.items.map((i) => i.id)) ?? [];
 }
 
 /**
- * Validate a template structure for display compatibility.
+ * Get all field IDs from a template (supports both formats)
+ */
+export function getAllFieldIds(
+  template: TemplateStructure | TemplateNode[] | undefined
+): string[] {
+  if (!template) return [];
+
+  // Check if it's the tree format (array of TemplateNode)
+  if (Array.isArray(template)) {
+    return getTreeFieldIds(template);
+  }
+
+  // Legacy TemplateStructure format
+  return getAllFieldIdsFromStructure(template);
+}
+
+/**
+ * Validate a template for display compatibility.
+ * Supports both TemplateStructure (legacy) and TemplateNode[] (tree) formats.
  * Returns warnings for missing semantic fields.
  */
 export function validateTemplateForDisplay(
-  structure: TemplateStructure | undefined
+  template: TemplateStructure | TemplateNode[] | undefined
 ): TemplateValidationResult {
   const warnings: TemplateValidationWarning[] = [];
 
-  if (!structure || !structure.sections) {
+  // Handle undefined or empty template
+  if (!template) {
     return {
       warnings: [
         {
@@ -85,7 +111,41 @@ export function validateTemplateForDisplay(
     };
   }
 
-  const allFieldIds = getAllFieldIds(structure);
+  // Handle legacy TemplateStructure format
+  if (!Array.isArray(template) && !template.sections) {
+    return {
+      warnings: [
+        {
+          type: 'missing_title',
+          message: 'Template has no structure defined.',
+          severity: 'warning',
+        },
+      ],
+      hasTitleField: false,
+      hasImageField: false,
+      hasDescriptionField: false,
+      hasCompanyLogoField: false,
+    };
+  }
+
+  // Handle empty tree format
+  if (Array.isArray(template) && template.length === 0) {
+    return {
+      warnings: [
+        {
+          type: 'missing_title',
+          message: 'Template has no content defined.',
+          severity: 'warning',
+        },
+      ],
+      hasTitleField: false,
+      hasImageField: false,
+      hasDescriptionField: false,
+      hasCompanyLogoField: false,
+    };
+  }
+
+  const allFieldIds = getAllFieldIds(template);
 
   // Check for title field
   const hasTitleField = RESERVED_FIELDS.TITLE.some((id) =>
@@ -194,12 +254,17 @@ export function getFieldIdPurposeDescription(fieldId: string): string | null {
 /**
  * Semantic field presets for quick-add functionality in the template editor.
  * Each preset creates a field with the recommended ID for its semantic purpose.
+ *
+ * Contains both legacy `item` format (TemplateItem) and new `node` format (TemplateNode).
  */
 export const SEMANTIC_FIELD_PRESETS = [
   {
     label: 'Company Logo',
     description: 'Logo displayed in certificate header (inverted to white)',
     semantic: 'company_logo' as const,
+    fieldId: 'company_logo',
+    fieldType: 'image' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'company_logo',
       type: 'image' as const,
@@ -215,6 +280,9 @@ export const SEMANTIC_FIELD_PRESETS = [
     label: 'Certificate Name',
     description: 'The main title/name displayed on certificate cards',
     semantic: 'title' as const,
+    fieldId: 'name',
+    fieldType: 'input' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'name',
       type: 'input' as const,
@@ -229,6 +297,9 @@ export const SEMANTIC_FIELD_PRESETS = [
     label: 'Product Images',
     description: 'Images displayed on certificate cards and detail views',
     semantic: 'image' as const,
+    fieldId: 'product_images',
+    fieldType: 'gallery' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'product_images',
       type: 'image' as const,
@@ -243,6 +314,9 @@ export const SEMANTIC_FIELD_PRESETS = [
     label: 'Description',
     description: 'Short description for certificate metadata',
     semantic: 'description' as const,
+    fieldId: 'short_description',
+    fieldType: 'textarea' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'short_description',
       type: 'input' as const,
@@ -260,3 +334,22 @@ export const SEMANTIC_FIELD_PRESETS = [
  * Type for semantic field preset
  */
 export type SemanticFieldPreset = (typeof SEMANTIC_FIELD_PRESETS)[number];
+
+/**
+ * Get the semantic preset for a field ID if it matches a known semantic field
+ */
+export function getSemanticPresetForFieldId(fieldId: string): SemanticFieldPreset | null {
+  if (isTitleFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'title') || null;
+  }
+  if (isImageFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'image') || null;
+  }
+  if (isDescriptionFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'description') || null;
+  }
+  if (isCompanyLogoFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'company_logo') || null;
+  }
+  return null;
+}

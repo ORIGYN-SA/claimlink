@@ -282,6 +282,25 @@ export function EditTemplateStepV2({
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+              {/* Simple/Advanced Mode Toggle (Advanced disabled for now) */}
+              <div className="flex rounded-lg border border-[#e1e1e1] overflow-hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-none bg-[#f1f6f9] text-[#222526] hover:bg-[#f1f6f9] text-xs"
+                >
+                  Simple Mode
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  title="Advanced Mode - Coming Soon"
+                  className="rounded-none text-[#69737c] text-xs opacity-50 cursor-not-allowed"
+                >
+                  Advanced
+                </Button>
+              </div>
               {isScratchMode && onEditorModeChange && (
                 <Button
                   variant="outline"

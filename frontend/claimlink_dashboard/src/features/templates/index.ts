@@ -43,12 +43,75 @@ export {
 // Utilities
 // ============================================================================
 
+// Serialization (supports both legacy and tree formats)
 export {
   serializeTemplateForOrigyn,
   deserializeTemplateFromOrigyn,
   hasTemplateStructure,
   TEMPLATE_STRUCTURE_KEY,
+  // New tree format utilities
+  serializeTreeForOrigyn,
+  deserializeTreeFromOrigyn,
+  hasTemplateTree,
+  TEMPLATE_TREE_KEY,
+  deserializeTemplate,
+  hasTemplate,
 } from './utils/template-serializer'
+
+// Tree manipulation utilities
+export {
+  findNodeById,
+  findNodesByType,
+  addNode,
+  removeNode,
+  updateNode,
+  moveNode,
+  reorderChildren,
+  getNodeChildren,
+  setNodeChildren,
+  createRootNode,
+  getRootNode,
+  updateRootNode,
+  createSectionNode,
+  getSectionNodes,
+  getAllFieldIds,
+  extractFormFields,
+  generateNodeId,
+  toLocalizedContent,
+  getLocalizedText,
+} from './utils/template-tree-utils'
+
+// Compatibility layer (works with both formats)
+export {
+  getTemplateFormat,
+  hasTreeFormat,
+  hasStructureFormat,
+  convertStructureToTree,
+  getUnifiedSections,
+  getUnifiedLanguages,
+  getUnifiedSearchIndexField,
+  ensureTreeFormat,
+  migrateToTreeFormat,
+} from './utils/template-compat'
+
+// Simple mode constraints
+export {
+  SIMPLE_MODE_SECTIONS,
+  SIMPLE_MODE_NODE_TYPES,
+  isValidSimpleModeTemplate,
+  getSimpleModeWarnings,
+  createSimpleModeTemplate,
+  addFieldToSection,
+  removeFieldFromSection,
+  reorderFieldsInSection,
+} from './utils/simple-mode-constraints'
+
+// Validation
+export {
+  validateTemplateForDisplay,
+  SEMANTIC_FIELD_PRESETS,
+  getSemanticPresetForFieldId,
+} from './utils/template-validation'
 
 // ============================================================================
 // Types
@@ -62,7 +125,11 @@ export type {
   PaginationState,
   BackendTemplate,
   TemplateJsonPayload,
+  // Re-export TemplateNode from origyn-template.types
+  TemplateNode,
 } from './types/template.types'
+
+// Legacy types (still used during migration)
 export type {
   TemplateStructure,
   TemplateSection,
@@ -76,6 +143,18 @@ export type {
   CertificateFormData,
   ValidationResult,
 } from './types/template.types'
+
+// Compatibility layer types
+export type {
+  UnifiedSection,
+  UnifiedItem,
+  TemplateFormat,
+} from './utils/template-compat'
+
+export type {
+  FormField,
+  NodeSearchResult,
+} from './utils/template-tree-utils'
 
 export {
   transformBackendTemplate,

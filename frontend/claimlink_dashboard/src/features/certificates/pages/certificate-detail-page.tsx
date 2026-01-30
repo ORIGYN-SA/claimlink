@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { CertificateDetailActions } from "../components/certificate-detail-actions";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
@@ -18,6 +18,7 @@ import {
   extractTextFromMetadata,
   extractImageFromMetadata,
 } from "../utils/metadata-extractors";
+import { Button } from "@/components/ui/button";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -35,12 +36,32 @@ export function CertificateDetailPage({
 }: CertificateDetailPageProps) {
   const navigate = useNavigate();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
 
   // Fetch template for this collection from on-chain collection metadata
   const { data: templateStructure } = useCollectionTemplate({
     collectionId: certificate.canisterId || '',
     enabled: !!certificate.canisterId,
   });
+
+  // Get available languages from template or parsedMetadata
+  const availableLanguages = useMemo(() => {
+    // First try parsed metadata (from on-chain)
+    if (parsedMetadata?.templates?.languages && parsedMetadata.templates.languages.length > 0) {
+      return parsedMetadata.templates.languages.map((lang) => ({
+        code: typeof lang === 'string' ? lang : lang.key || lang.code || 'en',
+        name: typeof lang === 'string' ? lang.toUpperCase() : lang.name || lang.key || 'English',
+      }));
+    }
+    // Then try template structure
+    if (templateStructure?.languages && templateStructure.languages.length > 0) {
+      return templateStructure.languages.map((lang) => ({
+        code: lang.code,
+        name: lang.name,
+      }));
+    }
+    return [{ code: "en", name: "English" }];
+  }, [parsedMetadata?.templates?.languages, templateStructure?.languages]);
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -56,7 +77,7 @@ export function CertificateDetailPage({
         metadata: parsedMetadata,
         canisterId,
         tokenId,
-        language: 'en',
+        language: selectedLanguage,
         // Include background from template structure if available
         background: templateStructure?.background,
       };
@@ -94,7 +115,7 @@ export function CertificateDetailPage({
           metadata: mockMetadata,
           canisterId,
           tokenId,
-          language: 'en',
+          language: selectedLanguage,
           // Include background from template structure
           background: templateStructure.background,
         };
@@ -105,7 +126,7 @@ export function CertificateDetailPage({
     }
 
     return undefined;
-  }, [certificate, parsedMetadata, templateStructure]);
+  }, [certificate, parsedMetadata, templateStructure, selectedLanguage]);
 
   // Extract issuer info from on-chain metadata
   const issuerInfo = useMemo(() => {
@@ -218,6 +239,23 @@ export function CertificateDetailPage({
         tokenId={certificate.tokenId || certificate.id}
         className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"
       />
+
+      {/* Language Selector (when template has multiple languages) */}
+      {availableLanguages.length > 1 && (
+        <div className="flex justify-center gap-2 flex-wrap py-2">
+          {availableLanguages.map((lang) => (
+            <Button
+              key={lang.code}
+              variant={selectedLanguage === lang.code ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedLanguage(lang.code)}
+              className={`text-xs sm:text-sm ${selectedLanguage === lang.code ? "bg-[#222526]" : ""}`}
+            >
+              {lang.name}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Certificate Viewer with Tabs */}
       <CertificateViewer

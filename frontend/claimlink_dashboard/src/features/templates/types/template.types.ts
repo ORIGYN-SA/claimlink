@@ -296,11 +296,20 @@ export interface PaginationState {
 // Template Types (Frontend)
 // ============================================================================
 
+// Import tree types for the new format
+import type { TemplateNode } from '@/features/template-renderer/types/origyn-template.types';
+
 /**
  * Frontend Template type
  *
  * This is the main template type used throughout the frontend.
  * When stored in the backend, the relevant fields are serialized to JSON.
+ *
+ * Supports two formats during migration:
+ * - `structure`: Legacy TemplateStructure format (sections/items)
+ * - `tree`: New TemplateNode[] tree format (preferred)
+ *
+ * Components should prefer `tree` when available and fall back to `structure`.
  */
 export interface Template {
   id: string; // String version of backend template_id for frontend use
@@ -312,9 +321,19 @@ export interface Template {
   updatedAt?: Date;
   thumbnail?: string;
   metadata?: Record<string, unknown>;
-  // Template structure with sections and items
+  /**
+   * Legacy template structure with sections and items
+   * @deprecated Use `tree` instead
+   */
   structure?: TemplateStructure;
+  /**
+   * New template tree format - array of TemplateNode
+   * This is the preferred format going forward.
+   */
+  tree?: TemplateNode[];
 }
+
+export { type TemplateNode };
 
 // ============================================================================
 // Backend Template Types

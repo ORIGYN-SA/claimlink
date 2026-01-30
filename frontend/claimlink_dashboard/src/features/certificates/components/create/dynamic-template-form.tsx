@@ -141,14 +141,6 @@ export function DynamicTemplateForm({
   const defaultLanguage = templateLanguages.find((l) => l.isDefault) || templateLanguages[0];
   const additionalLanguages = templateLanguages.filter((l) => !l.isDefault && l.code !== defaultLanguage?.code);
 
-  // Debug logging for multi-language
-  console.log('[DynamicTemplateForm] Language config:', {
-    hasStructure: !!template.structure,
-    templateLanguages: templateLanguages.map(l => ({ code: l.code, name: l.name, isDefault: l.isDefault })),
-    defaultLanguage: defaultLanguage ? { code: defaultLanguage.code, name: defaultLanguage.name } : null,
-    additionalLanguages: additionalLanguages.map(l => ({ code: l.code, name: l.name })),
-  });
-
   // Language flag emoji mapping
   const languageFlags: Record<string, string> = {
     en: '🇬🇧',

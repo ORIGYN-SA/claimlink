@@ -41,14 +41,10 @@ export class CertificatesService {
    * @returns Normalized URL in the correct format for the environment
    */
   private static normalizeAssetUrl(url: string, canisterId: string): string {
-    console.log('[Upload Debug] normalizeAssetUrl input:', { url, canisterId });
-
     // If URL is relative (starts with /), prepend the canister base URL
     if (url.startsWith('/')) {
       const baseUrl = buildCanisterUrl(canisterId);
-      const normalized = `${baseUrl}${url}`;
-      console.log('[Upload Debug] Normalized relative URL:', { original: url, normalized });
-      return normalized;
+      return `${baseUrl}${url}`;
     }
 
     // If URL is already absolute, check if it needs domain correction
@@ -57,27 +53,20 @@ export class CertificatesService {
       if (!isLocalReplica()) {
         // Convert icp0.io to raw.icp0.io if needed
         if (url.includes('.icp0.io') && !url.includes('.raw.icp0.io')) {
-          const normalized = url.replace('.icp0.io', '.raw.icp0.io');
-          console.log('[Upload Debug] Added .raw to domain:', { original: url, normalized });
-          return normalized;
+          return url.replace('.icp0.io', '.raw.icp0.io');
         }
         // Convert ic0.app to raw.icp0.io
         if (url.includes('.ic0.app')) {
-          const normalized = url.replace('.ic0.app', '.raw.icp0.io');
-          console.log('[Upload Debug] Converted ic0.app to raw.icp0.io:', { original: url, normalized });
-          return normalized;
+          return url.replace('.ic0.app', '.raw.icp0.io');
         }
       }
       // URL is already in correct format
-      console.log('[Upload Debug] URL already in correct format:', url);
       return url;
     }
 
     // URL doesn't start with / or http - treat as relative path
     const baseUrl = buildCanisterUrl(canisterId);
-    const normalized = `${baseUrl}/${url}`;
-    console.log('[Upload Debug] Normalized path URL:', { original: url, normalized });
-    return normalized;
+    return `${baseUrl}/${url}`;
   }
 
   /**
@@ -206,26 +195,14 @@ export class CertificatesService {
     const filePath = `${Date.now()}_${sanitizedName}`;
     const fileSize = BigInt(file.size);
 
-    console.log('[Upload Debug] Starting upload:', {
-      fileName: file.name,
-      filePath,
-      fileType: file.type,
-      fileSize: file.size,
-      canisterId,
-      totalChunks: Math.ceil(file.size / CHUNK_SIZE),
-    });
-
     // Calculate file hash (SHA-256)
     const arrayBuffer = await file.arrayBuffer();
     const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
-    console.log('[Upload Debug] File hash calculated:', fileHash.substring(0, 16) + '...');
-
     // Initialize upload
     await this.initUpload(agent, canisterId, filePath, fileHash, fileSize, BigInt(CHUNK_SIZE));
-    console.log('[Upload Debug] initUpload successful');
 
     // Upload chunks
     const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
@@ -248,39 +225,13 @@ export class CertificatesService {
       if (onProgress) {
         onProgress(((i + 1) / totalChunks) * 100);
       }
-
-      console.log(`[Upload Debug] Chunk ${i + 1}/${totalChunks} uploaded`);
     }
 
     // Finalize and get URL
     const rawUrl = await this.finalizeUpload(agent, canisterId, filePath);
 
-    console.log('[Upload Debug] finalizeUpload returned:', {
-      rawUrl,
-      canisterId,
-      filePath,
-      isAbsolute: rawUrl.startsWith('http'),
-      hasRawDomain: rawUrl.includes('.raw.'),
-    });
-
-    // Enhanced debug logging for multi-chunk analysis
-    console.log('[Upload Debug] Multi-chunk analysis:', {
-      fileName: file.name,
-      fileSize: file.size,
-      totalChunks,
-      isMultiChunk: totalChunks > 1,
-      rawUrlFromFinalize: rawUrl,
-      urlPattern: rawUrl.includes('/-/') ? 'token-asset' : rawUrl.includes('/collection/-/') ? 'collection-asset' : 'unknown',
-      chunkSize: CHUNK_SIZE,
-      expectedChunkCount: Math.ceil(file.size / CHUNK_SIZE),
-    });
-
     // Normalize the URL for the current environment
-    const normalizedUrl = this.normalizeAssetUrl(rawUrl, canisterId);
-
-    console.log('[Upload Debug] Final normalized URL:', normalizedUrl);
-
-    return normalizedUrl;
+    return this.normalizeAssetUrl(rawUrl, canisterId);
   }
 
   /**
@@ -365,21 +316,6 @@ export class CertificatesService {
   ): Promise<GetBlocksResult> {
     const actor = this.createActor(agent, canisterId);
     const request: GetBlocksRequest = { start, length };
-
-    console.log('[CertificatesService.getTransactionHistory] Fetching blocks:', {
-      canisterId,
-      start: start.toString(),
-      length: length.toString(),
-    });
-
-    const result = await actor.icrc3_get_blocks([request]);
-
-    console.log('[CertificatesService.getTransactionHistory] Fetched blocks:', {
-      log_length: result.log_length.toString(),
-      blocks_count: result.blocks.length,
-      archived_blocks_count: result.archived_blocks.length,
-    });
-
-    return result;
+    return actor.icrc3_get_blocks([request]);
   }
 }

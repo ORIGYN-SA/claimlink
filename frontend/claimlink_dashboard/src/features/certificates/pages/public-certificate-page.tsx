@@ -1,4 +1,4 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { usePublicCertificate } from "../api/certificates.queries";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
@@ -47,12 +47,36 @@ export const PublicCertificatePage = ({
     tokenId,
   );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
 
   // Fetch template for this collection from on-chain collection metadata
   const { data: templateStructure } = useCollectionTemplate({
     collectionId,
     enabled: !!collectionId,
   });
+
+  // Get available languages from template or parsedMetadata
+  const availableLanguages = useMemo(() => {
+    if (!data) return [{ code: "en", name: "English" }];
+
+    const { parsedMetadata } = data;
+
+    // First try parsed metadata (from on-chain)
+    if (parsedMetadata?.templates?.languages && parsedMetadata.templates.languages.length > 0) {
+      return parsedMetadata.templates.languages.map((lang) => ({
+        code: typeof lang === 'string' ? lang : lang.key || lang.code || 'en',
+        name: typeof lang === 'string' ? lang.toUpperCase() : lang.name || lang.key || 'English',
+      }));
+    }
+    // Then try template structure
+    if (templateStructure?.languages && templateStructure.languages.length > 0) {
+      return templateStructure.languages.map((lang) => ({
+        code: lang.code,
+        name: lang.name,
+      }));
+    }
+    return [{ code: "en", name: "English" }];
+  }, [data, templateStructure?.languages]);
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -71,7 +95,7 @@ export const PublicCertificatePage = ({
         metadata: parsedMetadata,
         canisterId,
         tokenId: token,
-        language: "en",
+        language: selectedLanguage,
         // Include background from template structure if available
         background: templateStructure?.background,
       };
@@ -108,7 +132,7 @@ export const PublicCertificatePage = ({
           metadata: mockMetadata,
           canisterId,
           tokenId: token,
-          language: "en",
+          language: selectedLanguage,
           // Include background from template structure
           background: templateStructure.background,
         };
@@ -119,7 +143,7 @@ export const PublicCertificatePage = ({
     }
 
     return undefined;
-  }, [data, templateStructure, collectionId, tokenId]);
+  }, [data, templateStructure, collectionId, tokenId, selectedLanguage]);
 
   // Extract issuer info from on-chain metadata
   const issuerInfo = useMemo(() => {
@@ -264,6 +288,23 @@ export const PublicCertificatePage = ({
           tokenId={tokenId}
           className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"
         />
+
+        {/* Language Selector (when template has multiple languages) */}
+        {availableLanguages.length > 1 && (
+          <div className="flex justify-center gap-2 flex-wrap py-2">
+            {availableLanguages.map((lang) => (
+              <Button
+                key={lang.code}
+                variant={selectedLanguage === lang.code ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedLanguage(lang.code)}
+                className={`text-xs sm:text-sm ${selectedLanguage === lang.code ? "bg-[#222526]" : ""}`}
+              >
+                {lang.name}
+              </Button>
+            ))}
+          </div>
+        )}
 
         {/* Certificate Viewer with Dynamic Template */}
         <CertificateViewer
