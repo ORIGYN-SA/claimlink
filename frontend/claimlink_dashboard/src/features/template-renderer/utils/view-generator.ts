@@ -22,10 +22,8 @@ import type {
   ColumnsNode,
   ElementsNode,
   TitleNode,
-  TextNode,
   ValueFieldNode,
   SeparatorNode,
-  CollectionImageNode,
   GalleryNode,
   ImageNode,
   VideoNode,
@@ -81,30 +79,10 @@ function generateCertificateTemplate(
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
 
-  // Find Certificate section (order: 1) - needed early to get title
+  // Find Certificate section
   const certificateSection: TemplateSection | undefined = structure.sections.find(
     (s) => s.name === "Certificate",
   );
-
-  // Collection logo (with bottom margin to match static layout)
-  nodes.push({
-    id: generateNodeId(),
-    type: "collectionImage",
-    className: "certificateLogoImg h-12 object-contain mb-[100px]",
-    libId: "certificatelogo.png",
-  } as CollectionImageNode);
-
-  // Certificate title (extract from template structure or use default)
-  const titleItem: TemplateItem | undefined = certificateSection?.items.find((i) => i.type === "title");
-  const certificateTitle =
-    (titleItem as any)?.defaultValue || titleItem?.label || "Certificate";
-
-  nodes.push({
-    id: generateNodeId(),
-    type: "title",
-    className: "mainTitle",
-    title: toLocalizedContent(certificateTitle, languages),
-  } as TitleNode);
 
   if (certificateSection) {
     // Container for all fields with gap-10
@@ -159,59 +137,6 @@ function generateCertificateTemplate(
     nodes.push(fieldsContainer);
   }
 
-  // Signature Section with gap-2, py-4, mt-6
-  const signatureSection: ElementsNode = {
-    id: generateNodeId(),
-    type: "elements",
-    className: "flex flex-col gap-2 items-center w-full py-4 mt-6",
-    content: [
-      // Signature image
-      {
-        id: generateNodeId(),
-        type: "collectionImage",
-        className: "signatureImage h-[100px] w-[178px] object-contain",
-        libId: "signature.png",
-      } as CollectionImageNode,
-      // Certified by field group (gap-1)
-      {
-        id: generateNodeId(),
-        type: "elements",
-        className: "flex flex-col gap-1 items-center text-center w-full",
-        content: [
-          {
-            id: generateNodeId(),
-            type: "title",
-            title: toLocalizedContent("Certified by", languages),
-          } as TitleNode,
-          {
-            id: generateNodeId(),
-            type: "text",
-            className: "text-[24px] font-medium leading-8 text-[#222526]",
-            text: toLocalizedContent("ORIGYN", languages),
-          } as TextNode,
-        ],
-      } as ElementsNode,
-    ],
-  };
-
-  nodes.push(signatureSection);
-
-  // ORIGYN Logo Bottom with gap-4, mt-10, mb-6
-  const origynLogoSection: ElementsNode = {
-    id: generateNodeId(),
-    type: "elements",
-    className: "flex flex-col gap-4 items-center mt-10 mb-6",
-    content: [
-      {
-        id: generateNodeId(),
-        type: "collectionImage",
-        className: "h-[90px] w-[92px] object-contain",
-        libId: "origynlogo.png",
-      } as CollectionImageNode,
-    ],
-  };
-
-  nodes.push(origynLogoSection);
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {
@@ -304,18 +229,6 @@ function generateUserViewTemplate(
     } as ValueFieldNode);
   }
 
-  // Certifications badge
-  nodes.push({
-    id: generateNodeId(),
-    type: "title",
-    title: toLocalizedContent("Certifications", languages),
-  } as TitleNode);
-
-  nodes.push({
-    id: generateNodeId(),
-    type: "collectionImage",
-    libId: "certimage.png",
-  } as CollectionImageNode);
 
   // Wrap in columns/elements
   const elementsNode: ElementsNode = {
@@ -353,19 +266,6 @@ function generateExperienceTemplate(
   languages: TemplateLanguageConfig[],
 ): TemplateNode[] {
   const nodes: TemplateNode[] = [];
-
-  // Collection logo at top
-  nodes.push({
-    id: generateNodeId(),
-    type: "collectionImage",
-    className: "collectionlogo",
-    libId: "collectionlogo.png",
-  } as CollectionImageNode);
-
-  nodes.push({
-    id: generateNodeId(),
-    type: "separator",
-  } as SeparatorNode);
 
   // Find Information section (order: 2)
   const informationSection: TemplateSection | undefined = structure.sections.find(
