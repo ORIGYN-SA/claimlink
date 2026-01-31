@@ -12,7 +12,6 @@
 import type {
   TemplateStructure,
   CertificateFormData,
-  Template,
 } from "@/features/templates/types/template.types";
 
 import type { OrigynAppEntry, FileReference, TemplateNode, RootNode } from "../types";
@@ -20,7 +19,6 @@ import { isRootNode } from "../types";
 
 import { generateOrigynViews } from "./view-generator";
 import { convertFormDataToOrigynMetadata } from "./template-converter";
-import { getTemplateFormat } from "@/features/templates/utils/template-compat";
 
 // ============================================================================
 // Types

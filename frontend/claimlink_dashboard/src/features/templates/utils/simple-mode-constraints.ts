@@ -20,7 +20,6 @@ import type {
   ImageNode,
   GalleryNode,
   VideoNode,
-  LocalizedContent,
   TemplateLanguageConfig,
 } from '@/features/template-renderer/types/origyn-template.types';
 import {

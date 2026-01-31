@@ -41,12 +41,10 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
   const [currentStep, setCurrentStep] = useState<Step>('edit');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [newTemplateId, setNewTemplateId] = useState<string | null>(null);
 
   // Create template mutation (editing creates a new template)
   const createTemplateMutation = useCreateTemplate({
-    onSuccess: (templateId) => {
-      setNewTemplateId(templateId.toString());
+    onSuccess: () => {
       setShowSuccessDialog(true);
     },
     onError: (error) => {
@@ -83,13 +81,6 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
   };
 
   // Handle dialog actions
-  const handleGoToNewTemplate = () => {
-    setShowSuccessDialog(false);
-    if (newTemplateId) {
-      navigate({ to: '/templates/$templateId', params: { templateId: newTemplateId } });
-    }
-  };
-
   const handleGoToTemplates = () => {
     setShowSuccessDialog(false);
     navigate({ to: '/templates' });

@@ -21,18 +21,12 @@ import type {
   TemplateNodeType,
   RootNode,
   SectionNode,
-  FieldNode,
-  ElementsNode,
-  ColumnsNode,
   LocalizedContent,
   TemplateBackground,
   TemplateLanguageConfig,
 } from '@/features/template-renderer/types/origyn-template.types';
 import {
   isRootNode,
-  isSectionNode,
-  isElementsNode,
-  isColumnsNode,
   isFieldNode,
 } from '@/features/template-renderer/types/origyn-template.types';
 

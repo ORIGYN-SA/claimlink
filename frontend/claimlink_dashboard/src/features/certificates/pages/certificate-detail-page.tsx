@@ -1,5 +1,4 @@
 import { useMemo, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
 import { CertificateDetailActions } from "../components/certificate-detail-actions";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
 import { CertificateViewer, type TemplateData } from "../components/certificate-viewer";
@@ -34,7 +33,6 @@ export function CertificateDetailPage({
   eventsData,
   ledgerData,
 }: CertificateDetailPageProps) {
-  const navigate = useNavigate();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
 
@@ -49,8 +47,8 @@ export function CertificateDetailPage({
     // First try parsed metadata (from on-chain)
     if (parsedMetadata?.templates?.languages && parsedMetadata.templates.languages.length > 0) {
       return parsedMetadata.templates.languages.map((lang) => ({
-        code: typeof lang === 'string' ? lang : lang.key || lang.code || 'en',
-        name: typeof lang === 'string' ? lang.toUpperCase() : lang.name || lang.key || 'English',
+        code: lang.key || 'en',
+        name: lang.name || lang.key || 'English',
       }));
     }
     // Then try template structure

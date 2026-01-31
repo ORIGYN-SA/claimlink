@@ -22,7 +22,6 @@ import {
   getTemplateFormat,
   getUnifiedSections,
   getUnifiedLanguages,
-  type UnifiedSection,
   type UnifiedItem,
 } from './template-compat';
 

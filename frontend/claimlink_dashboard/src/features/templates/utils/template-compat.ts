@@ -19,7 +19,6 @@ import type {
   InputItem,
   BadgeItem,
   ImageItem,
-  VideoItem,
 } from '../types/template.types';
 import type {
   TemplateNode,
@@ -31,25 +30,15 @@ import type {
   GalleryNode,
   VideoNode,
   ValueFieldNode,
-  LocalizedContent,
   TemplateLanguageConfig,
 } from '@/features/template-renderer/types/origyn-template.types';
-import { isRootNode, isSectionNode } from '@/features/template-renderer/types/origyn-template.types';
+import { isRootNode } from '@/features/template-renderer/types/origyn-template.types';
 import {
   generateNodeId,
   getSectionNodes,
-  getNodeChildren,
   toLocalizedContent,
   createRootNode,
-  createSectionNode,
 } from './template-tree-utils';
-import {
-  createSimpleFieldNode,
-  createSimpleTitleNode,
-  createSimpleImageNode,
-  createSimpleGalleryNode,
-  createSimpleVideoNode,
-} from './simple-mode-constraints';
 
 // ============================================================================
 // Format Detection

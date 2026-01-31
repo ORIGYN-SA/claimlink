@@ -142,9 +142,18 @@ export function EditTemplateStepV2({
       (section) => {
         if (section.id === sectionId) {
           const newOrder = section.items.length;
+          // Spread preset.item and convert readonly arrays to mutable
+          const newItem = {
+            ...preset.item,
+            order: newOrder,
+            // Spread acceptedFormats if present to convert from readonly to mutable
+            ...('acceptedFormats' in preset.item && preset.item.acceptedFormats
+              ? { acceptedFormats: [...preset.item.acceptedFormats] }
+              : {}),
+          } as TemplateItem;
           return {
             ...section,
-            items: [...section.items, { ...preset.item, order: newOrder }],
+            items: [...section.items, newItem],
           };
         }
         return section;

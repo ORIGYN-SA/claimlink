@@ -22,7 +22,6 @@ import type {
   VideoItem,
   CertificateFormData,
   LocalizedValue,
-  TemplateLanguage,
 } from '@/features/templates/types/template.types';
 import { isLocalizedValue } from '@/features/templates/types/template.types';
 import {
