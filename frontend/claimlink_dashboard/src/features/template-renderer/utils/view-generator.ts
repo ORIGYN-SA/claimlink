@@ -93,17 +93,28 @@ function generateCertificateTemplate(
       content: [],
     };
 
-    // Add key fields from Certificate section
+    // Add key fields from Certificate section (images and titles handled elsewhere)
     const certFields: TemplateItem[] = certificateSection.items
       .filter(
         (item) =>
           item.type !== "image" &&
-          item.type !== "title" &&
-          item.type !== "badge",
+          item.type !== "title",
       )
-      .slice(0, 8); // Show up to 8 fields
+      .slice(0, 10); // Show up to 10 fields
 
     certFields.forEach((item: TemplateItem) => {
+        // Badge items render as just the value (no label above)
+        if (item.type === "badge") {
+          const badgeNode: ValueFieldNode = {
+            id: generateNodeId(),
+            type: "valueField",
+            className: "badgeValue",
+            fields: [item.id],
+          };
+          fieldsContainer.content!.push(badgeNode);
+          return;
+        }
+
         // First field gets larger spacing (gap-4, py-2) to emphasize it as the main asset/name
         const isFirstField: boolean =
           certificateSection.items.indexOf(item) === 0 || item.order === 1;
@@ -298,17 +309,12 @@ function generateExperienceTemplate(
           type: "separator",
         } as SeparatorNode);
       }
-      // Handle badge fields
+      // Handle badge fields (value only, no label)
       else if (item.type === "badge") {
         nodes.push({
           id: generateNodeId(),
-          type: "title",
-          title: toLocalizedContent(item.label, languages),
-        } as TitleNode);
-
-        nodes.push({
-          id: generateNodeId(),
           type: "valueField",
+          className: "badgeValue",
           fields: [item.id],
         } as ValueFieldNode);
 

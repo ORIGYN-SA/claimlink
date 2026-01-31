@@ -191,13 +191,13 @@ function convertItemToNodes(
     }
 
     case 'badge': {
-      const badgeItem = item as BadgeItem;
+      // Badge displays just the value without a label (e.g., "100% Made in Italy")
       return [{
-        type: 'field',
+        type: 'valueField',
         id: generateNodeId(),
-        title: toLocalizedContent(badgeItem.label, languages),
         fields: [item.id],
-      } as FieldNode];
+        className: 'badgeValue',
+      } as ValueFieldNode];
     }
 
     case 'image': {
