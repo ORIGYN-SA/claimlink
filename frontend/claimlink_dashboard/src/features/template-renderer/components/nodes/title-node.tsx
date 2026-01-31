@@ -51,6 +51,32 @@ export function TitleNode({ node }: TitleNodeProps) {
     );
   }
 
+  // Custom-certificate variant: formal styling with light text for custom backgrounds
+  if (variant === 'custom-certificate') {
+    if (isMainTitle) {
+      return (
+        <h2
+          className={cn(
+            'text-[14px] sm:text-[20px] font-semibold leading-4 sm:leading-5 text-white text-center tracking-[3px] sm:tracking-[5px] uppercase',
+            node.className
+          )}
+        >
+          {text}
+        </h2>
+      );
+    }
+    return (
+      <h6
+        className={cn(
+          'text-[12px] sm:text-[14px] font-normal leading-5 sm:leading-6 text-[#fcfafa] tracking-[1px] sm:tracking-[1.4px] uppercase text-center',
+          node.className
+        )}
+      >
+        {text}
+      </h6>
+    );
+  }
+
   // Information variant: light text on dark background
   if (variant === 'information') {
     if (isMainTitle) {

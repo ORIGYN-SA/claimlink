@@ -83,7 +83,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Main Content Area */}
         <main className="flex-1 px-3 py-3 sm:px-4 sm:py-4 lg:px-6 lg:py-6 min-w-0">
-          <div className="bg-[#fcfafa] rounded-[12px] sm:rounded-[16px] lg:rounded-[20px] p-4 sm:p-5 lg:p-[24px] w-full max-w-none">
+          <div className="bg-[#fcfafa] rounded-[12px] sm:rounded-[16px] lg:rounded-[20px] p-4 sm:p-5 lg:p-[24px] w-full max-w-none min-h-[calc(100vh-24px)] lg:min-h-[calc(100vh-48px)]">
             <HeaderBar
               title={getPageTitle(location.pathname)}
               subtitle={getPageSubtitle(location.pathname)}

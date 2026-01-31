@@ -172,7 +172,7 @@ export class DashboardService {
       );
 
       // Initialize counts
-      let mintedCount = certificates.length;
+      const mintedCount = certificates.length;
       let awaitingCount = 0;
       let inWalletCount = 0;
       let transferredCount = 0;
@@ -379,5 +379,98 @@ export class DashboardService {
         mints: 32,
       },
     ]);
+  }
+
+  /**
+   * Get recent certificate owners (unique owners who received certificates recently)
+   *
+   * TODO: Implement using ICRC3 transaction history parsing
+   * This would parse transfer events from `icrc3_get_blocks` to find:
+   * - Recipients of recent transfers
+   * - Unique owners across all user collections
+   *
+   * For now returns data derived from enriched certificates.
+   */
+  static async getRecentCertificateOwners(
+    agent: Agent,
+    principalId: string,
+    limit: number = 5
+  ): Promise<Array<{ title: string; date: string; principalId?: string }>> {
+    try {
+      const certificates = await this.getAllUserCertificatesWithDetails(
+        agent,
+        principalId
+      );
+
+      // Filter transferred certificates (owned by others) and get unique owners
+      const transferredCerts = certificates.filter(
+        (cert) => cert.status === 'Transferred' && cert.ownerPrincipal
+      );
+
+      // Create a map to track unique owners with their most recent transfer
+      const ownerMap = new Map<string, { title: string; date: string; principalId: string }>();
+
+      for (const cert of transferredCerts) {
+        const ownerPrincipal = cert.ownerPrincipal!;
+        // Use a shortened principal as the display title
+        const shortPrincipal = `${ownerPrincipal.slice(0, 8)}...${ownerPrincipal.slice(-4)}`;
+
+        // Keep the most recent entry for each owner
+        if (!ownerMap.has(ownerPrincipal)) {
+          ownerMap.set(ownerPrincipal, {
+            title: shortPrincipal,
+            date: cert.date,
+            principalId: ownerPrincipal,
+          });
+        }
+      }
+
+      // Convert to array and limit
+      return Array.from(ownerMap.values()).slice(0, limit);
+    } catch (error) {
+      console.error('[Dashboard] Failed to get recent certificate owners:', error);
+      // Return empty array on error instead of throwing
+      return [];
+    }
+  }
+
+  /**
+   * Get recently sent (transferred) certificates
+   *
+   * TODO: Implement using ICRC3 transaction history parsing
+   * This would parse transfer events from `icrc3_get_blocks` to find:
+   * - Certificates that were transferred out by the current user
+   * - Timestamps and recipient information
+   *
+   * For now returns data derived from enriched certificates.
+   */
+  static async getRecentSentCertificates(
+    agent: Agent,
+    principalId: string,
+    limit: number = 5
+  ): Promise<Array<{ title: string; date: string; tokenId?: string; canisterId?: string }>> {
+    try {
+      const certificates = await this.getAllUserCertificatesWithDetails(
+        agent,
+        principalId
+      );
+
+      // Filter transferred certificates (certificates that are no longer owned by user)
+      const sentCerts = certificates
+        .filter((cert) => cert.status === 'Transferred')
+        .slice(0, limit)
+        .map((cert) => ({
+          title: cert.title,
+          date: cert.date,
+          tokenId: cert.tokenId,
+          canisterId: cert.canisterId,
+        }));
+
+      return sentCerts;
+    } catch (error) {
+      console.error('[Dashboard] Failed to get recent sent certificates:', error);
+      // Return empty array on error instead of throwing
+      return [];
+    }
   }
 }

@@ -169,7 +169,7 @@ export const AuthGate = ({
   targets,
   signers = [NFIDW, InternetIdentity],
   derivationOrigin,
-  maxTimeToLive = 604800000000000n, // one week
+  maxTimeToLive = 86400000000000n, // one day (24 hours in nanoseconds)
 }: AuthGateProps) => {
   const queryClient = useQueryClient();
 

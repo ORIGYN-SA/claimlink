@@ -3,6 +3,10 @@
  *
  * Validates templates for display compatibility and provides warnings
  * when templates are missing fields needed for proper certificate display.
+ *
+ * Supports both:
+ * - TemplateStructure (legacy format during transition)
+ * - TemplateNode[] (new tree format)
  */
 
 import {
@@ -11,8 +15,12 @@ import {
   isTitleFieldId,
   isImageFieldId,
   isDescriptionFieldId,
+  isCompanyLogoFieldId,
+  isCompanyNameFieldId,
 } from '@/shared/constants/reserved-fields';
 import type { TemplateStructure } from '../types/template.types';
+import type { TemplateNode } from '@/features/template-renderer/types/origyn-template.types';
+import { getAllFieldIds as getTreeFieldIds } from './template-tree-utils';
 
 /**
  * Warning severity levels
@@ -26,6 +34,8 @@ export type TemplateWarningType =
   | 'missing_title'
   | 'missing_image'
   | 'missing_description'
+  | 'missing_company_logo'
+  | 'missing_company_name'
   | 'non_standard_id';
 
 /**
@@ -49,25 +59,46 @@ export interface TemplateValidationResult {
   hasTitleField: boolean;
   hasImageField: boolean;
   hasDescriptionField: boolean;
+  hasCompanyLogoField: boolean;
+  hasCompanyNameField: boolean;
 }
 
 /**
- * Get all field IDs from a template structure
+ * Get all field IDs from a template structure (legacy format)
  */
-function getAllFieldIds(structure: TemplateStructure): string[] {
+function getAllFieldIdsFromStructure(structure: TemplateStructure): string[] {
   return structure.sections?.flatMap((s) => s.items.map((i) => i.id)) ?? [];
 }
 
 /**
- * Validate a template structure for display compatibility.
+ * Get all field IDs from a template (supports both formats)
+ */
+export function getAllFieldIds(
+  template: TemplateStructure | TemplateNode[] | undefined
+): string[] {
+  if (!template) return [];
+
+  // Check if it's the tree format (array of TemplateNode)
+  if (Array.isArray(template)) {
+    return getTreeFieldIds(template);
+  }
+
+  // Legacy TemplateStructure format
+  return getAllFieldIdsFromStructure(template);
+}
+
+/**
+ * Validate a template for display compatibility.
+ * Supports both TemplateStructure (legacy) and TemplateNode[] (tree) formats.
  * Returns warnings for missing semantic fields.
  */
 export function validateTemplateForDisplay(
-  structure: TemplateStructure | undefined
+  template: TemplateStructure | TemplateNode[] | undefined
 ): TemplateValidationResult {
   const warnings: TemplateValidationWarning[] = [];
 
-  if (!structure || !structure.sections) {
+  // Handle undefined or empty template
+  if (!template) {
     return {
       warnings: [
         {
@@ -79,10 +110,48 @@ export function validateTemplateForDisplay(
       hasTitleField: false,
       hasImageField: false,
       hasDescriptionField: false,
+      hasCompanyLogoField: false,
+      hasCompanyNameField: false,
     };
   }
 
-  const allFieldIds = getAllFieldIds(structure);
+  // Handle legacy TemplateStructure format
+  if (!Array.isArray(template) && !template.sections) {
+    return {
+      warnings: [
+        {
+          type: 'missing_title',
+          message: 'Template has no structure defined.',
+          severity: 'warning',
+        },
+      ],
+      hasTitleField: false,
+      hasImageField: false,
+      hasDescriptionField: false,
+      hasCompanyLogoField: false,
+      hasCompanyNameField: false,
+    };
+  }
+
+  // Handle empty tree format
+  if (Array.isArray(template) && template.length === 0) {
+    return {
+      warnings: [
+        {
+          type: 'missing_title',
+          message: 'Template has no content defined.',
+          severity: 'warning',
+        },
+      ],
+      hasTitleField: false,
+      hasImageField: false,
+      hasDescriptionField: false,
+      hasCompanyLogoField: false,
+      hasCompanyNameField: false,
+    };
+  }
+
+  const allFieldIds = getAllFieldIds(template);
 
   // Check for title field
   const hasTitleField = RESERVED_FIELDS.TITLE.some((id) =>
@@ -124,11 +193,41 @@ export function validateTemplateForDisplay(
     });
   }
 
+  // Check for company logo field
+  const hasCompanyLogoField = RESERVED_FIELDS.COMPANY_LOGO.some((id) =>
+    allFieldIds.includes(id)
+  );
+  if (!hasCompanyLogoField) {
+    warnings.push({
+      type: 'missing_company_logo',
+      message:
+        'No company logo field found. Certificate header will not display a logo.',
+      severity: 'warning',
+      suggestedIds: RESERVED_FIELDS.COMPANY_LOGO,
+    });
+  }
+
+  // Check for company name field (used for "Issued By" display)
+  const hasCompanyNameField = RESERVED_FIELDS.COMPANY_NAME.some((id) =>
+    allFieldIds.includes(id)
+  );
+  if (!hasCompanyNameField) {
+    warnings.push({
+      type: 'missing_company_name',
+      message:
+        'No company name field found. "Issued By" will fall back to certificate name or collection name.',
+      severity: 'warning',
+      suggestedIds: RESERVED_FIELDS.COMPANY_NAME,
+    });
+  }
+
   return {
     warnings,
     hasTitleField,
     hasImageField,
     hasDescriptionField,
+    hasCompanyLogoField,
+    hasCompanyNameField,
   };
 }
 
@@ -176,12 +275,35 @@ export function getFieldIdPurposeDescription(fieldId: string): string | null {
 /**
  * Semantic field presets for quick-add functionality in the template editor.
  * Each preset creates a field with the recommended ID for its semantic purpose.
+ *
+ * Contains both legacy `item` format (TemplateItem) and new `node` format (TemplateNode).
  */
 export const SEMANTIC_FIELD_PRESETS = [
+  {
+    label: 'Company Logo',
+    description: 'Logo displayed in certificate header (inverted to white)',
+    semantic: 'company_logo' as const,
+    fieldId: 'company_logo',
+    fieldType: 'image' as const,
+    // Legacy format (TemplateItem)
+    item: {
+      id: 'company_logo',
+      type: 'image' as const,
+      label: 'Company Logo',
+      required: true,
+      multiple: false,
+      maxImages: 1,
+      acceptedFormats: ['image/jpeg', 'image/png', 'image/svg+xml', 'image/webp'],
+      order: 0,
+    },
+  },
   {
     label: 'Certificate Name',
     description: 'The main title/name displayed on certificate cards',
     semantic: 'title' as const,
+    fieldId: 'name',
+    fieldType: 'input' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'name',
       type: 'input' as const,
@@ -193,13 +315,16 @@ export const SEMANTIC_FIELD_PRESETS = [
     },
   },
   {
-    label: 'Product Images',
+    label: 'Certificate Image',
     description: 'Images displayed on certificate cards and detail views',
     semantic: 'image' as const,
+    fieldId: 'product_images',
+    fieldType: 'gallery' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'product_images',
       type: 'image' as const,
-      label: 'Product Images',
+      label: 'Certificate Image',
       required: true,
       multiple: true,
       maxImages: 8,
@@ -210,6 +335,9 @@ export const SEMANTIC_FIELD_PRESETS = [
     label: 'Description',
     description: 'Short description for certificate metadata',
     semantic: 'description' as const,
+    fieldId: 'short_description',
+    fieldType: 'textarea' as const,
+    // Legacy format (TemplateItem)
     item: {
       id: 'short_description',
       type: 'input' as const,
@@ -221,9 +349,48 @@ export const SEMANTIC_FIELD_PRESETS = [
       order: 0,
     },
   },
+  {
+    label: 'Company Name',
+    description: 'Company/issuer name displayed in "Issued By" section',
+    semantic: 'company_name' as const,
+    fieldId: 'company_name',
+    fieldType: 'input' as const,
+    // Legacy format (TemplateItem)
+    item: {
+      id: 'company_name',
+      type: 'input' as const,
+      label: 'Company Name',
+      inputType: 'text' as const,
+      required: true,
+      placeholder: 'Enter company or issuer name',
+      order: 0,
+    },
+  },
 ] as const;
 
 /**
  * Type for semantic field preset
  */
 export type SemanticFieldPreset = (typeof SEMANTIC_FIELD_PRESETS)[number];
+
+/**
+ * Get the semantic preset for a field ID if it matches a known semantic field
+ */
+export function getSemanticPresetForFieldId(fieldId: string): SemanticFieldPreset | null {
+  if (isTitleFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'title') || null;
+  }
+  if (isImageFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'image') || null;
+  }
+  if (isDescriptionFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'description') || null;
+  }
+  if (isCompanyLogoFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'company_logo') || null;
+  }
+  if (isCompanyNameFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'company_name') || null;
+  }
+  return null;
+}

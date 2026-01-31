@@ -15,51 +15,14 @@ import {
   type TemplateNode,
   type ParsedOrigynMetadata,
   type RenderDataSource,
-  type MetadataFieldValue,
   resolveTokenAssetUrl,
   resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
-
-/**
- * Helper to extract string value from metadata field
- * Handles both plain strings and MetadataFieldValue objects
- */
-function extractMetadataValue(
-  value: unknown,
-  language: string = 'en'
-): string | undefined {
-  if (!value) return undefined;
-
-  // Plain string
-  if (typeof value === 'string') return value;
-
-  // MetadataFieldValue object
-  if (typeof value === 'object' && value !== null && 'content' in value) {
-    const metaValue = value as MetadataFieldValue;
-    const content = metaValue.content;
-
-    // String content
-    if (typeof content === 'string') return content;
-
-    // Localized content object
-    if (typeof content === 'object' && content !== null && !('date' in content)) {
-      const localized = content as Record<string, string>;
-      // Try requested language first, then English, then first available
-      if (localized[language]) return localized[language];
-      if (localized['en']) return localized['en'];
-      const keys = Object.keys(localized);
-      if (keys.length > 0) return localized[keys[0]];
-    }
-
-    // Date content - format it
-    if (typeof content === 'object' && content !== null && 'date' in content) {
-      const date = new Date((content as { date: number }).date);
-      return date.toLocaleDateString();
-    }
-  }
-
-  return undefined;
-}
+import type { TemplateBackground } from "@/features/templates/types/template.types";
+import {
+  extractTextFromMetadata,
+  extractImageFromMetadata,
+} from "../utils/metadata-extractors";
 
 /**
  * Template data for dynamic rendering from ORIGYN NFT metadata
@@ -81,6 +44,8 @@ export interface TemplateData {
   language?: string;
   /** Whether to show placeholders for missing values (preview mode) */
   showPlaceholders?: boolean;
+  /** Background configuration for certificate rendering */
+  background?: TemplateBackground;
 }
 
 interface CertificateViewerProps {
@@ -90,6 +55,8 @@ interface CertificateViewerProps {
   eventsData?: CertificateEventsData;
   /** Ledger tab data (blockchain ownership history) */
   ledgerData?: CertificateLedgerData;
+  /** Callback when an event is added (to refresh data) */
+  onEventAdded?: () => void;
   /** Additional CSS classes */
   className?: string;
 }
@@ -116,6 +83,7 @@ export function CertificateViewer({
   templateData,
   eventsData,
   ledgerData,
+  onEventAdded,
   className,
 }: CertificateViewerProps) {
   const [activeTab, setActiveTab] = useState<CertificateTab>("certificate");
@@ -134,16 +102,21 @@ export function CertificateViewer({
       case "certificate":
         // Use CertificateFrame wrapper with TemplateRenderer for content
         if (templateData?.certificateTemplate && dataSource) {
-          // Get company logo from metadata if available
-          const companyLogo = extractMetadataValue(
+          // Get company logo from metadata if available (image field)
+          const companyLogo = extractImageFromMetadata(
             templateData.metadata.metadata.company_logo,
-            templateData.language || 'en'
+            templateData.canisterId,
+            templateData.tokenId
           );
+
+          // Determine variant based on background type
+          const variant = templateData.background?.type === 'custom' ? 'custom-certificate' : 'certificate';
 
           return (
             <CertificateFrame
               companyLogo={companyLogo}
               tokenId={templateData.tokenId}
+              background={templateData.background}
             >
               <TemplateRenderer
                 template={templateData.certificateTemplate}
@@ -151,7 +124,7 @@ export function CertificateViewer({
                 canisterId={templateData.canisterId}
                 tokenId={templateData.tokenId}
                 language={templateData.language || 'en'}
-                variant="certificate"
+                variant={variant}
               />
             </CertificateFrame>
           );
@@ -164,15 +137,15 @@ export function CertificateViewer({
           const lang = templateData.language || 'en';
 
           // Extract title info from metadata using helper
-          const companyName = extractMetadataValue(
+          const companyName = extractTextFromMetadata(
             templateData.metadata.metadata.company_name,
             lang
           );
-          const certificateTitle = extractMetadataValue(
+          const certificateTitle = extractTextFromMetadata(
             templateData.metadata.metadata.certificate_title,
             lang
           );
-          const year = extractMetadataValue(
+          const year = extractTextFromMetadata(
             templateData.metadata.metadata.certification_date,
             lang
           );
@@ -225,7 +198,14 @@ export function CertificateViewer({
       case "events":
         // Events tab shows blockchain event data
         if (eventsData) {
-          return <CertificateEvents data={eventsData} />;
+          return (
+            <CertificateEvents
+              data={eventsData}
+              canisterId={templateData?.canisterId}
+              tokenId={templateData?.tokenId}
+              onEventAdded={onEventAdded}
+            />
+          );
         }
         return <NoDataPlaceholder tab="events" />;
 

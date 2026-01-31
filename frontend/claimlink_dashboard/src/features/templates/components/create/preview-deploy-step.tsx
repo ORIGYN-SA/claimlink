@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import type { Template } from "../../types/template.types";
+import type { Template, TemplateBackground } from "../../types/template.types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -110,40 +110,64 @@ function TemplatePreviewSection({
           <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-2">
             Background Type
           </p>
-          <div className="flex items-center gap-2 flex-wrap">
-            {selectedTemplate?.backgroundType === "custom" ? (
-              <div className="contents">
-                <Badge variant="outline" className="text-xs">
-                  Custom
-                </Badge>
-                <span className="text-xs sm:text-sm text-[#222526]">
-                  Custom background image uploaded
-                </span>
-              </div>
-            ) : (
-              <div className="contents">
-                <Badge variant="outline" className="text-xs">
-                  Standard
-                </Badge>
-                <span className="text-xs sm:text-sm text-[#222526]">
-                  Default ORIGYN background
-                </span>
-              </div>
-            )}
-          </div>
-          {selectedTemplate?.backgroundType === "custom" &&
-            selectedTemplate.customBackgroundImage && (
-              <div className="mt-3">
-                <p className="text-xs text-[#69737c] mb-1">Preview</p>
-                <div className="w-full h-20 sm:h-24 rounded border border-[#e1e1e1] overflow-hidden">
-                  <img
-                    src={selectedTemplate.customBackgroundImage}
-                    alt="Custom background"
-                    className="w-full h-full object-cover"
-                  />
+          {(() => {
+            // Check both local UI state and saved structure
+            const isCustom = selectedTemplate?.backgroundType === "custom" ||
+              selectedTemplate?.structure?.background?.type === "custom";
+            const customImage = selectedTemplate?.customBackgroundImage ||
+              selectedTemplate?.structure?.background?.dataUri;
+            const isVideo = customImage?.startsWith('data:video') ||
+              selectedTemplate?.structure?.background?.mediaType === 'video';
+
+            return (
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  {isCustom ? (
+                    <div className="contents">
+                      <Badge variant="outline" className="text-xs">
+                        Custom
+                      </Badge>
+                      <span className="text-xs sm:text-sm text-[#222526]">
+                        Custom background {isVideo ? 'video' : 'image'} uploaded
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="contents">
+                      <Badge variant="outline" className="text-xs">
+                        Standard
+                      </Badge>
+                      <span className="text-xs sm:text-sm text-[#222526]">
+                        Default ORIGYN background
+                      </span>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
+                {isCustom && customImage && (
+                  <div className="mt-3">
+                    <p className="text-xs text-[#69737c] mb-1">Preview</p>
+                    <div className="w-full h-20 sm:h-24 rounded border border-[#e1e1e1] overflow-hidden">
+                      {isVideo ? (
+                        <video
+                          src={customImage}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                          autoPlay
+                        />
+                      ) : (
+                        <img
+                          src={customImage}
+                          alt="Custom background"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* Company Info (if available) */}
@@ -169,8 +193,12 @@ function TemplatePreviewSection({
   );
 }
 
+// Placeholder SVG for company logo preview (simple company icon)
+const PLACEHOLDER_LOGO_SVG = `data:image/svg+xml,${encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" width="120" height="40" viewBox="0 0 120 40"><rect fill="#e1e1e1" width="120" height="40" rx="4"/><text x="60" y="24" font-family="system-ui, sans-serif" font-size="12" fill="#69737c" text-anchor="middle">Company Logo</text></svg>`)}`;
+
 // Mock form data for preview
 const MOCK_PREVIEW_DATA: Record<string, string> = {
+  company_logo: PLACEHOLDER_LOGO_SVG,
   company_name: "Sample Company",
   vat_number: "IT01450040702",
   certification_expiration: "2024-12-31",
@@ -209,6 +237,24 @@ function CertificatePreview({
     }
   }, [selectedTemplate?.structure]);
 
+  // Build background configuration from template state
+  // Check both local UI state (during creation) and saved structure (when editing)
+  const background: TemplateBackground | undefined = useMemo(() => {
+    // First check local UI state properties (used during new template creation)
+    if (selectedTemplate?.backgroundType === 'custom' && selectedTemplate.customBackgroundImage) {
+      return {
+        type: 'custom',
+        dataUri: selectedTemplate.customBackgroundImage,
+        mediaType: selectedTemplate.customBackgroundImage.startsWith('data:video') ? 'video' as const : 'image' as const,
+      };
+    }
+    // Then check saved structure (used when editing existing templates)
+    if (selectedTemplate?.structure?.background?.type === 'custom' && selectedTemplate.structure.background.dataUri) {
+      return selectedTemplate.structure.background;
+    }
+    return { type: 'standard' };
+  }, [selectedTemplate?.backgroundType, selectedTemplate?.customBackgroundImage, selectedTemplate?.structure?.background]);
+
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
     if (!origynViews) return undefined;
@@ -237,8 +283,9 @@ function CertificatePreview({
       tokenId: "preview-token",
       language: selectedLanguage,
       showPlaceholders: true, // Enable placeholders for custom fields in preview
+      background, // Pass background for custom image/video rendering
     };
-  }, [origynViews, selectedLanguage]);
+  }, [origynViews, selectedLanguage, background]);
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -248,7 +295,7 @@ function CertificatePreview({
         </h3>
         <p className="text-[#69737c] text-sm sm:text-base">
           Preview how your certificate will look with{" "}
-          {selectedTemplate?.backgroundType === "custom"
+          {(selectedTemplate?.backgroundType === "custom" || selectedTemplate?.structure?.background?.type === "custom")
             ? "your custom background"
             : "the standard ORIGYN background"}
         </p>

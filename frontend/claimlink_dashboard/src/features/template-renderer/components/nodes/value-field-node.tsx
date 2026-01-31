@@ -67,6 +67,36 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     );
   }
 
+  // Custom-certificate variant: large centered light text for custom backgrounds
+  if (variant === 'custom-certificate') {
+    if (isMainValue) {
+      return (
+        <h3
+          className={cn(
+            'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px] text-white text-center',
+            isPlaceholder && 'text-gray-500 italic',
+            node.className
+          )}
+        >
+          {node.preText}
+          <span className="whitespace-pre-wrap">{displayValue}</span>
+        </h3>
+      );
+    }
+    return (
+      <h5
+        className={cn(
+          'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-white text-center',
+          isPlaceholder && 'text-gray-500 italic',
+          node.className
+        )}
+      >
+        {node.preText}
+        <span className="whitespace-pre-wrap">{displayValue}</span>
+      </h5>
+    );
+  }
+
   // Information variant: light text on dark background
   if (variant === 'information') {
     if (isMainValue) {

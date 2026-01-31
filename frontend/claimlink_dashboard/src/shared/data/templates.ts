@@ -63,6 +63,16 @@ export const madeInItalyTemplate: Template = {
         description: "Essential certification information and formal data",
         items: [
           {
+            id: "company_logo",
+            type: "image",
+            label: "Company Logo",
+            order: 0,
+            required: true,
+            multiple: false,
+            maxImages: 1,
+            acceptedFormats: ["image/jpeg", "image/png", "image/svg+xml", "image/webp"],
+          },
+          {
             id: "name",
             type: "input",
             label: "Company Name",
@@ -148,7 +158,7 @@ export const madeInItalyTemplate: Template = {
           {
             id: "product_images",
             type: "image",
-            label: "Product Images",
+            label: "Certificate Image",
             order: 8,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
@@ -315,6 +325,16 @@ export const goldCertificateTemplate: Template = {
         description: "Essential certification information and formal data",
         items: [
           {
+            id: "company_logo",
+            type: "image",
+            label: "Company Logo",
+            order: 0,
+            required: true,
+            multiple: false,
+            maxImages: 1,
+            acceptedFormats: ["image/jpeg", "image/png", "image/svg+xml", "image/webp"],
+          },
+          {
             id: "dealer_name",
             type: "input",
             label: "Dealer/Refiner Name",
@@ -394,7 +414,7 @@ export const goldCertificateTemplate: Template = {
           {
             id: "product_images",
             type: "image",
-            label: "Product Images",
+            label: "Certificate Image",
             order: 9,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png"],
@@ -540,6 +560,16 @@ export const manualTemplateOption: Template = {
         collapsible: false,
         description: "Essential certification information",
         items: [
+          {
+            id: "company_logo",
+            type: "image",
+            label: "Company Logo",
+            order: 0,
+            required: true,
+            multiple: false,
+            maxImages: 1,
+            acceptedFormats: ["image/jpeg", "image/png", "image/svg+xml", "image/webp"],
+          },
           {
             id: "name",
             type: "input",

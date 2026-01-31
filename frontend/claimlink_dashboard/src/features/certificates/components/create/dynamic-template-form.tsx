@@ -21,10 +21,13 @@ import type {
   ImageItem,
   VideoItem,
   CertificateFormData,
+  LocalizedValue,
 } from '@/features/templates/types/template.types';
+import { isLocalizedValue } from '@/features/templates/types/template.types';
 import {
   getTemplateSections,
   getSectionItems,
+  getTemplateLanguages,
   isTitleItem,
   isInputItem,
   isBadgeItem,
@@ -132,11 +135,82 @@ export function DynamicTemplateForm({
     );
   };
 
-  // Render Input Item
+  // Get additional languages (non-default) from template
+  const templateLanguages = template.structure ? getTemplateLanguages(template) : [];
+  const defaultLanguage = templateLanguages.find((l) => l.isDefault) || templateLanguages[0];
+  const additionalLanguages = templateLanguages.filter((l) => !l.isDefault && l.code !== defaultLanguage?.code);
+
+  // Language flag emoji mapping
+  const languageFlags: Record<string, string> = {
+    en: '🇬🇧',
+    it: '🇮🇹',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    es: '🇪🇸',
+    pt: '🇵🇹',
+    nl: '🇳🇱',
+    pl: '🇵🇱',
+    ru: '🇷🇺',
+    zh: '🇨🇳',
+    ja: '🇯🇵',
+    ko: '🇰🇷',
+    ar: '🇸🇦',
+  };
+
+  // Helper to get the primary (default language) value from form data
+  const getPrimaryValue = (itemId: string): string => {
+    const value = formData[itemId];
+    if (typeof value === 'string') return value;
+    if (isLocalizedValue(value)) {
+      return value[defaultLanguage?.code || 'en'] || '';
+    }
+    return '';
+  };
+
+  // Helper to get translation value for a specific language
+  const getTranslationValue = (itemId: string, langCode: string): string => {
+    const value = formData[itemId];
+    if (isLocalizedValue(value)) {
+      return value[langCode] || '';
+    }
+    return '';
+  };
+
+  // Handle primary value change (converts to LocalizedValue if translations exist)
+  const handlePrimaryChange = (itemId: string, newValue: string) => {
+    const currentValue = formData[itemId];
+
+    if (additionalLanguages.length > 0) {
+      // Multi-language mode: store as LocalizedValue
+      const localizedValue: LocalizedValue = isLocalizedValue(currentValue)
+        ? { ...currentValue }
+        : {};
+      localizedValue[defaultLanguage?.code || 'en'] = newValue;
+      handleChange(itemId, localizedValue);
+    } else {
+      // Single language mode: store as string
+      handleChange(itemId, newValue);
+    }
+  };
+
+  // Handle translation value change
+  const handleTranslationChange = (itemId: string, langCode: string, newValue: string) => {
+    const currentValue = formData[itemId];
+    const localizedValue: LocalizedValue = isLocalizedValue(currentValue)
+      ? { ...currentValue }
+      : { [defaultLanguage?.code || 'en']: typeof currentValue === 'string' ? currentValue : '' };
+
+    localizedValue[langCode] = newValue;
+    handleChange(itemId, localizedValue);
+  };
+
+  // Render Input Item with multi-language support
   const renderInputItem = (item: InputItem) => {
-    const value = (formData[item.id] as string) || '';
+    const primaryValue = getPrimaryValue(item.id);
     const error = errors[item.id];
     const isImmutable = item.immutable && mode === 'edit';
+    const isTextInput = item.inputType === 'text' || item.inputType === 'textarea' || item.multiline;
+    const showTranslations = isTextInput && additionalLanguages.length > 0;
 
     return (
       <div className="space-y-2">
@@ -152,11 +226,12 @@ export function DynamicTemplateForm({
           <p className="text-xs text-[#69737c]">{item.description}</p>
         )}
 
+        {/* Primary (default language) input */}
         {item.multiline || item.inputType === 'textarea' ? (
           <Textarea
             id={item.id}
-            value={value}
-            onChange={(e) => handleChange(item.id, e.target.value)}
+            value={primaryValue}
+            onChange={(e) => handlePrimaryChange(item.id, e.target.value)}
             onBlur={() => handleBlur(item)}
             placeholder={item.placeholder}
             rows={item.rows || 3}
@@ -167,14 +242,49 @@ export function DynamicTemplateForm({
           <Input
             id={item.id}
             type={item.inputType}
-            value={value}
-            onChange={(e) => handleChange(item.id, e.target.value)}
+            value={primaryValue}
+            onChange={(e) => handlePrimaryChange(item.id, e.target.value)}
             onBlur={() => handleBlur(item)}
             placeholder={item.placeholder}
             disabled={item.immutable}
             className={error ? 'border-red-500' : isImmutable ? 'opacity-60 cursor-not-allowed' : ''}
           />
         )}
+
+        {/* Translation fields for additional languages */}
+        {showTranslations && additionalLanguages.map((lang) => (
+          <div key={lang.code} className="mt-3 pl-4 border-l-2 border-[#e1e1e1]">
+            <label
+              htmlFor={`${item.id}-${lang.code}`}
+              className="text-xs font-medium text-[#69737c] flex items-center gap-1.5 mb-1"
+            >
+              <span>{languageFlags[lang.code.toLowerCase()] || '🌐'}</span>
+              <span>{lang.name}</span>
+              <span className="font-normal text-[#9ca3af]">(optional)</span>
+            </label>
+            {item.multiline || item.inputType === 'textarea' ? (
+              <Textarea
+                id={`${item.id}-${lang.code}`}
+                value={getTranslationValue(item.id, lang.code)}
+                onChange={(e) => handleTranslationChange(item.id, lang.code, e.target.value)}
+                placeholder={`${item.placeholder || item.label} in ${lang.name}...`}
+                rows={(item.rows || 3) - 1}
+                disabled={item.immutable}
+                className={`text-sm ${isImmutable ? 'opacity-60 cursor-not-allowed' : ''}`}
+              />
+            ) : (
+              <Input
+                id={`${item.id}-${lang.code}`}
+                type={item.inputType}
+                value={getTranslationValue(item.id, lang.code)}
+                onChange={(e) => handleTranslationChange(item.id, lang.code, e.target.value)}
+                placeholder={`${item.placeholder || item.label} in ${lang.name}...`}
+                disabled={item.immutable}
+                className={`text-sm ${isImmutable ? 'opacity-60 cursor-not-allowed' : ''}`}
+              />
+            )}
+          </div>
+        ))}
 
         {error && (
           <p className="text-xs text-red-500">{error}</p>
@@ -305,6 +415,13 @@ export function DynamicTemplateForm({
 
     // Get preview URLs and track which are videos
     const previews = files.map((file) => {
+      // Handle URL strings (existing images from on-chain data)
+      if (typeof file === 'string') {
+        const ext = file.split('.').pop()?.toLowerCase();
+        const isVideo = ['mp4', 'webm', 'mov', 'avi'].includes(ext || '');
+        return { url: file, isVideo };
+      }
+      // Handle File objects (new uploads)
       if (file instanceof File) {
         const isVideo = isVideoFile(file);
         if (file.type.startsWith('image/') || isVideo) {

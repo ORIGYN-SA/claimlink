@@ -1,5 +1,4 @@
 // wallet-connection-section.tsx
-import { NFIDIcon, InternetIdentityIcon, PlugIcon, InfoIcon } from "./wallet-icons"
 import { useAuth } from "../hooks/useAuth"
 
 export function WalletConnectionSection() {
@@ -7,9 +6,9 @@ export function WalletConnectionSection() {
 
   if (isInitializing) {
     return (
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="flex items-center justify-center py-8">
-          <div className="text-white text-sm">Initializing wallet connection...</div>
+          <div className="text-white text-sm">Initializing...</div>
         </div>
       </div>
     );
@@ -20,57 +19,17 @@ export function WalletConnectionSection() {
   }
 
   return (
-    <div className="mb-6">
-      {/* Section divider */}
-      <div className="flex items-center gap-2 mb-4">
-        <div className="flex-1 h-px bg-white/30" />
-        <span className="text-gray-300 text-xs font-medium px-2 whitespace-nowrap">
-          Connect with your Wallet
-        </span>
-        <div className="w-3 h-3 text-gray-300">
-          <InfoIcon />
-        </div>
-        <div className="flex-1 h-px bg-white/30" />
-      </div>
-
-      {/* NFID - Primary wallet option */}
+    <div className="mb-8">
+      {/* Single Login Button - Opens NFID/II wallet selection modal */}
       <button
         onClick={connect}
-        className="w-full bg-white rounded-xl p-3 mb-2 border-2 border-purple-400 hover:border-purple-500 transition-colors text-left cursor-pointer"
+        className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl py-4 font-medium hover:opacity-90 transition-opacity cursor-pointer"
       >
-        <div className="flex items-start gap-3">
-          <NFIDIcon />
-          <div className="flex-1">
-            <h3 className="text-gray-900 font-semibold text-sm">NFID</h3>
-            <p className="text-gray-600 text-xs leading-relaxed mt-0.5">
-              Quickly sign in or create an anonymous, self-sovereign wallet with your email address or passkey.
-            </p>
-          </div>
-        </div>
+        Login
       </button>
-
-      {/* Other wallet options */}
-      <div className="space-y-2">
-        <button
-          onClick={connect}
-          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <InternetIdentityIcon />
-            <span className="text-gray-900 font-medium text-sm">Internet Identity</span>
-          </div>
-        </button>
-
-        <button
-          onClick={connect}
-          className="w-full bg-white rounded-lg p-3 hover:bg-gray-50 transition-colors text-left cursor-pointer"
-        >
-          <div className="flex items-center gap-3">
-            <PlugIcon />
-            <span className="text-gray-900 font-medium text-sm">Plug Wallet</span>
-          </div>
-        </button>
-      </div>
+      <p className="text-center text-gray-400 text-xs mt-3">
+        Connect with NFID, Internet Identity, or Plug Wallet
+      </p>
     </div>
   )
 }

@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
-import { mockTemplates } from '@/shared/data/templates';
-import { getCollectionById } from '@/shared/data/collections';
+import { useState, useRef, useEffect } from 'react';
+import { useNavigate } from '@tanstack/react-router';
+import { toast } from 'sonner';
+import { useFetchCollectionInfo, useUpdateCollectionMetadata } from '../api/collections.queries';
 import { EditCollectionFormSection } from '../components/form/edit-collection-form-section';
 import { EditCollectionSidebar } from '../components/form/edit-collection-sidebar';
 
@@ -10,19 +11,46 @@ interface EditCollectionPageProps {
 
 /**
  * SMART COMPONENT - Manages all business logic and state for editing collections
+ *
+ * Fetches real collection data and uses useUpdateCollectionMetadata mutation
+ * to persist changes to the ORIGYN NFT canister.
  */
 export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
-  // Get existing collection data
-  const existingCollection = getCollectionById(collectionId);
-  
-  // Form state - initialize with existing data
-  const [collectionName, setCollectionName] = useState(existingCollection?.title || '');
-  const [selectedTemplate, setSelectedTemplate] = useState('template-1'); // Default to first template
-  
+  const navigate = useNavigate();
+
+  // Fetch real collection data
+  const { data: collection, isLoading, isError } = useFetchCollectionInfo({
+    canisterId: collectionId,
+  });
+
+  // Form state
+  const [collectionName, setCollectionName] = useState('');
+  const [description, setDescription] = useState('');
+
   // Image upload state
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(existingCollection?.imageUrl || null);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Populate form when data loads
+  useEffect(() => {
+    if (collection) {
+      setCollectionName(collection.title || '');
+      setDescription(collection.description || '');
+      setImagePreviewUrl(collection.imageUrl || null);
+    }
+  }, [collection]);
+
+  // Update mutation
+  const updateMutation = useUpdateCollectionMetadata({
+    onSuccess: () => {
+      toast.success('Collection updated successfully');
+      navigate({ to: '/collections/$collectionId', params: { collectionId } });
+    },
+    onError: (error) => {
+      toast.error(`Failed to update collection: ${error.message}`);
+    },
+  });
 
   // Validation constants
   const VALID_FILE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/svg+xml', 'application/pdf'];
@@ -32,47 +60,35 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!VALID_FILE_TYPES.includes(file.type)) {
-      alert('Please upload a valid file type: JPEG, PNG, SVG, or PDF');
+      toast.error('Please upload a valid file type: JPEG, PNG, SVG, or PDF');
       return;
     }
 
-    // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      alert('File size must be less than 5MB');
+      toast.error('File size must be less than 5MB');
       return;
     }
 
-    // Create preview URL for images (not PDF)
     if (file.type.startsWith('image/')) {
-      // Clean up previous URL if exists
-      if (imagePreviewUrl) {
+      if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(imagePreviewUrl);
       }
-      const url = URL.createObjectURL(file);
-      setImagePreviewUrl(url);
+      setImagePreviewUrl(URL.createObjectURL(file));
     }
 
     setImageFile(file);
-    console.log('Image selected:', file.name, file.type, `${(file.size / 1024).toFixed(2)}KB`);
   };
 
   const handleImageRemove = () => {
-    // Clean up object URL to prevent memory leaks
-    if (imagePreviewUrl) {
+    if (imagePreviewUrl && imagePreviewUrl.startsWith('blob:')) {
       URL.revokeObjectURL(imagePreviewUrl);
     }
-    
     setImagePreviewUrl(null);
     setImageFile(null);
-    
-    // Clear file input
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
-    
-    console.log('Image removed');
   };
 
   const handleImageUploadClick = () => {
@@ -80,18 +96,17 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
   };
 
   const handleSubmit = () => {
-    console.log('Updating collection:', {
-      id: collectionId,
+    if (!collectionName.trim()) {
+      toast.error('Collection name is required');
+      return;
+    }
+
+    updateMutation.mutate({
+      collectionCanisterId: collectionId,
       name: collectionName,
-      template: selectedTemplate,
-      image: imageFile ? {
-        name: imageFile.name,
-        type: imageFile.type,
-        size: imageFile.size,
-      } : null,
+      description,
+      logoFile: imageFile || undefined,
     });
-    // TODO: Implement actual collection update logic
-    // This would typically upload the image and update the collection
   };
 
   const handleDeleteCollection = () => {
@@ -101,13 +116,42 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
     }
   };
 
-  // Storage information (matching Figma design)
+  // Storage information (placeholder until real API)
   const storageInfo = {
     total: '2.0 GB',
     used: '1.92 GB',
-    percentage: 96, // 1.92 / 2.0 * 100
+    percentage: 96,
     isAlmostFull: true,
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex gap-6 items-start animate-pulse">
+        <div className="flex-1">
+          <div className="bg-white rounded-[25px] border border-[#efece3] p-6 space-y-6">
+            <div className="h-6 bg-gray-200 rounded w-48" />
+            <div className="h-40 bg-gray-200 rounded" />
+            <div className="h-11 bg-gray-200 rounded-full" />
+            <div className="h-24 bg-gray-200 rounded" />
+          </div>
+        </div>
+        <div className="w-[400px] flex-shrink-0">
+          <div className="bg-white rounded-[25px] border border-[#e1e1e1] p-6 space-y-6">
+            <div className="h-4 bg-gray-200 rounded w-32" />
+            <div className="h-16 bg-gray-200 rounded" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="text-center py-12">
+        <p className="text-[#69737c]">Failed to load collection data. Please try again.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex gap-6 items-start">
@@ -115,10 +159,10 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
       <EditCollectionFormSection
         collectionName={collectionName}
         onCollectionNameChange={setCollectionName}
-        selectedTemplate={selectedTemplate}
-        onTemplateChange={setSelectedTemplate}
-        templates={mockTemplates}
+        description={description}
+        onDescriptionChange={setDescription}
         onSubmit={handleSubmit}
+        isSubmitting={updateMutation.isPending}
         imagePreviewUrl={imagePreviewUrl}
         onImageFileSelect={handleImageFileSelect}
         onImageRemove={handleImageRemove}
@@ -130,8 +174,8 @@ export function EditCollectionPage({ collectionId }: EditCollectionPageProps) {
       <EditCollectionSidebar
         storage={storageInfo}
         onDeleteCollection={handleDeleteCollection}
-        description="The Minting Studio is your interface to create, manage, and certify real-world assets fully on-chain using ORIGYN's decentralized infrastructure."
-        collectionName={existingCollection?.title || 'Collection name'}
+        description={collection?.description || "The Minting Studio is your interface to create, manage, and certify real-world assets fully on-chain using ORIGYN's decentralized infrastructure."}
+        collectionName={collection?.title || 'Collection name'}
       />
     </div>
   );

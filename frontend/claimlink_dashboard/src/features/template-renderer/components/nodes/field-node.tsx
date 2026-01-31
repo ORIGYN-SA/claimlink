@@ -33,6 +33,7 @@ export function FieldNode({ node }: FieldNodeProps) {
         className={cn(
           'text-sm',
           variant === 'certificate' && 'text-[#222526] text-center',
+          variant === 'custom-certificate' && 'text-white text-center',
           variant === 'information' && 'text-white font-light',
           variant === 'default' && 'text-[#151515]',
           node.className
@@ -56,6 +57,25 @@ export function FieldNode({ node }: FieldNodeProps) {
           {title}
         </p>
         <p className="text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-[#222526]">
+          {value}
+        </p>
+      </div>
+    );
+  }
+
+  // Custom-certificate variant: centered column layout with light text
+  if (variant === 'custom-certificate') {
+    return (
+      <div
+        className={cn(
+          'flex flex-col gap-1 items-center text-center w-full',
+          node.className
+        )}
+      >
+        <p className="text-[12px] sm:text-[14px] font-normal leading-5 sm:leading-6 text-[#fcfafa] tracking-[1px] sm:tracking-[1.4px] uppercase">
+          {title}
+        </p>
+        <p className="text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-white">
           {value}
         </p>
       </div>
