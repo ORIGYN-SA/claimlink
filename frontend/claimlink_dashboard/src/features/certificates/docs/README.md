@@ -366,6 +366,60 @@ interface CertificateFilters {
 }
 ```
 
+## Multi-Language Support
+
+### Language Toggle on Certificate Pages
+
+Both the certificate detail page and public certificate page support multi-language display:
+
+- **Language extraction**: Languages are extracted from `parsedMetadata?.templates?.languages` (on-chain) or `templateStructure?.languages` (collection template)
+- **Language state**: Each page maintains a `selectedLanguage` state (defaults to "en")
+- **Toggle UI**: When multiple languages exist, a button group allows switching between languages
+- **Rendering**: The selected language is passed to `CertificateViewer` → `TemplateRenderer` for display
+
+```typescript
+// Language toggle (visible when availableLanguages.length > 1)
+{availableLanguages.map((lang) => (
+  <Button
+    variant={selectedLanguage === lang.code ? "default" : "outline"}
+    onClick={() => setSelectedLanguage(lang.code)}
+  >
+    {lang.name}
+  </Button>
+))}
+```
+
+### LocalizedValue Form Data
+
+Form fields can store multi-language content as `LocalizedValue` objects:
+
+```typescript
+// Form data with localized values
+{
+  name: { en: "Certificate Name", RU: "Название сертификата" },
+  description: { en: "Description", RU: "Описание" }
+}
+```
+
+### ICRC3 Metadata Conversion
+
+The `convertToIcrc3Metadata()` function handles LocalizedValue objects:
+
+1. **Primary value extraction**: Uses `ensureString()` to extract the primary language value (prefers 'en')
+2. **Localized storage**: Stores full localized content with `_localized` suffix for multi-language support
+3. **ICRC3 Text variant**: Always stores strings (never objects) in ICRC3 Text values
+
+```typescript
+// Example metadata output
+[
+  ['name', { Text: 'Certificate Name' }],           // Primary value
+  ['name_localized', { Map: [                        // Full localized content
+    ['en', { Text: 'Certificate Name' }],
+    ['RU', { Text: 'Название сертификата' }]
+  ]}],
+]
+```
+
 ## Integration Points
 
 ### With Templates Feature
@@ -373,6 +427,7 @@ interface CertificateFilters {
 - Receives `TemplateStructure` from collection metadata
 - Uses template to render dynamic form
 - Passes template to metadata builder
+- Extracts languages for language toggle display
 
 ### With Template Renderer Feature
 
