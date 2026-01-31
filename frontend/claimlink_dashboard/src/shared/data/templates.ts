@@ -158,7 +158,7 @@ export const madeInItalyTemplate: Template = {
           {
             id: "product_images",
             type: "image",
-            label: "Product Images",
+            label: "Certificate Image",
             order: 8,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png", "image/webp"],
@@ -414,7 +414,7 @@ export const goldCertificateTemplate: Template = {
           {
             id: "product_images",
             type: "image",
-            label: "Product Images",
+            label: "Certificate Image",
             order: 9,
             required: true,
             acceptedFormats: ["image/jpeg", "image/png"],

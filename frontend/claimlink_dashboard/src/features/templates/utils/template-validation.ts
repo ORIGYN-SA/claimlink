@@ -315,7 +315,7 @@ export const SEMANTIC_FIELD_PRESETS = [
     },
   },
   {
-    label: 'Product Images',
+    label: 'Certificate Image',
     description: 'Images displayed on certificate cards and detail views',
     semantic: 'image' as const,
     fieldId: 'product_images',
@@ -324,7 +324,7 @@ export const SEMANTIC_FIELD_PRESETS = [
     item: {
       id: 'product_images',
       type: 'image' as const,
-      label: 'Product Images',
+      label: 'Certificate Image',
       required: true,
       multiple: true,
       maxImages: 8,

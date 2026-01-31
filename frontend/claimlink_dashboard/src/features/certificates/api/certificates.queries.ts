@@ -247,18 +247,39 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         writerPrincipal: principalId,
       });
 
-      // Step 3: Find first uploaded image URL for the image field
+      // Step 3: Find certificate image URL from uploaded files
+      // Prefer certificate image fields over logo fields
+      const certificateImageFieldIds = ['product_images', 'certificate_image', 'main_image', 'primary_image', 'gallery_images', 'detail_images', 'files-media'];
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
       let imageUrl: string | undefined;
-      uploadedFiles.forEach((refs) => {
-        if (!imageUrl && refs.length > 0) {
+
+      // First, try to find an image from certificate image fields
+      for (const fieldId of certificateImageFieldIds) {
+        const refs = uploadedFiles.get(fieldId);
+        if (refs && refs.length > 0) {
           const firstRef = refs[0];
-          // Check if it's an image file
           const ext = firstRef.path.split('.').pop()?.toLowerCase();
-          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) {
+          if (imageExtensions.includes(ext || '')) {
             imageUrl = firstRef.path;
+            break;
           }
         }
-      });
+      }
+
+      // Fallback: if no certificate image found, use first image that's NOT a logo
+      if (!imageUrl) {
+        const logoFieldIds = ['company_logo', 'logo', 'brand_logo'];
+        uploadedFiles.forEach((refs, fieldId) => {
+          if (!imageUrl && !logoFieldIds.includes(fieldId) && refs.length > 0) {
+            const firstRef = refs[0];
+            const ext = firstRef.path.split('.').pop()?.toLowerCase();
+            if (imageExtensions.includes(ext || '')) {
+              imageUrl = firstRef.path;
+            }
+          }
+        });
+      }
 
       // Step 4: Convert to ICRC3 metadata format
       const metadata = convertToIcrc3Metadata(apps, args.formData, {
@@ -367,17 +388,39 @@ export const useUpdateCertificateWithTemplate = (options?: UseMintCertificateOpt
         writerPrincipal: principalId,
       });
 
-      // Step 3: Find first uploaded image URL for the image field
+      // Step 3: Find certificate image URL from uploaded files
+      // Prefer certificate image fields over logo fields
+      const certificateImageFieldIds = ['product_images', 'certificate_image', 'main_image', 'primary_image', 'gallery_images', 'detail_images', 'files-media'];
+      const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
       let imageUrl: string | undefined;
-      uploadedFiles.forEach((refs) => {
-        if (!imageUrl && refs.length > 0) {
+
+      // First, try to find an image from certificate image fields
+      for (const fieldId of certificateImageFieldIds) {
+        const refs = uploadedFiles.get(fieldId);
+        if (refs && refs.length > 0) {
           const firstRef = refs[0];
           const ext = firstRef.path.split('.').pop()?.toLowerCase();
-          if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext || '')) {
+          if (imageExtensions.includes(ext || '')) {
             imageUrl = firstRef.path;
+            break;
           }
         }
-      });
+      }
+
+      // Fallback: if no certificate image found, use first image that's NOT a logo
+      if (!imageUrl) {
+        const logoFieldIds = ['company_logo', 'logo', 'brand_logo'];
+        uploadedFiles.forEach((refs, fieldId) => {
+          if (!imageUrl && !logoFieldIds.includes(fieldId) && refs.length > 0) {
+            const firstRef = refs[0];
+            const ext = firstRef.path.split('.').pop()?.toLowerCase();
+            if (imageExtensions.includes(ext || '')) {
+              imageUrl = firstRef.path;
+            }
+          }
+        });
+      }
 
       // Step 4: Convert to ICRC3 metadata format
       const metadata = convertToIcrc3Metadata(apps, args.formData, {
