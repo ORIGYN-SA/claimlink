@@ -391,7 +391,8 @@ export function EditTemplateStepV2({
               (preset.semantic === 'title' && !validationResult.hasTitleField) ||
               (preset.semantic === 'image' && !validationResult.hasImageField) ||
               (preset.semantic === 'description' && !validationResult.hasDescriptionField) ||
-              (preset.semantic === 'company_logo' && !validationResult.hasCompanyLogoField);
+              (preset.semantic === 'company_logo' && !validationResult.hasCompanyLogoField) ||
+              (preset.semantic === 'company_name' && !validationResult.hasCompanyNameField);
 
             return (
               <Button

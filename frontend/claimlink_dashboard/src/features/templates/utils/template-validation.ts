@@ -16,6 +16,7 @@ import {
   isImageFieldId,
   isDescriptionFieldId,
   isCompanyLogoFieldId,
+  isCompanyNameFieldId,
 } from '@/shared/constants/reserved-fields';
 import type { TemplateStructure } from '../types/template.types';
 import type { TemplateNode } from '@/features/template-renderer/types/origyn-template.types';
@@ -34,6 +35,7 @@ export type TemplateWarningType =
   | 'missing_image'
   | 'missing_description'
   | 'missing_company_logo'
+  | 'missing_company_name'
   | 'non_standard_id';
 
 /**
@@ -58,6 +60,7 @@ export interface TemplateValidationResult {
   hasImageField: boolean;
   hasDescriptionField: boolean;
   hasCompanyLogoField: boolean;
+  hasCompanyNameField: boolean;
 }
 
 /**
@@ -108,6 +111,7 @@ export function validateTemplateForDisplay(
       hasImageField: false,
       hasDescriptionField: false,
       hasCompanyLogoField: false,
+      hasCompanyNameField: false,
     };
   }
 
@@ -125,6 +129,7 @@ export function validateTemplateForDisplay(
       hasImageField: false,
       hasDescriptionField: false,
       hasCompanyLogoField: false,
+      hasCompanyNameField: false,
     };
   }
 
@@ -142,6 +147,7 @@ export function validateTemplateForDisplay(
       hasImageField: false,
       hasDescriptionField: false,
       hasCompanyLogoField: false,
+      hasCompanyNameField: false,
     };
   }
 
@@ -201,12 +207,27 @@ export function validateTemplateForDisplay(
     });
   }
 
+  // Check for company name field (used for "Issued By" display)
+  const hasCompanyNameField = RESERVED_FIELDS.COMPANY_NAME.some((id) =>
+    allFieldIds.includes(id)
+  );
+  if (!hasCompanyNameField) {
+    warnings.push({
+      type: 'missing_company_name',
+      message:
+        'No company name field found. "Issued By" will fall back to certificate name or collection name.',
+      severity: 'warning',
+      suggestedIds: RESERVED_FIELDS.COMPANY_NAME,
+    });
+  }
+
   return {
     warnings,
     hasTitleField,
     hasImageField,
     hasDescriptionField,
     hasCompanyLogoField,
+    hasCompanyNameField,
   };
 }
 
@@ -328,6 +349,23 @@ export const SEMANTIC_FIELD_PRESETS = [
       order: 0,
     },
   },
+  {
+    label: 'Company Name',
+    description: 'Company/issuer name displayed in "Issued By" section',
+    semantic: 'company_name' as const,
+    fieldId: 'company_name',
+    fieldType: 'input' as const,
+    // Legacy format (TemplateItem)
+    item: {
+      id: 'company_name',
+      type: 'input' as const,
+      label: 'Company Name',
+      inputType: 'text' as const,
+      required: true,
+      placeholder: 'Enter company or issuer name',
+      order: 0,
+    },
+  },
 ] as const;
 
 /**
@@ -350,6 +388,9 @@ export function getSemanticPresetForFieldId(fieldId: string): SemanticFieldPrese
   }
   if (isCompanyLogoFieldId(fieldId)) {
     return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'company_logo') || null;
+  }
+  if (isCompanyNameFieldId(fieldId)) {
+    return SEMANTIC_FIELD_PRESETS.find((p) => p.semantic === 'company_name') || null;
   }
   return null;
 }

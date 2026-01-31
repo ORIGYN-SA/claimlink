@@ -50,12 +50,12 @@ export function CertificateFrame({
   if (hasCustomBackground) {
     return (
       <div
-        className={`rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full overflow-hidden ${className}`}
+        className={`rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full ${className}`}
       >
         {/* Full-bleed background wrapper */}
         <div className="relative w-full min-h-[600px] sm:min-h-[800px]">
           {/* Background media - full bleed */}
-          <div className="absolute inset-0">
+          <div className="absolute inset-0 rounded-bl-[24px] rounded-br-[24px] overflow-hidden">
             {isVideoBackground ? (
               <video
                 src={background.dataUri}
@@ -75,9 +75,15 @@ export function CertificateFrame({
           </div>
 
           {/* Content container with padding */}
-          <div className="relative z-10 px-4 sm:px-16 py-6 sm:py-10 flex flex-col items-center min-h-[600px] sm:min-h-[800px]">
+          <div className="relative px-4 sm:px-16 py-6 sm:py-10 flex flex-col items-center min-h-[600px] sm:min-h-[800px]">
             {/* Glass panel overlay */}
-            <div className="w-full max-w-[950px] bg-[rgba(2,2,2,0.2)] backdrop-blur-sm rounded-[32px] sm:rounded-[48px] px-6 sm:px-16 pt-8 sm:pt-12 pb-6 sm:pb-10 flex flex-col items-center relative">
+            <div
+              className="w-full max-w-[950px] rounded-[32px] sm:rounded-[48px] px-6 sm:px-16 pt-8 sm:pt-12 pb-6 sm:pb-10 flex flex-col items-center relative"
+              style={{
+                background: 'rgba(2, 2, 2, 0.2)',
+                backdropFilter: 'blur(8px)',
+              }}
+            >
               {/* Stamp - floats above the glass panel */}
               <div className="absolute -top-[35px] sm:-top-[55px] left-0 right-0 z-20 flex justify-center">
                 <img

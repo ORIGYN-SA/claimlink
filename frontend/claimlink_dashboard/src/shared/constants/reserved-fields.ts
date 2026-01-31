@@ -59,6 +59,13 @@ export const RESERVED_FIELDS = {
   COMPANY_LOGO: ['company_logo', 'logo', 'brand_logo'] as const,
 
   /**
+   * Fields used for company/issuer name display (e.g., "Issued By: Federitaly").
+   * Used in certificate launchpad and detail views.
+   * @see CertificateLaunchpad component
+   */
+  COMPANY_NAME: ['company_name', 'issuer_name', 'brand_name'] as const,
+
+  /**
    * Fields that can auto-detect as search index.
    * Matched by label containing these keywords.
    * @see view-generator.ts
@@ -77,7 +84,7 @@ export const ALL_IMAGE_FIELDS = [
 /**
  * Semantic field types for the UI
  */
-export type SemanticFieldType = 'title' | 'image' | 'description' | 'company_logo' | 'custom';
+export type SemanticFieldType = 'title' | 'image' | 'description' | 'company_logo' | 'company_name' | 'custom';
 
 /**
  * Recommended default field IDs for each semantic type.
@@ -91,6 +98,7 @@ export const RECOMMENDED_FIELD_IDS: Record<
   image: 'product_images',
   description: 'short_description',
   company_logo: 'company_logo',
+  company_name: 'company_name',
 };
 
 /**
@@ -122,6 +130,13 @@ export function isCompanyLogoFieldId(fieldId: string): boolean {
 }
 
 /**
+ * Check if a field ID is reserved for company/issuer name display
+ */
+export function isCompanyNameFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_NAME as readonly string[]).includes(fieldId);
+}
+
+/**
  * Check if a field ID is reserved for any semantic purpose
  */
 export function isReservedFieldId(fieldId: string): boolean {
@@ -129,7 +144,8 @@ export function isReservedFieldId(fieldId: string): boolean {
     isTitleFieldId(fieldId) ||
     isImageFieldId(fieldId) ||
     isDescriptionFieldId(fieldId) ||
-    isCompanyLogoFieldId(fieldId)
+    isCompanyLogoFieldId(fieldId) ||
+    isCompanyNameFieldId(fieldId)
   );
 }
 
@@ -142,6 +158,7 @@ export function getAllReservedFieldIds(): string[] {
     ...ALL_IMAGE_FIELDS,
     ...RESERVED_FIELDS.DESCRIPTION,
     ...RESERVED_FIELDS.COMPANY_LOGO,
+    ...RESERVED_FIELDS.COMPANY_NAME,
   ];
 }
 
@@ -155,5 +172,6 @@ export function getFieldSemanticPurpose(
   if (isImageFieldId(fieldId)) return 'image';
   if (isDescriptionFieldId(fieldId)) return 'description';
   if (isCompanyLogoFieldId(fieldId)) return 'company_logo';
+  if (isCompanyNameFieldId(fieldId)) return 'company_name';
   return null;
 }
