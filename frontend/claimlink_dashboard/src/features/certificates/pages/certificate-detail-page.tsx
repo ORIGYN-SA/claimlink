@@ -10,6 +10,7 @@ import type { CertificateLedgerData } from "../components/detail/certificate-led
 import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
@@ -104,6 +105,7 @@ export function CertificateDetailPage({
           library: [],
           tokenId,
           canisterId,
+          templateVersion: DEFAULT_TEMPLATE_VERSION,
         };
 
         return {

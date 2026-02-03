@@ -20,9 +20,23 @@ export {
   CertificateTemplateRenderer,
   ExperienceTemplateRenderer,
   UserViewTemplateRenderer,
+  VersionedTemplateRenderer,
   TemplateBlock,
   type TemplateRendererProps,
+  type VersionedTemplateRendererProps,
 } from './components';
+
+// Version
+export {
+  CURRENT_TEMPLATE_VERSION,
+  DEFAULT_TEMPLATE_VERSION,
+  TEMPLATE_VERSION_KEY,
+  getRendererForVersion,
+  hasRendererForVersion,
+  getRegisteredVersions,
+  type TemplateVersion,
+  type VersionedRendererEntry,
+} from './version';
 
 // Context and Hooks
 export {

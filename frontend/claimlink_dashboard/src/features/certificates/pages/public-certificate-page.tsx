@@ -13,6 +13,7 @@ import { Card } from "@/components/ui/card";
 import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
@@ -123,6 +124,7 @@ export const PublicCertificatePage = ({
           library: [],
           tokenId: token,
           canisterId,
+          templateVersion: DEFAULT_TEMPLATE_VERSION,
         };
 
         return {

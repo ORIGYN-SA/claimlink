@@ -10,6 +10,7 @@ import { mockCertificateEvents } from "@/shared/data/certificate-events";
 import { mockCertificateLedger } from "@/shared/data/certificate-ledger";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 
@@ -272,6 +273,7 @@ function CertificatePreview({
       library: [],
       tokenId: "preview-token",
       canisterId: "preview-canister",
+      templateVersion: DEFAULT_TEMPLATE_VERSION,
     };
 
     return {

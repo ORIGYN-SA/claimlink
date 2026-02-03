@@ -11,7 +11,7 @@ import {
 import { CertificateFrame } from "./certificate-frame";
 import { InformationFrame } from "./information-frame";
 import {
-  TemplateRenderer,
+  VersionedTemplateRenderer,
   type TemplateNode,
   type ParsedOrigynMetadata,
   type RenderDataSource,
@@ -118,7 +118,7 @@ export function CertificateViewer({
               tokenId={templateData.tokenId}
               background={templateData.background}
             >
-              <TemplateRenderer
+              <VersionedTemplateRenderer
                 template={templateData.certificateTemplate}
                 dataSource={dataSource}
                 canisterId={templateData.canisterId}
@@ -182,7 +182,7 @@ export function CertificateViewer({
               }}
               galleryImages={galleryImages}
             >
-              <TemplateRenderer
+              <VersionedTemplateRenderer
                 template={templateData.template}
                 dataSource={dataSource}
                 canisterId={templateData.canisterId}

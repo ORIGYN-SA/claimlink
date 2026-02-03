@@ -9,6 +9,7 @@ import type { ICRC3Value } from '@canisters/origyn_nft';
 import type { OrigynAppEntry, FileReference, LocalizedContent } from '../types';
 import type { CertificateFormData } from '@/features/templates/types/template.types';
 import { RESERVED_FIELDS } from '@/shared/constants/reserved-fields';
+import { CURRENT_TEMPLATE_VERSION, TEMPLATE_VERSION_KEY } from '../version';
 
 /**
  * Convert a JavaScript value to ICRC3Value
@@ -240,6 +241,7 @@ export function convertToIcrc3Metadata(
   metadata.push(['name', { Text: name }]);
   metadata.push(['description', { Text: description }]);
   metadata.push(['minted_at', { Text: new Date().toISOString() }]);
+  metadata.push([TEMPLATE_VERSION_KEY, { Text: CURRENT_TEMPLATE_VERSION }]);
 
   // Add image if provided
   if (options.imageUrl) {

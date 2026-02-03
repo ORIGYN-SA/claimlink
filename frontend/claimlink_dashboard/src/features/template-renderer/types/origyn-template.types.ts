@@ -423,6 +423,8 @@ export interface ParsedOrigynMetadata {
   canisterId: string;
   /** Collection ID (for B2B storage) */
   collectionId?: string;
+  /** Template version this token was minted with. Defaults to '1.0.0' if absent. */
+  templateVersion: string;
 }
 
 // ============================================================================
