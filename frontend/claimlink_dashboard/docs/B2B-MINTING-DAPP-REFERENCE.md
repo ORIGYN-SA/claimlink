@@ -519,6 +519,201 @@ if ('ok' in nftResult) {
 
 ---
 
+## Template Rendering System
+
+### How the Renderer Works
+
+The `TemplateRender` component (`TemplateRender.tsx`) uses a **recursive switch-case pattern** to render templates. It iterates through the template array and matches each block's `type` to a specific rendering case.
+
+### Core Rendering Logic
+
+```tsx
+const RenderTemplateBlock = ({ templateObject, dataStructure, data, lang = 'en' }) => {
+  return templateObject?.map((tempObj, index) => {
+    switch (tempObj.type) {
+      case 'columns':
+        // Renders a responsive grid, recursively renders children
+        return (
+          <Grid key={index} {...tempObj.columns}>
+            <RenderTemplateBlock templateObject={tempObj.content} data={data} lang={lang} />
+          </Grid>
+        );
+
+      case 'elements':
+        // Generic flex container, recursively renders children
+        return (
+          <Flex key={index} flexFlow="column">
+            <RenderTemplateBlock templateObject={tempObj.content} data={data} lang={lang} />
+          </Flex>
+        );
+
+      case 'section':
+        // Accordion-style section with title and nested content
+        return (
+          <>
+            <Accordion>
+              <span>{tempObj?.title[lang]}</span>
+              <ArrowIcon />
+            </Accordion>
+            <AccordionSection>
+              <RenderTemplateBlock templateObject={tempObj.content} data={data} />
+            </AccordionSection>
+          </>
+        );
+
+      case 'mainPhoto':
+        // Main product image using pointer to find file in data
+        return (
+          <img src={`${canisterUrl}/-/${tokenId}/-/${data[tempObj.pointer][0]?.path}`} />
+        );
+
+      case 'field':
+        // Labeled field with title and value from data
+        const fieldValue = tempObj.fields
+          .map(name => data[name]?.content[lang])
+          .join(', ');
+        return (
+          <FieldBlock>
+            <p>{tempObj?.title[lang]}</p>
+            <p className="fieldValue">{fieldValue}</p>
+          </FieldBlock>
+        );
+
+      case 'valueField':
+        // Value-only field (no label)
+        return <ValueBlock>{fieldValue}</ValueBlock>;
+
+      case 'title':
+        return <Title className={tempObj.className}>{tempObj?.title[lang]}</Title>;
+
+      case 'text':
+        return <pre>{tempObj?.text[lang]}</pre>;
+
+      case 'image':
+        return <img src={`${canisterUrl}/-/${tokenId}/-/${data[tempObj.field][0]?.path}`} />;
+
+      case 'video':
+        // Supports both token-level and collection-level videos
+        if (tempObj.isCanister) {
+          return <video src={`${canisterUrl}/collection/-/${tempObj.libId}`} />;
+        }
+        return <video src={`${canisterUrl}/-/${tokenId}/-/${field.path}`} />;
+
+      case 'gallery':
+        return <Gallery data={data} templateObj={tempObj} />;
+
+      case 'attachments':
+        // Grid of downloadable documents
+        return (
+          <Grid columns={2}>
+            {data[tempObj.pointer]?.map(doc => (
+              <Card>
+                <PDFIcon />
+                <span>{doc.path}</span>
+                <a href={downloadUrl}>Download</a>
+              </Card>
+            ))}
+          </Grid>
+        );
+
+      case 'collectionImage':
+        // Image from collection library (logos, badges, signatures)
+        return <img src={`${canisterUrl}/collection/-/${tempObj.libId}`} />;
+
+      case 'history':
+        // Timeline of events
+        return (
+          <History>
+            {field?.records?.map(r => (
+              <>
+                <h3>{formatDate(r.date)}</h3>
+                <p><b>{r.category}</b></p>
+                <p>{r.description}</p>
+              </>
+            ))}
+          </History>
+        );
+
+      case 'separator':
+        return <hr />;
+
+      case 'certificate':
+        // Placeholder for certificate rendering
+        return null;
+    }
+  });
+};
+```
+
+### Key Rendering Concepts
+
+#### 1. Recursive Rendering
+Container blocks (`columns`, `elements`, `section`) recursively call `RenderTemplateBlock` with their `content` array, enabling unlimited nesting.
+
+#### 2. Data Binding via Pointers
+Blocks reference data using:
+- **`pointer`**: For file arrays (e.g., `"files-mainImage"` → `data["files-mainImage"]`)
+- **`field`/`fields`**: For data fields (e.g., `["serial_number"]` → `data["serial_number"].content[lang]`)
+- **`libId`**: For collection-level library files (uploaded to canister directly)
+
+#### 3. Multi-language Support
+Text content is accessed via language key: `tempObj.title[lang]` or `data[field].content[lang]`
+
+#### 4. File URL Construction
+Files are served from the IC canister:
+```
+Token-level:      {canisterUrl}/-/{tokenId}/-/{filePath}
+Collection-level: {canisterUrl}/collection/-/{libraryId}
+```
+
+### Data Structure for Rendering
+
+The `data` object passed to the renderer contains:
+
+```typescript
+{
+  // Identifiers
+  canisterId: "ryjl3-tyaaa-aaaaa-aaaba-cai",
+  collectionId: "collection-123",
+  tokenId: "token-456",
+
+  // File pointers (grouped by pointer name)
+  "files-mainImage": [{ path: "main.jpg", ... }],
+  "files-gallery": [{ path: "img1.jpg" }, { path: "img2.jpg" }],
+  "files-attachments": [{ path: "report.pdf" }],
+
+  // Field data (from metadata)
+  serial_number: { content: { en: "ABC123" } },
+  weight: { content: { en: "100g" } },
+  description: { content: { en: "Product description" } },
+
+  // Special fields
+  content: [...],  // Raw content array for history/records
+}
+```
+
+### Template → Renderer Mapping
+
+| Template Block | Renderer Output | Data Source |
+|----------------|-----------------|-------------|
+| `columns` | `<Grid>` with responsive columns | `tempObj.columns` for settings |
+| `elements` | `<Flex>` vertical container | Children in `tempObj.content` |
+| `section` | Accordion with title + content | `tempObj.title[lang]` + children |
+| `mainPhoto` | Full-width image | `data[tempObj.pointer][0].path` |
+| `field` | Label + value row | `tempObj.title[lang]` + `data[field].content[lang]` |
+| `valueField` | Value only (no label) | `data[field].content[lang]` |
+| `title` | Styled heading | `tempObj.title[lang]` |
+| `text` | Preformatted text | `tempObj.text[lang]` |
+| `image` | Single image | `data[tempObj.field][0].path` |
+| `video` | Video player | Token or collection library |
+| `gallery` | Image carousel/grid | `data[tempObj.pointer]` array |
+| `attachments` | Downloadable file cards | `data[tempObj.pointer]` array |
+| `collectionImage` | Collection library image | `tempObj.libId` |
+| `history` | Timeline component | `data.content` records |
+| `separator` | Horizontal rule | None |
+
+---
+
 ## Key File Locations
 
 | Component | Path |
