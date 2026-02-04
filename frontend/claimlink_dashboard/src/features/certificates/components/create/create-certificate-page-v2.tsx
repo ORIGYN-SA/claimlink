@@ -424,11 +424,11 @@ export function CreateCertificatePageV2({
     }
   };
 
-  const handleSaveDraft = () => {
-    // Save as draft without validation
-    console.log("Saving draft:", state.formData);
-    // TODO: Implement draft saving
-  };
+  // const handleSaveDraft = () => {
+  //   // Save as draft without validation
+  //   console.log("Saving draft:", state.formData);
+  //   // TODO: Implement draft saving
+  // };
 
   // Compute if we're in uploading/minting state
   const isBusy = activeMutation.isPending;
