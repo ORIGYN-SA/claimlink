@@ -94,7 +94,7 @@ export function CertificateFrame({
               </div>
 
               {/* Company Logo - centered at top inside panel */}
-              <div className="flex justify-center w-full mb-8 sm:mb-12 mt-8 sm:mt-10">
+              <div className="flex justify-center w-full">
                 {companyLogo ? (
                   <img
                     alt="Company Logo"
@@ -107,12 +107,12 @@ export function CertificateFrame({
               </div>
 
               {/* Dynamic Content Slot */}
-              <div className="flex flex-col gap-8 sm:gap-10 items-center justify-center w-full flex-1">
+              <div className="flex flex-col gap-8 items-center justify-center w-full">
                 {children}
               </div>
 
               {/* Footer: ORIGYN logo + Token ID */}
-              <div className="flex flex-col gap-2 sm:gap-3 items-center mt-10 sm:mt-14 mb-2 sm:mb-4">
+              <div className="flex flex-col gap-2 sm:gap-3 items-center">
                 <img
                   alt="ORIGYN"
                   src={logoTransparent}

@@ -350,6 +350,21 @@ export function templateEditorReducer(
       )
         return state;
 
+      // Enforce max 5 data fields on Certificate section
+      const targetSection = state.template.structure.sections?.find(
+        (s) => s.id === state.selectedSectionId
+      );
+      if (targetSection?.name === 'Certificate') {
+        const fieldType = state.fieldForm.type;
+        const isDataField = fieldType !== 'image' && fieldType !== 'title';
+        const currentDataFields = targetSection.items.filter(
+          (item) => item.type !== 'image' && item.type !== 'title'
+        ).length;
+        if (isDataField && currentDataFields >= 5) {
+          return state; // Silently reject — UI button should be disabled
+        }
+      }
+
       // Create field based on type
       let newField: TemplateItem;
       const baseProps = {
