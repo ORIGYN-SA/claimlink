@@ -160,9 +160,11 @@ export const PublicCertificatePage = ({
         tokenId
       );
       const companyName = extractTextFromMetadata(
+        parsedMetadata.metadata.certified_by
+      ) || extractTextFromMetadata(
         parsedMetadata.metadata.company_name
       ) || extractTextFromMetadata(
-        parsedMetadata.metadata.name
+        parsedMetadata.metadata.issued_by
       );
 
       return {

@@ -350,16 +350,16 @@ export const SEMANTIC_FIELD_PRESETS = [
     },
   },
   {
-    label: 'Company Name',
+    label: 'Issued By',
     description: 'Company/issuer name displayed in "Issued By" section',
     semantic: 'company_name' as const,
-    fieldId: 'company_name',
+    fieldId: 'certified_by',
     fieldType: 'input' as const,
     // Legacy format (TemplateItem)
     item: {
-      id: 'company_name',
+      id: 'certified_by',
       type: 'input' as const,
-      label: 'Company Name',
+      label: 'Issued By',
       inputType: 'text' as const,
       required: true,
       placeholder: 'Enter company or issuer name',
