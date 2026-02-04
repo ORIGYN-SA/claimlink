@@ -80,7 +80,7 @@ export const useCollectionCertificates = (collectionCanisterId: string) => {
           collectionName: collectionCanisterId, // Or fetch from ClaimLink
           imageUrl: certificateImage,
           status: 'Minted',
-          date: extractMetadataValue(metadata, 'minted_at') || new Date().toLocaleDateString(),
+          date: extractMetadataValue(metadata, 'minted_at') || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
           canisterId: collectionCanisterId,
           tokenId: tokenId.toString(),
         } as Certificate;
@@ -576,7 +576,7 @@ export const useCertificate = (
         collectionName: collectionInfo?.title ?? 'Unknown Collection',
         imageUrl: certificateImage,
         status: 'Minted',
-        date: extractMetadataValue(rawMetadata, 'minted_at') || new Date().toLocaleDateString(),
+        date: extractMetadataValue(rawMetadata, 'minted_at') || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         canisterId: collectionId,
         tokenId: tokenId,
       };
@@ -651,7 +651,7 @@ export const usePublicCertificate = (collectionId: string, tokenId: string) => {
         collectionName: collectionId,  // Fallback to canister ID (collection lookup may require auth)
         imageUrl: certificateImage,
         status: 'Minted',  // Default for public view
-        date: extractMetadataValue(rawMetadata, 'minted_at') || new Date().toLocaleDateString(),
+        date: extractMetadataValue(rawMetadata, 'minted_at') || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }),
         canisterId: collectionId,
         tokenId: tokenId,
         certifiedBy: 'ORIGYN',
@@ -744,7 +744,7 @@ export const useCertificateTransactionHistory = (
               : 'Event';
 
             events.push({
-              date: eventDate || (eventTimestamp ? formatTimestamp(eventTimestamp * 1000000n) : 'Unknown date'),
+              date: formatEventDate(eventDate) || (eventTimestamp ? formatTimestamp(eventTimestamp * 1000000n) : 'Unknown date'),
               dateTimestamp: eventTimestamp ? Number(eventTimestamp) : undefined,
               category: eventCategory as any,
               description: `${categoryLabel}: ${eventDescription}`,
@@ -919,13 +919,28 @@ function shortenPrincipal(principal: string): string {
   return `${principal.slice(0, 10)}...${principal.slice(-10)}`;
 }
 
+function formatEventDate(dateStr: string): string {
+  if (!dateStr) return '';
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return dateStr;
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
 function formatTimestamp(nanoseconds: bigint): string {
   // ICRC3 timestamps are in nanoseconds
   const milliseconds = Number(nanoseconds / 1000000n);
-  return new Date(milliseconds).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: '2-digit',
+  return new Date(milliseconds).toLocaleDateString('en-GB', {
     day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
   });
 }
 

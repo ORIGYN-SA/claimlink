@@ -298,7 +298,7 @@ export function getMetadataFieldValue(
 
     // DateContent
     if (typeof content === 'object' && 'date' in content) {
-      return new Date(content.date).toLocaleDateString();
+      return new Date(content.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     // String content
