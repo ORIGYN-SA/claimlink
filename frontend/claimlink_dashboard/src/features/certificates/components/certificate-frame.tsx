@@ -53,7 +53,7 @@ export function CertificateFrame({
         className={`rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full ${className}`}
       >
         {/* Full-bleed background wrapper */}
-        <div className="relative w-full min-h-[600px] sm:min-h-[800px]">
+        <div className="relative w-[950px] h-[1350px] mx-auto">
           {/* Background media - full bleed */}
           <div className="absolute inset-0 rounded-bl-[24px] rounded-br-[24px] overflow-hidden">
             {isVideoBackground ? (
@@ -75,10 +75,10 @@ export function CertificateFrame({
           </div>
 
           {/* Content container with padding */}
-          <div className="relative px-4 sm:px-16 py-6 sm:py-10 flex flex-col items-center min-h-[600px] sm:min-h-[800px]">
+          <div className="relative p-[64px] flex flex-col items-center h-full">
             {/* Glass panel overlay */}
             <div
-              className="w-full max-w-[950px] rounded-[32px] sm:rounded-[48px] px-6 sm:px-16 pt-8 sm:pt-12 pb-6 sm:pb-10 flex flex-col items-center relative"
+              className="w-full rounded-[32px] sm:rounded-[48px] p-[64px] flex flex-col justify-between items-center relative flex-1"
               style={{
                 background: 'rgba(2, 2, 2, 0.2)',
                 backdropFilter: 'blur(8px)',
@@ -144,10 +144,10 @@ export function CertificateFrame({
     >
       {/* Certificate Content Wrapper */}
       <div className="bg-[#222526] px-4 sm:px-16 py-6 sm:py-10 rounded-bl-[24px] rounded-br-[24px] w-full">
-        {/* Certificate Paper */}
-        <div className="w-full max-w-[950px] mx-auto relative rounded-2xl overflow-hidden">
+        {/* Certificate Paper - fixed dimensions */}
+        <div className="w-[950px] h-[1350px] mx-auto relative rounded-2xl overflow-hidden">
           {/* Background with Gradient */}
-          <div className="bg-[#fcfafa] rounded-2xl relative">
+          <div className="bg-[#fcfafa] rounded-2xl relative h-full">
             {/* Standard Gradient Background at Bottom */}
             <div className="absolute bottom-0 left-0 right-0 h-[300px] sm:h-[400px] overflow-hidden opacity-60">
               <div
@@ -175,9 +175,9 @@ export function CertificateFrame({
             </div>
 
             {/* Certificate Content */}
-            <div className="relative z-10 px-6 sm:px-16 pt-6 sm:pt-8 pb-6 sm:pb-10 flex flex-col items-center">
+            <div className="relative z-10 p-[64px] flex flex-col justify-between items-center h-full">
               {/* Header - Logo and Token ID aligned with stamp */}
-              <div className="flex justify-between w-full mb-[60px] sm:mb-[80px]">
+              <div className="flex justify-between w-full">
                 {/* Company Logo */}
                 <div className="flex items-center pb-4 flex-1 border-b border-[rgba(105,115,124,0.2)]">
                   {companyLogo ? (
@@ -208,12 +208,12 @@ export function CertificateFrame({
               </div>
 
               {/* Dynamic Content Slot */}
-              <div className="flex flex-col gap-8 sm:gap-10 items-center justify-center w-full">
+              <div className="flex flex-col gap-8 items-center justify-center w-full">
                 {children}
               </div>
 
               {/* ORIGYN Logo Bottom */}
-              <div className="flex flex-col gap-2 sm:gap-3 items-center mt-10 sm:mt-14 mb-4 sm:mb-6">
+              <div className="flex flex-col gap-2 sm:gap-3 items-center">
                 <img
                   alt="ORIGYN"
                   src={logoTransparent}
