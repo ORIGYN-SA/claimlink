@@ -95,7 +95,7 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
       </div>
 
       {/* Footer */}
-      <div className="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-[202px]" data-name="Footer">
+      <div className="content-stretch flex flex-col gap-6 items-start justify-start relative shrink-0 w-[202px] mt-auto" data-name="Footer">
         <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0">
           <div className="bg-white box-border content-stretch flex flex-col gap-6 items-start justify-start p-[24px] relative rounded-[16px] shrink-0 w-[202px]" data-name="Footer">
             <div className="content-stretch flex flex-col font-sans gap-4 items-start justify-start leading-[0] not-italic overflow-clip relative shrink-0 text-[#69737c] text-[14px] w-[98px]" data-name="Menu">
@@ -119,7 +119,7 @@ const SideNav = ({ className }: { className?: string }) => {
   return (
     <>
       {/* Desktop Sidebar - Hidden on mobile */}
-      <div className={clsx("hidden lg:block", className)}>
+      <div className={clsx("hidden lg:block h-full", className)}>
         <SidebarContent />
       </div>
 

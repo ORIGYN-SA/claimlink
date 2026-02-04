@@ -466,7 +466,7 @@ export function DynamicTemplateForm({
         />
 
         {item.multiple && files.length > 1 && (
-          <div className="grid grid-cols-4 gap-2 mt-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2">
             {previews.slice(1).map((preview, index) => (
               <div key={index} className="relative w-full h-20">
                 {preview.isVideo ? (
@@ -553,9 +553,9 @@ export function DynamicTemplateForm({
           <p className="text-xs text-[#69737c]">{item.description}</p>
         )}
 
-        <div className="flex gap-4 w-full">
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
           {/* Video Preview */}
-          <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
+          <div className="relative bg-[#e1e1e1] rounded-[10px] w-full h-[130px] sm:w-[130px] sm:h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
             {previewUrl ? (
               <>
                 <video
@@ -586,7 +586,7 @@ export function DynamicTemplateForm({
           {/* Upload Area */}
           <div
             onClick={handleUploadClick}
-            className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
+            className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-4 sm:p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
           >
             <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center mb-3">
               <svg className="w-4 h-4 text-[#615bff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -635,8 +635,8 @@ export function DynamicTemplateForm({
         const items = getSectionItems(section);
         
         return (
-          <Card key={section.id} className="p-6">
-            <h3 className="text-lg font-semibold text-[#222526] mb-4">
+          <Card key={section.id} className="p-4 sm:p-6">
+            <h3 className="text-base sm:text-lg font-semibold text-[#222526] mb-4">
               {section.name}
             </h3>
             

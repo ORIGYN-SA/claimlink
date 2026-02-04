@@ -15,14 +15,19 @@ import { useAtom } from "jotai";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
-import { PricingSidebar } from "./pricing-sidebar";
 import { DynamicTemplateForm } from "./dynamic-template-form";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { certificateCreatorAtom } from "@/features/certificates/atoms/certificate-creator.atom";
 import type { Template } from "@/shared/data/templates";
-import type { CertificateFormData, TemplateStructure as TemplateStructureType } from "@/features/templates/types/template.types";
-import type { MetadataFieldValue, FileReference } from "@/features/template-renderer/types/origyn-template.types";
+import type {
+  CertificateFormData,
+  TemplateStructure as TemplateStructureType,
+} from "@/features/templates/types/template.types";
+import type {
+  MetadataFieldValue,
+  FileReference,
+} from "@/features/template-renderer/types/origyn-template.types";
 import {
   validateFormData,
   getTemplateProgress,
@@ -54,26 +59,27 @@ function reconstructFormData(
       const value = metadata[item.id];
       if (value === undefined || value === null) return;
 
-      if (typeof value === 'string') {
+      if (typeof value === "string") {
         formData[item.id] = value;
       } else if (Array.isArray(value)) {
         // FileReference[] - for image fields, use the first file's path
-        if (item.type === 'image' && value.length > 0) {
+        if (item.type === "image" && value.length > 0) {
           formData[item.id] = (value[0] as FileReference).path;
         }
-      } else if (typeof value === 'object' && 'content' in value) {
+      } else if (typeof value === "object" && "content" in value) {
         // MetadataFieldValue - extract the actual string
         const content = (value as MetadataFieldValue).content;
-        if (typeof content === 'string') {
+        if (typeof content === "string") {
           formData[item.id] = content;
-        } else if (typeof content === 'object' && content !== null) {
+        } else if (typeof content === "object" && content !== null) {
           // LocalizedContent: { en: "...", fr: "..." } or DateContent: { date: number }
-          if ('date' in content) {
+          if ("date" in content) {
             formData[item.id] = String(content.date);
           } else {
-            formData[item.id] = (content as Record<string, string>)['en']
-              || Object.values(content)[0]
-              || '';
+            formData[item.id] =
+              (content as Record<string, string>)["en"] ||
+              Object.values(content)[0] ||
+              "";
           }
         }
       }
@@ -108,7 +114,10 @@ export function CreateCertificatePageV2({
 
   // Initialize collection if provided (update if URL param differs from current state)
   useEffect(() => {
-    if (initialCollectionId && initialCollectionId !== state.selectedCollection) {
+    if (
+      initialCollectionId &&
+      initialCollectionId !== state.selectedCollection
+    ) {
       dispatch({
         type: "SET_SELECTED_COLLECTION",
         collectionId: initialCollectionId,
@@ -147,7 +156,8 @@ export function CreateCertificatePageV2({
 
       // Get template from collection metadata (stored TemplateStructure)
       // Fall back to mock templates for legacy collections
-      let templateStructure: TemplateStructureType | null = collectionTemplateStructure ?? null;
+      let templateStructure: TemplateStructureType | null =
+        collectionTemplateStructure ?? null;
 
       if (!templateStructure) {
         // Legacy fallback: try to find a mock template that matches
@@ -183,7 +193,9 @@ export function CreateCertificatePageV2({
         console.error(
           "Cannot edit certificate: No template found in collection or fallback templates",
         );
-        toast.error("Cannot load template for editing. Please contact support.");
+        toast.error(
+          "Cannot load template for editing. Please contact support.",
+        );
       }
     }
   }, [
@@ -298,7 +310,7 @@ export function CreateCertificatePageV2({
         const filesOrUrls = value.filter(
           (item): item is File | string =>
             item instanceof File ||
-            (typeof item === "string" && item.startsWith("http"))
+            (typeof item === "string" && item.startsWith("http")),
         );
         if (filesOrUrls.length > 0) {
           newFileFields.set(key, filesOrUrls);
@@ -306,7 +318,12 @@ export function CreateCertificatePageV2({
       }
       // Legacy support: Handle wrapped { file: File } objects
       // Skip LocalizedValue objects (they have short string keys like 'en', 'it', not 'file')
-      else if (value && typeof value === "object" && "file" in value && !Array.isArray(value)) {
+      else if (
+        value &&
+        typeof value === "object" &&
+        "file" in value &&
+        !Array.isArray(value)
+      ) {
         const maybeFile = (value as Record<string, unknown>).file;
         if (maybeFile instanceof File) {
           newFileFields.set(key, [maybeFile]);
@@ -317,7 +334,11 @@ export function CreateCertificatePageV2({
     // Update file fields in state (cast to File[] for backward compatibility)
     // The actual File vs string distinction is handled in the mutation
     newFileFields.forEach((filesOrUrls, key) => {
-      dispatch({ type: "SET_FILE_FIELD", field: key, files: filesOrUrls as File[] });
+      dispatch({
+        type: "SET_FILE_FIELD",
+        field: key,
+        files: filesOrUrls as File[],
+      });
     });
   };
 
@@ -420,17 +441,17 @@ export function CreateCertificatePageV2({
           <div className="flex flex-col gap-4">
             {/* Template Info Card - Only show if template selected */}
             {state.selectedTemplate && (
-              <Card className="p-6">
-                <div className="flex items-center justify-between mb-4">
+              <Card className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0 mb-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-[#222526]">
+                    <h2 className="text-lg sm:text-xl font-semibold text-[#222526]">
                       {state.selectedTemplate.name}
                     </h2>
                     <p className="text-sm text-[#69737c]">
                       {state.selectedTemplate.description}
                     </p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="text-sm text-[#69737c]">Completion</p>
                     <p className="text-2xl font-bold text-[#222526]">
                       {progress}%
@@ -467,7 +488,7 @@ export function CreateCertificatePageV2({
                 mode={mode}
               />
             ) : (
-              <Card className="p-12 text-center">
+              <Card className="p-6 sm:p-12 text-center">
                 <div className="text-[#69737c]">
                   <p className="text-lg font-medium mb-2">
                     Please select a template
@@ -481,7 +502,7 @@ export function CreateCertificatePageV2({
 
             {/* Validation Errors Summary */}
             {Object.keys(state.validationErrors).length > 0 && (
-              <Card className="p-6 bg-red-50 border-red-200">
+              <Card className="p-4 sm:p-6 bg-red-50 border-red-200">
                 <h3 className="text-lg font-semibold text-red-800 mb-2">
                   Please fix the following errors:
                 </h3>
@@ -499,7 +520,7 @@ export function CreateCertificatePageV2({
 
             {/* Minting/Updating Progress - Show if processing */}
             {activeMutation.isPending && (
-              <Card className="p-6">
+              <Card className="p-4 sm:p-6">
                 <div className="space-y-4">
                   <div className="flex justify-between text-sm">
                     <span className="text-[#69737c]">
@@ -553,15 +574,15 @@ export function CreateCertificatePageV2({
 
             {/* Action Buttons - Only show if template selected */}
             {state.selectedTemplate && (
-              <Card className="p-6">
-                <div className="flex items-center justify-between">
-                  <Button
+              <Card className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
+                  {/*<Button
                     variant="outline"
                     onClick={handleSaveDraft}
                     disabled={isBusy}
                   >
                     Save as Draft
-                  </Button>
+                  </Button>*/}
                   <Button
                     onClick={handleSubmit}
                     disabled={isBusy || !state.selectedCollection}
@@ -583,9 +604,9 @@ export function CreateCertificatePageV2({
         </div>
 
         {/* Sidebar */}
-        <div className="w-full lg:w-[350px] flex-shrink-0">
+        {/*<div className="w-full lg:w-[350px] flex-shrink-0">
           <PricingSidebar />
-        </div>
+        </div>*/}
       </div>
     </div>
   );

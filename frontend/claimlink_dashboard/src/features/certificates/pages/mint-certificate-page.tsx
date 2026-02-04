@@ -195,7 +195,7 @@ export function MintCertificatePage() {
   }
 
   return (
-    <div className="space-y-6 max-w-none">
+    <div className="flex-1 flex flex-col space-y-6 max-w-none">
       <CertificatesActions
         searchQuery={searchQuery}
         selectedStatus={statusFilter}

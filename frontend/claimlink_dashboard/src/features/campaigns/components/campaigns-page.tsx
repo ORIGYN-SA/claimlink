@@ -166,7 +166,7 @@ const CampaignsPage: React.FC = () => {
   const paginatedCampaigns = filteredCampaigns.slice(startIndex, endIndex);
 
   return (
-    <div className="space-y-6 max-w-none">
+    <div className="flex-1 flex flex-col space-y-6 max-w-none">
       <CampaignsActions
         filters={filters}
         onFiltersChange={setFilters}

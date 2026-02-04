@@ -185,7 +185,7 @@ export function CollectionsPage() {
   );
 
   return (
-    <div className="bg-[#fcfafa] rounded-b-[20px] w-full">
+    <div className="bg-[#fcfafa] rounded-b-[20px] w-full flex-1 flex flex-col">
       {/* Search and Filter Actions */}
       <div className="flex flex-wrap gap-2 md:gap-4 items-center w-full mb-6">
         {/* Search and Dropdown Actions */}

@@ -29,7 +29,7 @@ const CertificatesActions: React.FC<CertificatesActionsProps> = ({
   ];
 
   return (
-    <div className="flex gap-4 items-center w-full">
+    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center w-full">
       {/* Search and Dropdown Actions */}
       <div className="flex-1 flex gap-2 items-center">
         {/* Search */}
@@ -45,17 +45,17 @@ const CertificatesActions: React.FC<CertificatesActionsProps> = ({
           value={selectedStatus}
           options={statusOptions}
           onValueChange={onStatusChange}
-          width="w-[250px]"
+          width="w-[140px] sm:w-[250px]"
         />
       </div>
 
       {/* Mint Certificate Button */}
       <Button
         onClick={onMintCertificate}
-        className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-3 h-12 gap-2.5"
+        className="bg-[#222526] text-white hover:bg-[#222526]/90 rounded-full px-6 py-3 h-12 gap-2.5 sm:px-6 self-end sm:self-auto"
       >
         <MoreHorizontal className="w-2 h-2" />
-        Mint a certificate
+        <span className="hidden sm:inline">Mint a certificate</span>
       </Button>
     </div>
   );
