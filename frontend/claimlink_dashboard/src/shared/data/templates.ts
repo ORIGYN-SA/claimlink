@@ -115,7 +115,6 @@ export const artTemplate: Template = {
             label: "Art Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Art Authenticity Certificate",
@@ -130,15 +129,7 @@ export const artTemplate: Template = {
             inputType: "text",
             placeholder: "Artwork title",
           },
-          {
-            id: "date",
-            type: "input",
-            label: "Date",
-            order: 4,
-            required: true,
-            inputType: "text",
-            placeholder: "Year or date range of creation",
-          },
+
           {
             id: "artist",
             type: "input",
@@ -148,15 +139,7 @@ export const artTemplate: Template = {
             inputType: "text",
             placeholder: "Artist name",
           },
-          {
-            id: "medium",
-            type: "input",
-            label: "Medium",
-            order: 6,
-            required: true,
-            inputType: "text",
-            placeholder: "e.g., Oil on canvas, Acrylic, Bronze",
-          },
+
           { ...commonProductImages, order: 7 },
         ],
       },
@@ -167,6 +150,24 @@ export const artTemplate: Template = {
         collapsible: true,
         description: "Additional artwork details and provenance",
         items: [
+          {
+            id: "creation_date",
+            type: "input",
+            label: "Creation Date",
+            order: 4,
+            required: true,
+            inputType: "text",
+            placeholder: "Year or date range of creation",
+          },
+          {
+            id: "medium",
+            type: "input",
+            label: "Medium",
+            order: 6,
+            required: true,
+            inputType: "text",
+            placeholder: "e.g., Oil on canvas, Acrylic, Bronze",
+          },
           {
             id: "origin",
             type: "input",
@@ -264,7 +265,6 @@ export const diamondTemplate: Template = {
             label: "Diamond Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Diamond Authenticity Certificate",
@@ -279,10 +279,21 @@ export const diamondTemplate: Template = {
             inputType: "text",
             placeholder: "Diamond title or identifier",
           },
+
+          { ...commonProductImages, order: 7 },
+        ],
+      },
+      {
+        id: "section_information",
+        name: "Information",
+        order: 2,
+        collapsible: true,
+        description: "Additional diamond details and notes",
+        items: [
           {
-            id: "date",
+            id: "creaation_date",
             type: "input",
-            label: "Date",
+            label: "Creation Date",
             order: 4,
             required: true,
             inputType: "text",
@@ -306,16 +317,6 @@ export const diamondTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., 1.01 ct",
           },
-          { ...commonProductImages, order: 7 },
-        ],
-      },
-      {
-        id: "section_information",
-        name: "Information",
-        order: 2,
-        collapsible: true,
-        description: "Additional diamond details and notes",
-        items: [
           {
             id: "shape_and_cutting_style",
             type: "input",
@@ -456,7 +457,6 @@ export const goldCertificateTemplate: Template = {
             label: "Gold Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Gold Authenticity Certificate",
@@ -480,6 +480,17 @@ export const goldCertificateTemplate: Template = {
             inputType: "text",
             placeholder: "Unique serial/bar number",
           },
+
+          { ...commonProductImages, order: 7 },
+        ],
+      },
+      {
+        id: "section_information",
+        name: "Information",
+        order: 2,
+        collapsible: true,
+        description: "Additional gold details and provenance",
+        items: [
           {
             id: "purity_fineness",
             type: "input",
@@ -498,16 +509,6 @@ export const goldCertificateTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., 31.1035g (1 troy oz)",
           },
-          { ...commonProductImages, order: 7 },
-        ],
-      },
-      {
-        id: "section_information",
-        name: "Information",
-        order: 2,
-        collapsible: true,
-        description: "Additional gold details and provenance",
-        items: [
           {
             id: "assay_mark_hallmark",
             type: "input",
@@ -612,7 +613,6 @@ export const watchTemplate: Template = {
             label: "Watch Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Watch Authenticity Certificate",
@@ -636,15 +636,7 @@ export const watchTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., Rolex, Omega, Patek Philippe",
           },
-          {
-            id: "reference_number",
-            type: "input",
-            label: "Reference Number",
-            order: 5,
-            required: true,
-            inputType: "text",
-            placeholder: "Manufacturer reference number",
-          },
+
           {
             id: "serial_number",
             type: "input",
@@ -664,6 +656,15 @@ export const watchTemplate: Template = {
         collapsible: true,
         description: "Additional watch details and provenance",
         items: [
+          {
+            id: "reference_number",
+            type: "input",
+            label: "Reference Number",
+            order: 5,
+            required: true,
+            inputType: "text",
+            placeholder: "Manufacturer reference number",
+          },
           {
             id: "year_of_manufacture",
             type: "input",
@@ -788,7 +789,6 @@ export const carTemplate: Template = {
             label: "Vehicle Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Vehicle Authenticity Certificate",
@@ -812,15 +812,7 @@ export const carTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., Porsche, Ferrari, Lamborghini",
           },
-          {
-            id: "model_series",
-            type: "input",
-            label: "Model & Series",
-            order: 5,
-            required: true,
-            inputType: "text",
-            placeholder: "e.g., 992 Generation, Series 1",
-          },
+
           {
             id: "vin",
             type: "input",
@@ -840,6 +832,15 @@ export const carTemplate: Template = {
         collapsible: true,
         description: "Additional vehicle details and history",
         items: [
+          {
+            id: "model_series",
+            type: "input",
+            label: "Model & Series",
+            order: 5,
+            required: true,
+            inputType: "text",
+            placeholder: "e.g., 992 Generation, Series 1",
+          },
           {
             id: "year_of_production",
             type: "input",
@@ -910,7 +911,8 @@ export const carTemplate: Template = {
 export const spiritTemplate: Template = {
   id: "spirit_1",
   name: "Spirit",
-  description: "Certificate template for spirits, wines, and sake authentication",
+  description:
+    "Certificate template for spirits, wines, and sake authentication",
   category: "preset",
   thumbnail: "/template.svg",
   metadata: { style: "professional", premium: false, version: "1.0.0" },
@@ -930,7 +932,6 @@ export const spiritTemplate: Template = {
             label: "Spirit Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Spirit Authenticity Certificate",
@@ -1097,7 +1098,6 @@ export const luxuryGoodTemplate: Template = {
             label: "Luxury Good Authenticity Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Luxury Good Authenticity Certificate",
@@ -1121,15 +1121,6 @@ export const luxuryGoodTemplate: Template = {
             inputType: "text",
             placeholder: "e.g., Hermès, Louis Vuitton, Chanel",
           },
-          {
-            id: "product_type",
-            type: "input",
-            label: "Product Type",
-            order: 5,
-            required: true,
-            inputType: "text",
-            placeholder: "e.g., Handbag, Jewelry, Shoes",
-          },
           { ...commonProductImages, order: 6 },
         ],
       },
@@ -1140,6 +1131,15 @@ export const luxuryGoodTemplate: Template = {
         collapsible: true,
         description: "Additional luxury good details and provenance",
         items: [
+          {
+            id: "product_type",
+            type: "input",
+            label: "Product Type",
+            order: 5,
+            required: true,
+            inputType: "text",
+            placeholder: "e.g., Handbag, Jewelry, Shoes",
+          },
           {
             id: "sku",
             type: "input",
@@ -1255,7 +1255,8 @@ export const luxuryGoodTemplate: Template = {
 export const madeInTemplate: Template = {
   id: "made_in_1",
   name: "Made In",
-  description: "Certificate template for origin and manufacturing certification",
+  description:
+    "Certificate template for origin and manufacturing certification",
   category: "preset",
   thumbnail: "/template.svg",
   metadata: { style: "professional", premium: false, version: "1.0.0" },
@@ -1275,7 +1276,6 @@ export const madeInTemplate: Template = {
             label: "Made In Certificate",
             order: 1,
             required: true,
-            immutable: true,
             style: "h1",
             alignment: "center",
             defaultValue: "Made In Certificate",
@@ -1292,7 +1292,8 @@ export const madeInTemplate: Template = {
             validation: {
               minLength: 2,
               maxLength: 200,
-              errorMessage: "Certificate name must be between 2 and 200 characters",
+              errorMessage:
+                "Certificate name must be between 2 and 200 characters",
             },
           },
           {
@@ -1435,171 +1436,6 @@ export const madeInTemplate: Template = {
 export const madeInItalyTemplate = madeInTemplate;
 
 // ============================================================================
-// Event Access Pass
-// ============================================================================
-
-export const eventAccessPassTemplate: Template = {
-  id: "event_access_1",
-  name: "Event Access Pass",
-  description: "Certificate template for event tickets and access passes",
-  category: "preset",
-  thumbnail: "/template.svg",
-  metadata: { style: "professional", premium: false, version: "1.0.0" },
-  structure: {
-    sections: [
-      {
-        id: "section_certificate",
-        name: "Certificate",
-        order: 1,
-        collapsible: false,
-        description: "Essential event pass data",
-        items: [
-          commonLogoItem,
-          {
-            id: "certificate_title",
-            type: "title",
-            label: "Event Access Pass",
-            order: 1,
-            required: true,
-            immutable: true,
-            style: "h1",
-            alignment: "center",
-            defaultValue: "Event Access Pass",
-          },
-          { ...commonCertifiedByBadge, order: 2 },
-          {
-            id: "name",
-            type: "input",
-            label: "Title / Event Name",
-            order: 3,
-            required: true,
-            inputType: "text",
-            placeholder: "Event name",
-          },
-          {
-            id: "ticket_holder_name",
-            type: "input",
-            label: "Ticket Holder Name",
-            order: 4,
-            required: true,
-            inputType: "text",
-            placeholder: "Full name of the ticket holder",
-          },
-          {
-            id: "issuer_organizer",
-            type: "input",
-            label: "Issuer / Organizer",
-            order: 5,
-            required: true,
-            inputType: "text",
-            placeholder: "Organization or company hosting the event",
-          },
-          {
-            id: "event_date",
-            type: "input",
-            label: "Event Date",
-            order: 6,
-            required: true,
-            inputType: "text",
-            placeholder: "DD/MM/YYYY",
-          },
-          { ...commonProductImages, order: 7 },
-        ],
-      },
-      {
-        id: "section_information",
-        name: "Information",
-        order: 2,
-        collapsible: true,
-        description: "Additional event and ticket details",
-        items: [
-          {
-            id: "venue_location",
-            type: "input",
-            label: "Venue / Location",
-            order: 1,
-            required: false,
-            inputType: "text",
-            placeholder: "Venue name and address",
-          },
-          {
-            id: "event_time",
-            type: "input",
-            label: "Event Time",
-            order: 2,
-            required: false,
-            inputType: "text",
-            placeholder: "e.g., 18:00 - 23:00",
-          },
-          {
-            id: "ticket_type",
-            type: "input",
-            label: "Ticket Type / Access Level",
-            order: 3,
-            required: false,
-            inputType: "text",
-            placeholder: "e.g., VIP, GA, Press, Backstage",
-          },
-          {
-            id: "seat_zone_booth",
-            type: "input",
-            label: "Seat / Zone / Booth",
-            order: 4,
-            required: false,
-            inputType: "text",
-            placeholder: "e.g., Section A, Row 12, Seat 5",
-          },
-          {
-            id: "entry_window",
-            type: "input",
-            label: "Entry Window / Validity Period",
-            order: 5,
-            required: false,
-            inputType: "text",
-            placeholder: "e.g., Day Pass, 14h-16h Entry",
-          },
-          {
-            id: "redemption_status",
-            type: "input",
-            label: "Redemption Status",
-            order: 6,
-            required: false,
-            inputType: "text",
-            placeholder: "Used / Unused",
-          },
-          {
-            id: "entry_terms",
-            type: "input",
-            label: "Entry Terms & Conditions",
-            order: 7,
-            required: false,
-            inputType: "textarea",
-            placeholder: "Terms and conditions for entry...",
-            multiline: true,
-            rows: 4,
-          },
-          {
-            id: "description",
-            type: "input",
-            label: "Description / Notes",
-            order: 8,
-            required: false,
-            inputType: "textarea",
-            placeholder: "Additional notes...",
-            multiline: true,
-            rows: 4,
-          },
-          commonGalleryImages,
-        ],
-      },
-    ],
-    languages: defaultLanguages,
-    searchIndexField: "name",
-    metadata: { version: "1.0.0", createdBy: "system" },
-  },
-};
-
-// ============================================================================
 // Template Collections
 // ============================================================================
 
@@ -1613,7 +1449,6 @@ export const mockTemplates: Template[] = [
   spiritTemplate,
   luxuryGoodTemplate,
   madeInTemplate,
-  eventAccessPassTemplate,
 ];
 
 // Template options for the choose template page
@@ -1642,7 +1477,12 @@ export const manualTemplateOption: Template = {
             required: true,
             multiple: false,
             maxImages: 1,
-            acceptedFormats: ["image/jpeg", "image/png", "image/svg+xml", "image/webp"],
+            acceptedFormats: [
+              "image/jpeg",
+              "image/png",
+              "image/svg+xml",
+              "image/webp",
+            ],
           },
           {
             id: "name",
@@ -1664,9 +1504,7 @@ export const manualTemplateOption: Template = {
         items: [],
       },
     ],
-    languages: [
-      { id: "en", code: "en", name: "English", isDefault: true },
-    ],
+    languages: [{ id: "en", code: "en", name: "English", isDefault: true }],
     metadata: {
       version: "1.0.0",
       createdBy: "user",
