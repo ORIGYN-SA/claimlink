@@ -63,14 +63,20 @@ export const PublicCertificatePage = ({
     const { parsedMetadata } = data;
 
     // First try parsed metadata (from on-chain)
-    if (parsedMetadata?.templates?.languages && parsedMetadata.templates.languages.length > 0) {
+    if (
+      parsedMetadata?.templates?.languages &&
+      parsedMetadata.templates.languages.length > 0
+    ) {
       return parsedMetadata.templates.languages.map((lang) => ({
-        code: lang.key || 'en',
-        name: lang.name || lang.key || 'English',
+        code: lang.key || "en",
+        name: lang.name || lang.key || "English",
       }));
     }
     // Then try template structure
-    if (templateStructure?.languages && templateStructure.languages.length > 0) {
+    if (
+      templateStructure?.languages &&
+      templateStructure.languages.length > 0
+    ) {
       return templateStructure.languages.map((lang) => ({
         code: lang.code,
         name: lang.name,
@@ -149,7 +155,7 @@ export const PublicCertificatePage = ({
 
   // Extract issuer info from on-chain metadata
   const issuerInfo = useMemo(() => {
-    if (!data) return { logo: undefined, name: 'ORIGYN' };
+    if (!data) return { logo: undefined, name: "ORIGYN" };
 
     const { certificate, parsedMetadata } = data;
 
@@ -157,25 +163,22 @@ export const PublicCertificatePage = ({
       const companyLogo = extractImageFromMetadata(
         parsedMetadata.metadata.company_logo,
         collectionId,
-        tokenId
+        tokenId,
       );
-      const companyName = extractTextFromMetadata(
-        parsedMetadata.metadata.certified_by
-      ) || extractTextFromMetadata(
-        parsedMetadata.metadata.company_name
-      ) || extractTextFromMetadata(
-        parsedMetadata.metadata.issued_by
-      );
+      const companyName =
+        extractTextFromMetadata(parsedMetadata.metadata.certified_by) ||
+        extractTextFromMetadata(parsedMetadata.metadata.company_name) ||
+        extractTextFromMetadata(parsedMetadata.metadata.issued_by);
 
       return {
         logo: companyLogo,
-        name: companyName || certificate.collectionName || 'ORIGYN',
+        name: companyName || certificate.collectionName || "ORIGYN",
       };
     }
 
     return {
       logo: undefined,
-      name: certificate.collectionName || 'ORIGYN',
+      name: certificate.collectionName || "ORIGYN",
     };
   }, [data, collectionId, tokenId]);
 
@@ -264,14 +267,14 @@ export const PublicCertificatePage = ({
             <Button onClick={handleDownloadQR} variant="outline" size="sm">
               Download QR Code
             </Button>
-            <Link
+            {/*<Link
               to="/login"
               search={{
                 returnTo: `/mint_certificate/${collectionId}:${tokenId}`,
               }}
             >
               <Button size="sm">Login to Manage</Button>
-            </Link>
+            </Link>*/}
           </div>
         </div>
       </div>

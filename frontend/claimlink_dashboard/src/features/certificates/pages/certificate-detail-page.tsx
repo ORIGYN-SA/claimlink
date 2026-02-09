@@ -19,6 +19,8 @@ import {
   extractImageFromMetadata,
 } from "../utils/metadata-extractors";
 import { Button } from "@/components/ui/button";
+import { useTransferCertificate } from "../api/certificates.queries";
+import type { TransferOwnershipData, TransferResult } from "../components/transfer-ownership";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -189,9 +191,22 @@ export function CertificateDetailPage({
     }
   };
 
-  const handleTransferOwnership = () => {
-    // TODO: Open transfer ownership dialog
-    console.log("Transfer ownership for certificate:", certificate.id);
+  const transferMutation = useTransferCertificate();
+
+  const handleTransfer = async (data: TransferOwnershipData): Promise<TransferResult> => {
+    const canisterId = certificate.canisterId || '';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    const transactionIndex = await transferMutation.mutateAsync({
+      canisterId,
+      tokenId,
+      recipientPrincipal: data.principalId,
+    });
+
+    return {
+      transactionIndex,
+      recipientPrincipal: data.principalId,
+    };
   };
 
   return (
@@ -222,7 +237,7 @@ export function CertificateDetailPage({
         // onEditTemplate={handleEditTemplate} // DISABLED: Certificate editing removed
         onLogEvent={handleLogEvent}
         onDownloadQR={handleDownloadQR}
-        onTransferOwnership={handleTransferOwnership}
+        onTransfer={handleTransfer}
       />
 
       {/* Certificate Launchpad Section */}

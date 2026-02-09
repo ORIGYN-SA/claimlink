@@ -20,12 +20,17 @@ export interface TransferOwnershipData {
 
 export type TransferState = "form" | "loading" | "success" | "error";
 
+export interface TransferResult {
+  transactionIndex: bigint;
+  recipientPrincipal: string;
+}
+
 interface TransferOwnershipDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   certificateId?: string;
   currentBalance?: string;
-  onTransfer?: (data: TransferOwnershipData) => Promise<void>;
+  onTransfer?: (data: TransferOwnershipData) => Promise<TransferResult>;
 }
 
 export function TransferOwnershipDialog({
@@ -36,42 +41,37 @@ export function TransferOwnershipDialog({
 }: TransferOwnershipDialogProps) {
   const [state, setState] = useState<TransferState>("form");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [transferResult, setTransferResult] = useState<TransferResult | null>(null);
 
   const handleTransfer = async (data: TransferOwnershipData) => {
     setState("loading");
-    
-    // Simulate processing time with random success/error (matching withdraw-dialog behavior)
-    setTimeout(() => {
-      try {
-        // Randomly choose success or error for testing (70% success rate)
-        const isSuccess = Math.random() > 0.3;
-        
-        if (isSuccess) {
-          // Call the parent callback if provided
-          onTransfer?.(data);
-          setState("success");
-        } else {
-          throw new Error("Transfer failed. Please try again.");
-        }
-      } catch (error) {
-        setErrorMessage(
-          error instanceof Error ? error.message : "Transfer failed. Please try again."
-        );
-        setState("error");
+
+    try {
+      const result = await onTransfer?.(data);
+      if (result) {
+        setTransferResult(result);
       }
-    }, 3000); // 3 second delay matching withdraw-dialog
+      setState("success");
+    } catch (error) {
+      setErrorMessage(
+        error instanceof Error ? error.message : "Transfer failed. Please try again."
+      );
+      setState("error");
+    }
   };
 
   const handleClose = () => {
     // Reset state when closing
     setState("form");
     setErrorMessage("");
+    setTransferResult(null);
     onOpenChange(false);
   };
 
   const handleRetry = () => {
     setState("form");
     setErrorMessage("");
+    setTransferResult(null);
   };
 
   return (
@@ -105,7 +105,11 @@ export function TransferOwnershipDialog({
         {state === "loading" && <TransferOwnershipLoading />}
 
         {state === "success" && (
-          <TransferOwnershipSuccess onClose={handleClose} />
+          <TransferOwnershipSuccess
+            onClose={handleClose}
+            transactionIndex={transferResult?.transactionIndex.toString()}
+            recipientAddress={transferResult?.recipientPrincipal}
+          />
         )}
 
         {state === "error" && (

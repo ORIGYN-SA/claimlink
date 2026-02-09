@@ -1,6 +1,18 @@
 {
   "__0": "ORIGYN Claimlink Monorepo",
   "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
+          "staging": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "init_arg": "(opt record { captcha_config = opt record { max_unsolved_captchas = 50:nat64; captcha_trigger = variant { Static = variant { CaptchaDisabled } } } })"
+    },
     "ogy_ledger": {
       "type": "custom",
       "candid": "backend/external_canisters/icrc_ledger/api/can.did",

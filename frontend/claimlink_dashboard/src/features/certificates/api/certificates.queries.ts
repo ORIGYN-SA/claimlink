@@ -92,6 +92,62 @@ export const useCollectionCertificates = (collectionCanisterId: string) => {
   });
 };
 
+// ============================================================================
+// Transfer Certificate
+// ============================================================================
+
+interface TransferCertificateArgs {
+  canisterId: string;
+  tokenId: string;
+  recipientPrincipal: string;
+}
+
+interface UseTransferCertificateOptions {
+  onSuccess?: (transactionIndex: bigint) => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Hook for transferring certificate ownership
+ *
+ * Calls icrc7_transfer on the collection canister.
+ * The authenticated user's agent signs the call, so only the token owner can transfer.
+ */
+export const useTransferCertificate = (options?: UseTransferCertificateOptions) => {
+  const { authenticatedAgent } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (args: TransferCertificateArgs) => {
+      if (!authenticatedAgent) {
+        throw new Error('Not authenticated');
+      }
+
+      return CertificatesService.transferCertificate(
+        authenticatedAgent,
+        args.canisterId,
+        args.tokenId,
+        args.recipientPrincipal,
+      );
+    },
+    onSuccess: (transactionIndex, variables) => {
+      // Invalidate certificate detail so the page refreshes with the new owner
+      queryClient.invalidateQueries({
+        queryKey: certificatesKeys.detail(`${variables.canisterId}:${variables.tokenId}`),
+      });
+      queryClient.invalidateQueries({ queryKey: certificatesKeys.all });
+      queryClient.invalidateQueries({
+        queryKey: ['certificate-transaction-history', variables.canisterId, variables.tokenId],
+      });
+
+      options?.onSuccess?.(transactionIndex);
+    },
+    onError: (error: Error) => {
+      options?.onError?.(error);
+    },
+  });
+};
+
 interface MintCertificateArgs {
   collectionCanisterId: string;
   name: string;

@@ -1,7 +1,6 @@
 import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import type { RouterContext } from "@/features/auth/types/router-context";
 import { Toaster } from "@/components/ui/sonner";
-import { SessionExpiryWatcher } from "@/features/auth/components/SessionExpiryWatcher";
 
 /**
  * Root route with typed context.
@@ -21,7 +20,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
   return (
     <>
-      <SessionExpiryWatcher />
       <Outlet />
       <Toaster />
     </>
