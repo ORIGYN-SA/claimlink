@@ -1,14 +1,14 @@
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { CertificateQRCode } from "./detail/certificate-qr-code";
-import { QRCodeService } from "../api/qr.service";
+// import { CertificateQRCode } from "./detail/certificate-qr-code";
+// import { QRCodeService } from "../api/qr.service";
 
 interface CertificateLaunchpadProps {
   imageUrl: string;
   companyName: string;
   isVerified?: boolean;
-  status: 'Minted' | 'Transferred' | 'Waiting' | 'Burned' | 'Unclaimed';
+  status: "Minted" | "Transferred" | "Waiting" | "Burned" | "Unclaimed";
   title: string;
   description: string;
   issuerLogo?: string;
@@ -28,22 +28,18 @@ export function CertificateLaunchpad({
   description,
   issuerLogo,
   issuerName,
-  qrCodeUrl, // Deprecated
-  canisterId,
-  tokenId,
+  // qrCodeUrl, // Deprecated
+  // canisterId,
+  // tokenId,
   className,
 }: CertificateLaunchpadProps) {
   // Generate QR code URL using new service (preferred method)
-  const qrValue = canisterId && tokenId
-    ? QRCodeService.getCertificateVerificationUrl(canisterId, tokenId)
-    : qrCodeUrl; // Fallback to old prop for backward compatibility
+  // const qrValue =
+  //   canisterId && tokenId
+  //     ? QRCodeService.getCertificateVerificationUrl(canisterId, tokenId)
+  //     : qrCodeUrl; // Fallback to old prop for backward compatibility
   return (
-    <div
-      className={cn(
-        "flex gap-16 items-center p-16",
-        className
-      )}
-    >
+    <div className={cn("flex gap-16 items-center p-16", className)}>
       {/* Left Section: Certificate Image */}
       <div className="flex-1 bg-[rgba(225,225,225,0.5)] border border-[#e1e1e1] rounded-2xl p-16 flex items-center justify-center min-h-[443px]">
         <div className="flex-1 h-full flex items-center justify-center">
@@ -105,7 +101,7 @@ export function CertificateLaunchpad({
               </div>
 
               {/* Claim Certificate Card */}
-              <div className="flex-1 bg-white border border-[#e1e1e1] rounded-2xl p-4 flex gap-4 items-center">
+              {/*<div className="flex-1 bg-white border border-[#e1e1e1] rounded-2xl p-4 flex gap-4 items-center">
                 {qrValue && (
                   <div className="w-16 h-16 relative shrink-0">
                     <CertificateQRCode
@@ -122,7 +118,7 @@ export function CertificateLaunchpad({
                     claim certificate
                   </p>
                 </div>
-              </div>
+              </div>*/}
             </div>
           </div>
         </div>
@@ -130,4 +126,3 @@ export function CertificateLaunchpad({
     </div>
   );
 }
-

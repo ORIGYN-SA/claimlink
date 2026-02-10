@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Link } from "@tanstack/react-router";
-import { Button } from "@/components/ui/button";
+// import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -8,7 +8,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useListMyCollections, useCollectionTemplate } from "@/features/collections";
+import {
+  useListMyCollections,
+  useCollectionTemplate,
+} from "@/features/collections";
 import type { Template } from "@/shared/data/templates";
 import { mockTemplates } from "@/shared/data/templates";
 import { BulkImportDialog } from "@/components/common";
@@ -72,9 +75,11 @@ export function CollectionSection({
     } else if (selectedCollection) {
       // Fallback: Try to find a matching template from mockTemplates
       // This handles legacy collections without stored templates
-      const fallbackTemplate = mockTemplates.find(t => t.structure);
+      const fallbackTemplate = mockTemplates.find((t) => t.structure);
       if (fallbackTemplate) {
-        console.warn(`Collection ${selectedCollection} has no stored template, using fallback: ${fallbackTemplate.name}`);
+        console.warn(
+          `Collection ${selectedCollection} has no stored template, using fallback: ${fallbackTemplate.name}`,
+        );
         template = fallbackTemplate;
         templateId = fallbackTemplate.id;
       }
@@ -93,7 +98,7 @@ export function CollectionSection({
   };
 
   return (
-    <div className="bg-white box-border flex flex-col gap-4 items-center justify-center px-5 py-6 rounded-[25px] w-full border border-[#efece3]">
+    <div className="bg-white box-border flex flex-col gap-4 items-center justify-center px-4 py-4 sm:px-5 sm:py-6 rounded-[25px] w-full border border-[#efece3]">
       <div className="flex flex-col gap-4 items-start justify-center w-full">
         <div className="flex flex-col gap-2 items-start justify-center">
           <div className="font-sans font-semibold text-[#222526] text-base">
@@ -202,8 +207,18 @@ export function CollectionSection({
 
             {!isLoadingTemplate && !templateError && collectionTemplate && (
               <div className="bg-[#f0fdf4] border border-[#86efac] rounded-[16px] p-3 w-full flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#22c55e]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                <svg
+                  className="w-4 h-4 text-[#22c55e]"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 13l4 4L19 7"
+                  />
                 </svg>
                 <p className="text-[#166534] text-sm font-medium">
                   Template loaded from collection
@@ -222,14 +237,14 @@ export function CollectionSection({
         )}
 
         {/* Bulk Import Button */}
-        <div className="content-stretch flex gap-2 items-center justify-center relative shrink-0">
+        {/*<div className="content-stretch flex gap-2 items-center justify-center relative shrink-0">
           <Button
             className="bg-[#69737c] hover:bg-[#5a5a5a] text-white rounded-[100px] px-[25px] h-12"
             onClick={() => setBulkOpen(true)}
           >
             Bulk import
           </Button>
-        </div>
+        </div>*/}
 
         <BulkImportDialog open={bulkOpen} onOpenChange={setBulkOpen} />
       </div>

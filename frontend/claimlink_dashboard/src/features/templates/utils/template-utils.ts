@@ -18,6 +18,7 @@ import type {
   CertificateFormData,
   ValidationResult,
 } from '@/features/templates/types/template.types';
+import { isLocalizedValue } from '@/features/templates/types/template.types';
 import {
   getTemplateFormat,
   getUnifiedSections,
@@ -249,9 +250,13 @@ export function validateField(
   item: TemplateItem,
   value: any
 ): { isValid: boolean; error?: string } {
-  // For immutable fields with default values, consider the default as the value
-  // This handles cases where badge fields display defaults but form state might not have them
+  // Extract primary string value from LocalizedValue objects
+  // Multi-language mode stores values as { en: "value", it: "valore" }
   let effectiveValue = value;
+  if (isLocalizedValue(value)) {
+    const values = Object.values(value);
+    effectiveValue = values.find((v) => v !== '') ?? values[0] ?? '';
+  }
   if (item.immutable && !value) {
     if (isBadgeItem(item) && item.defaultValue) {
       effectiveValue = item.defaultValue;
@@ -269,14 +274,14 @@ export function validateField(
   }
 
   // Skip validation if value is empty and not required
-  if (!value && !item.required) {
+  if (!effectiveValue && !item.required) {
     return { isValid: true };
   }
 
   // Type-specific validation
   if (isInputItem(item) && item.validation) {
     const validation = item.validation;
-    const strValue = String(value);
+    const strValue = String(effectiveValue);
 
     // Min length
     if (validation.minLength && strValue.length < validation.minLength) {

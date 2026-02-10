@@ -10,6 +10,7 @@ import { mockCertificateEvents } from "@/shared/data/certificate-events";
 import { mockCertificateLedger } from "@/shared/data/certificate-ledger";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 
@@ -76,7 +77,10 @@ function TemplatePreviewSection({
               {selectedTemplate?.name}
             </h3>
             {Boolean(selectedTemplate?.metadata?.premium) && (
-              <Badge variant="secondary" className="bg-[#50be8f] text-white text-xs">
+              <Badge
+                variant="secondary"
+                className="bg-[#50be8f] text-white text-xs"
+              >
                 Premium
               </Badge>
             )}
@@ -112,12 +116,15 @@ function TemplatePreviewSection({
           </p>
           {(() => {
             // Check both local UI state and saved structure
-            const isCustom = selectedTemplate?.backgroundType === "custom" ||
+            const isCustom =
+              selectedTemplate?.backgroundType === "custom" ||
               selectedTemplate?.structure?.background?.type === "custom";
-            const customImage = selectedTemplate?.customBackgroundImage ||
+            const customImage =
+              selectedTemplate?.customBackgroundImage ||
               selectedTemplate?.structure?.background?.dataUri;
-            const isVideo = customImage?.startsWith('data:video') ||
-              selectedTemplate?.structure?.background?.mediaType === 'video';
+            const isVideo =
+              customImage?.startsWith("data:video") ||
+              selectedTemplate?.structure?.background?.mediaType === "video";
 
             return (
               <>
@@ -128,7 +135,7 @@ function TemplatePreviewSection({
                         Custom
                       </Badge>
                       <span className="text-xs sm:text-sm text-[#222526]">
-                        Custom background {isVideo ? 'video' : 'image'} uploaded
+                        Custom background {isVideo ? "video" : "image"} uploaded
                       </span>
                     </div>
                   ) : (
@@ -241,19 +248,33 @@ function CertificatePreview({
   // Check both local UI state (during creation) and saved structure (when editing)
   const background: TemplateBackground | undefined = useMemo(() => {
     // First check local UI state properties (used during new template creation)
-    if (selectedTemplate?.backgroundType === 'custom' && selectedTemplate.customBackgroundImage) {
+    if (
+      selectedTemplate?.backgroundType === "custom" &&
+      selectedTemplate.customBackgroundImage
+    ) {
       return {
-        type: 'custom',
+        type: "custom",
         dataUri: selectedTemplate.customBackgroundImage,
-        mediaType: selectedTemplate.customBackgroundImage.startsWith('data:video') ? 'video' as const : 'image' as const,
+        mediaType: selectedTemplate.customBackgroundImage.startsWith(
+          "data:video",
+        )
+          ? ("video" as const)
+          : ("image" as const),
       };
     }
     // Then check saved structure (used when editing existing templates)
-    if (selectedTemplate?.structure?.background?.type === 'custom' && selectedTemplate.structure.background.dataUri) {
+    if (
+      selectedTemplate?.structure?.background?.type === "custom" &&
+      selectedTemplate.structure.background.dataUri
+    ) {
       return selectedTemplate.structure.background;
     }
-    return { type: 'standard' };
-  }, [selectedTemplate?.backgroundType, selectedTemplate?.customBackgroundImage, selectedTemplate?.structure?.background]);
+    return { type: "standard" };
+  }, [
+    selectedTemplate?.backgroundType,
+    selectedTemplate?.customBackgroundImage,
+    selectedTemplate?.structure?.background,
+  ]);
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -272,6 +293,7 @@ function CertificatePreview({
       library: [],
       tokenId: "preview-token",
       canisterId: "preview-canister",
+      templateVersion: DEFAULT_TEMPLATE_VERSION,
     };
 
     return {
@@ -295,7 +317,8 @@ function CertificatePreview({
         </h3>
         <p className="text-[#69737c] text-sm sm:text-base">
           Preview how your certificate will look with{" "}
-          {(selectedTemplate?.backgroundType === "custom" || selectedTemplate?.structure?.background?.type === "custom")
+          {selectedTemplate?.backgroundType === "custom" ||
+          selectedTemplate?.structure?.background?.type === "custom"
             ? "your custom background"
             : "the standard ORIGYN background"}
         </p>
@@ -412,10 +435,10 @@ export function PreviewDeployStep({
           {isDeploying ? (
             <span className="flex items-center gap-2">
               <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-              Deploying...
+              Creating...
             </span>
           ) : (
-            "Deploy"
+            "Create"
           )}
         </Button>
       </div>

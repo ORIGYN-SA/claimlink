@@ -14,6 +14,7 @@ import type {
   FileReference,
   LibraryItem,
 } from '../types';
+import { DEFAULT_TEMPLATE_VERSION, TEMPLATE_VERSION_KEY } from '../version';
 
 /**
  * Extract a primitive value from ICRC3Value
@@ -252,12 +253,20 @@ export function parseOrigynMetadata(
   // Parse library
   const library = parseLibrary(rawMetadata);
 
+  // Extract template version
+  const versionEntry = rawMetadata.find(([k]) => k === TEMPLATE_VERSION_KEY)?.[1];
+  const templateVersion =
+    versionEntry && 'Text' in versionEntry
+      ? versionEntry.Text
+      : DEFAULT_TEMPLATE_VERSION;
+
   return {
     metadata,
     templates,
     library,
     tokenId,
     canisterId,
+    templateVersion,
   };
 }
 
@@ -289,7 +298,7 @@ export function getMetadataFieldValue(
 
     // DateContent
     if (typeof content === 'object' && 'date' in content) {
-      return new Date(content.date).toLocaleDateString();
+      return new Date(content.date).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
 
     // String content

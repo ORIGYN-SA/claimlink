@@ -1,9 +1,15 @@
 // AccountMenu.tsx
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import { WithdrawDialog } from "./withdraw-dialog/index";
 import { AccountHeaderSection } from "./account-header-section";
-import { UserProfileSection } from "./user-profile-section";
+// import { UserProfileSection } from "./user-profile-section";
 import { WalletBalanceSection } from "./wallet-balance-section";
 import { LastTransactionSection } from "./last-transaction-section";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -91,7 +97,9 @@ export function AccountMenu({
   );
 
   // Get the transactions data
-  const transactionData = txs.data ? txs.data.pages.flatMap((page) => page.data) : [];
+  const transactionData = txs.data
+    ? txs.data.pages.flatMap((page) => page.data)
+    : [];
 
   // Get the most recent transaction
   const lastTransaction = transactionData[0];
@@ -121,7 +129,7 @@ export function AccountMenu({
     // Close the account menu
     onOpenChange(false);
     // Navigate to transaction history page
-    navigate({ to: '/account/transaction-history' });
+    navigate({ to: "/account/transaction-history" });
   };
 
   const formatTransactionDate = (timestamp: string) => {
@@ -175,7 +183,7 @@ export function AccountMenu({
         <SheetDescription className="sr-only">
           View your account balance, transaction history, and manage your wallet
         </SheetDescription>
-        
+
         <div className="h-full overflow-y-auto">
           {/* Background with blur effect */}
           <div className="min-h-full bg-[#051936]/95 backdrop-blur-xl">
@@ -187,7 +195,7 @@ export function AccountMenu({
               />
 
               {/* User profile section */}
-              <UserProfileSection />
+              {/*<UserProfileSection />*/}
 
               {/* Content sections */}
               <div className="flex flex-col gap-6">

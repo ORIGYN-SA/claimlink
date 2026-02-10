@@ -138,6 +138,19 @@ export function EditTemplateStepV2({
       return;
     }
 
+    // Enforce 5-field limit on Certificate section for data fields
+    const targetSection = state.template.structure.sections?.find(s => s.id === sectionId);
+    if (targetSection?.name === 'Certificate') {
+      const itemType = preset.item.type as string;
+      const isDataField = itemType !== 'image' && itemType !== 'title';
+      if (isDataField) {
+        const currentDataFields = targetSection.items.filter(
+          (item) => item.type !== 'image' && item.type !== 'title'
+        ).length;
+        if (currentDataFields >= 5) return;
+      }
+    }
+
     const updatedSections = state.template.structure.sections?.map(
       (section) => {
         if (section.id === sectionId) {

@@ -65,7 +65,7 @@ export function extractTextFromMetadata(
     // Date content - format it
     if (typeof content === 'object' && content !== null && 'date' in content) {
       const date = new Date((content as { date: number }).date);
-      return date.toLocaleDateString();
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
     }
   }
 

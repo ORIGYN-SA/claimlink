@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   IdentityKitAuthType,
   NFIDW,
@@ -23,12 +23,9 @@ import {
   APP_MODE,
   getNfidTargets,
   getDerivationOrigin,
+  getLocalInternetIdentityUrl,
 } from "@/shared/constants";
 import { isLocalICReplica } from "@/shared/utils/environment";
-import {
-  saveDelegationToStorage,
-  clearDelegationFromStorage,
-} from "../utils/delegation-storage";
 
 /**
  * Loading screen shown while auth is initializing.
@@ -111,13 +108,6 @@ const AuthGateInner = ({ children }: AuthGateInnerProps) => {
     }));
   }, [user, isInitializing, authenticatedAgent, unauthenticatedAgent, setState]);
 
-  // Save delegation to localStorage when user connects
-  useEffect(() => {
-    if (user && authenticatedAgent) {
-      saveDelegationToStorage(user, authenticatedAgent);
-    }
-  }, [user, authenticatedAgent]);
-
   // Show loading until auth AND agents are resolved
   // This is the KEY INSIGHT: Router doesn't exist during this phase
   if (!agentsReady) {
@@ -146,36 +136,54 @@ interface AuthGateProps {
 /**
  * AuthGate is the entry point for authentication.
  *
- * Key architectural decision: The children prop is a render function that
- * receives authContext. This allows the parent (main.tsx) to create the
- * router INSIDE this callback, ensuring the router only exists when auth
- * state is resolved.
- *
- * This follows the official TanStack Router authentication pattern:
- * - Loading happens BEFORE RouterProvider exists
- * - Router context gets definitive auth state (not "loading")
- * - beforeLoad guards have guaranteed auth info
+ * NFID IdentityKit handles all session management:
+ * - Delegation persistence and restoration
+ * - Session expiry (via maxTimeToLive)
  *
  * Responsibilities:
- * - Initialize NFID IdentityKit
+ * - Initialize NFID IdentityKit with memoized config
  * - Create authenticated and unauthenticated IC agents
  * - Sync auth state to Jotai atom (for useAuth hook)
  * - Show loading screen until auth resolved
  * - Pass auth context to children via render prop
- * - Handle connect/disconnect events (clear query cache, delegation storage)
  */
 export const AuthGate = ({
   children,
   targets,
-  signers = [NFIDW, InternetIdentity],
+  signers,
   derivationOrigin,
   maxTimeToLive = 86400000000000n, // one day (24 hours in nanoseconds)
 }: AuthGateProps) => {
   const queryClient = useQueryClient();
 
-  const nfidTargets = targets || getNfidTargets();
+  // Memoize signers to prevent IdentityKitProvider re-initialization on re-renders.
+  // New array/object references cause the provider to reset auth state.
+  const localIIUrl = getLocalInternetIdentityUrl();
+  const resolvedSigners = useMemo(
+    () =>
+      signers ||
+      (localIIUrl
+        ? [{ ...InternetIdentity, providerUrl: localIIUrl }]
+        : [NFIDW, InternetIdentity]),
+    [signers, localIIUrl],
+  );
+
+  const nfidTargets = useMemo(() => targets || getNfidTargets(), [targets]);
   const nfidDerivationOrigin =
     derivationOrigin !== undefined ? derivationOrigin : getDerivationOrigin();
+
+  // Memoize signerClientOptions to prevent provider re-initialization
+  const signerClientOptions = useMemo(
+    () => ({
+      targets: nfidTargets,
+      maxTimeToLive,
+      derivationOrigin: nfidDerivationOrigin,
+      idleOptions: {
+        disableIdle: true,
+      },
+    }),
+    [nfidTargets, maxTimeToLive, nfidDerivationOrigin],
+  );
 
   // Handle successful connection
   const handleConnectSuccess = () => {
@@ -186,22 +194,14 @@ export const AuthGate = ({
   // Handle disconnection
   const handleDisconnect = () => {
     console.log("[Auth] Disconnecting...");
-    clearDelegationFromStorage();
     queryClient.clear();
   };
 
   return (
     <IdentityKitProvider
-      signers={signers}
+      signers={resolvedSigners}
       authType={IdentityKitAuthType.DELEGATION}
-      signerClientOptions={{
-        targets: nfidTargets,
-        maxTimeToLive,
-        derivationOrigin: nfidDerivationOrigin,
-        idleOptions: {
-          disableIdle: false,
-        },
-      }}
+      signerClientOptions={signerClientOptions}
       onConnectFailure={(err: Error) => {
         console.error("[Auth] Connection failed:", err);
       }}

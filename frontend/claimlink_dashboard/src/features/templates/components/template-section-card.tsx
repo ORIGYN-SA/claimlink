@@ -37,6 +37,16 @@ interface TemplateSectionCardProps {
   onReorderItems?: (sectionId: string, activeId: string, overId: string) => void;
 }
 
+/** Max number of data fields (non-image, non-title) allowed in the Certificate section */
+const CERTIFICATE_MAX_FIELDS = 5;
+
+/** Count fields that actually render on the certificate (excludes images, titles, logos) */
+function getCertificateFieldCount(items: TemplateItem[]): number {
+  return items.filter(
+    (item) => item.type !== 'image' && item.type !== 'title'
+  ).length;
+}
+
 export function TemplateSectionCard({
   section,
   onAddItem,
@@ -47,6 +57,9 @@ export function TemplateSectionCard({
   onReorderItems,
 }: TemplateSectionCardProps) {
   const sortedItems = getSectionItems(section);
+  const isCertificateSection = section.name === 'Certificate';
+  const certificateFieldCount = isCertificateSection ? getCertificateFieldCount(sortedItems) : 0;
+  const isAtFieldLimit = isCertificateSection && certificateFieldCount >= CERTIFICATE_MAX_FIELDS;
 
   // Configure drag-and-drop sensors
   const sensors = useSensors(
@@ -92,9 +105,16 @@ export function TemplateSectionCard({
               size="sm"
               onClick={() => onAddItem(section.id)}
               className="text-xs sm:text-sm"
+              disabled={isAtFieldLimit}
+              title={isAtFieldLimit ? `Certificate section is limited to ${CERTIFICATE_MAX_FIELDS} fields` : undefined}
             >
               <Icon.Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1" />
               Add Item
+              {isCertificateSection && (
+                <span className="ml-1 text-[10px] text-[#69737c]">
+                  ({certificateFieldCount}/{CERTIFICATE_MAX_FIELDS})
+                </span>
+              )}
             </Button>
           )}
 

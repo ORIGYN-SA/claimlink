@@ -100,7 +100,7 @@ function generateCertificateTemplate(
           item.type !== "image" &&
           item.type !== "title",
       )
-      .slice(0, 10); // Show up to 10 fields
+      .slice(0, 5); // Max 5 fields on certificate (fixed 950x1350 layout)
 
     certFields.forEach((item: TemplateItem) => {
         // Badge items render as just the value (no label above)

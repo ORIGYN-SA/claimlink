@@ -56,9 +56,9 @@ export function ImageUploadSection({
     : UPLOAD_CONFIG.image.formatLabel;
 
   return (
-    <div className="flex gap-4 w-full">
+    <div className="flex flex-col sm:flex-row gap-4 w-full">
       {/* Preview Card */}
-      <div className="relative bg-[#e1e1e1] rounded-[10px] w-[130px] h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
+      <div className="relative bg-[#e1e1e1] rounded-[10px] w-full h-[130px] sm:w-[130px] sm:h-[130px] flex items-center justify-center overflow-hidden group flex-shrink-0">
         {previewUrl ? (
           <>
             {isVideo ? (
@@ -93,7 +93,7 @@ export function ImageUploadSection({
       {/* Upload Area */}
       <div
         onClick={onUploadClick}
-        className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
+        className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-4 sm:p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
       >
         <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center mb-3">
           <Upload className="w-4 h-4 text-[#615bff]" />

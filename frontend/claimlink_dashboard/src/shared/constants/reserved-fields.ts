@@ -25,7 +25,6 @@ export const RESERVED_FIELDS = {
     'title',
     'certificate_title',
     'product_name',
-    'company_name',
   ] as const,
 
   /**
@@ -63,7 +62,7 @@ export const RESERVED_FIELDS = {
    * Used in certificate launchpad and detail views.
    * @see CertificateLaunchpad component
    */
-  COMPANY_NAME: ['company_name', 'issuer_name', 'brand_name'] as const,
+  COMPANY_NAME: ['certified_by', 'issued_by', 'company_name', 'issuer_name', 'brand_name'] as const,
 
   /**
    * Fields that can auto-detect as search index.
@@ -98,7 +97,7 @@ export const RECOMMENDED_FIELD_IDS: Record<
   image: 'product_images',
   description: 'short_description',
   company_logo: 'company_logo',
-  company_name: 'company_name',
+  company_name: 'certified_by',
 };
 
 /**

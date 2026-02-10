@@ -1,7 +1,7 @@
 import type { Agent } from "@dfinity/agent";
-import type { Principal } from "@dfinity/principal";
+import { Principal } from "@dfinity/principal";
 import { idlFactory } from "@canisters/origyn_nft";
-import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult } from "@canisters/origyn_nft";
+import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult, TransferError } from "@canisters/origyn_nft";
 import { createCanisterActor, retryWithBackoff } from "@/shared/canister";
 import { buildCanisterUrl, isLocalReplica } from "@/features/template-renderer/utils/url-resolver";
 
@@ -302,6 +302,94 @@ export class CertificatesService {
   ): Promise<Array<[string, ICRC3Value]>> {
     const actor = this.createActor(agent, canisterId);
     return await actor.icrc7_collection_metadata();
+  }
+
+  /**
+   * Transfer a certificate to a new owner
+   *
+   * Calls icrc7_transfer on the ORIGYN NFT canister.
+   * The authenticated user's agent signs the call, so only the actual token owner can transfer.
+   *
+   * @param agent - Authenticated agent (must be the token owner)
+   * @param canisterId - Collection canister ID
+   * @param tokenId - Token ID to transfer
+   * @param recipientPrincipal - Principal ID of the recipient
+   * @returns Transaction index on success
+   * @throws Error with user-friendly message on failure
+   */
+  static async transferCertificate(
+    agent: Agent,
+    canisterId: string,
+    tokenId: string,
+    recipientPrincipal: string,
+  ): Promise<bigint> {
+    // Validate principal before making the canister call
+    let recipient: Principal;
+    try {
+      recipient = Principal.fromText(recipientPrincipal);
+    } catch {
+      throw new Error('Invalid recipient principal ID. Please check the format and try again.');
+    }
+
+    const actor = this.createActor(agent, canisterId);
+
+    const transferArg = {
+      to: { owner: recipient, subaccount: [] as [] },
+      token_id: BigInt(tokenId),
+      memo: [] as [],
+      from_subaccount: [] as [],
+      created_at_time: [] as [],
+    };
+
+    const results = await actor.icrc7_transfer([transferArg]);
+
+    // Unwrap the single result from the batch response
+    const result = results[0];
+    if (!result || result.length === 0) {
+      throw new Error('Transfer returned no result. Please try again.');
+    }
+
+    const innerResult = result[0];
+    if (!innerResult) {
+      throw new Error('Transfer returned no result. Please try again.');
+    }
+
+    if ('Err' in innerResult) {
+      throw new Error(this.formatTransferError(innerResult.Err));
+    }
+
+    return innerResult.Ok;
+  }
+
+  /**
+   * Map TransferError variants to user-friendly messages
+   */
+  private static formatTransferError(error: TransferError): string {
+    if ('Unauthorized' in error) {
+      return 'You are not the owner of this certificate.';
+    }
+    if ('NonExistingTokenId' in error) {
+      return 'Certificate not found.';
+    }
+    if ('InvalidRecipient' in error) {
+      return 'Invalid recipient address.';
+    }
+    if ('Duplicate' in error) {
+      return `Duplicate transfer. Already processed as transaction ${error.Duplicate.duplicate_of}.`;
+    }
+    if ('CreatedInFuture' in error) {
+      return 'Transfer timestamp is in the future. Please try again.';
+    }
+    if ('TooOld' in error) {
+      return 'Transfer request expired. Please try again.';
+    }
+    if ('GenericError' in error) {
+      return error.GenericError.message || 'Transfer failed.';
+    }
+    if ('GenericBatchError' in error) {
+      return error.GenericBatchError.message || 'Transfer failed.';
+    }
+    return 'Transfer failed. Please try again.';
   }
 
   /**

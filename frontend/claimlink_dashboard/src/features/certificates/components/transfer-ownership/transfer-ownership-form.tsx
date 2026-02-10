@@ -8,7 +8,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { TransferOwnershipData, TransferType } from "./transfer-ownership-dialog";
+import type {
+  TransferOwnershipData,
+  TransferType,
+} from "./transfer-ownership-dialog";
 
 interface TransferOwnershipFormProps {
   currentBalance: string;
@@ -48,7 +51,10 @@ export function TransferOwnershipForm({
             >
               Type
             </label>
-            <Select value={type} onValueChange={(value) => setType(value as TransferType)}>
+            <Select
+              value={type}
+              onValueChange={(value) => setType(value as TransferType)}
+            >
               <SelectTrigger
                 id="transfer-type"
                 className="w-full h-[50px] bg-white border border-[#e1e1e1] rounded-full px-4 font-['DM_Sans',sans-serif] font-semibold text-[14px] text-[#222526] focus:ring-2 focus:ring-[#222526] focus:border-[#222526]"
@@ -87,7 +93,7 @@ export function TransferOwnershipForm({
           type="submit"
           className="w-full h-[48px] bg-[#222526] text-white rounded-full px-[25px] font-['DM_Sans',sans-serif] font-semibold text-[14px] leading-[48px] hover:bg-[#222526]/90 transition-colors"
         >
-          Transfer OGY
+          Transfer Certificate
         </Button>
       </div>
 
@@ -99,8 +105,17 @@ export function TransferOwnershipForm({
               Current balance:
             </p>
             <div className="w-[8.25px] h-2 flex items-center justify-center">
-              <svg width="9" height="8" viewBox="0 0 9 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M8.25 4C8.25 6.07107 6.57107 7.75 4.5 7.75C2.42893 7.75 0.75 6.07107 0.75 4C0.75 1.92893 2.42893 0.25 4.5 0.25C6.57107 0.25 8.25 1.92893 8.25 4Z" fill="#615BFF"/>
+              <svg
+                width="9"
+                height="8"
+                viewBox="0 0 9 8"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M8.25 4C8.25 6.07107 6.57107 7.75 4.5 7.75C2.42893 7.75 0.75 6.07107 0.75 4C0.75 1.92893 2.42893 0.25 4.5 0.25C6.57107 0.25 8.25 1.92893 8.25 4Z"
+                  fill="#615BFF"
+                />
               </svg>
             </div>
             <p className="font-['General_Sans',sans-serif] font-semibold text-[12px] leading-normal text-[#69737c] whitespace-nowrap">
@@ -112,4 +127,3 @@ export function TransferOwnershipForm({
     </form>
   );
 }
-

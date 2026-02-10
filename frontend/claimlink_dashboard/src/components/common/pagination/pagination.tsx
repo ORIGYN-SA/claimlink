@@ -86,13 +86,13 @@ export function Pagination({
 
   return (
     <div className={cn(
-      "bg-white border-t border-[#f2f2f2] px-10 py-4 rounded-b-[25px] flex items-center justify-between",
+      "bg-white border-t border-[#f2f2f2] px-4 sm:px-10 py-3 sm:py-4 rounded-b-[25px] flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-auto",
       className
     )}>
       {/* Lines per page */}
       {showItemsPerPage && (
-        <div className="flex gap-2.5 items-center">
-          <span className="text-[13px] text-[#86858a] leading-normal">Lines per page</span>
+        <div className="flex gap-2 sm:gap-2.5 items-center">
+          <span className="text-[12px] sm:text-[13px] text-[#86858a] leading-normal">Lines per page</span>
           <Select
             value={itemsPerPage.toString()}
             onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
@@ -116,7 +116,7 @@ export function Pagination({
       )}
 
       {/* Pagination Controls */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-4">
         <Button
           variant="ghost"
           size="sm"

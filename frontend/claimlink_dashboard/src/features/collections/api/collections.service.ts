@@ -22,6 +22,10 @@ import {
   deserializeTemplateFromOrigyn,
 } from '@/features/templates/utils/template-serializer';
 import { TemplateService } from '@/features/templates';
+import {
+  CURRENT_TEMPLATE_VERSION,
+  TEMPLATE_VERSION_KEY,
+} from '@/features/template-renderer/version';
 
 /**
  * Create a ClaimLink canister actor
@@ -403,7 +407,10 @@ export class CollectionsService {
       tx_window: [],
       permitted_drift: [],
       max_canister_storage_threshold: [],
-      collection_metadata: [[serializedTemplate]],
+      collection_metadata: [[
+        serializedTemplate,
+        [TEMPLATE_VERSION_KEY, { Text: CURRENT_TEMPLATE_VERSION }],
+      ]],
     });
 
     if ('Err' in result) {

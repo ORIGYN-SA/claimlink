@@ -10,6 +10,7 @@ import type { CertificateLedgerData } from "../components/detail/certificate-led
 import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
@@ -18,6 +19,8 @@ import {
   extractImageFromMetadata,
 } from "../utils/metadata-extractors";
 import { Button } from "@/components/ui/button";
+import { useTransferCertificate } from "../api/certificates.queries";
+import type { TransferOwnershipData, TransferResult } from "../components/transfer-ownership";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -104,6 +107,7 @@ export function CertificateDetailPage({
           library: [],
           tokenId,
           canisterId,
+          templateVersion: DEFAULT_TEMPLATE_VERSION,
         };
 
         return {
@@ -138,9 +142,11 @@ export function CertificateDetailPage({
         tokenId
       );
       const companyName = extractTextFromMetadata(
+        parsedMetadata.metadata.certified_by
+      ) || extractTextFromMetadata(
         parsedMetadata.metadata.company_name
       ) || extractTextFromMetadata(
-        parsedMetadata.metadata.name
+        parsedMetadata.metadata.issued_by
       );
 
       return {
@@ -185,9 +191,22 @@ export function CertificateDetailPage({
     }
   };
 
-  const handleTransferOwnership = () => {
-    // TODO: Open transfer ownership dialog
-    console.log("Transfer ownership for certificate:", certificate.id);
+  const transferMutation = useTransferCertificate();
+
+  const handleTransfer = async (data: TransferOwnershipData): Promise<TransferResult> => {
+    const canisterId = certificate.canisterId || '';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    const transactionIndex = await transferMutation.mutateAsync({
+      canisterId,
+      tokenId,
+      recipientPrincipal: data.principalId,
+    });
+
+    return {
+      transactionIndex,
+      recipientPrincipal: data.principalId,
+    };
   };
 
   return (
@@ -218,7 +237,7 @@ export function CertificateDetailPage({
         // onEditTemplate={handleEditTemplate} // DISABLED: Certificate editing removed
         onLogEvent={handleLogEvent}
         onDownloadQR={handleDownloadQR}
-        onTransferOwnership={handleTransferOwnership}
+        onTransfer={handleTransfer}
       />
 
       {/* Certificate Launchpad Section */}
