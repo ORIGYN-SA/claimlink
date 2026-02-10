@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import type { Template, TemplateBackground } from "../../types/template.types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { RESERVED_FIELDS } from "@/shared/constants/reserved-fields";
 import {
   CertificateViewer,
   type TemplateData,
@@ -27,23 +28,51 @@ interface PreviewDeployStepProps {
   isDeploying?: boolean;
 }
 
+/** Check if template structure has a field matching any of the given reserved IDs */
+function findStructureField(
+  selectedTemplate: TemplateWithBackground | null,
+  reservedIds: readonly string[],
+): boolean {
+  if (!selectedTemplate?.structure?.sections) return false;
+  return selectedTemplate.structure.sections.some((section) =>
+    section.items.some((item) =>
+      (reservedIds as readonly string[]).includes(item.id),
+    ),
+  );
+}
+
 // Template Preview Section Component
 function TemplatePreviewSection({
   selectedTemplate,
 }: {
   selectedTemplate: TemplateWithBackground | null;
 }) {
+  const hasIssuerField = findStructureField(
+    selectedTemplate,
+    RESERVED_FIELDS.COMPANY_NAME,
+  );
+  const hasLogoField = findStructureField(
+    selectedTemplate,
+    RESERVED_FIELDS.COMPANY_LOGO,
+  );
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
       {/* Image Preview */}
       <div className="space-y-3 sm:space-y-4">
-        <div className="aspect-square bg-[#f5f5f5] rounded-lg overflow-hidden max-w-[300px] sm:max-w-none mx-auto lg:mx-0">
+        <div className="aspect-square bg-[#f5f5f5] rounded-lg overflow-hidden max-w-[300px] sm:max-w-none mx-auto lg:mx-0 relative">
           {selectedTemplate?.thumbnail ? (
-            <img
-              src={selectedTemplate.thumbnail}
-              alt={selectedTemplate.name}
-              className="w-full h-full object-cover"
-            />
+            <>
+              <img
+                src={selectedTemplate.thumbnail}
+                alt={selectedTemplate.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <p className="text-[#222526]/20 text-2xl sm:text-3xl font-semibold uppercase tracking-widest -rotate-30 select-none">
+                  Certificate Image
+                </p>
+              </div>
+            </>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-[#69737c]">
               <div className="text-center">
@@ -177,21 +206,25 @@ function TemplatePreviewSection({
           })()}
         </div>
 
-        {/* Company Info (if available) */}
-        {Boolean(selectedTemplate?.metadata?.company) && (
-          <div className="bg-[#fcfafa] rounded-lg p-3 sm:p-4">
-            <p className="text-[10px] sm:text-xs text-[#69737c] uppercase tracking-wide mb-2">
-              Company
-            </p>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-xs sm:text-sm font-medium text-[#222526]">
-                {String(selectedTemplate?.metadata?.company)}
-              </span>
-              {Boolean(selectedTemplate?.metadata?.verified) && (
-                <Badge variant="outline" className="text-xs">
-                  Verified
-                </Badge>
-              )}
+        {/* Issued By Card */}
+        {hasIssuerField && (
+          <div className="bg-white border border-[#e1e1e1] rounded-2xl p-4 flex gap-4 items-center">
+            {hasLogoField && (
+              <div className="w-16 h-16 relative shrink-0">
+                <img
+                  src={PLACEHOLDER_LOGO_SVG}
+                  alt="Company logo"
+                  className="w-full h-full object-cover rounded"
+                />
+              </div>
+            )}
+            <div className="flex flex-col gap-1 items-start">
+              <p className="text-[12px] font-normal text-[#69737c] uppercase tracking-[1.2px]">
+                issued by
+              </p>
+              <p className="text-[16px] font-semibold text-[#222526] font-['DM_Sans',_sans-serif]">
+                {MOCK_PREVIEW_DATA.certified_by || "Issuer Name"}
+              </p>
             </div>
           </div>
         )}
