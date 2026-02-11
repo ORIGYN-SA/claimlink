@@ -1,5 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useAuth } from "../hooks/useAuth";
+import { useAccounts, useAgent, useIdentity } from "@nfid/identitykit/react";
+import { Principal } from "@dfinity/principal";
+import { useEffect, useState } from "react";
 
 interface ConnectWalletButtonProps {
   className?: string;
@@ -12,7 +15,34 @@ export function ConnectWalletButton({
   variant = "default",
   size = "default"
 }: ConnectWalletButtonProps) {
-  const { isConnected, principalId, connect, disconnect, isInitializing } = useAuth();
+  const { isConnected,  connect, disconnect, isInitializing } = useAuth();
+  let [principal, setPrincipal] = useState<String>();
+  // ICP Wallet Hooks
+  const icpAccounts = useAccounts();
+  const icpIdentity = useIdentity();
+  // Agents
+  const authenticatedAgent = useAgent();
+
+
+
+  // Set ICP identity and authenticated agent
+  useEffect(() => {
+    if (icpAccounts != undefined && authenticatedAgent) {
+      if (icpAccounts[0].principal.compareTo(Principal.anonymous()) != 'eq') {
+        setPrincipal(icpAccounts[0].principal.toText());
+      } else {
+        disconnect();
+      }
+    }
+    if (icpIdentity != undefined && authenticatedAgent) {
+      if (icpIdentity.getPrincipal().compareTo(Principal.anonymous()) != 'eq') {
+        setPrincipal(icpIdentity.getPrincipal().toString());
+      } else {
+        disconnect();
+      }
+    }
+  }, [icpAccounts, icpIdentity]);
+
 
   if (isInitializing) {
     return (
@@ -31,7 +61,7 @@ export function ConnectWalletButton({
     return (
       <div className="flex items-center gap-2">
         <span className="text-sm text-gray-600 hidden sm:inline">
-          {principalId ? `${principalId.slice(0, 8)}...${principalId.slice(-8)}` : 'Connected'}
+          {principal ? `${principal.slice(0, 8)}...${principal.slice(-8)}` : 'Connected'}
         </span>
         <Button
           variant="outline"
