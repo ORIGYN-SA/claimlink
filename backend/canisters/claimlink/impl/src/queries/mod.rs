@@ -7,6 +7,9 @@ mod get_nft_details;
 mod get_metrics;
 mod get_templates_by_owner;
 mod http_request;
+mod icrc_10;
+mod icrc_21;
+mod icrc_28;
 mod list_all_collections;
 
 pub use get_collection_count::*;
@@ -18,4 +21,7 @@ pub use get_nft_details::*;
 pub use get_metrics::*;
 pub use get_templates_by_owner::*;
 pub use http_request::*;
+pub use icrc_10::*;
+pub use icrc_21::*;
+pub use icrc_28::*;
 pub use list_all_collections::*;
