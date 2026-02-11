@@ -21,6 +21,31 @@ export type BTreeMap = Array<
       { 'Array' : Array<ICRC3Value> },
   ]
 >;
+export interface MemorySize {
+  'stable' : bigint,
+  'heap' : bigint,
+}
+export interface CanisterInfo {
+  'test_mode' : boolean,
+  'memory_used' : MemorySize,
+  'now_nanos' : bigint,
+  'cycles_balance_in_tc' : number,
+}
+export interface Metrics {
+  'next_template_id' : bigint,
+  'origyn_nft_wasm_hash' : string,
+  'cycles_management' : CyclesManagement,
+  'max_creation_retries' : bigint,
+  'collection_request_fee' : bigint,
+  'ogy_to_burn' : bigint,
+  'ogy_transfer_fee' : bigint,
+  'authorized_principals' : Array<AuthordiedPrincipal>,
+  'total_ogy_burned' : bigint,
+  'bank_principal_id' : Principal,
+  'ledger_canister_id' : Principal,
+  'canister_info' : CanisterInfo,
+  'max_template_per_owner' : bigint,
+}
 export interface BuildVersion {
   'major' : number,
   'minor' : number,
@@ -176,6 +201,7 @@ export interface _SERVICE {
     [GetCollectionsByOwnerArgs],
     CollectionsResult
   >,
+  'get_metrics' : ActorMethod<[], Metrics>,
   'get_nft_details' : ActorMethod<[GetNftDetailsArgs], Array<NftDetails>>,
   'get_templates_by_owner' : ActorMethod<[GetTemplatesByOwnerArgs], Result_2>,
   'list_all_collections' : ActorMethod<[PaginationArgs], CollectionsResult>,

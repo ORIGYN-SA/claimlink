@@ -190,6 +190,28 @@ export const idlFactory = ({ IDL }) => {
     'Ok' : TemplatesResult,
     'Err' : GetTemplatesByOwnerError,
   });
+  const MemorySize = IDL.Record({ 'stable' : IDL.Nat64, 'heap' : IDL.Nat64 });
+  const CanisterInfo = IDL.Record({
+    'test_mode' : IDL.Bool,
+    'memory_used' : MemorySize,
+    'now_nanos' : IDL.Nat64,
+    'cycles_balance_in_tc' : IDL.Float64,
+  });
+  const Metrics = IDL.Record({
+    'next_template_id' : IDL.Nat,
+    'origyn_nft_wasm_hash' : IDL.Text,
+    'cycles_management' : CyclesManagement,
+    'max_creation_retries' : IDL.Nat,
+    'collection_request_fee' : IDL.Nat,
+    'ogy_to_burn' : IDL.Nat,
+    'ogy_transfer_fee' : IDL.Nat,
+    'authorized_principals' : IDL.Vec(AuthordiedPrincipal),
+    'total_ogy_burned' : IDL.Nat,
+    'bank_principal_id' : IDL.Principal,
+    'ledger_canister_id' : IDL.Principal,
+    'canister_info' : CanisterInfo,
+    'max_template_per_owner' : IDL.Nat,
+  });
   return IDL.Service({
     'create_collection' : IDL.Func([CreateCollectionArgs], [Result], []),
     'create_template' : IDL.Func([CreateTemplateArgs], [Result_1], []),
@@ -209,6 +231,7 @@ export const idlFactory = ({ IDL }) => {
         [CollectionsResult],
         ['query'],
       ),
+    'get_metrics' : IDL.Func([], [Metrics], ['query']),
     'get_nft_details' : IDL.Func(
         [GetNftDetailsArgs],
         [IDL.Vec(NftDetails)],

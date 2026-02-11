@@ -1,4 +1,7 @@
+import { useState } from "react";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { useIsAuthorized } from "@/features/auth/hooks/useIsAuthorized";
+import { UnauthorizedWarningDialog } from "@/components/common/unauthorized-warning-dialog/unauthorized-warning-dialog";
 
 /**
  * Layout route that protects all child routes.
@@ -29,9 +32,22 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 /**
- * Layout component - just renders children.
+ * Layout component - renders children and shows authorization warning if needed.
  * DashboardLayout is applied in individual route components.
  */
 function AuthenticatedLayout() {
-  return <Outlet />;
+  const { isAuthorized, isLoading } = useIsAuthorized();
+  const [dialogOpen, setDialogOpen] = useState(true);
+
+  return (
+    <>
+      <Outlet />
+      {!isLoading && !isAuthorized && (
+        <UnauthorizedWarningDialog
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      )}
+    </>
+  );
 }
