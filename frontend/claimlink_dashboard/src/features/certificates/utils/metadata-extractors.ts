@@ -150,8 +150,8 @@ function resolveFilePath(
   tokenId: string,
   locationType: 'token' | 'collection'
 ): string {
-  // Already a full URL or data URI
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+  // Already a full URL, data URI, or blob URL
+  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
     return path;
   }
 

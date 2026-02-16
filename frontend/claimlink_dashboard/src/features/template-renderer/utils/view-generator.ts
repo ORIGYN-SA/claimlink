@@ -27,6 +27,7 @@ import type {
   GalleryNode,
   ImageNode,
   VideoNode,
+  AttachmentsNode,
   FormTemplateCategory,
   LocalizedContent,
   TemplateLanguageConfig,
@@ -93,12 +94,13 @@ function generateCertificateTemplate(
       content: [],
     };
 
-    // Add key fields from Certificate section (images and titles handled elsewhere)
+    // Add key fields from Certificate section (images, titles, and stamp handled elsewhere)
     const certFields: TemplateItem[] = certificateSection.items
       .filter(
         (item) =>
           item.type !== "image" &&
-          item.type !== "title",
+          item.type !== "title" &&
+          item.id !== "stamp_upload",
       )
       .slice(0, 5); // Max 5 fields on certificate (fixed 950x1350 layout)
 
@@ -348,6 +350,26 @@ function generateExperienceTemplate(
             field: item.id,
           } as ImageNode);
         }
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle document/attachment fields
+      else if (item.type === "document") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
+
+        // Use attachments node to render as downloadable file list
+        nodes.push({
+          id: generateNodeId(),
+          type: "attachments",
+          pointer: item.id,
+        } as AttachmentsNode);
 
         nodes.push({
           id: generateNodeId(),

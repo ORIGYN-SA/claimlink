@@ -16,6 +16,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { CollectionSection } from "./collection-section";
 import { DynamicTemplateForm } from "./dynamic-template-form";
+import { CertificatePreviewModal } from "./certificate-preview-modal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { certificateCreatorAtom } from "@/features/certificates/atoms/certificate-creator.atom";
@@ -107,6 +108,7 @@ export function CreateCertificatePageV2({
   const [uploadProgress, setUploadProgress] = useState<Map<string, number>>(
     new Map(),
   );
+  const [showPreview, setShowPreview] = useState(false);
 
   // Extract collection and token ID from certificateId in edit mode
   const [editCollectionId, editTokenId] =
@@ -575,14 +577,16 @@ export function CreateCertificatePageV2({
             {/* Action Buttons - Only show if template selected */}
             {state.selectedTemplate && (
               <Card className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-0">
-                  {/*<Button
-                    variant="outline"
-                    onClick={handleSaveDraft}
-                    disabled={isBusy}
-                  >
-                    Save as Draft
-                  </Button>*/}
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-end gap-3">
+                  {mode === "create" && state.selectedTemplate.structure && (
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowPreview(true)}
+                      disabled={isBusy}
+                    >
+                      Preview Certificate
+                    </Button>
+                  )}
                   <Button
                     onClick={handleSubmit}
                     disabled={isBusy || !state.selectedCollection}
@@ -608,6 +612,22 @@ export function CreateCertificatePageV2({
           <PricingSidebar />
         </div>*/}
       </div>
+
+      {/* Certificate Preview Modal */}
+      {state.selectedTemplate && state.selectedTemplate.structure && (
+        <CertificatePreviewModal
+          isOpen={showPreview}
+          onClose={() => setShowPreview(false)}
+          onConfirmMint={() => {
+            setShowPreview(false);
+            handleSubmit();
+          }}
+          template={state.selectedTemplate}
+          formData={state.formData}
+          fileFields={state.fileFields}
+          isMinting={isBusy}
+        />
+      )}
     </div>
   );
 }

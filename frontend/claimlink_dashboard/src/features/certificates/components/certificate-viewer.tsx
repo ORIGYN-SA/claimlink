@@ -46,6 +46,10 @@ export interface TemplateData {
   showPlaceholders?: boolean;
   /** Background configuration for certificate rendering */
   background?: TemplateBackground;
+  /** Custom section title for the Information tab (e.g., "Made In Italy") */
+  sectionTitle?: string;
+  /** Custom stamp URL (overrides default stamp_standard.svg) */
+  stampUrl?: string;
 }
 
 interface CertificateViewerProps {
@@ -112,11 +116,19 @@ export function CertificateViewer({
           // Determine variant based on background type
           const variant = templateData.background?.type === 'custom' ? 'custom-certificate' : 'certificate';
 
+          // Extract custom stamp URL from metadata
+          const stampUrl = extractImageFromMetadata(
+            templateData.metadata.metadata.stamp_upload,
+            templateData.canisterId,
+            templateData.tokenId
+          ) || templateData.stampUrl;
+
           return (
             <CertificateFrame
               companyLogo={companyLogo}
               tokenId={templateData.tokenId}
               background={templateData.background}
+              stampUrl={stampUrl}
             >
               <VersionedTemplateRenderer
                 template={templateData.certificateTemplate}
@@ -173,6 +185,12 @@ export function CertificateViewer({
                 };
               });
 
+          // Extract custom section title from metadata
+          const sectionTitle = extractTextFromMetadata(
+            templateData.metadata.metadata.__section_section_information_title,
+            lang
+          ) || templateData.sectionTitle;
+
           return (
             <InformationFrame
               title={{
@@ -180,6 +198,7 @@ export function CertificateViewer({
                 artworkTitle: certificateTitle,
                 year: year,
               }}
+              sectionTitle={sectionTitle}
               galleryImages={galleryImages}
             >
               <VersionedTemplateRenderer

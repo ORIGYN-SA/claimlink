@@ -13,6 +13,8 @@ interface CertificateFrameProps {
   className?: string;
   /** Background configuration (custom image/video or standard gradient) */
   background?: TemplateBackground;
+  /** Custom stamp URL (overrides default stamp_standard.svg) */
+  stampUrl?: string;
 }
 
 /**
@@ -42,7 +44,9 @@ export function CertificateFrame({
   children,
   className = "",
   background,
+  stampUrl,
 }: CertificateFrameProps) {
+  const stampSrc = stampUrl || stampStandard;
   const hasCustomBackground = background?.type === 'custom' && background.dataUri;
   const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
 
@@ -88,7 +92,7 @@ export function CertificateFrame({
               <div className="absolute -top-[35px] sm:-top-[55px] left-0 right-0 z-20 flex justify-center">
                 <img
                   alt="Blockchain Certified"
-                  src={stampStandard}
+                  src={stampSrc}
                   className="w-[70px] h-[70px] sm:w-[110px] sm:h-[110px]"
                 />
               </div>
@@ -229,7 +233,7 @@ export function CertificateFrame({
             <div className="absolute top-[15px] sm:top-[22px] left-0 right-0 z-20 flex justify-center">
               <img
                 alt="Blockchain Certified"
-                src={stampStandard}
+                src={stampSrc}
                 className="w-[70px] h-[70px] sm:w-[110px] sm:h-[110px]"
               />
             </div>

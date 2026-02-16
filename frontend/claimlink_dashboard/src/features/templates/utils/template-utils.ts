@@ -15,6 +15,7 @@ import type {
   BadgeItem,
   ImageItem,
   VideoItem,
+  DocumentItem,
   CertificateFormData,
   ValidationResult,
 } from '@/features/templates/types/template.types';
@@ -203,6 +204,10 @@ export function isImageItem(item: TemplateItem): item is ImageItem {
 
 export function isVideoItem(item: TemplateItem): item is VideoItem {
   return item.type === 'video';
+}
+
+export function isDocumentItem(item: TemplateItem): item is DocumentItem {
+  return item.type === 'document';
 }
 
 // ============================================================================

@@ -65,9 +65,8 @@ export function TemplateContextProvider({
     ): string => {
       if (!path) return '';
 
-      // If path is already an absolute URL, return it directly
-      // This handles URLs from ClaimLink uploads which store full URLs
-      if (path.startsWith('http://') || path.startsWith('https://')) {
+      // If path is already an absolute URL, data URI, or blob URL, return directly
+      if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('blob:') || path.startsWith('data:')) {
         return path;
       }
 
@@ -113,6 +112,15 @@ export function TemplateContextProvider({
         if (value === undefined || value === null) return null;
         if (typeof value === 'string') return value;
         if (typeof value === 'number') return String(value);
+        // Handle LocalizedValue objects (multi-language mode)
+        if (typeof value === 'object' && !Array.isArray(value) && !(value instanceof File)) {
+          const obj = value as Record<string, string>;
+          // Try requested language, then 'en', then first available
+          if (obj[language]) return obj[language];
+          if (obj['en']) return obj['en'];
+          const keys = Object.keys(obj);
+          if (keys.length > 0) return obj[keys[0]];
+        }
         return null;
       }
 

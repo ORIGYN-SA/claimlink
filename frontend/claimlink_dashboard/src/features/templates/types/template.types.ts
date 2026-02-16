@@ -12,7 +12,7 @@
 // Item Types
 // ============================================================================
 
-export type TemplateItemType = 'title' | 'input' | 'badge' | 'image' | 'video' | 'readonly';
+export type TemplateItemType = 'title' | 'input' | 'badge' | 'image' | 'video' | 'document' | 'readonly';
 
 /**
  * Base interface for all template items
@@ -109,9 +109,20 @@ export interface ReadonlyItem extends BaseTemplateItem {
 }
 
 /**
+ * Document item - document/file upload field (PDF, Word, Excel, etc.)
+ */
+export interface DocumentItem extends BaseTemplateItem {
+  type: 'document';
+  multiple?: boolean;
+  maxFiles?: number;
+  acceptedFormats?: string[]; // e.g., ['application/pdf', 'application/msword']
+  maxFileSize?: number; // In bytes
+}
+
+/**
  * Union type for all template items
  */
-export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem | VideoItem | ReadonlyItem;
+export type TemplateItem = TitleItem | InputItem | BadgeItem | ImageItem | VideoItem | DocumentItem | ReadonlyItem;
 
 // ============================================================================
 // Section Types
@@ -132,6 +143,8 @@ export interface TemplateSection {
   collapsible?: boolean;
   collapsed?: boolean;
   description?: string; // Section description
+  /** Custom display name for the section (e.g., "Made In Italy" instead of "Information") */
+  displayName?: string;
 }
 
 // ============================================================================
