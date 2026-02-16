@@ -297,14 +297,21 @@ export function CreateCertificatePageV2({
     // Extract file fields from form data
     // DynamicTemplateForm stores files directly as File or File[] (not wrapped in { file: File })
     // Also handle URL strings (existing images from on-chain data)
+    // Only treat "http" strings as file references if the field is an image/document type
+    const fileFieldIds = new Set(
+      state.selectedTemplate?.structure?.sections
+        .flatMap((s) => s.items)
+        .filter((item) => item.type === "image" || item.type === "document")
+        .map((item) => item.id) ?? [],
+    );
     const newFileFields = new Map<string, (File | string)[]>();
     Object.entries(data).forEach(([key, value]) => {
       // Handle single File object directly
       if (value instanceof File) {
         newFileFields.set(key, [value]);
       }
-      // Handle URL string (existing image from on-chain data)
-      else if (typeof value === "string" && value.startsWith("http")) {
+      // Handle URL string (existing image from on-chain data) — only for image/document fields
+      else if (typeof value === "string" && value.startsWith("http") && fileFieldIds.has(key)) {
         newFileFields.set(key, [value]);
       }
       // Handle array of File objects or URL strings
@@ -312,7 +319,7 @@ export function CreateCertificatePageV2({
         const filesOrUrls = value.filter(
           (item): item is File | string =>
             item instanceof File ||
-            (typeof item === "string" && item.startsWith("http")),
+            (typeof item === "string" && item.startsWith("http") && fileFieldIds.has(key)),
         );
         if (filesOrUrls.length > 0) {
           newFileFields.set(key, filesOrUrls);

@@ -57,7 +57,7 @@ function buildPreviewMetadata(
       fileUrls.set(key, url);
       metadataFields[key] = [{ id: value.name, path: url }] as FileReference[];
     } else if (Array.isArray(value) && value.length > 0 && value[0] instanceof File) {
-      const refs = value.map((file: File) => {
+      const refs = (value as File[]).map((file) => {
         const url = URL.createObjectURL(file);
         fileUrls.set(`${key}_${file.name}`, url);
         return { id: file.name, path: url } as FileReference;
@@ -77,17 +77,16 @@ function buildPreviewMetadata(
     }
   }
 
-  // Also add file fields from the state
+  // Also add file fields from the state (only actual File objects)
   fileFields.forEach((files, fieldId) => {
     if (files.length > 0) {
-      const refs = files.map((file) => {
-        if (file instanceof File) {
-          const url = URL.createObjectURL(file);
-          fileUrls.set(`${fieldId}_${file.name}`, url);
-          return { id: file.name, path: url } as FileReference;
-        }
-        // If it's a string (URL), use directly
-        return { id: String(file), path: String(file) } as FileReference;
+      const actualFiles = files.filter((f): f is File => f instanceof File);
+      if (actualFiles.length === 0) return;
+
+      const refs = actualFiles.map((file) => {
+        const url = URL.createObjectURL(file);
+        fileUrls.set(`${fieldId}_${file.name}`, url);
+        return { id: file.name, path: url } as FileReference;
       });
       metadataFields[fieldId] = refs;
     }

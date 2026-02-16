@@ -224,6 +224,7 @@ export function getItemTypeIcon(type: TemplateItemType): string {
     badge: 'CircleStack',
     image: 'Mint',
     video: 'Video',
+    document: 'File',
     readonly: 'Lock',
   };
   return iconMap[type] || 'Mint';
@@ -239,6 +240,7 @@ export function getItemTypeDisplayName(type: TemplateItemType): string {
     badge: 'Badge',
     image: 'Image',
     video: 'Video',
+    document: 'Document',
     readonly: 'Read Only',
   };
   return displayNames[type] || type;
