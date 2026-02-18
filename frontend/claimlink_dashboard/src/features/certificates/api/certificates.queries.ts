@@ -8,6 +8,7 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Principal } from '@dfinity/principal';
+import type { HttpAgent } from '@dfinity/agent';
 import { useAuth } from '@/features/auth';
 import { CertificatesService } from './certificates.service';
 import { getCertificateTitle, getCertificateImageUrl, extractMetadataValue } from './transformers';
@@ -738,14 +739,17 @@ interface CertificateTransactionHistoryResult {
  */
 export const useCertificateTransactionHistory = (
   collectionCanisterId: string,
-  tokenId: string
+  tokenId: string,
+  /** Optional agent override. When omitted, falls back to authenticatedAgent. */
+  agentOverride?: HttpAgent
 ) => {
   const { authenticatedAgent } = useAuth();
+  const agent = agentOverride || authenticatedAgent;
 
   return useQuery({
     queryKey: ['certificate-transaction-history', collectionCanisterId, tokenId],
     queryFn: async (): Promise<CertificateTransactionHistoryResult> => {
-      if (!authenticatedAgent) {
+      if (!agent) {
         return {
           eventsData: { events: [] },
           ledgerData: { transactions: [] },
@@ -760,13 +764,13 @@ export const useCertificateTransactionHistory = (
       // Fetch both transaction history and NFT metadata in parallel
       const [blocksResult, metadataResults] = await Promise.all([
         CertificatesService.getTransactionHistory(
-          authenticatedAgent,
+          agent,
           collectionCanisterId,
           0n,
           100n
         ),
         CertificatesService.getCertificateMetadata(
-          authenticatedAgent,
+          agent,
           collectionCanisterId,
           [BigInt(tokenId)]
         ),
@@ -938,7 +942,7 @@ export const useCertificateTransactionHistory = (
         ledgerData: { transactions },
       };
     },
-    enabled: !!authenticatedAgent && !!collectionCanisterId && !!tokenId,
+    enabled: !!agent && !!collectionCanisterId && !!tokenId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });

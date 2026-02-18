@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { usePublicCertificate } from "../api/certificates.queries";
+import { usePublicCertificate, useCertificateTransactionHistory } from "../api/certificates.queries";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
 import {
   CertificateViewer,
@@ -16,6 +16,7 @@ import {
   DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
+import { useAuth } from "@/features/auth";
 import { toast } from "sonner";
 import {
   extractTextFromMetadata,
@@ -46,6 +47,12 @@ export const PublicCertificatePage = ({
   const { data, isLoading, error } = usePublicCertificate(
     collectionId,
     tokenId,
+  );
+  const { unauthenticatedAgent } = useAuth();
+  const { data: historyData } = useCertificateTransactionHistory(
+    collectionId,
+    tokenId,
+    unauthenticatedAgent ?? undefined,
   );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
@@ -351,7 +358,8 @@ export const PublicCertificatePage = ({
         {/* Certificate Viewer with Dynamic Template */}
         <CertificateViewer
           templateData={templateData}
-          // Note: No eventsData or ledgerData for public view (requires auth)
+          eventsData={historyData?.eventsData}
+          ledgerData={historyData?.ledgerData}
         />
 
         {/* Login CTA Card */}
