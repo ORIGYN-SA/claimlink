@@ -1,9 +1,8 @@
-use candid::{CandidType, Nat};
+use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
 /// Exchange Rate Canister (XRC) types.
 /// XRC canister ID: uf6dk-hyaaa-aaaaq-qaaaq-cai
-
 pub mod get_exchange_rate {
     use super::*;
 

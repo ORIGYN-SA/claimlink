@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 /// ICPSwap pool canister types for fetching swap prices.
 /// Pool canister for OGY/ICP: ttnzy-lyaaa-aaaag-qj2bq-cai
-
 pub mod quote {
     use super::*;
 
