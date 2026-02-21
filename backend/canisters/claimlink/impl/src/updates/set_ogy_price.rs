@@ -1,13 +1,19 @@
 use crate::{
-    guards,
-    state::{audit::process_event, mutate_state},
+    state::{audit::process_event, mutate_state, read_state},
     types::events::EventType,
 };
-pub use claimlink_api::updates::set_ogy_price::{Args as SetOgyPriceArgs, Response as SetOgyPriceResponse};
+pub use claimlink_api::updates::set_ogy_price::{
+    Args as SetOgyPriceArgs, Response as SetOgyPriceResponse,
+};
 
-#[ic_cdk::update(guard = "guards::caller_is_authorised_principal")]
-#[bity_ic_canister_tracing_macros::trace]
+/// Only available in test mode. Hidden from candid via #[cfg(feature = "inttest")].
+#[cfg(feature = "inttest")]
+#[ic_cdk::update(hidden = true)]
 pub fn set_ogy_price(args: SetOgyPriceArgs) -> SetOgyPriceResponse {
+    if !read_state(|s| s.env.is_test_mode()) {
+        return Err("set_ogy_price is only available in test mode".to_string());
+    }
+
     if args.usd_per_ogy_e8s == 0 {
         return Err("Price cannot be zero".to_string());
     }

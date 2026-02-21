@@ -4,7 +4,7 @@ use crate::{
     types::{collections::InstallationStatus, events::EventType},
 };
 use bity_ic_canister_time::timestamp_nanos;
-use candid::Nat;
+use candid::{Nat, Principal};
 use claimlink_api::errors::InitializeMintError;
 pub use claimlink_api::updates::initialize_mint::{
     Args as InitializeMintArgs, Response as InitializeMintResponse,
@@ -21,16 +21,12 @@ pub fn calculate_mint_cost(
     storage_fee_per_mb_usd_e8s: u64,
     usd_per_ogy_e8s: u64,
 ) -> (u64, u128) {
-    // Base fee = base_fee * num_mints
     let base_fee_usd_e8s = (base_mint_fee_usd_e8s as u128) * (num_mints as u128);
 
-    // Storage fee = storage_per_mb * (total_bytes / 1_048_576)
-    // Use ceiling division so even 1 byte costs something
     let total_bytes = total_file_size_bytes as u128;
     let storage_fee_usd_e8s = if total_bytes == 0 {
         0u128
     } else {
-        // Multiply first to avoid precision loss, then divide
         (storage_fee_per_mb_usd_e8s as u128) * total_bytes / 1_048_576
     };
 
@@ -45,10 +41,15 @@ pub fn calculate_mint_cost(
     (total_usd_e8s as u64, ogy_with_buffer)
 }
 
+/// Data extracted from state for initialize_mint validation — avoids cloning.
+struct CollectionValidation {
+    owner: Principal,
+    is_template_uploaded: bool,
+}
+
 #[ic_cdk::update(guard = "guards::reject_anonymous_caller")]
 #[bity_ic_canister_tracing_macros::trace]
 pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse {
-    // Validate num_mints
     if args.num_mints == 0 {
         return Err(InitializeMintError::InvalidNumMints);
     }
@@ -57,56 +58,56 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
         .total_file_size_bytes
         .0
         .try_into()
-        .map_err(|_| InitializeMintError::Generic(claimlink_api::errors::GenericError::Other(
-            "total_file_size_bytes too large".to_string(),
-        )))?;
+        .map_err(|_| {
+            InitializeMintError::Generic(claimlink_api::errors::GenericError::Other(
+                "total_file_size_bytes too large".to_string(),
+            ))
+        })?;
 
-    let (ledger_id, caller, ogy_price, mint_pricing, collection) = read_state(|s| {
-        let caller = s.env.caller();
+    let (ledger_id, caller, usd_per_ogy_e8s, base_mint_fee, storage_fee, collection_info) =
+        read_state(|s| {
+            let caller = s.env.caller();
 
-        // Find collection by canister_id
-        let collection = s
-            .data
-            .collection_requests
-            .values()
-            .find(|c| c.canister_id == Some(args.collection_canister_id))
-            .cloned();
+            let collection_info = s
+                .data
+                .collection_requests
+                .values()
+                .find(|c| c.canister_id == Some(args.collection_canister_id))
+                .map(|c| CollectionValidation {
+                    owner: c.owner,
+                    is_template_uploaded: matches!(c.status, InstallationStatus::TemplateUploaded),
+                });
 
-        (
-            s.data.ledger_canister_id,
-            caller,
-            s.data.ogy_price.clone(),
-            s.data.mint_pricing.clone(),
-            collection,
-        )
-    });
+            (
+                s.data.ledger_canister_id,
+                caller,
+                s.data.ogy_price.as_ref().map(|p| p.usd_per_ogy_e8s),
+                s.data.mint_pricing.base_mint_fee_usd_e8s,
+                s.data.mint_pricing.storage_fee_per_mb_usd_e8s,
+                collection_info,
+            )
+        });
 
-    // Validate collection exists
-    let collection = collection.ok_or(InitializeMintError::CollectionNotFound)?;
+    let collection_info = collection_info.ok_or(InitializeMintError::CollectionNotFound)?;
 
-    // Validate caller owns the collection
-    if collection.owner != caller {
+    if collection_info.owner != caller {
         return Err(InitializeMintError::CallerNotCollectionOwner);
     }
 
-    // Validate collection is ready (template uploaded)
-    if !matches!(collection.status, InstallationStatus::TemplateUploaded) {
+    if !collection_info.is_template_uploaded {
         return Err(InitializeMintError::CollectionNotReady);
     }
 
-    // Get OGY price
-    let price = ogy_price.ok_or(InitializeMintError::OgyPriceNotAvailable)?;
+    let usd_per_ogy_e8s = usd_per_ogy_e8s.ok_or(InitializeMintError::OgyPriceNotAvailable)?;
 
-    // Calculate cost
     let (_total_usd_e8s, ogy_to_charge) = calculate_mint_cost(
         args.num_mints,
         total_file_size_bytes,
-        mint_pricing.base_mint_fee_usd_e8s,
-        mint_pricing.storage_fee_per_mb_usd_e8s,
-        price.usd_per_ogy_e8s,
+        base_mint_fee,
+        storage_fee,
+        usd_per_ogy_e8s,
     );
 
-    // Transfer OGY from caller to claimlink via ICRC-2 transfer_from
     let transfer_from_args = icrc_ledger_types::icrc2::transfer_from::TransferFromArgs {
         spender_subaccount: None,
         from: Account {
@@ -120,8 +121,11 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
         amount: Nat::from(ogy_to_charge),
         fee: Some(Nat::from(utils::consts::E8S_FEE_OGY)),
         memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
-            format!("Mint init: {} x{}", args.collection_canister_id, args.num_mints)
-                .into_bytes(),
+            format!(
+                "Mint init: {} x{}",
+                args.collection_canister_id, args.num_mints
+            )
+            .into_bytes(),
         )),
         created_at_time: Some(timestamp_nanos()),
     };

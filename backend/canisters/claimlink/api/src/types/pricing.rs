@@ -2,7 +2,7 @@ use candid::CandidType;
 use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Debug, Encode, Decode, PartialEq, Eq, CandidType, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Encode, Decode, PartialEq, Eq, CandidType, Serialize, Deserialize)]
 pub struct MintPricingConfig {
     /// Base fee per NFT mint in USD e8s (e.g., $0.01 = 1_000_000)
     #[n(0)]
@@ -12,7 +12,7 @@ pub struct MintPricingConfig {
     pub storage_fee_per_mb_usd_e8s: u64,
 }
 
-#[derive(Clone, Debug, Encode, Decode, PartialEq, Eq, CandidType, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Encode, Decode, PartialEq, Eq, CandidType, Serialize, Deserialize)]
 pub struct OgyPriceData {
     /// USD per OGY in e8s (e.g., $0.006 = 600_000)
     #[n(0)]

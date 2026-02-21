@@ -118,9 +118,11 @@ pub async fn proxy_store_chunk(args: ProxyStoreChunkArgs) -> ProxyStoreChunkResp
 pub async fn proxy_finalize_upload(args: ProxyFinalizeUploadArgs) -> ProxyFinalizeUploadResponse {
     let collection_canister_id = validate_mint_request(args.mint_request_id)?;
 
+    let file_path = args.file_path;
+
     // Forward finalize_upload to collection canister
     let finalize_args = origyn_nft_canister_api::finalize_upload::Args {
-        file_path: args.file_path.clone(),
+        file_path: file_path.clone(),
     };
 
     let result =
@@ -129,23 +131,21 @@ pub async fn proxy_finalize_upload(args: ProxyFinalizeUploadArgs) -> ProxyFinali
 
     match result {
         Ok(Ok(resp)) => {
-            let file_url = resp.url;
-
-            // Get file size from uploaded chunks tracking
             let file_size = read_state(|s| {
-                let request = s.data.get_mint_request(args.mint_request_id).unwrap();
-                // Approximate file size from what was uploaded
-                // The actual file size was tracked via store_chunk
-                request.bytes_uploaded
+                s.data
+                    .get_mint_request(args.mint_request_id)
+                    .unwrap()
+                    .bytes_uploaded
             });
 
-            // Record file uploaded event
+            let file_url = resp.url;
+
             mutate_state(|s| {
                 process_event(
                     s,
                     EventType::FileUploaded {
                         mint_request_id: args.mint_request_id,
-                        file_path: args.file_path,
+                        file_path,
                         file_url: file_url.clone(),
                         file_size,
                     },

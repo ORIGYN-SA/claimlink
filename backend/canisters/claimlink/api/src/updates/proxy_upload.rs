@@ -15,15 +15,14 @@ pub mod init {
         pub mint_request_id: MintRequestId,
         pub file_path: String,
         pub file_hash: String,
-        pub file_size: Nat,
-        pub chunk_size: Option<Nat>,
+        pub file_size: u64,
+        pub chunk_size: Option<u64>,
     }
 }
 
 // proxy_store_chunk
 pub mod store {
     use super::*;
-    use serde_bytes::ByteBuf;
 
     pub type Args = ProxyStoreChunkArgs;
     pub type Response = Result<(), ProxyUploadError>;
@@ -33,7 +32,7 @@ pub mod store {
         pub mint_request_id: MintRequestId,
         pub file_path: String,
         pub chunk_id: Nat,
-        pub chunk_data: ByteBuf,
+        pub chunk_data: Vec<u8>,
     }
 }
 

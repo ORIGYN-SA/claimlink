@@ -9,10 +9,15 @@ pub use claimlink_api::queries::estimate_mint_cost::{
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn estimate_mint_cost(args: EstimateMintCostArgs) -> EstimateMintCostResponse {
-    let (mint_pricing, ogy_price) =
-        read_state(|s| (s.data.mint_pricing.clone(), s.data.ogy_price.clone()));
+    let (mint_pricing, usd_per_ogy_e8s) = read_state(|s| {
+        (
+            s.data.mint_pricing, // Copy
+            s.data.ogy_price.map(|p| p.usd_per_ogy_e8s),
+        )
+    });
 
-    let price = ogy_price.ok_or(EstimateMintCostError::OgyPriceNotAvailable)?;
+    let usd_per_ogy_e8s =
+        usd_per_ogy_e8s.ok_or(EstimateMintCostError::OgyPriceNotAvailable)?;
 
     let total_file_size_bytes: u64 = args.total_file_size_bytes.0.try_into().unwrap_or(u64::MAX);
 
@@ -21,7 +26,7 @@ pub fn estimate_mint_cost(args: EstimateMintCostArgs) -> EstimateMintCostRespons
         total_file_size_bytes,
         mint_pricing.base_mint_fee_usd_e8s,
         mint_pricing.storage_fee_per_mb_usd_e8s,
-        price.usd_per_ogy_e8s,
+        usd_per_ogy_e8s,
     );
 
     let base_fee_usd_e8s = (mint_pricing.base_mint_fee_usd_e8s as u64) * args.num_mints;
@@ -30,7 +35,7 @@ pub fn estimate_mint_cost(args: EstimateMintCostArgs) -> EstimateMintCostRespons
     Ok(MintCostEstimate {
         total_usd_e8s,
         total_ogy_e8s: total_ogy_e8s as u64,
-        ogy_usd_price_e8s: price.usd_per_ogy_e8s,
+        ogy_usd_price_e8s: usd_per_ogy_e8s,
         breakdown: MintCostBreakdown {
             base_fee_usd_e8s,
             storage_fee_usd_e8s,

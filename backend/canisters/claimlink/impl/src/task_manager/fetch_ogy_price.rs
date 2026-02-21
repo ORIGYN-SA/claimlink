@@ -4,7 +4,6 @@ use crate::{
     types::events::EventType,
     utils::log::DEBUG,
 };
-use candid::Nat;
 use ic_canister_log::log;
 
 pub async fn fetch_ogy_price() {
@@ -16,7 +15,7 @@ pub async fn fetch_ogy_price() {
         }
     };
 
-    // In test mode, skip external calls — price is set via admin endpoint
+    // In test mode, skip external calls — price is set via set_ogy_price endpoint
     let is_test_mode = read_state(|s| s.env.is_test_mode());
     if is_test_mode {
         return;
@@ -68,10 +67,11 @@ pub async fn fetch_ogy_price() {
         timestamp: None,
     };
 
-    let xrc_result = xrc_canister_c2c_client::get_exchange_rate(xrc_canister_id, &xrc_args).await;
+    let xrc_result =
+        xrc_canister_c2c_client::get_exchange_rate(xrc_canister_id, &xrc_args).await;
 
-    let icp_usd_rate: u64 = match xrc_result {
-        Ok(Ok(exchange_rate)) => exchange_rate.rate,
+    let (icp_usd_rate, xrc_decimals) = match xrc_result {
+        Ok(Ok(exchange_rate)) => (exchange_rate.rate, exchange_rate.metadata.decimals),
         Ok(Err(e)) => {
             log!(DEBUG, "XRC exchange rate error: {e:?}");
             return;
@@ -83,12 +83,18 @@ pub async fn fetch_ogy_price() {
     };
 
     // Step 3: Calculate OGY/USD
-    // icp_per_ogy_e8s = how many ICP e8s for 1 OGY (1e8)
-    // icp_usd_rate = ICP/USD rate with decimals (typically 9 decimals from XRC)
-    // OGY/USD = (icp_per_ogy_e8s / 1e8) * (icp_usd_rate / 1e9)
-    // In e8s: usd_per_ogy_e8s = icp_per_ogy_e8s * icp_usd_rate / 1e9
+    // icp_per_ogy_e8s = how many ICP e8s you get for 1 OGY (1e8 input)
+    // icp_usd_rate = ICP/USD rate with `xrc_decimals` decimal places
+    //
+    // OGY/USD = (icp_per_ogy_e8s / 1e8) * (icp_usd_rate / 10^xrc_decimals)
+    // We want the result in e8s (8 decimal places):
+    //   usd_per_ogy_e8s = icp_per_ogy_e8s * icp_usd_rate / 10^xrc_decimals
+    //
+    // This works because icp_per_ogy_e8s already has 1e8 factored in from
+    // quoting 1e8 input, and we want 1e8 in the output (e8s), so they cancel.
+    let xrc_divisor = 10u128.pow(xrc_decimals);
     let usd_per_ogy_e8s =
-        ((icp_per_ogy_e8s as u128) * (icp_usd_rate as u128) / 1_000_000_000) as u64;
+        ((icp_per_ogy_e8s as u128) * (icp_usd_rate as u128) / xrc_divisor) as u64;
 
     if usd_per_ogy_e8s == 0 {
         log!(DEBUG, "Calculated OGY/USD price is 0, skipping update");
@@ -101,7 +107,8 @@ pub async fn fetch_ogy_price() {
 
     log!(
         DEBUG,
-        "Updated OGY price: {} e8s USD per OGY",
-        usd_per_ogy_e8s
+        "Updated OGY price: {} e8s USD per OGY (XRC decimals: {})",
+        usd_per_ogy_e8s,
+        xrc_decimals
     );
 }

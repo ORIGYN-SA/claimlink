@@ -6,6 +6,7 @@ pub mod initialize_mint;
 pub mod mint_nfts;
 pub mod proxy_upload;
 pub mod request_mint_refund;
+#[cfg(feature = "inttest")]
 pub mod set_ogy_price;
 pub mod update_template;
 
@@ -17,5 +18,6 @@ pub use initialize_mint::*;
 pub use mint_nfts::*;
 pub use proxy_upload::*;
 pub use request_mint_refund::*;
+#[cfg(feature = "inttest")]
 pub use set_ogy_price::*;
 pub use update_template::*;
