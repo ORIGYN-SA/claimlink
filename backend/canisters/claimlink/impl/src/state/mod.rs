@@ -607,8 +607,7 @@ impl Data {
         };
         request.updated_at = ic_cdk::api::time();
 
-        self.mint_refund_queue
-            .retain(|id| *id != mint_request_id);
+        self.mint_refund_queue.retain(|id| *id != mint_request_id);
     }
 
     pub fn record_mint_refund_failed(&mut self, mint_request_id: MintRequestId, reason: String) {
@@ -620,8 +619,7 @@ impl Data {
         request.status = MintRequestStatus::RefundFailed { reason };
         request.updated_at = ic_cdk::api::time();
 
-        self.mint_refund_queue
-            .retain(|id| *id != mint_request_id);
+        self.mint_refund_queue.retain(|id| *id != mint_request_id);
     }
 
     pub fn update_ogy_price(&mut self, usd_per_ogy_e8s: u64) {

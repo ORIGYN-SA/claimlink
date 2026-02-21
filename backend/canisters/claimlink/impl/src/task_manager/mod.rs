@@ -23,6 +23,7 @@ use std::vec;
 
 pub mod burn_ogy;
 pub mod create_canister;
+pub mod fetch_ogy_price;
 pub mod install_canister;
 pub mod reimburse_ogy;
 pub mod retry_installation;
@@ -150,15 +151,21 @@ pub fn build_origyn_nft_init_args(
     base_url: Option<String>,
 ) -> OrigynNftArgs {
     let mut permissions_map = HashMap::new();
+    // ClaimLink canister gets minting + upload + metadata control
+    permissions_map.insert(
+        ic_cdk::api::canister_self(),
+        vec![
+            Permission::Minting,
+            Permission::UpdateUploads,
+            Permission::UpdateMetadata,
+        ],
+    );
+    // Owner keeps read-only + collection metadata
     permissions_map.insert(
         owner,
         vec![
-            Permission::Minting,
-            Permission::ManageAuthorities,
             Permission::ReadUploads,
-            Permission::UpdateUploads,
             Permission::UpdateCollectionMetadata,
-            Permission::UpdateMetadata,
         ],
     );
 
