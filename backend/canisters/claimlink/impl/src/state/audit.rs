@@ -82,6 +82,73 @@ pub fn apply_state_transition(state: &mut RuntimeState, payload: &EventType) {
         EventType::DeletedTemplate { template_id, owner } => {
             state.data.record_deleted_template(*template_id, *owner)
         }
+        EventType::InitializeMintRequest {
+            mint_request_id: _,
+            owner,
+            collection_canister_id,
+            ogy_payment_index,
+            ogy_charged,
+            num_mints,
+            allocated_bytes,
+            created_at,
+        } => {
+            state.data.record_mint_request(
+                *owner,
+                *collection_canister_id,
+                *ogy_payment_index,
+                *ogy_charged,
+                *num_mints,
+                *allocated_bytes,
+                *created_at,
+            );
+        }
+        EventType::FileUploaded {
+            mint_request_id,
+            file_path,
+            file_url,
+            file_size,
+        } => {
+            state.data.record_file_uploaded(
+                *mint_request_id,
+                file_path.clone(),
+                file_url.clone(),
+                *file_size,
+            );
+        }
+        EventType::NftsMinted {
+            mint_request_id,
+            count,
+            token_ids: _,
+        } => {
+            state.data.record_nfts_minted(*mint_request_id, *count);
+        }
+        EventType::MintRequestCompleted {
+            mint_request_id: _,
+        } => {
+            // Status already updated by record_nfts_minted when count reaches num_mints
+        }
+        EventType::UpdatedOgyPrice { usd_per_ogy_e8s } => {
+            state.data.update_ogy_price(*usd_per_ogy_e8s);
+        }
+        EventType::MintRefundRequested { mint_request_id } => {
+            state.data.record_mint_refund_requested(*mint_request_id);
+        }
+        EventType::MintRefunded {
+            mint_request_id,
+            refund_tx_index,
+        } => {
+            state
+                .data
+                .record_mint_refunded(*mint_request_id, *refund_tx_index);
+        }
+        EventType::MintRefundFailed {
+            mint_request_id,
+            reason,
+        } => {
+            state
+                .data
+                .record_mint_refund_failed(*mint_request_id, reason.clone());
+        }
     }
 }
 
