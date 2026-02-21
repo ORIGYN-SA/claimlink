@@ -1,10 +1,14 @@
+pub mod estimate_mint_cost;
 pub mod get_collection_count;
 pub mod get_collection_info;
 pub mod get_collection_nfts;
 pub mod get_collections_by_owner;
 pub mod get_collections_for_user;
 pub mod get_metrics;
+pub mod get_mint_request;
+pub mod get_mint_requests_by_owner;
 pub mod get_nft_details;
+pub mod get_ogy_usd_price;
 pub mod get_templates_by_owner;
 pub mod http_request;
 pub mod list_all_collections;

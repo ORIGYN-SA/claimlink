@@ -1,4 +1,4 @@
-use crate::cycles::CyclesManagement;
+use crate::{cycles::CyclesManagement, pricing::MintPricingConfig};
 use candid::{CandidType, Nat, Principal};
 use minicbor::{Decode, Encode};
 use serde::{Deserialize, Serialize};
@@ -29,6 +29,10 @@ pub struct InitArg {
     pub max_template_per_owner: Nat,
     #[n(10)]
     pub base_url: Option<String>,
+    #[n(11)]
+    pub mint_pricing: MintPricingConfig,
+    #[cbor(n(12), with = "crate::cbor::principal")]
+    pub icpswap_pool_canister_id: Principal,
 }
 
 #[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone, Serialize)]
