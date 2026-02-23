@@ -147,11 +147,11 @@ impl RuntimeState {
                 .extend(new_authorized_principals);
         }
 
-        if let Some(mint_pricing) = mint_pricing {
+        if mint_pricing.is_some() {
             self.data.mint_pricing = mint_pricing;
         }
 
-        if let Some(icpswap_pool_canister_id) = icpswap_pool_canister_id {
+        if icpswap_pool_canister_id.is_some() {
             self.data.icpswap_pool_canister_id = icpswap_pool_canister_id;
         }
 
@@ -214,9 +214,9 @@ pub struct Data {
     pub base_url: Option<String>,
 
     // Mint pricing
-    pub mint_pricing: MintPricingConfig,
+    pub mint_pricing: Option<MintPricingConfig>,
     pub ogy_price: Option<OgyPriceData>,
-    pub icpswap_pool_canister_id: Principal,
+    pub icpswap_pool_canister_id: Option<Principal>,
 
     // Mint requests
     pub mint_requests: BTreeMap<MintRequestId, MintRequest>,

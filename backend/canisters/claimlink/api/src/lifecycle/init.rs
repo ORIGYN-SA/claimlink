@@ -30,9 +30,9 @@ pub struct InitArg {
     #[n(10)]
     pub base_url: Option<String>,
     #[n(11)]
-    pub mint_pricing: MintPricingConfig,
-    #[cbor(n(12), with = "crate::cbor::principal")]
-    pub icpswap_pool_canister_id: Principal,
+    pub mint_pricing: Option<MintPricingConfig>,
+    #[cbor(n(12), with = "crate::cbor::principal::option")]
+    pub icpswap_pool_canister_id: Option<Principal>,
 }
 
 #[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone, Serialize)]

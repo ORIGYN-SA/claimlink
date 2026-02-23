@@ -64,29 +64,27 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
             ))
         })?;
 
-    let (ledger_id, caller, usd_per_ogy_e8s, base_mint_fee, storage_fee, collection_info) =
-        read_state(|s| {
-            let caller = s.env.caller();
+    let (ledger_id, caller, usd_per_ogy_e8s, mint_pricing, collection_info) = read_state(|s| {
+        let caller = s.env.caller();
 
-            let collection_info = s
-                .data
-                .collection_requests
-                .values()
-                .find(|c| c.canister_id == Some(args.collection_canister_id))
-                .map(|c| CollectionValidation {
-                    owner: c.owner,
-                    is_template_uploaded: matches!(c.status, InstallationStatus::TemplateUploaded),
-                });
+        let collection_info = s
+            .data
+            .collection_requests
+            .values()
+            .find(|c| c.canister_id == Some(args.collection_canister_id))
+            .map(|c| CollectionValidation {
+                owner: c.owner,
+                is_template_uploaded: matches!(c.status, InstallationStatus::TemplateUploaded),
+            });
 
-            (
-                s.data.ledger_canister_id,
-                caller,
-                s.data.ogy_price.as_ref().map(|p| p.usd_per_ogy_e8s),
-                s.data.mint_pricing.base_mint_fee_usd_e8s,
-                s.data.mint_pricing.storage_fee_per_mb_usd_e8s,
-                collection_info,
-            )
-        });
+        (
+            s.data.ledger_canister_id,
+            caller,
+            s.data.ogy_price.as_ref().map(|p| p.usd_per_ogy_e8s),
+            s.data.mint_pricing,
+            collection_info,
+        )
+    });
 
     let collection_info = collection_info.ok_or(InitializeMintError::CollectionNotFound)?;
 
@@ -100,11 +98,17 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
 
     let usd_per_ogy_e8s = usd_per_ogy_e8s.ok_or(InitializeMintError::OgyPriceNotAvailable)?;
 
+    let mint_pricing = mint_pricing.ok_or(InitializeMintError::Generic(
+        claimlink_api::errors::GenericError::Other(
+            "Mint pricing not configured".to_string(),
+        ),
+    ))?;
+
     let (_total_usd_e8s, ogy_to_charge) = calculate_mint_cost(
         args.num_mints,
         total_file_size_bytes,
-        base_mint_fee,
-        storage_fee,
+        mint_pricing.base_mint_fee_usd_e8s,
+        mint_pricing.storage_fee_per_mb_usd_e8s,
         usd_per_ogy_e8s,
     );
 

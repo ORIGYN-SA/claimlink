@@ -21,7 +21,13 @@ pub async fn fetch_ogy_price() {
         return;
     }
 
-    let icpswap_pool_canister_id = read_state(|s| s.data.icpswap_pool_canister_id);
+    let icpswap_pool_canister_id = match read_state(|s| s.data.icpswap_pool_canister_id) {
+        Some(id) => id,
+        None => {
+            log!(DEBUG, "ICPSwap pool canister ID not configured, skipping price fetch");
+            return;
+        }
+    };
 
     // Step 1: Get OGY/ICP price from ICPSwap
     // Quote 1 OGY (1e8 = 100_000_000) to get ICP output

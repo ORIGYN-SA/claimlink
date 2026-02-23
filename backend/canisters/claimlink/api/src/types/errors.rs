@@ -94,4 +94,5 @@ pub enum RefundError {
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum EstimateMintCostError {
     OgyPriceNotAvailable,
+    MintPricingNotConfigured,
 }

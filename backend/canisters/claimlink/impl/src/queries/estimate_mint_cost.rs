@@ -19,6 +19,9 @@ pub fn estimate_mint_cost(args: EstimateMintCostArgs) -> EstimateMintCostRespons
     let usd_per_ogy_e8s =
         usd_per_ogy_e8s.ok_or(EstimateMintCostError::OgyPriceNotAvailable)?;
 
+    let mint_pricing =
+        mint_pricing.ok_or(EstimateMintCostError::MintPricingNotConfigured)?;
+
     let total_file_size_bytes: u64 = args.total_file_size_bytes.0.try_into().unwrap_or(u64::MAX);
 
     let (total_usd_e8s, total_ogy_e8s) = calculate_mint_cost(
