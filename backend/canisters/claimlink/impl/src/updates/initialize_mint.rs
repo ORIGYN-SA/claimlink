@@ -54,15 +54,11 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
         return Err(InitializeMintError::InvalidNumMints);
     }
 
-    let total_file_size_bytes: u64 = args
-        .total_file_size_bytes
-        .0
-        .try_into()
-        .map_err(|_| {
-            InitializeMintError::Generic(claimlink_api::errors::GenericError::Other(
-                "total_file_size_bytes too large".to_string(),
-            ))
-        })?;
+    let total_file_size_bytes: u64 = args.total_file_size_bytes.0.try_into().map_err(|_| {
+        InitializeMintError::Generic(claimlink_api::errors::GenericError::Other(
+            "total_file_size_bytes too large".to_string(),
+        ))
+    })?;
 
     let (ledger_id, caller, usd_per_ogy_e8s, mint_pricing, collection_info) = read_state(|s| {
         let caller = s.env.caller();
@@ -99,9 +95,7 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
     let usd_per_ogy_e8s = usd_per_ogy_e8s.ok_or(InitializeMintError::OgyPriceNotAvailable)?;
 
     let mint_pricing = mint_pricing.ok_or(InitializeMintError::Generic(
-        claimlink_api::errors::GenericError::Other(
-            "Mint pricing not configured".to_string(),
-        ),
+        claimlink_api::errors::GenericError::Other("Mint pricing not configured".to_string()),
     ))?;
 
     let (_total_usd_e8s, ogy_to_charge) = calculate_mint_cost(
@@ -125,11 +119,7 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
         amount: Nat::from(ogy_to_charge),
         fee: Some(Nat::from(utils::consts::E8S_FEE_OGY)),
         memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
-            format!(
-                "Mint init: {} x{}",
-                args.collection_canister_id, args.num_mints
-            )
-            .into_bytes(),
+            "Mint init".to_string().into_bytes(),
         )),
         created_at_time: Some(timestamp_nanos()),
     };
@@ -174,4 +164,96 @@ pub async fn initialize_mint(args: InitializeMintArgs) -> InitializeMintResponse
     });
 
     Ok(mint_request_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    // Pricing constants used across tests
+    const BASE_FEE: u64 = 1_000_000; // $0.01 in e8s
+    const STORAGE_FEE: u64 = 4_600_000; // $0.046/MB in e8s
+    const OGY_PRICE: u64 = 600_000; // $0.006/OGY in e8s
+    const ONE_MB: u64 = 1_048_576;
+
+    #[test]
+    fn single_mint_no_storage() {
+        let (usd, ogy) = calculate_mint_cost(1, 0, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        assert_eq!(usd, BASE_FEE);
+        // ogy = 1_000_000 * 1e8 / 600_000 * 102/100
+        let expected_ogy = (BASE_FEE as u128) * 100_000_000 / (OGY_PRICE as u128) * 102 / 100;
+        assert_eq!(ogy, expected_ogy);
+    }
+
+    #[test]
+    fn multiple_mints_no_storage() {
+        let (usd, ogy) = calculate_mint_cost(10, 0, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        assert_eq!(usd, BASE_FEE * 10);
+        let expected_ogy = (BASE_FEE as u128) * 10 * 100_000_000 / (OGY_PRICE as u128) * 102 / 100;
+        assert_eq!(ogy, expected_ogy);
+    }
+
+    #[test]
+    fn single_mint_with_1mb_storage() {
+        let (usd, ogy) = calculate_mint_cost(1, ONE_MB, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        // storage for exactly 1 MB = STORAGE_FEE * ONE_MB / 1_048_576 = STORAGE_FEE
+        let expected_usd = BASE_FEE + STORAGE_FEE;
+        assert_eq!(usd, expected_usd);
+        let expected_ogy = (expected_usd as u128) * 100_000_000 / (OGY_PRICE as u128) * 102 / 100;
+        assert_eq!(ogy, expected_ogy);
+    }
+
+    #[test]
+    fn storage_fee_scales_with_bytes() {
+        // 5 MB
+        let (usd_5mb, _) = calculate_mint_cost(1, 5 * ONE_MB, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        let (usd_1mb, _) = calculate_mint_cost(1, ONE_MB, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        // Storage part should be 5x
+        assert_eq!(usd_5mb - BASE_FEE, 5 * (usd_1mb - BASE_FEE));
+    }
+
+    #[test]
+    fn sub_megabyte_storage_rounds_down() {
+        // 500 KB = half a MB → storage should be STORAGE_FEE / 2 (integer division)
+        let (usd, _) = calculate_mint_cost(1, ONE_MB / 2, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        let expected_storage = (STORAGE_FEE as u128) * (ONE_MB as u128 / 2) / (ONE_MB as u128);
+        assert_eq!(usd as u128, BASE_FEE as u128 + expected_storage);
+    }
+
+    #[test]
+    fn buffer_is_2_percent() {
+        let (_, ogy_with_buf) = calculate_mint_cost(1, 0, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        let raw_ogy = (BASE_FEE as u128) * 100_000_000 / (OGY_PRICE as u128);
+        let expected = raw_ogy * 102 / 100;
+        assert_eq!(ogy_with_buf, expected);
+    }
+
+    #[test]
+    fn zero_mints_zero_storage() {
+        let (usd, ogy) = calculate_mint_cost(0, 0, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        assert_eq!(usd, 0);
+        assert_eq!(ogy, 0);
+    }
+
+    #[test]
+    fn higher_ogy_price_means_less_ogy() {
+        let (_, ogy_cheap) = calculate_mint_cost(10, ONE_MB, BASE_FEE, STORAGE_FEE, 300_000);
+        let (_, ogy_expensive) = calculate_mint_cost(10, ONE_MB, BASE_FEE, STORAGE_FEE, 600_000);
+        // Half the price → ~double the OGY (within 1 unit due to integer rounding of buffer)
+        let diff = ogy_cheap.abs_diff(ogy_expensive * 2);
+        assert!(
+            diff <= 1,
+            "expected ogy_cheap ≈ 2 * ogy_expensive, diff={diff}"
+        );
+    }
+
+    #[test]
+    fn large_batch() {
+        let (usd, ogy) = calculate_mint_cost(1000, 100 * ONE_MB, BASE_FEE, STORAGE_FEE, OGY_PRICE);
+        assert!(usd > 0);
+        assert!(ogy > 0);
+        // Base: 1000 * 1_000_000 = 1_000_000_000 ($10)
+        // Storage: 100 * 4_600_000 = 460_000_000 ($4.60)
+        assert_eq!(usd, 1_000_000_000 + 460_000_000);
+    }
 }

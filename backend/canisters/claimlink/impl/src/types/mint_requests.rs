@@ -1,7 +1,5 @@
 use candid::{Nat, Principal};
 use claimlink_api::mint::{MintRequestId, MintRequestInfo, MintRequestStatus, UploadedFileInfo};
-use claimlink_api::pricing::OgyPriceData;
-use minicbor::{Decode, Encode};
 use types::TimestampNanos;
 
 use crate::types::collections::OgyTransferIndex;
@@ -60,5 +58,127 @@ impl MintRequest {
     }
 }
 
-/// Pricing data stored in state, re-exported from API for convenience.
-pub use OgyPriceData as OgyPrice;
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_request(
+        num_mints: u64,
+        minted_count: u64,
+        allocated_bytes: u64,
+        bytes_uploaded: u64,
+        status: MintRequestStatus,
+    ) -> MintRequest {
+        MintRequest {
+            id: 0,
+            owner: Principal::anonymous(),
+            collection_canister_id: Principal::anonymous(),
+            ogy_payment_index: 0,
+            ogy_charged: 0,
+            num_mints,
+            minted_count,
+            allocated_bytes,
+            bytes_uploaded,
+            uploaded_files: vec![],
+            status,
+            created_at: 0,
+            updated_at: 0,
+        }
+    }
+
+    #[test]
+    fn can_mint_within_limit() {
+        let r = make_request(10, 5, 0, 0, MintRequestStatus::Initialized);
+        assert!(r.can_mint(5));
+    }
+
+    #[test]
+    fn can_mint_exact_limit() {
+        let r = make_request(10, 9, 0, 0, MintRequestStatus::Initialized);
+        assert!(r.can_mint(1));
+    }
+
+    #[test]
+    fn can_mint_exceeds_limit() {
+        let r = make_request(10, 9, 0, 0, MintRequestStatus::Initialized);
+        assert!(!r.can_mint(2));
+    }
+
+    #[test]
+    fn can_mint_all_used() {
+        let r = make_request(10, 10, 0, 0, MintRequestStatus::Initialized);
+        assert!(!r.can_mint(1));
+        assert!(r.can_mint(0));
+    }
+
+    #[test]
+    fn can_upload_within_limit() {
+        let r = make_request(0, 0, 1_000_000, 500_000, MintRequestStatus::Initialized);
+        assert!(r.can_upload(500_000));
+    }
+
+    #[test]
+    fn can_upload_exact_limit() {
+        let r = make_request(0, 0, 1_000_000, 999_999, MintRequestStatus::Initialized);
+        assert!(r.can_upload(1));
+    }
+
+    #[test]
+    fn can_upload_exceeds_limit() {
+        let r = make_request(0, 0, 1_000_000, 999_999, MintRequestStatus::Initialized);
+        assert!(!r.can_upload(2));
+    }
+
+    #[test]
+    fn can_upload_zero_allocated() {
+        let r = make_request(0, 0, 0, 0, MintRequestStatus::Initialized);
+        assert!(r.can_upload(0));
+        assert!(!r.can_upload(1));
+    }
+
+    #[test]
+    fn is_active_initialized() {
+        let r = make_request(1, 0, 0, 0, MintRequestStatus::Initialized);
+        assert!(r.is_active());
+    }
+
+    #[test]
+    fn is_active_completed() {
+        let r = make_request(1, 1, 0, 0, MintRequestStatus::Completed);
+        assert!(!r.is_active());
+    }
+
+    #[test]
+    fn is_active_refund_requested() {
+        let r = make_request(1, 0, 0, 0, MintRequestStatus::RefundRequested);
+        assert!(!r.is_active());
+    }
+
+    #[test]
+    fn is_active_refunded() {
+        let r = make_request(
+            1,
+            0,
+            0,
+            0,
+            MintRequestStatus::Refunded {
+                tx_index: Nat::from(0u64),
+            },
+        );
+        assert!(!r.is_active());
+    }
+
+    #[test]
+    fn is_active_refund_failed() {
+        let r = make_request(
+            1,
+            0,
+            0,
+            0,
+            MintRequestStatus::RefundFailed {
+                reason: "err".into(),
+            },
+        );
+        assert!(!r.is_active());
+    }
+}
