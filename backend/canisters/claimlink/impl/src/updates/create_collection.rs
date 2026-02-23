@@ -29,7 +29,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
                 s.env.cycles_balance(),
                 s.env.caller(),
                 s.data.collection_request_fee,
-                s.data.origyn_nft_wasm_hash.clone(),
+                s.data.origyn_nft_wasm_hash,
             )
         });
 

@@ -6,8 +6,8 @@ use crate::{
     utils::random_principal,
     wasms::CLAIMLINK,
 };
-use candid::Nat;
-use claimlink_api::types::lifecycle::ClaimlinkArgs;
+use candid::{Nat, Principal};
+use claimlink_api::{pricing::MintPricingConfig, types::lifecycle::ClaimlinkArgs};
 
 #[test]
 fn upgrade_claimlink() {
@@ -53,6 +53,13 @@ fn upgrade_claimlink() {
             max_template_per_owner: Some(10_u8.into()),
             new_authorized_principals: None,
             ledger_canister_id: None,
+            mint_pricing: Some(MintPricingConfig {
+                base_mint_fee_usd_e8s: 1_000_000,
+                storage_fee_per_mb_usd_e8s: 4_600_000,
+            }),
+            icpswap_pool_canister_id: Some(
+                Principal::from_text("ttnzy-lyaaa-aaaag-qj2bq-cai").unwrap(),
+            ),
         }),
     );
 

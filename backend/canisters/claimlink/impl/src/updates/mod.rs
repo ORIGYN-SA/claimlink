@@ -1,4 +1,3 @@
-pub mod burn_nft;
 pub mod create_collection;
 pub mod create_template;
 pub mod delete_template;
@@ -6,11 +5,9 @@ pub mod initialize_mint;
 pub mod mint_nfts;
 pub mod proxy_upload;
 pub mod request_mint_refund;
-#[cfg(feature = "inttest")]
 pub mod set_ogy_price;
 pub mod update_template;
 
-pub use burn_nft::*;
 pub use create_collection::*;
 pub use create_template::*;
 pub use delete_template::*;
@@ -18,6 +15,5 @@ pub use initialize_mint::*;
 pub use mint_nfts::*;
 pub use proxy_upload::*;
 pub use request_mint_refund::*;
-#[cfg(feature = "inttest")]
 pub use set_ogy_price::*;
 pub use update_template::*;

@@ -6,8 +6,7 @@ pub use claimlink_api::updates::set_ogy_price::{
     Args as SetOgyPriceArgs, Response as SetOgyPriceResponse,
 };
 
-/// Only available in test mode. Hidden from candid via #[cfg(feature = "inttest")].
-#[cfg(feature = "inttest")]
+/// Only available in test mode.
 #[ic_cdk::update(hidden = true)]
 pub fn set_ogy_price(args: SetOgyPriceArgs) -> SetOgyPriceResponse {
     if !read_state(|s| s.env.is_test_mode()) {

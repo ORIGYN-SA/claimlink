@@ -7,11 +7,9 @@ use claimlink_api::queries::{
     list_all_collections,
 };
 use claimlink_api::updates::{
-    burn_nft, create_collection, create_template, delete_template, initialize_mint, mint_nfts,
-    proxy_upload::finalize as proxy_finalize_upload,
-    proxy_upload::init as proxy_init_upload,
-    proxy_upload::store as proxy_store_chunk,
-    request_mint_refund, set_ogy_price, update_template,
+    create_collection, create_template, delete_template, initialize_mint, mint_nfts,
+    proxy_upload::finalize as proxy_finalize_upload, proxy_upload::init as proxy_init_upload,
+    proxy_upload::store as proxy_store_chunk, request_mint_refund, set_ogy_price, update_template,
 };
 
 generate_update_call!(create_collection);
@@ -20,7 +18,6 @@ generate_update_call!(delete_template);
 generate_update_call!(update_template);
 generate_update_call!(initialize_mint);
 generate_update_call!(mint_nfts);
-generate_update_call!(burn_nft);
 generate_update_call!(request_mint_refund);
 generate_update_call!(set_ogy_price);
 generate_update_call!(proxy_init_upload);

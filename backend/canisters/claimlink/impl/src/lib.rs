@@ -17,8 +17,8 @@ use queries::*;
 use updates::*;
 
 use crate::task_manager::{
-    burn_ogy::burn_ogy, fetch_ogy_price::fetch_ogy_price,
-    reimburse_ogy::process_reimbursements, retry_installation::retry_installation,
+    burn_ogy::burn_ogy, fetch_ogy_price::fetch_ogy_price, reimburse_ogy::process_reimbursements,
+    retry_installation::retry_installation,
 };
 
 pub const RETRY_COLLECTION_INSTALLTION_INTERVAL: Duration = Duration::from_secs(1 * 60);

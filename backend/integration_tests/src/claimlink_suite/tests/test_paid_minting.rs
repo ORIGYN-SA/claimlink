@@ -9,11 +9,7 @@ use crate::{
 };
 use candid::{Nat, Principal};
 use claimlink_api::{
-    collection::CollectionSearchParam,
-    mint::MintRequestStatus,
-    updates::{
-        proxy_upload,
-    },
+    collection::CollectionSearchParam, mint::MintRequestStatus, updates::proxy_upload,
 };
 use icrc_ledger_types::{icrc::generic_value::ICRC3Value, icrc1::account::Account};
 use utils::consts::E8S_FEE_OGY;
@@ -41,7 +37,15 @@ fn setup_collection_with_price(
     claimlink: Principal,
     ogy_ledger: Principal,
 ) -> Principal {
-    create_test_collection(pic, caller, claimlink, ogy_ledger, "Mint Test", "MT", "Test");
+    create_test_collection(
+        pic,
+        caller,
+        claimlink,
+        ogy_ledger,
+        "Mint Test",
+        "MT",
+        "Test",
+    );
 
     set_ogy_price(pic, caller, claimlink);
 
@@ -86,7 +90,10 @@ fn approve_ogy(
         },
     );
     assert!(
-        matches!(result, crate::client::icrc1_icrc2_token::icrc2_approve::Response::Ok(_)),
+        matches!(
+            result,
+            crate::client::icrc1_icrc2_token::icrc2_approve::Response::Ok(_)
+        ),
         "Approval failed: {:?}",
         result
     );
@@ -643,12 +650,10 @@ fn test_mint_nfts_success() {
                         owner: principal_ids.principal_100k_ogy,
                         subaccount: None,
                     },
-                    metadata: vec![
-                        (
-                            "icrc7:name".to_string(),
-                            ICRC3Value::Text("NFT #1".to_string()),
-                        ),
-                    ],
+                    metadata: vec![(
+                        "icrc7:name".to_string(),
+                        ICRC3Value::Text("NFT #1".to_string()),
+                    )],
                     memo: None,
                 },
                 claimlink_api::updates::mint_nfts::MintItemArg {
@@ -656,12 +661,10 @@ fn test_mint_nfts_success() {
                         owner: principal_ids.principal_100k_ogy,
                         subaccount: None,
                     },
-                    metadata: vec![
-                        (
-                            "icrc7:name".to_string(),
-                            ICRC3Value::Text("NFT #2".to_string()),
-                        ),
-                    ],
+                    metadata: vec![(
+                        "icrc7:name".to_string(),
+                        ICRC3Value::Text("NFT #2".to_string()),
+                    )],
                     memo: None,
                 },
             ],
@@ -911,7 +914,11 @@ fn test_request_refund_success() {
         canister_ids.claimlink,
         &claimlink_api::updates::request_mint_refund::RequestMintRefundArgs { mint_request_id },
     );
-    assert!(result.is_ok(), "Refund request should succeed: {:?}", result);
+    assert!(
+        result.is_ok(),
+        "Refund request should succeed: {:?}",
+        result
+    );
 
     // Verify status changed
     let request = crate::client::claimlink::get_mint_request(
@@ -1071,162 +1078,6 @@ fn test_request_refund_double_refund_fails() {
     assert_eq!(
         result.unwrap_err(),
         claimlink_api::errors::RefundError::AlreadyRefunded
-    );
-}
-
-// ============================================================
-// burn_nft tests
-// ============================================================
-
-#[test]
-fn test_burn_nft_success() {
-    let env = init();
-    let TestEnv {
-        mut pic,
-        canister_ids,
-        principal_ids,
-    } = env;
-
-    let collection_canister_id = setup_collection_with_price(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        canister_ids.ogy_sns_ledger,
-    );
-
-    let mint_request_id = initialize_mint(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        canister_ids.ogy_sns_ledger,
-        collection_canister_id,
-        1,
-        0,
-    );
-
-    // Mint 1 NFT
-    let token_ids = crate::client::claimlink::mint_nfts(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        &claimlink_api::updates::mint_nfts::MintNftsArgs {
-            mint_request_id,
-            mint_items: vec![claimlink_api::updates::mint_nfts::MintItemArg {
-                token_owner: Account {
-                    owner: principal_ids.principal_100k_ogy,
-                    subaccount: None,
-                },
-                metadata: vec![(
-                    "icrc7:name".to_string(),
-                    ICRC3Value::Text("Burnable NFT".to_string()),
-                )],
-                memo: None,
-            }],
-        },
-    )
-    .expect("mint should succeed");
-
-    let token_id = token_ids[0].clone();
-
-    // Burn it
-    let burn_result = crate::client::claimlink::burn_nft(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        &claimlink_api::updates::burn_nft::BurnNftArgs {
-            collection_canister_id,
-            token_id,
-        },
-    );
-    assert!(burn_result.is_ok(), "Burn should succeed: {:?}", burn_result);
-}
-
-#[test]
-fn test_burn_nft_not_owner_fails() {
-    let env = init();
-    let TestEnv {
-        mut pic,
-        canister_ids,
-        principal_ids,
-    } = env;
-
-    let collection_canister_id = setup_collection_with_price(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        canister_ids.ogy_sns_ledger,
-    );
-
-    let mint_request_id = initialize_mint(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        canister_ids.ogy_sns_ledger,
-        collection_canister_id,
-        1,
-        0,
-    );
-
-    let token_ids = crate::client::claimlink::mint_nfts(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        &claimlink_api::updates::mint_nfts::MintNftsArgs {
-            mint_request_id,
-            mint_items: vec![claimlink_api::updates::mint_nfts::MintItemArg {
-                token_owner: Account {
-                    owner: principal_ids.principal_100k_ogy,
-                    subaccount: None,
-                },
-                metadata: vec![(
-                    "icrc7:name".to_string(),
-                    ICRC3Value::Text("NFT".to_string()),
-                )],
-                memo: None,
-            }],
-        },
-    )
-    .expect("mint should succeed");
-
-    // Try burn as different user
-    let result = crate::client::claimlink::burn_nft(
-        &mut pic,
-        principal_ids.principal_1m_ogy,
-        canister_ids.claimlink,
-        &claimlink_api::updates::burn_nft::BurnNftArgs {
-            collection_canister_id,
-            token_id: token_ids[0].clone(),
-        },
-    );
-    assert!(result.is_err());
-    assert_eq!(
-        result.unwrap_err(),
-        claimlink_api::errors::BurnNftError::CallerNotTokenOwner
-    );
-}
-
-#[test]
-fn test_burn_nft_collection_not_found_fails() {
-    let env = init();
-    let TestEnv {
-        mut pic,
-        canister_ids,
-        principal_ids,
-    } = env;
-
-    let result = crate::client::claimlink::burn_nft(
-        &mut pic,
-        principal_ids.principal_100k_ogy,
-        canister_ids.claimlink,
-        &claimlink_api::updates::burn_nft::BurnNftArgs {
-            collection_canister_id: random_principal(),
-            token_id: Nat::from(1u64),
-        },
-    );
-    assert!(result.is_err());
-    assert_eq!(
-        result.unwrap_err(),
-        claimlink_api::errors::BurnNftError::CollectionNotFound
     );
 }
 

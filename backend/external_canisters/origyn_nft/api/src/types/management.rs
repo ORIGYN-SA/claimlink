@@ -47,8 +47,10 @@ pub mod burn_nft {
     use super::*;
 
     pub type Args = Nat;
+
     #[derive(Serialize, Deserialize, CandidType, Debug)]
     pub enum BurnNftError {
+        NotTokenOwner,
         ConcurrentManagementCall,
         TokenDoesNotExist,
         StorageCanisterError(String),
