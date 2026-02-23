@@ -2,6 +2,7 @@ use candid::{Nat, Principal};
 use claimlink_api::{
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
+    pricing::MintPricingConfig,
     types::lifecycle::ClaimlinkArgs,
 };
 use icrc_ledger_canister::init::{ArchiveOptions as ArchiveOptionsIcrc, InitArgs, LedgerArgument};
@@ -143,6 +144,11 @@ fn install_canisters(pic: &mut PocketIc, principal_ids: &PrincipalIds) -> Canist
         max_creation_retries: 5_u8.into(),
         max_template_per_owner: MAX_TEMPLATES_PER_OWNER.into(),
         base_url: Some(String::from("https://{canister_id}.raw.icp0.io")),
+        mint_pricing: Some(MintPricingConfig {
+            base_mint_fee_usd_e8s: 1_000_000,       // $0.01
+            storage_fee_per_mb_usd_e8s: 4_600_000,   // $0.046
+        }),
+        icpswap_pool_canister_id: None, // Not needed in test mode
     });
 
     install_canister(
