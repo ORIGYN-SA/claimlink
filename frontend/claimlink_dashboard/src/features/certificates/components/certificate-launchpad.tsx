@@ -1,4 +1,5 @@
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 // import { CertificateQRCode } from "./detail/certificate-qr-code";
@@ -43,7 +44,7 @@ export function CertificateLaunchpad({
       {/* Left Section: Certificate Image */}
       <div className="flex-1 bg-[rgba(225,225,225,0.5)] border border-[#e1e1e1] rounded-2xl p-16 flex items-center justify-center min-h-[443px]">
         <div className="flex-1 h-full flex items-center justify-center">
-          <img
+          <CanisterImage
             src={imageUrl}
             alt={title}
             className="max-w-full max-h-full object-contain"
@@ -83,7 +84,7 @@ export function CertificateLaunchpad({
               <div className="flex-1 bg-white border border-[#e1e1e1] rounded-2xl p-4 flex gap-4 items-center cursor-pointer hover:shadow-sm transition-shadow">
                 {issuerLogo && (
                   <div className="w-16 h-16 relative shrink-0">
-                    <img
+                    <CanisterImage
                       src={issuerLogo}
                       alt={issuerName}
                       className="w-full h-full object-cover rounded"

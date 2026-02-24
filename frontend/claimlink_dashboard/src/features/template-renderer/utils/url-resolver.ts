@@ -202,3 +202,18 @@ export function isCanisterUrl(url: string): boolean {
     false
   );
 }
+
+/**
+ * Convert a .raw.icp0.io URL to a non-raw .icp0.io URL.
+ *
+ * The .raw subdomain bypasses the IC service worker, which can cause issues
+ * with chunked assets (>2MB) that need reassembly by the boundary node.
+ * The non-raw .icp0.io URL goes through the service worker which handles
+ * chunk reassembly correctly.
+ *
+ * Returns the original URL unchanged if it's not a .raw.icp0.io URL.
+ */
+export function getNonRawUrl(url: string): string | null {
+  if (!url?.includes('.raw.icp0.io')) return null;
+  return url.replace('.raw.icp0.io', '.icp0.io');
+}

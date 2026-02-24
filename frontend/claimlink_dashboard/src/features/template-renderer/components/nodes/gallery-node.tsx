@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { ChevronLeft, ChevronRight, X, Play, ImageIcon } from 'lucide-react';
 import type { GalleryNode as GalleryNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
 import { cn } from '@/lib/utils';
 
 /**
@@ -124,7 +125,7 @@ export function GalleryNode({ node }: GalleryNodeProps) {
               Your browser does not support the video tag.
             </video>
           ) : (
-            <img
+            <CanisterImage
               src={mediaUrl}
               alt={`Gallery item ${currentIndex + 1}`}
               loading="lazy"
@@ -212,7 +213,7 @@ export function GalleryNode({ node }: GalleryNodeProps) {
                     </div>
                   </>
                 ) : (
-                  <img
+                  <CanisterImage
                     src={thumbUrl}
                     alt={`Thumbnail ${index + 1}`}
                     loading="lazy"
@@ -240,7 +241,7 @@ export function GalleryNode({ node }: GalleryNodeProps) {
             <X className="w-8 h-8" />
           </button>
 
-          <img
+          <CanisterImage
             src={mediaUrl}
             alt={`Gallery item ${currentIndex + 1}`}
             className="max-w-[90vw] max-h-[90vh] object-contain"

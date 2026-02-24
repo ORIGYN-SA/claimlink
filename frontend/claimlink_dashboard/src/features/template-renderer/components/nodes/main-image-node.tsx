@@ -6,6 +6,7 @@
 
 import type { MainImageNode as MainImageNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
 import { cn } from '@/lib/utils';
 
 interface MainImageNodeProps {
@@ -27,7 +28,7 @@ export function MainImageNode({ node }: MainImageNodeProps) {
 
   return (
     <div className={cn('flex items-center justify-center flex-col', node.className)}>
-      <img
+      <CanisterImage
         src={imageUrl}
         alt=""
         loading="lazy"

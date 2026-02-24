@@ -7,6 +7,7 @@
 
 import type { CollectionImageNode as CollectionImageNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
 import { cn } from '@/lib/utils';
 
 interface CollectionImageNodeProps {
@@ -24,7 +25,7 @@ export function CollectionImageNode({ node }: CollectionImageNodeProps) {
 
   return (
     <div className={cn('', node.className)}>
-      <img
+      <CanisterImage
         src={imageUrl}
         alt="Certification badge"
         title="Certification badge"

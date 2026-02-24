@@ -1,3 +1,5 @@
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
+
 interface CertificateGalleryImage {
   url: string;
   legend: string;
@@ -29,7 +31,7 @@ export function CertificateGallery({
         >
           {/* Image Container */}
           <div className="bg-[#181a1b] h-[587px] w-[436px] flex items-center justify-center overflow-hidden">
-            <img
+            <CanisterImage
               alt={image.legend}
               src={image.url}
               className="max-h-full max-w-full object-contain"

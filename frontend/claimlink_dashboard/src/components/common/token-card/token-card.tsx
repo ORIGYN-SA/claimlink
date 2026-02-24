@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import { TokenStatusBadge } from "../token-status-badge/token-status-badge";
 import type { TokenCardProps } from "./token.types";
 
@@ -28,7 +29,7 @@ export function TokenCard({
         compact ? "h-28 md:h-40" : "h-32 md:h-48"
       )}>
         {token.imageUrl && (
-          <img
+          <CanisterImage
             src={token.imageUrl}
             alt={token.title}
             className="w-full h-full object-cover"
