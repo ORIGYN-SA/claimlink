@@ -744,6 +744,31 @@ export function EditTemplateStepV2({
                 </SelectContent>
               </Select>
             </div>
+            {['input', 'textarea', 'badge', 'readonly', 'title', 'date'].includes(state.fieldForm.type) && (
+              <div className="space-y-2">
+                <Label htmlFor="field-size">Display Size</Label>
+                <Select
+                  value={state.fieldForm.size}
+                  onValueChange={(value: string) =>
+                    dispatch({
+                      type: "UPDATE_FIELD_FORM",
+                      field: "size",
+                      value: value,
+                    })
+                  }
+                >
+                  <SelectTrigger id="field-size">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sm">Small</SelectItem>
+                    <SelectItem value="md">Medium (Default)</SelectItem>
+                    <SelectItem value="lg">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-[#69737c]">Controls the text size on the certificate</p>
+              </div>
+            )}
             {state.fieldForm.type === "input" && (
               <div className="space-y-2">
                 <Label htmlFor="field-placeholder">Placeholder</Label>
@@ -869,6 +894,31 @@ export function EditTemplateStepV2({
                 </SelectContent>
               </Select>
             </div>
+            {['input', 'textarea', 'badge', 'readonly', 'title', 'date'].includes(state.fieldForm.type) && (
+              <div className="space-y-2">
+                <Label htmlFor="edit-field-size">Display Size</Label>
+                <Select
+                  value={state.fieldForm.size}
+                  onValueChange={(value: string) =>
+                    dispatch({
+                      type: "UPDATE_FIELD_FORM",
+                      field: "size",
+                      value: value,
+                    })
+                  }
+                >
+                  <SelectTrigger id="edit-field-size">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="sm">Small</SelectItem>
+                    <SelectItem value="md">Medium (Default)</SelectItem>
+                    <SelectItem value="lg">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-[#69737c]">Controls the text size on the certificate</p>
+              </div>
+            )}
             {state.fieldForm.type === "input" && (
               <div className="space-y-2">
                 <Label htmlFor="edit-field-placeholder">Placeholder</Label>

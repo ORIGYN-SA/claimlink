@@ -1,13 +1,19 @@
-import { useState } from 'react';
-import { TemplateCard } from '../template-card';
-import { templateOptions, manualTemplateOption, type Template } from '@/shared/data';
+import { useState } from "react";
+import { TemplateCard } from "../template-card";
+import {
+  templateOptions,
+  manualTemplateOption,
+  type Template,
+} from "@/shared/data";
 
 interface ChooseTemplateStepProps {
   onNext?: (selectedTemplate: Template) => void;
 }
 
 export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
+    null,
+  );
 
   const handleTemplateSelect = (template: Template) => {
     setSelectedTemplate(template);
@@ -30,7 +36,8 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
           <div className="grid-cols-[max-content] grid-rows-[max-content] inline-grid leading-[0] place-items-start relative shrink-0">
             <div className="box-border content-stretch flex flex-col gap-[8px] items-start justify-center ml-0 mt-0 relative w-full max-w-[353px]">
               <p className="font-['General_Sans:Regular',_sans-serif] leading-[normal] not-italic relative shrink-0 text-[#69737c] text-[13px] text-center w-full">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Select a pre‑built ORIGYN template and either use it as‑is or
+                customize it to fit your requirements.
               </p>
             </div>
           </div>
@@ -45,32 +52,29 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
             <div
               key={template.id}
               className={`rounded-[16px] transition-all duration-200 cursor-pointer hover:scale-[1.02] active:scale-[0.98] ${
-                selectedTemplate?.id === template.id 
-                  ? 'ring-2 ring-[#615bff] shadow-lg' 
-                  : 'ring-0 hover:shadow-md'
+                selectedTemplate?.id === template.id
+                  ? "ring-2 ring-[#615bff] shadow-lg"
+                  : "ring-0 hover:shadow-md"
               }`}
               onClick={() => handleTemplateSelect(template)}
             >
               <div className="relative pointer-events-none">
-                <TemplateCard
-                  template={template}
-                  onClick={() => {}}
-                />
+                <TemplateCard template={template} onClick={() => {}} />
                 {/* Checkmark overlay for selected state */}
                 {selectedTemplate?.id === template.id && (
                   <div className="absolute top-2 right-2 bg-[#615bff] rounded-full p-1 shadow-md animate-in fade-in zoom-in duration-200">
-                    <svg 
-                      width="16" 
-                      height="16" 
-                      viewBox="0 0 16 16" 
-                      fill="none" 
+                    <svg
+                      width="16"
+                      height="16"
+                      viewBox="0 0 16 16"
+                      fill="none"
                       xmlns="http://www.w3.org/2000/svg"
                     >
-                      <path 
-                        d="M13.3334 4L6.00002 11.3333L2.66669 8" 
-                        stroke="white" 
-                        strokeWidth="2" 
-                        strokeLinecap="round" 
+                      <path
+                        d="M13.3334 4L6.00002 11.3333L2.66669 8"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
                         strokeLinejoin="round"
                       />
                     </svg>
@@ -84,27 +88,27 @@ export function ChooseTemplateStep({ onNext }: ChooseTemplateStepProps) {
         {/* Code It Option */}
         <div
           className={`bg-[rgba(205,223,236,0.15)] border border-[#cde9ec] border-solid box-border content-stretch flex flex-col gap-[4px] items-center justify-center leading-[normal] not-italic p-[16px] relative rounded-[16px] shrink-0 text-center w-full cursor-pointer transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] ${
-            selectedTemplate?.id === manualTemplateOption.id 
-              ? 'ring-2 ring-[#615bff] bg-[rgba(205,223,236,0.3)] shadow-lg' 
-              : 'hover:bg-[rgba(205,223,236,0.25)] hover:shadow-md'
+            selectedTemplate?.id === manualTemplateOption.id
+              ? "ring-2 ring-[#615bff] bg-[rgba(205,223,236,0.3)] shadow-lg"
+              : "hover:bg-[rgba(205,223,236,0.25)] hover:shadow-md"
           }`}
           onClick={() => handleTemplateSelect(manualTemplateOption)}
         >
           {/* Checkmark for manual option */}
           {selectedTemplate?.id === manualTemplateOption.id && (
             <div className="absolute top-2 right-2 bg-[#615bff] rounded-full p-1 shadow-md animate-in fade-in zoom-in duration-200">
-              <svg 
-                width="16" 
-                height="16" 
-                viewBox="0 0 16 16" 
-                fill="none" 
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
-                <path 
-                  d="M13.3334 4L6.00002 11.3333L2.66669 8" 
-                  stroke="white" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
+                <path
+                  d="M13.3334 4L6.00002 11.3333L2.66669 8"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
                   strokeLinejoin="round"
                 />
               </svg>

@@ -7,7 +7,6 @@
  */
 
 import type { ComponentType } from 'react';
-import type { TemplateRendererProps } from '../components/template-renderer';
 
 /** Current template version stamped on newly minted tokens. */
 export const CURRENT_TEMPLATE_VERSION = '1.0.0';
@@ -21,8 +20,15 @@ export const TEMPLATE_VERSION_KEY = 'claimlink.template.version';
 /** A version string (semver). */
 export type TemplateVersion = string;
 
-/** Registry entry mapping a version to its renderer. */
+/**
+ * Registry entry mapping a version to its renderer.
+ *
+ * Each version can define its own props shape — the versioned dispatcher
+ * passes all remaining props through, so the renderer is responsible for
+ * interpreting them according to its version's data model.
+ */
 export interface VersionedRendererEntry {
-  Renderer: ComponentType<TemplateRendererProps>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  Renderer: ComponentType<any>;
   label: string;
 }

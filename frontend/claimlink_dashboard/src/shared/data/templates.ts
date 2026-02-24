@@ -141,6 +141,7 @@ export const artTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Artwork title",
+            size: 'lg' as const,
           },
 
           {
@@ -292,6 +293,7 @@ export const diamondTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Diamond title or identifier",
+            size: 'lg' as const,
           },
 
           { ...commonProductImages, order: 7 },
@@ -485,6 +487,7 @@ export const goldCertificateTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., 1oz Gold Bar, 100g Gold Ingot",
+            size: 'lg' as const,
           },
           {
             id: "serial_number",
@@ -642,6 +645,7 @@ export const watchTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Submariner Date",
+            size: 'lg' as const,
           },
           {
             id: "brand",
@@ -819,6 +823,7 @@ export const carTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., 911 Carrera GT",
+            size: 'lg' as const,
           },
           {
             id: "brand_manufacturer",
@@ -963,6 +968,7 @@ export const spiritTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Macallan 25 Year, Domaine Romanée-Conti",
+            size: 'lg' as const,
           },
           {
             id: "producer_domaine",
@@ -1130,6 +1136,7 @@ export const luxuryGoodTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Birkin 30, Neverfull MM",
+            size: 'lg' as const,
           },
           {
             id: "brand_manufacturer",
@@ -1309,6 +1316,7 @@ export const madeInTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Enter certificate name",
+            size: 'lg' as const,
             validation: {
               minLength: 2,
               maxLength: 200,
@@ -1531,6 +1539,7 @@ export const manualTemplateOption: Template = {
             required: true,
             inputType: "text",
             placeholder: "Enter certificate name",
+            size: 'lg' as const,
           },
         ],
       },

@@ -26,6 +26,7 @@ export interface BaseTemplateItem {
   immutable?: boolean; // If true, user cannot modify this field
   description?: string; // Helper text
   validation?: ItemValidation;
+  size?: 'sm' | 'md' | 'lg'; // Display size on certificate
 }
 
 /**

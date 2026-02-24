@@ -6,15 +6,26 @@
  * the version is extracted from the on-chain metadata (via
  * `dataSource.metadata.templateVersion`). Tokens without a version field
  * default to '1.0.0' and render identically to today.
+ *
+ * Each version can define its own props shape. The dispatcher passes all
+ * props through — the versioned renderer is responsible for interpreting them.
  */
 
 import { DEFAULT_TEMPLATE_VERSION } from '../version/template-version';
 import { getRendererForVersion } from '../version/renderer-registry';
-import type { TemplateRendererProps } from './template-renderer';
 
-export interface VersionedTemplateRendererProps extends TemplateRendererProps {
+export interface VersionedTemplateRendererProps {
   /** Explicit version override. When omitted the version is read from metadata. */
   version?: string;
+  /**
+   * Data source for the renderer. Shape depends on the version:
+   * - v1: { type: 'onchain', metadata: ParsedOrigynMetadata, ... }
+   * - v2+: defined by the versioned renderer
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dataSource?: any;
+  /** All other props are forwarded to the versioned renderer as-is. */
+  [key: string]: unknown;
 }
 
 export function VersionedTemplateRenderer({
@@ -25,7 +36,7 @@ export function VersionedTemplateRenderer({
   let resolvedVersion = version;
 
   if (!resolvedVersion) {
-    if (dataSource.type === 'onchain' && dataSource.metadata.templateVersion) {
+    if (dataSource?.type === 'onchain' && dataSource.metadata?.templateVersion) {
       resolvedVersion = dataSource.metadata.templateVersion;
     } else {
       resolvedVersion = DEFAULT_TEMPLATE_VERSION;
