@@ -1,4 +1,5 @@
 use bity_ic_canister_client::generate_candid_c2c_call;
+use bity_ic_canister_client::generate_candid_c2c_call_tuple_args;
 use origyn_nft_canister_api::*;
 
 // ICRC10
@@ -47,8 +48,8 @@ generate_candid_c2c_call!(icrc7_supply_cap);
 generate_candid_c2c_call!(icrc7_symbol);
 generate_candid_c2c_call!(icrc7_total_supply);
 generate_candid_c2c_call!(icrc7_tx_window);
-generate_candid_c2c_call!(icrc7_tokens_of);
-generate_candid_c2c_call!(icrc7_tokens);
+generate_candid_c2c_call_tuple_args!(icrc7_tokens_of);
+generate_candid_c2c_call_tuple_args!(icrc7_tokens);
 
 // Management methods
 generate_candid_c2c_call!(mint);
