@@ -63,6 +63,7 @@ export {
   isLocalReplica,
   isBlobUrl,
   isCanisterUrl,
+  getNonRawUrl,
   getFilePath,
   // Date Formatting
   formatTimestamp,

@@ -1,5 +1,6 @@
 import stampStandard from "@assets/stamp_standard.svg";
 import logoTransparent from "@assets/logo_transparent.svg";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
 
 interface CertificateFrameProps {
@@ -70,8 +71,8 @@ export function CertificateFrame({
                 autoPlay
               />
             ) : (
-              <img
-                src={background.dataUri}
+              <CanisterImage
+                src={background.dataUri!}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -100,7 +101,7 @@ export function CertificateFrame({
               {/* Company Logo - centered at top inside panel */}
               <div className="flex justify-center w-full">
                 {companyLogo ? (
-                  <img
+                  <CanisterImage
                     alt="Company Logo"
                     src={companyLogo}
                     className="h-[32px] sm:h-[48px] object-contain brightness-0 invert"
@@ -185,7 +186,7 @@ export function CertificateFrame({
                 {/* Company Logo */}
                 <div className="flex items-center pb-4 flex-1 border-b border-[rgba(105,115,124,0.2)]">
                   {companyLogo ? (
-                    <img
+                    <CanisterImage
                       alt="Company Logo"
                       src={companyLogo}
                       className="h-[28px] sm:h-[40px] object-contain"

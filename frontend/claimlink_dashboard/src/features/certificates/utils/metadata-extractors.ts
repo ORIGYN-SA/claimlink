@@ -17,7 +17,8 @@ import type {
 } from "@/features/template-renderer";
 import {
   resolveTokenAssetUrl,
-  resolveCollectionAssetUrl
+  resolveCollectionAssetUrl,
+  getNonRawUrl
 } from "@/features/template-renderer";
 
 /**
@@ -152,7 +153,8 @@ function resolveFilePath(
 ): string {
   // Already a full URL, data URI, or blob URL
   if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:') || path.startsWith('blob:')) {
-    return path;
+    // Strip .raw from stored on-chain URLs (raw fails for chunked assets >2MB)
+    return getNonRawUrl(path) ?? path;
   }
 
   // Resolve relative path based on location type

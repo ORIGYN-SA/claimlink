@@ -40,8 +40,9 @@ export function buildCanisterUrl(canisterId: string): string {
     return `http://${canisterId}.localhost:4943`;
   }
 
-  // Production: use raw.icp0.io for direct asset access
-  return `https://${canisterId}.raw.icp0.io`;
+  // Production: use icp0.io (non-raw) for reliable asset loading.
+  // The .raw subdomain fails for chunked assets (>2MB) with ERR_HTTP2_PROTOCOL_ERROR.
+  return `https://${canisterId}.icp0.io`;
 }
 
 /**

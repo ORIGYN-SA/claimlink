@@ -1,5 +1,6 @@
 import stampStandard from "@assets/stamp_standard.svg";
 import logoTransparent from "@assets/logo_transparent.svg";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 
 interface CertificateDisplayProps {
   companyLogo: string;
@@ -60,7 +61,7 @@ export function CertificateDisplay({
               <div className="flex justify-between items-start w-full mb-[100px]">
                 {/* Company Logo */}
                 <div className="flex-1 border-b border-[rgba(255,255,255,0.2)] pb-4">
-                  <img
+                  <CanisterImage
                     alt="Company Logo"
                     src={companyLogo}
                     className="h-12 object-contain brightness-0 invert"
@@ -140,7 +141,7 @@ export function CertificateDisplay({
                     {/* Signature line */}
                     <div className="w-[251px] h-0 border-b border-[#69737c] mt-[78px]" />
                     {/* Signature Image */}
-                    <img
+                    <CanisterImage
                       alt="Signature"
                       src={signatureImage}
                       className="h-[100px] w-[178px] object-contain mix-blend-darken absolute top-0 left-[29.5px]"

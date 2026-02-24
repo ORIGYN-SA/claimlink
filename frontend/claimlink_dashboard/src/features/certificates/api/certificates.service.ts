@@ -47,17 +47,16 @@ export class CertificatesService {
       return `${baseUrl}${url}`;
     }
 
-    // If URL is already absolute, check if it needs domain correction
+    // If URL is already absolute, normalize domain
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      // For production, ensure we're using .raw.icp0.io for direct asset access
       if (!isLocalReplica()) {
-        // Convert icp0.io to raw.icp0.io if needed
-        if (url.includes('.icp0.io') && !url.includes('.raw.icp0.io')) {
-          return url.replace('.icp0.io', '.raw.icp0.io');
+        // Convert .raw.icp0.io to .icp0.io (raw fails for chunked assets >2MB)
+        if (url.includes('.raw.icp0.io')) {
+          return url.replace('.raw.icp0.io', '.icp0.io');
         }
-        // Convert ic0.app to raw.icp0.io
+        // Convert ic0.app to icp0.io
         if (url.includes('.ic0.app')) {
-          return url.replace('.ic0.app', '.raw.icp0.io');
+          return url.replace('.ic0.app', '.icp0.io');
         }
       }
       // URL is already in correct format
