@@ -468,7 +468,7 @@ fn mint_nft(
     mint_nft_to_owner(pic, caller, caller, collection_canister, token_id);
 }
 
-fn mint_nft_to_owner(
+pub fn mint_nft_to_owner(
     pic: &mut pocket_ic::PocketIc,
     caller: Principal,
     owner: Principal,
