@@ -30,7 +30,7 @@ pub fn get_templates_by_owner(args: GetTemplatesByOwnerArgs) -> GetTemplatesByOw
         .take(limit)
         .map(|temaplate_id| {
             let temaplte_bytes = read_stable_storage(|s| s.get_template(&temaplate_id))
-                .unwrap()
+                .expect("BUG: failed to get template from stable memory")
                 .0;
             Template {
                 template_id: temaplate_id.into(),
