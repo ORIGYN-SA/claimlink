@@ -479,6 +479,18 @@ impl Data {
     pub fn get_template_ids_by_owner(&self, owner: &Principal) -> Vec<NftTemplateId> {
         self.template_owners.get(owner).unwrap_or(&vec![]).to_vec()
     }
+
+    pub fn get_active_collection_canister_ids(&self) -> Vec<Principal> {
+        self.collection_requests
+            .values()
+            .filter_map(|request| match &request.status {
+                InstallationStatus::Created
+                | InstallationStatus::Installed
+                | InstallationStatus::TemplateUploaded => request.canister_id,
+                _ => None,
+            })
+            .collect()
+    }
 }
 
 impl TryFrom<InitArg> for RuntimeState {

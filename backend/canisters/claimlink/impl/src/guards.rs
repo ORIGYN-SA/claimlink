@@ -20,6 +20,7 @@ pub enum TaskType {
     RetryFailedInstallation,
     Reimbursement,
     BurnOGY,
+    CyclesTopUp,
 }
 
 #[derive(Debug, PartialEq, Eq)]

@@ -23,6 +23,7 @@ use std::vec;
 
 pub mod burn_ogy;
 pub mod create_canister;
+pub mod cycles_top_up;
 pub mod install_canister;
 pub mod reimburse_ogy;
 pub mod retry_installation;
