@@ -169,6 +169,9 @@ pub struct Data {
     /// Locks preventing concurrent execution timer tasks
     pub active_tasks: HashSet<TaskType>,
 
+    /// Callers currently in the create_collection flow (reentrancy guard)
+    pub creating_collection_callers: HashSet<Principal>,
+
     /// SNS OGY ledger canister
     pub ledger_canister_id: Principal,
 
@@ -310,7 +313,7 @@ impl Data {
         self.pending_queue
             .retain(|index| *index != ogy_payment_index);
 
-        self.ogy_to_burn += self.ogy_to_burn.wrapping_add(collection.ogy_charged);
+        self.ogy_to_burn += collection.ogy_charged;
     }
 
     pub fn record_failed_installation(
@@ -481,7 +484,7 @@ impl Data {
             .checked_sub(burned_ogy_amount)
             .expect("Bug: Burned ogy exceeds ogy_to_burn");
 
-        self.total_ogy_burned += self.total_ogy_burned.wrapping_add(burned_ogy_amount);
+        self.total_ogy_burned += burned_ogy_amount;
     }
 
     pub fn record_created_template(&mut self, template_id: NftTemplateId, owner: Principal) {
@@ -503,8 +506,7 @@ impl Data {
         self.template_owners.get(owner).unwrap_or(&vec![]).to_vec()
     }
 
-    // --- Mint request helpers ---
-
+    // Mint request helpers
     pub fn record_mint_request(
         &mut self,
         owner: Principal,
@@ -643,6 +645,18 @@ impl Data {
     pub fn get_mint_refund_queue(&self) -> Vec<MintRequestId> {
         self.mint_refund_queue.clone()
     }
+
+    pub fn get_active_collection_canister_ids(&self) -> Vec<Principal> {
+        self.collection_requests
+            .values()
+            .filter_map(|request| match &request.status {
+                InstallationStatus::Created
+                | InstallationStatus::Installed
+                | InstallationStatus::TemplateUploaded => request.canister_id,
+                _ => None,
+            })
+            .collect()
+    }
 }
 
 impl TryFrom<InitArg> for RuntimeState {
@@ -682,6 +696,7 @@ impl TryFrom<InitArg> for RuntimeState {
             Data {
                 origyn_nft_wasm_hash: Default::default(),
                 active_tasks: HashSet::new(),
+                creating_collection_callers: HashSet::new(),
                 ledger_canister_id: value.ledger_canister_id,
                 authorized_principals: value.authorized_principals,
                 bank_principal_id: value.bank_principal_id,

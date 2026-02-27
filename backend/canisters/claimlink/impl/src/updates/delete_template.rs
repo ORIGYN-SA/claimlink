@@ -15,7 +15,11 @@ pub use claimlink_api::{
 pub fn delete_template(args: DeleteTemplateArg) -> DeleteTemplateResult {
     let caller = ic_cdk::api::msg_caller();
 
-    let template_id: NftTemplateId = args.0.try_into().expect("Invlaid template id");
+    let template_id: NftTemplateId = args
+        .0
+        .try_into()
+        .map_err(|_| DeleteTemplateError::InvalidNftTemplateId)?;
+
     if !read_state(|s| s.data.owns_template(&caller, template_id)) {
         return Err(DeleteTemplateError::UnauthorizedCall);
     };
