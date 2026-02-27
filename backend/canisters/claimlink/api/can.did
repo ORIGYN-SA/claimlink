@@ -67,6 +67,7 @@ type CreateCollectionError = variant {
   CreateOrigynNftCanisterError;
   TransferFromError : TransferFromError;
   InvalidNftTemplateId;
+  ConcurrentRequest;
 };
 type CreateTemplateArgs = record { template_json : text };
 type CreateTemplateError = variant {
@@ -77,7 +78,7 @@ type CyclesManagement = record {
   cycles_top_up_increment : nat;
   cycles_for_collection_creation : nat;
 };
-type DeleteTemplateError = variant { UnauthorizedCall };
+type DeleteTemplateError = variant { UnauthorizedCall; InvalidNftTemplateId };
 type GenericError = variant { Other : text };
 type GetCollectionNftsArgs = record {
   prev : opt nat;
@@ -100,6 +101,7 @@ type GetTemplatesByOwnerArgs = record {
   owner : principal;
   pagination : PaginationArgs;
 };
+type GetTemplatesByOwnerError = variant { UnauthorizedCall };
 type ICRC3Value = variant {
   Int : int;
   Map : BTreeMap;
@@ -116,6 +118,45 @@ type ICRC3Value_1 = variant {
   Text : text;
   Array : vec ICRC3Value;
 };
+type Icrc21ConsentInfo = record {
+  metadata : Icrc21ConsentMessageMetadata;
+  consent_message : Icrc21ConsentMessage;
+};
+type Icrc21ConsentMessage = record {
+  generic_display_message : text;
+  fields_display_message : Icrc21FieldDisplayMessage;
+};
+type Icrc21ConsentMessageMetadata = record {
+  utc_offset_minutes : opt int16;
+  language : text;
+};
+type Icrc21ConsentMessageRequest = record {
+  arg : blob;
+  method : text;
+  user_preferences : Icrc21ConsentMessageSpec;
+};
+type Icrc21ConsentMessageResponse = variant {
+  Ok : Icrc21ConsentInfo;
+  Err : Icrc21Error;
+};
+type Icrc21ConsentMessageSpec = record {
+  metadata : Icrc21ConsentMessageMetadata;
+  device_spec : opt Icrc21DeviceSpec;
+};
+type Icrc21DeviceSpec = variant { GenericDisplay; FieldsDisplay };
+type Icrc21Error = variant {
+  GenericError : Icrc21ErrorInfo;
+  InsufficientPayment : Icrc21GenericError;
+  UnsupportedCanisterCall : Icrc21ErrorInfo;
+  ConsentMessageUnavailable : Icrc21ErrorInfo;
+};
+type Icrc21ErrorInfo = record { description : text };
+type Icrc21FieldDisplayMessage = record {
+  fields : vec record { text; text };
+  intent : text;
+};
+type Icrc21GenericError = record { description : text; error_code : nat64 };
+type Icrc28TrustedOriginsResponse = record { trusted_origins : vec text };
 type InitArg = record {
   base_url : opt text;
   cycles_management : CyclesManagement;
@@ -154,8 +195,12 @@ type PaginationArgs = record { offset : opt nat64; limit : opt nat64 };
 type Result = variant { Ok : nat; Err : CreateCollectionError };
 type Result_1 = variant { Ok : nat; Err : CreateTemplateError };
 type Result_2 = variant { Ok; Err : DeleteTemplateError };
-type Result_3 = variant { Ok : TemplatesResult; Err : DeleteTemplateError };
+type Result_3 = variant {
+  Ok : TemplatesResult;
+  Err : GetTemplatesByOwnerError;
+};
 type Result_4 = variant { Ok; Err : UpdateTemplateError };
+type SupportedStandard = record { url : text; name : text };
 type Template = record { template_json : text; template_id : nat };
 type TemplatesResult = record { templates : vec Template; total_count : nat64 };
 type TransferFromError = variant {
@@ -175,6 +220,7 @@ type UpdateTemplateArgs = record {
 };
 type UpdateTemplateError = variant {
   UnauthorizedCall;
+  InvalidNftTemplateId;
   JsonError : text;
   TemplateNotFound;
 };
@@ -207,6 +253,11 @@ service : (ClaimlinkArgs) -> {
   get_metrics : () -> (Metrics) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
   get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_3) query;
+  icrc10_supported_standards : () -> (vec SupportedStandard) query;
+  icrc21_canister_call_consent_message : (Icrc21ConsentMessageRequest) -> (
+      Icrc21ConsentMessageResponse,
+    ) query;
+  icrc28_trusted_origins : () -> (Icrc28TrustedOriginsResponse) query;
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
   update_template : (UpdateTemplateArgs) -> (Result_4);
 }
