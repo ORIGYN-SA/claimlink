@@ -46,7 +46,8 @@ pub async fn retry_installation() {
         if retries > max_creation_retries {
             mutate_state(|s| {
                 process_event(s, EventType::ReimbursementRequest { ogy_payment_index })
-            })
+            });
+            continue;
         }
 
         // creations canister
