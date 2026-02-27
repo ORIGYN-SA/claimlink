@@ -2,7 +2,7 @@ use crate::{
     claimlink_suite::{
         init::{init, OGY_TO_PAY},
         tests::test_create_collection::create_template,
-        TestEnv,
+        CanisterIds, PrincipalIds, TestEnv,
     },
     utils::random_principal,
 };
@@ -10,9 +10,11 @@ use candid::{Nat, Principal};
 use claimlink_api::{
     get_collections_by_owner::GetCollectionsByOwnerArgs, types::collection::PaginationArgs,
 };
-use icrc_ledger_types::icrc1::account::Account;
-use origyn_nft_canister_api::mint::MintRequest;
+use icrc_ledger_types::{icrc::generic_value::ICRC3Value, icrc1::account::Account};
 use utils::consts::E8S_FEE_OGY;
+
+/// OGY price used for test minting helpers: $0.006 per OGY in e8s
+const TEST_OGY_PRICE_E8S: u64 = 600_000;
 
 //const OGY_TO_PAY: u64 = 1_500_000_000_000; // 15k ogy
 
@@ -458,51 +460,118 @@ fn test_update_create_collection_stores_in_registry() {
     assert_eq!(my_collections.collections[0].collection_id, collection_id);
 }
 
-/// Helper function to mint an NFT
-fn mint_nft(
-    pic: &mut pocket_ic::PocketIc,
-    caller: Principal,
-    collection_canister: Principal,
-    token_id: u128,
-) {
-    mint_nft_to_owner(pic, caller, caller, collection_canister, token_id);
+/// Ensure OGY price is set (idempotent — only sets it once per test).
+fn ensure_ogy_price(pic: &mut pocket_ic::PocketIc, sender: Principal, claimlink: Principal) {
+    let price = crate::client::claimlink::get_ogy_usd_price(pic, sender, claimlink, &());
+    if price.is_none() {
+        crate::client::claimlink::set_ogy_price(
+            pic,
+            sender,
+            claimlink,
+            &claimlink_api::updates::set_ogy_price::SetOgyPriceArgs {
+                usd_per_ogy_e8s: TEST_OGY_PRICE_E8S,
+            },
+        )
+        .expect("set_ogy_price failed");
+    }
 }
 
+/// Mint NFTs to an owner via ClaimLink's paid minting flow.
+/// `caller` must be the collection owner (authorized to initialize mints).
+/// `owner` is the recipient of the minted NFTs.
 pub fn mint_nft_to_owner(
     pic: &mut pocket_ic::PocketIc,
     caller: Principal,
     owner: Principal,
     collection_canister: Principal,
     token_id: u128,
+    canister_ids: &CanisterIds,
 ) {
-    use icrc_ledger_types::icrc::generic_value::ICRC3Value;
+    ensure_ogy_price(pic, caller, canister_ids.claimlink);
 
-    let mint_args = origyn_nft_canister_api::types::management::mint::Args {
-        mint_requests: vec![MintRequest {
-            token_owner: Account {
-                owner,
+    // Approve OGY for the mint
+    let approval = crate::client::icrc1_icrc2_token::icrc2_approve(
+        pic,
+        caller,
+        canister_ids.ogy_sns_ledger,
+        &crate::client::icrc1_icrc2_token::icrc2_approve::Args {
+            from_subaccount: None,
+            spender: Account {
+                owner: canister_ids.claimlink,
                 subaccount: None,
             },
-            metadata: vec![
-                (
-                    "icrc7:token_id".to_string(),
-                    ICRC3Value::Nat(Nat::from(token_id)),
-                ),
-                (
-                    "icrc7:name".to_string(),
-                    ICRC3Value::Text(format!("NFT #{}", token_id)),
-                ),
-                (
-                    "icrc7:description".to_string(),
-                    ICRC3Value::Text(format!("Test NFT #{}", token_id)),
-                ),
-            ],
+            amount: Nat::from(50_000_000_000_000u64),
+            expected_allowance: None,
+            expires_at: None,
+            fee: None,
             memo: None,
-        }],
-    };
+            created_at_time: None,
+        },
+    );
 
-    crate::client::origyn_nft::mint(pic, caller, collection_canister, &mint_args)
-        .expect("Failed to mint NFT");
+    println!("approval result {approval:?}");
+
+    // Initialize a mint request for 1 NFT
+    let mint_request_id = crate::client::claimlink::initialize_mint(
+        pic,
+        caller,
+        canister_ids.claimlink,
+        &claimlink_api::updates::initialize_mint::InitializeMintArgs {
+            collection_canister_id: collection_canister,
+            num_mints: 1,
+            total_file_size_bytes: Nat::from(0u64),
+        },
+    );
+    println!("mint request result {:?}", mint_request_id);
+    //.expect("initialize_mint failed");
+
+    println!("mint request id {mint_request_id:?}");
+
+    // Mint the NFT
+    crate::client::claimlink::mint_nfts(
+        pic,
+        caller,
+        canister_ids.claimlink,
+        &claimlink_api::updates::mint_nfts::MintNftsArgs {
+            mint_request_id: mint_request_id.unwrap(),
+            mint_items: vec![claimlink_api::updates::mint_nfts::MintItemArg {
+                token_owner: Account {
+                    owner,
+                    subaccount: None,
+                },
+                metadata: vec![
+                    (
+                        "icrc7:name".to_string(),
+                        ICRC3Value::Text(format!("NFT #{}", token_id)),
+                    ),
+                    (
+                        "icrc7:description".to_string(),
+                        ICRC3Value::Text(format!("Test NFT #{}", token_id)),
+                    ),
+                ],
+                memo: None,
+            }],
+        },
+    )
+    .expect("mint_nfts failed");
+}
+
+/// Helper function to mint an NFT to caller via paid minting.
+fn mint_nft(
+    pic: &mut pocket_ic::PocketIc,
+    caller: Principal,
+    collection_canister: Principal,
+    token_id: u128,
+    canister_ids: &CanisterIds,
+) {
+    mint_nft_to_owner(
+        pic,
+        caller,
+        caller,
+        collection_canister,
+        token_id,
+        canister_ids,
+    );
 }
 
 #[test]
@@ -582,9 +651,15 @@ fn test_get_collection_nfts_with_nfts() {
 
     println!("canister id: {:?}", canister_id.to_text());
 
-    // Mint 3 NFTs
+    // Mint 3 NFTs via paid minting
     for i in 1..=3 {
-        mint_nft(&mut pic, principal_ids.principal_100k_ogy, canister_id, i);
+        mint_nft(
+            &mut pic,
+            principal_ids.principal_100k_ogy,
+            canister_id,
+            i,
+            &canister_ids,
+        );
     }
 
     println!("mint succesful");
@@ -639,9 +714,23 @@ fn test_get_nft_details() {
     .canister_id
     .unwrap();
 
-    // Mint 2 NFTs
-    mint_nft(&mut pic, principal_ids.principal_100k_ogy, canister_id, 1);
-    mint_nft(&mut pic, principal_ids.principal_100k_ogy, canister_id, 2);
+    println!("cnaister id: {}", canister_id);
+
+    // Mint 2 NFTs via paid minting
+    mint_nft(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_id,
+        1,
+        &canister_ids,
+    );
+    mint_nft(
+        &mut pic,
+        principal_ids.principal_100k_ogy,
+        canister_id,
+        2,
+        &canister_ids,
+    );
 
     // Get details for both NFTs
     let details = crate::client::claimlink::get_nft_details(

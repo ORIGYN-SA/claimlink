@@ -2,7 +2,7 @@ use crate::{
     claimlink_suite::{
         init::init,
         tests::test_collection_queries::{create_test_collection, mint_nft_to_owner},
-        TestEnv,
+        CanisterIds, TestEnv,
     },
     utils::random_principal,
 };
@@ -67,8 +67,8 @@ fn test_get_collections_for_user_with_nfts() {
     .canister_id
     .unwrap();
 
-    // Mint an NFT to the user
-    mint_nft_to_owner(&mut pic, creator, user, canister_id, 1);
+    // Mint an NFT to the user via paid minting
+    mint_nft_to_owner(&mut pic, creator, user, canister_id, 1, &canister_ids);
 
     // Query collections for user - should find the collection
     let result = crate::client::claimlink::get_collections_for_user(
@@ -121,8 +121,8 @@ fn test_get_collections_for_user_without_nfts_in_collection() {
     .unwrap();
 
     // Mint NFTs to a different user, not our target user
-    mint_nft_to_owner(&mut pic, creator, other_user, canister_id, 1);
-    mint_nft_to_owner(&mut pic, creator, other_user, canister_id, 2);
+    mint_nft_to_owner(&mut pic, creator, other_user, canister_id, 1, &canister_ids);
+    mint_nft_to_owner(&mut pic, creator, other_user, canister_id, 2, &canister_ids);
 
     // Query collections for user who owns nothing
     let result = crate::client::claimlink::get_collections_for_user(
@@ -178,8 +178,8 @@ fn test_get_collections_for_user_multiple_collections() {
     }
 
     // Mint NFTs to user in collection 0 and 2, but NOT collection 1
-    mint_nft_to_owner(&mut pic, creator, user, collection_canister_ids[0], 1);
-    mint_nft_to_owner(&mut pic, creator, user, collection_canister_ids[2], 1);
+    mint_nft_to_owner(&mut pic, creator, user, collection_canister_ids[0], 1, &canister_ids);
+    mint_nft_to_owner(&mut pic, creator, user, collection_canister_ids[2], 1, &canister_ids);
 
     // Query collections for user
     let result = crate::client::claimlink::get_collections_for_user(
@@ -230,7 +230,7 @@ fn test_get_collections_for_user_with_pagination() {
         .canister_id
         .unwrap();
 
-        mint_nft_to_owner(&mut pic, creator, user, canister_id, 1);
+        mint_nft_to_owner(&mut pic, creator, user, canister_id, 1, &canister_ids);
     }
 
     // Page 1: offset 0, limit 2

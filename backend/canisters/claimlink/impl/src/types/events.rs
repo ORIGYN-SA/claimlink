@@ -4,7 +4,12 @@ use crate::types::{
     wasm::WasmHash,
 };
 use candid::Principal;
-use claimlink_api::{impl_storable_minicbor, init::InitArg, post_upgrade::UpgradeArgs};
+use claimlink_api::{
+    impl_storable_minicbor,
+    init::InitArg,
+    mint::MintRequestId,
+    post_upgrade::UpgradeArgs,
+};
 use minicbor::{Decode, Encode};
 use types::TimestampNanos;
 
@@ -97,6 +102,74 @@ pub enum EventType {
         template_id: NftTemplateId,
         #[cbor(n(1), with = "claimlink_api::cbor::principal")]
         owner: Principal,
+    },
+    #[n(14)]
+    InitializeMintRequest {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+        #[cbor(n(1), with = "claimlink_api::cbor::principal")]
+        owner: Principal,
+        #[cbor(n(2), with = "claimlink_api::cbor::principal")]
+        collection_canister_id: Principal,
+        #[cbor(n(3), with = "claimlink_api::cbor::u128")]
+        ogy_payment_index: OgyTransferIndex,
+        #[cbor(n(4), with = "claimlink_api::cbor::u128")]
+        ogy_charged: u128,
+        #[n(5)]
+        num_mints: u64,
+        #[n(6)]
+        allocated_bytes: u64,
+        #[n(7)]
+        created_at: TimestampNanos,
+    },
+    #[n(15)]
+    FileUploaded {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+        #[n(1)]
+        file_path: String,
+        #[n(2)]
+        file_url: String,
+        #[n(3)]
+        file_size: u64,
+    },
+    #[n(16)]
+    NftsMinted {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+        #[n(1)]
+        count: u64,
+        #[n(2)]
+        token_ids: Vec<u64>,
+    },
+    #[n(17)]
+    MintRequestCompleted {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+    },
+    #[n(18)]
+    UpdatedOgyPrice {
+        #[n(0)]
+        usd_per_ogy_e8s: u64,
+    },
+    #[n(19)]
+    MintRefundRequested {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+    },
+    #[n(20)]
+    MintRefunded {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+        #[cbor(n(1), with = "claimlink_api::cbor::u128")]
+        refund_tx_index: u128,
+    },
+    #[n(21)]
+    MintRefundFailed {
+        #[n(0)]
+        mint_request_id: MintRequestId,
+        #[n(1)]
+        reason: String,
     },
 }
 

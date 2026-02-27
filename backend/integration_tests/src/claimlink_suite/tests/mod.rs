@@ -4,6 +4,7 @@ pub mod test_create_collection;
 pub mod test_create_template;
 pub mod test_cycles_top_up;
 pub mod test_delete_template;
+pub mod test_paid_minting;
 pub mod test_get_templates_by_owner;
 pub mod test_update_template;
 pub mod test_upgrade_canister;

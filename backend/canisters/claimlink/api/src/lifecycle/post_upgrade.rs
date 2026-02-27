@@ -1,4 +1,4 @@
-use crate::{cycles::CyclesManagement, init::AuthordiedPrincipal};
+use crate::{cycles::CyclesManagement, init::AuthordiedPrincipal, pricing::MintPricingConfig};
 use bity_ic_types::BuildVersion;
 use candid::{CandidType, Nat, Principal};
 use minicbor::{Decode, Encode};
@@ -30,4 +30,8 @@ pub struct UpgradeArgs {
     pub new_authorized_principals: Option<Vec<AuthordiedPrincipal>>,
     #[cbor(n(10), with = "crate::cbor::principal::option")]
     pub ledger_canister_id: Option<Principal>,
+    #[n(11)]
+    pub mint_pricing: Option<MintPricingConfig>,
+    #[cbor(n(12), with = "crate::cbor::principal::option")]
+    pub icpswap_pool_canister_id: Option<Principal>,
 }

@@ -8,7 +8,9 @@ use claimlink_api::{
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
     metrics::{CanisterInfo, Metrics},
+    mint::{MintRequestId, MintRequestStatus, UploadedFileInfo},
     post_upgrade::UpgradeArgs,
+    pricing::{MintPricingConfig, OgyPriceData},
 };
 use std::{
     collections::{BTreeMap, HashSet},
@@ -24,6 +26,7 @@ use crate::{
             CollectionMetadata, CollectionRequest, InstallationStatus, OgyChargedAmount,
             OgyTransferIndex,
         },
+        mint_requests::MintRequest,
         templates::NftTemplateId,
         wasm::WasmHash,
     },
@@ -90,6 +93,8 @@ impl RuntimeState {
             max_template_per_owner,
             new_authorized_principals,
             ledger_canister_id,
+            mint_pricing,
+            icpswap_pool_canister_id,
         }: UpgradeArgs,
     ) -> Result<(), String> {
         if let Some(origyn_nft_wasm_hash) = origyn_nft_wasm_hash {
@@ -140,6 +145,14 @@ impl RuntimeState {
             self.data
                 .authorized_principals
                 .extend(new_authorized_principals);
+        }
+
+        if mint_pricing.is_some() {
+            self.data.mint_pricing = mint_pricing;
+        }
+
+        if icpswap_pool_canister_id.is_some() {
+            self.data.icpswap_pool_canister_id = icpswap_pool_canister_id;
         }
 
         self.env.set_version(build_version);
@@ -202,6 +215,16 @@ pub struct Data {
     pub reimbursement_queue: Vec<OgyTransferIndex>,
 
     pub base_url: Option<String>,
+
+    // Mint pricing
+    pub mint_pricing: Option<MintPricingConfig>,
+    pub ogy_price: Option<OgyPriceData>,
+    pub icpswap_pool_canister_id: Option<Principal>,
+
+    // Mint requests
+    pub mint_requests: BTreeMap<MintRequestId, MintRequest>,
+    pub next_mint_request_id: u64,
+    pub mint_refund_queue: Vec<MintRequestId>,
 }
 
 impl Data {
@@ -483,6 +506,146 @@ impl Data {
         self.template_owners.get(owner).unwrap_or(&vec![]).to_vec()
     }
 
+    // Mint request helpers
+    pub fn record_mint_request(
+        &mut self,
+        owner: Principal,
+        collection_canister_id: Principal,
+        ogy_payment_index: OgyTransferIndex,
+        ogy_charged: u128,
+        num_mints: u64,
+        allocated_bytes: u64,
+        created_at: TimestampNanos,
+    ) -> MintRequestId {
+        let id = self.next_mint_request_id;
+        self.next_mint_request_id += 1;
+
+        self.mint_requests.insert(
+            id,
+            MintRequest {
+                id,
+                owner,
+                collection_canister_id,
+                ogy_payment_index,
+                ogy_charged,
+                num_mints,
+                minted_count: 0,
+                allocated_bytes,
+                bytes_uploaded: 0,
+                uploaded_files: Vec::new(),
+                status: MintRequestStatus::Initialized,
+                created_at,
+                updated_at: created_at,
+            },
+        );
+
+        id
+    }
+
+    pub fn record_file_uploaded(
+        &mut self,
+        mint_request_id: MintRequestId,
+        file_path: String,
+        file_url: String,
+        file_size: u64,
+    ) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+
+        request.uploaded_files.push(UploadedFileInfo {
+            file_path,
+            file_url,
+            file_size,
+        });
+        request.updated_at = ic_cdk::api::time();
+    }
+
+    pub fn record_bytes_uploaded(&mut self, mint_request_id: MintRequestId, bytes: u64) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+        request.bytes_uploaded += bytes;
+        request.updated_at = ic_cdk::api::time();
+    }
+
+    pub fn record_nfts_minted(&mut self, mint_request_id: MintRequestId, count: u64) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+
+        request.minted_count += count;
+        request.updated_at = ic_cdk::api::time();
+
+        if request.minted_count == request.num_mints {
+            request.status = MintRequestStatus::Completed;
+            self.ogy_to_burn += request.ogy_charged;
+        }
+    }
+
+    pub fn record_mint_refund_requested(&mut self, mint_request_id: MintRequestId) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+
+        request.status = MintRequestStatus::RefundRequested;
+        request.updated_at = ic_cdk::api::time();
+
+        self.mint_refund_queue.push(mint_request_id);
+    }
+
+    pub fn record_mint_refunded(&mut self, mint_request_id: MintRequestId, tx_index: u128) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+
+        request.status = MintRequestStatus::Refunded {
+            tx_index: candid::Nat::from(tx_index),
+        };
+        request.updated_at = ic_cdk::api::time();
+
+        self.mint_refund_queue.retain(|id| *id != mint_request_id);
+    }
+
+    pub fn record_mint_refund_failed(&mut self, mint_request_id: MintRequestId, reason: String) {
+        let request = self
+            .mint_requests
+            .get_mut(&mint_request_id)
+            .expect("Bug: mint request should exist");
+
+        request.status = MintRequestStatus::RefundFailed { reason };
+        request.updated_at = ic_cdk::api::time();
+
+        self.mint_refund_queue.retain(|id| *id != mint_request_id);
+    }
+
+    pub fn update_ogy_price(&mut self, usd_per_ogy_e8s: u64) {
+        self.ogy_price = Some(OgyPriceData {
+            usd_per_ogy_e8s,
+            updated_at: ic_cdk::api::time(),
+        });
+    }
+
+    pub fn get_mint_request(&self, id: MintRequestId) -> Option<&MintRequest> {
+        self.mint_requests.get(&id)
+    }
+
+    pub fn get_mint_requests_by_owner(&self, owner: &Principal) -> Vec<&MintRequest> {
+        self.mint_requests
+            .values()
+            .filter(|r| r.owner == *owner)
+            .collect()
+    }
+
+    pub fn get_mint_refund_queue(&self) -> Vec<MintRequestId> {
+        self.mint_refund_queue.clone()
+    }
+
     pub fn get_active_collection_canister_ids(&self) -> Vec<Principal> {
         self.collection_requests
             .values()
@@ -550,6 +713,12 @@ impl TryFrom<InitArg> for RuntimeState {
                 total_ogy_burned: Default::default(),
                 next_template_id: Default::default(),
                 base_url: value.base_url,
+                mint_pricing: value.mint_pricing,
+                ogy_price: None,
+                icpswap_pool_canister_id: value.icpswap_pool_canister_id,
+                mint_requests: Default::default(),
+                next_mint_request_id: 0,
+                mint_refund_queue: Default::default(),
             },
         ))
     }

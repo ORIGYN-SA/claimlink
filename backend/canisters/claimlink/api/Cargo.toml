@@ -26,6 +26,7 @@ ic-stable-structures = { workspace = true }
 candid = { workspace = true }
 canfund = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+serde_bytes = { workspace = true }
 bity-ic-types = { workspace = true }
 minicbor = { workspace = true }
 num-bigint = { workspace = true }
