@@ -40,7 +40,7 @@ export const useMultiTokenBalance = (
 ) => {
   const {
     enabled = true,
-    refetchInterval = false,
+    refetchInterval = 10000, // 10 seconds default for balance refresh
     staleTime = 60 * 1000,
   } = options;
 

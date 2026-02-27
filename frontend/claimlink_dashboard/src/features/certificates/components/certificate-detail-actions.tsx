@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link2, Info, Pencil, Plus, Copy, QrCode } from "lucide-react";
+import { Link2, Info, Plus, Copy, QrCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { TokenStatusBadge } from "@/components/common/token-status-badge";
 import type { TokenStatus } from "@/components/common/token-card/token.types";
 import { cn } from "@/lib/utils";
 import { TransferOwnershipDialog } from "./transfer-ownership";
-import type { TransferOwnershipData } from "./transfer-ownership";
+import type { TransferOwnershipData, TransferResult } from "./transfer-ownership";
 import { toast } from "sonner";
 
 interface CertificateDetailActionsProps {
@@ -14,10 +14,10 @@ interface CertificateDetailActionsProps {
   currentStatus: TokenStatus;
   unclaimedStatus?: boolean;
   shareLink?: string;
-  onEditTemplate?: () => void;
+  // onEditTemplate?: () => void; // DISABLED: Certificate editing removed
   onLogEvent?: () => void;
   onDownloadQR?: () => void;
-  onTransferOwnership?: () => void;
+  onTransfer?: (data: TransferOwnershipData) => Promise<TransferResult>;
   className?: string;
 }
 
@@ -26,10 +26,10 @@ export function CertificateDetailActions({
   currentStatus,
   unclaimedStatus = false,
   shareLink = `https://claim.link/${certificateId}`,
-  onEditTemplate,
+  // onEditTemplate, // DISABLED: Certificate editing removed
   onLogEvent,
   onDownloadQR,
-  onTransferOwnership,
+  onTransfer,
   className,
 }: CertificateDetailActionsProps) {
   const [copySuccess, setCopySuccess] = useState(false);
@@ -49,15 +49,6 @@ export function CertificateDetailActions({
 
   const handleTransferClick = () => {
     setTransferDialogOpen(true);
-  };
-
-  const handleTransfer = async (data: TransferOwnershipData) => {
-    // Call the parent callback if provided
-    if (onTransferOwnership) {
-      await onTransferOwnership();
-    }
-    // Here you would implement the actual transfer logic
-    console.log("Transfer data:", data);
   };
 
   return (
@@ -105,10 +96,10 @@ export function CertificateDetailActions({
 
           {/* Action Buttons */}
           <div className="flex gap-4 items-center w-full">
-            {/* Edit Certificate Button */}
-            <button
+            {/* Edit Certificate Button - DISABLED: Certificates are immutable after minting */}
+            {/* <button
               onClick={onEditTemplate}
-              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
+              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
             >
               <span className="text-[14px] font-normal text-[#222526]">
                 Edit Certificate
@@ -116,12 +107,12 @@ export function CertificateDetailActions({
               <div className="bg-[#222526] rounded-2xl w-8 h-8 flex items-center justify-center">
                 <Pencil className="w-4 h-4 text-white" />
               </div>
-            </button>
+            </button> */}
 
             {/* Log New Event Button */}
             <button
               onClick={onLogEvent}
-              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow"
+              className="flex-1 bg-white rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] h-14 flex items-center justify-center gap-2.5 pl-6 pr-3 py-3 hover:shadow-[0px_4px_24px_0px_rgba(0,0,0,0.2)] transition-shadow cursor-pointer"
             >
               <span className="text-[14px] font-normal text-[#222526]">
                 Log New Event
@@ -199,7 +190,7 @@ export function CertificateDetailActions({
         open={transferDialogOpen}
         onOpenChange={setTransferDialogOpen}
         certificateId={certificateId}
-        onTransfer={handleTransfer}
+        onTransfer={onTransfer}
       />
     </div>
   );

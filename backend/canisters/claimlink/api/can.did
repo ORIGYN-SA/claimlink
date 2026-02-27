@@ -88,6 +88,10 @@ type GetCollectionsByOwnerArgs = record {
   owner : principal;
   pagination : PaginationArgs;
 };
+type GetCollectionsForUserArgs = record {
+  pagination : PaginationArgs;
+  user : principal;
+};
 type GetNftDetailsArgs = record {
   canister_id : principal;
   token_ids : vec nat;
@@ -197,6 +201,9 @@ service : (ClaimlinkArgs) -> {
   get_collections_by_owner : (GetCollectionsByOwnerArgs) -> (
       CollectionsResult,
     ) query;
+  get_collections_for_user : (GetCollectionsForUserArgs) -> (
+      CollectionsResult,
+    ) composite_query;
   get_metrics : () -> (Metrics) query;
   get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
   get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_3) query;

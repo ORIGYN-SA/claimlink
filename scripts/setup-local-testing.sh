@@ -123,9 +123,24 @@ build_claimlink() {
     print_success "ClaimLink canister built successfully"
 }
 
+# Deploy Internet Identity (local dev build with CAPTCHA disabled)
+deploy_internet_identity() {
+    print_section "Phase 3: Deploying Internet Identity (Local Dev Build)"
+
+    echo "Deploying local Internet Identity so delegations are signed on the same network..."
+    echo "  - CAPTCHA: disabled (dev build)"
+    echo ""
+
+    dfx deploy internet_identity
+
+    INTERNET_IDENTITY_ID=$(dfx canister id internet_identity)
+    print_success "Internet Identity deployed: $INTERNET_IDENTITY_ID"
+    echo "  Local II URL: http://${INTERNET_IDENTITY_ID}.localhost:4943"
+}
+
 # Deploy OGY Ledger
 deploy_ogy_ledger() {
-    print_section "Phase 3: Deploying OGY Ledger with Test Accounts"
+    print_section "Phase 4: Deploying OGY Ledger with Test Accounts"
 
     echo "Deploying with initial balances:"
     echo "  - test_user_100k: 100,000 OGY"
@@ -173,7 +188,7 @@ deploy_ogy_ledger() {
 
 # Deploy ClaimLink Backend
 deploy_claimlink_backend() {
-    print_section "Phase 4: Deploying ClaimLink Backend"
+    print_section "Phase 5: Deploying ClaimLink Backend"
 
     echo "Deploying with configuration:"
     echo "  - test_mode: true"
@@ -188,6 +203,9 @@ deploy_claimlink_backend() {
   authorized_principals = vec {
     record { name = \"controller\"; \"principal\" = principal \"$CONTROLLER_PRINCIPAL\"; };
     record { name = \"nfid\"; \"principal\" = principal \"mk3po-2rero-6inmo-h4i2f-bl64j-aztzo-xhpgm-odagi-qjncn-os2ve-zqe\"; };
+    record { name = \"wiseman\"; \"principal\" = principal \"eslzf-lwt23-6geyx-ocuze-y3agf-4wn3l-5ryg3-pnjoo-6uuok-oh4lc-4qe\"; };
+    record { name = \"local_internet_identity_1\"; \"principal\" = principal \"ruu54-pv5zf-xvvfd-m2ggl-sqdzf-avq6e-d753y-vtacc-rx3ap-r5pi4-3qe\"; };
+    record { name = \"local_internet_identity_2\"; \"principal\" = principal \"3qtry-zccon-jhzvv-tbf7h-3wxey-elmg3-nrsfn-opip2-vw3v7-p6ijw-xae\"; };
   };
   bank_principal_id = principal \"$BANK_PRINCIPAL\";
   cycles_management = record {
@@ -212,7 +230,7 @@ deploy_claimlink_backend() {
 
 # Generate frontend .env.local file
 generate_frontend_env() {
-    print_section "Phase 5: Generating Frontend Environment File"
+    print_section "Phase 6: Generating Frontend Environment File"
 
     FRONTEND_DIR="frontend/claimlink_dashboard"
     ENV_FILE="$FRONTEND_DIR/.env.local"
@@ -232,6 +250,9 @@ VITE_NFT_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_CERTIFICATE_CANISTER_ID=$CLAIMLINK_BACKEND_ID
 VITE_LEDGER_CANISTER_ID=$OGY_LEDGER_ID
 
+# Internet Identity (local dev build for authentication)
+VITE_INTERNET_IDENTITY_CANISTER_ID=$INTERNET_IDENTITY_ID
+
 # CRITICAL: Use local IC replica (port 4943 matches ORIGYN NFT test_mode URLs)
 VITE_IC_HOST=http://localhost:4943
 
@@ -245,7 +266,7 @@ EOF
 
 # Verify deployment
 verify_deployment() {
-    print_section "Phase 6: Verifying Deployment"
+    print_section "Phase 7: Verifying Deployment"
 
     # Check test user balances
     echo "Verifying test user balances..."
@@ -267,8 +288,9 @@ print_summary() {
     print_section "Setup Complete! 🎉"
 
     echo -e "${GREEN}Canister IDs:${NC}"
-    echo "  OGY Ledger:       $OGY_LEDGER_ID"
-    echo "  ClaimLink Backend: $CLAIMLINK_BACKEND_ID"
+    echo "  Internet Identity: $INTERNET_IDENTITY_ID (local dev build)"
+    echo "  OGY Ledger:        $OGY_LEDGER_ID"
+    echo "  ClaimLink Backend:  $CLAIMLINK_BACKEND_ID"
     echo ""
 
     echo -e "${GREEN}Test Principals:${NC}"
@@ -312,6 +334,7 @@ main() {
     # Run setup phases
     create_test_identities
     build_claimlink
+    deploy_internet_identity
     deploy_ogy_ledger
     deploy_claimlink_backend
     generate_frontend_env

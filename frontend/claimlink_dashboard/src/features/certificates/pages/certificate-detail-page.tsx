@@ -1,5 +1,4 @@
-import { useMemo, useRef } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useMemo, useRef, useState } from "react";
 import { CertificateDetailActions } from "../components/certificate-detail-actions";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
 import { CertificateViewer, type TemplateData } from "../components/certificate-viewer";
@@ -11,9 +10,17 @@ import type { CertificateLedgerData } from "../components/detail/certificate-led
 import { useCollectionTemplate } from "@/features/collections";
 import {
   generateOrigynViews,
+  DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
 import { toast } from "sonner";
+import {
+  extractTextFromMetadata,
+  extractImageFromMetadata,
+} from "../utils/metadata-extractors";
+import { Button } from "@/components/ui/button";
+import { useTransferCertificate } from "../api/certificates.queries";
+import type { TransferOwnershipData, TransferResult } from "../components/transfer-ownership";
 
 interface CertificateDetailPageProps {
   certificate: Certificate;
@@ -29,14 +36,33 @@ export function CertificateDetailPage({
   eventsData,
   ledgerData,
 }: CertificateDetailPageProps) {
-  const navigate = useNavigate();
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
+  const [selectedLanguage, setSelectedLanguage] = useState("en");
 
   // Fetch template for this collection from on-chain collection metadata
   const { data: templateStructure } = useCollectionTemplate({
     collectionId: certificate.canisterId || '',
     enabled: !!certificate.canisterId,
   });
+
+  // Get available languages from template or parsedMetadata
+  const availableLanguages = useMemo(() => {
+    // First try parsed metadata (from on-chain)
+    if (parsedMetadata?.templates?.languages && parsedMetadata.templates.languages.length > 0) {
+      return parsedMetadata.templates.languages.map((lang) => ({
+        code: lang.key || 'en',
+        name: lang.name || lang.key || 'English',
+      }));
+    }
+    // Then try template structure
+    if (templateStructure?.languages && templateStructure.languages.length > 0) {
+      return templateStructure.languages.map((lang) => ({
+        code: lang.code,
+        name: lang.name,
+      }));
+    }
+    return [{ code: "en", name: "English" }];
+  }, [parsedMetadata?.templates?.languages, templateStructure?.languages]);
 
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
@@ -52,7 +78,9 @@ export function CertificateDetailPage({
         metadata: parsedMetadata,
         canisterId,
         tokenId,
-        language: 'en',
+        language: selectedLanguage,
+        // Include background from template structure if available
+        background: templateStructure?.background,
       };
     }
 
@@ -79,6 +107,7 @@ export function CertificateDetailPage({
           library: [],
           tokenId,
           canisterId,
+          templateVersion: DEFAULT_TEMPLATE_VERSION,
         };
 
         return {
@@ -88,7 +117,9 @@ export function CertificateDetailPage({
           metadata: mockMetadata,
           canisterId,
           tokenId,
-          language: 'en',
+          language: selectedLanguage,
+          // Include background from template structure
+          background: templateStructure.background,
         };
       } catch (error) {
         console.error('Failed to generate template views:', error);
@@ -97,14 +128,46 @@ export function CertificateDetailPage({
     }
 
     return undefined;
-  }, [certificate, parsedMetadata, templateStructure]);
+  }, [certificate, parsedMetadata, templateStructure, selectedLanguage]);
 
-  const handleEditTemplate = () => {
-    navigate({
-      to: '/mint_certificate/$certificateId/edit',
-      params: { certificateId: `${certificate.canisterId}:${certificate.tokenId || certificate.id}` },
-    });
-  };
+  // Extract issuer info from on-chain metadata
+  const issuerInfo = useMemo(() => {
+    const canisterId = certificate.canisterId || '';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    if (parsedMetadata?.metadata) {
+      const companyLogo = extractImageFromMetadata(
+        parsedMetadata.metadata.company_logo,
+        canisterId,
+        tokenId
+      );
+      const companyName = extractTextFromMetadata(
+        parsedMetadata.metadata.certified_by
+      ) || extractTextFromMetadata(
+        parsedMetadata.metadata.company_name
+      ) || extractTextFromMetadata(
+        parsedMetadata.metadata.issued_by
+      );
+
+      return {
+        logo: companyLogo,
+        name: companyName || certificate.collectionName || 'ORIGYN',
+      };
+    }
+
+    return {
+      logo: undefined,
+      name: certificate.collectionName || 'ORIGYN',
+    };
+  }, [certificate, parsedMetadata]);
+
+  // DISABLED: Certificate editing has been removed. Certificates are immutable after minting.
+  // const handleEditTemplate = () => {
+  //   navigate({
+  //     to: '/mint_certificate/$certificateId/edit',
+  //     params: { certificateId: `${certificate.canisterId}:${certificate.tokenId || certificate.id}` },
+  //   });
+  // };
 
   const handleLogEvent = () => {
     // TODO: Open log event dialog/page
@@ -128,9 +191,22 @@ export function CertificateDetailPage({
     }
   };
 
-  const handleTransferOwnership = () => {
-    // TODO: Open transfer ownership dialog
-    console.log("Transfer ownership for certificate:", certificate.id);
+  const transferMutation = useTransferCertificate();
+
+  const handleTransfer = async (data: TransferOwnershipData): Promise<TransferResult> => {
+    const canisterId = certificate.canisterId || '';
+    const tokenId = certificate.tokenId || certificate.id;
+
+    const transactionIndex = await transferMutation.mutateAsync({
+      canisterId,
+      tokenId,
+      recipientPrincipal: data.principalId,
+    });
+
+    return {
+      transactionIndex,
+      recipientPrincipal: data.principalId,
+    };
   };
 
   return (
@@ -158,10 +234,10 @@ export function CertificateDetailPage({
           certificate.canisterId || '',
           certificate.tokenId || certificate.id
         )}
-        onEditTemplate={handleEditTemplate}
+        // onEditTemplate={handleEditTemplate} // DISABLED: Certificate editing removed
         onLogEvent={handleLogEvent}
         onDownloadQR={handleDownloadQR}
-        onTransferOwnership={handleTransferOwnership}
+        onTransfer={handleTransfer}
       />
 
       {/* Certificate Launchpad Section */}
@@ -174,12 +250,29 @@ export function CertificateDetailPage({
         }
         title={certificate.title}
         description={certificate.description || "Certificate details"}
-        issuerLogo="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=64&h=64&fit=crop"
-        issuerName={certificate.certifiedBy || "ORIGYN"}
+        issuerLogo={issuerInfo.logo}
+        issuerName={issuerInfo.name}
         canisterId={certificate.canisterId}
         tokenId={certificate.tokenId || certificate.id}
         className="bg-[#fcfafa] rounded-tl-2xl rounded-tr-2xl"
       />
+
+      {/* Language Selector (when template has multiple languages) */}
+      {availableLanguages.length > 1 && (
+        <div className="flex justify-center gap-2 flex-wrap py-2">
+          {availableLanguages.map((lang) => (
+            <Button
+              key={lang.code}
+              variant={selectedLanguage === lang.code ? "default" : "outline"}
+              size="sm"
+              onClick={() => setSelectedLanguage(lang.code)}
+              className={`text-xs sm:text-sm ${selectedLanguage === lang.code ? "bg-[#222526]" : ""}`}
+            >
+              {lang.name}
+            </Button>
+          ))}
+        </div>
+      )}
 
       {/* Certificate Viewer with Tabs */}
       <CertificateViewer

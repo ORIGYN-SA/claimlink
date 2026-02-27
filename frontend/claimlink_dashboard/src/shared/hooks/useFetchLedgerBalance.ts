@@ -44,7 +44,7 @@ const useFetchLedgerBalance = (
 ): UseFetchLedgerBalanceResult => {
   const {
     enabled = true,
-    refetchInterval = false,
+    refetchInterval = 10000, // 10 seconds default for balance refresh
     placeholderData = undefined,
     ledger,
     owner,

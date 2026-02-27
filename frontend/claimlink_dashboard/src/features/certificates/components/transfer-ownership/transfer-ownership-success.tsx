@@ -4,13 +4,15 @@ import { X } from "lucide-react";
 
 interface TransferOwnershipSuccessProps {
   onClose: () => void;
+  transactionIndex?: string;
   recipientAddress?: string;
   currentBalance?: string;
 }
 
 export function TransferOwnershipSuccess({
   onClose,
-  recipientAddress = "07537100b32fb7...6f6241e44b155e4c",
+  transactionIndex = "—",
+  recipientAddress = "—",
   currentBalance = "6,201.50 OGY",
 }: TransferOwnershipSuccessProps) {
   return (
@@ -56,7 +58,7 @@ export function TransferOwnershipSuccess({
               Index:
             </span>
             <span className="font-['General_Sans',sans-serif] font-semibold text-[18px] leading-[24px] text-[#222526]">
-              186876
+              {transactionIndex}
             </span>
           </div>
 

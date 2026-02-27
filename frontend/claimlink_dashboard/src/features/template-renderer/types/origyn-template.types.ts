@@ -110,6 +110,39 @@ export interface ElementsNode extends BaseTemplateNode {
 }
 
 /**
+ * Root node - the top-level container for a template tree.
+ * Contains template-wide configuration in addition to child nodes.
+ *
+ * This is the single source of truth for template data.
+ * The root node is always an 'elements' type with id='root'.
+ */
+export interface RootNode extends BaseTemplateNode {
+  type: 'elements';
+  id: 'root';
+  /** Child nodes in the template tree */
+  content: TemplateNode[];
+  /** Background configuration for certificate rendering */
+  background?: TemplateBackground;
+  /** Supported languages for multi-language content */
+  languages?: TemplateLanguageConfig[];
+  /** Field ID to use for search indexing */
+  searchIndexField?: string;
+}
+
+/**
+ * Background configuration for certificate rendering.
+ * Supports standard gradient or custom image/video backgrounds.
+ * Custom backgrounds are stored as base64 data URIs (max ~1.5MB).
+ */
+export interface TemplateBackground {
+  type: 'standard' | 'custom';
+  /** Base64 data URI for custom backgrounds (max ~1.5MB) */
+  dataUri?: string;
+  /** Media type for custom backgrounds */
+  mediaType?: 'image' | 'video';
+}
+
+/**
  * Collapsible section with accordion behavior
  */
 export interface SectionNode extends BaseTemplateNode {
@@ -269,6 +302,7 @@ export interface CertificateNode extends BaseTemplateNode {
  * Union type for all template nodes
  */
 export type TemplateNode =
+  | RootNode
   | ColumnsNode
   | ElementsNode
   | SectionNode
@@ -389,6 +423,8 @@ export interface ParsedOrigynMetadata {
   canisterId: string;
   /** Collection ID (for B2B storage) */
   collectionId?: string;
+  /** Template version this token was minted with. Defaults to '1.0.0' if absent. */
+  templateVersion: string;
 }
 
 // ============================================================================
@@ -398,10 +434,11 @@ export interface ParsedOrigynMetadata {
 /**
  * Template rendering variant - controls visual styling
  * - 'default': Standard template rendering
- * - 'certificate': Certificate view styling (centered, formal typography)
+ * - 'certificate': Certificate view styling (centered, formal typography, dark text)
+ * - 'custom-certificate': Custom background certificate (centered, formal typography, light text)
  * - 'information': Information tab styling (dark background, light text)
  */
-export type TemplateVariant = 'default' | 'certificate' | 'information';
+export type TemplateVariant = 'default' | 'certificate' | 'custom-certificate' | 'information';
 
 /**
  * Data source for rendering - either preview (local) or on-chain
@@ -501,6 +538,14 @@ export function isSeparatorNode(node: TemplateNode): node is SeparatorNode {
 
 export function isSectionNode(node: TemplateNode): node is SectionNode {
   return node.type === 'section';
+}
+
+export function isRootNode(node: TemplateNode): node is RootNode {
+  return node.type === 'elements' && node.id === 'root';
+}
+
+export function isHistoryNode(node: TemplateNode): node is HistoryNode {
+  return node.type === 'history';
 }
 
 /**

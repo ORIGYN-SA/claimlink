@@ -2,9 +2,9 @@ pub mod get_collection_count;
 pub mod get_collection_info;
 pub mod get_collection_nfts;
 pub mod get_collections_by_owner;
-pub mod get_nft_details;
-// pub mod get_user_nfts; // TODO: Temporarily commented out - see get_user_nfts.rs for details
+pub mod get_collections_for_user;
 pub mod get_metrics;
+pub mod get_nft_details;
 pub mod get_templates_by_owner;
 pub mod http_request;
 pub mod icrc_10;

@@ -44,6 +44,10 @@ export const NFID_LOCALHOST_TARGETS = import.meta.env
 export const NFID_DERIVATION_ORIGIN = import.meta.env
   .VITE_NFID_DERIVATION_ORIGIN;
 
+// Internet Identity canister ID (for local development)
+export const INTERNET_IDENTITY_CANISTER_ID = import.meta.env
+  .VITE_INTERNET_IDENTITY_CANISTER_ID;
+
 // Helper function to get NFID targets based on environment
 export const getNfidTargets = (): string[] => {
   // In development mode, include localhost URLs
@@ -67,4 +71,12 @@ export const getDerivationOrigin = (): string | undefined => {
     return NFID_DERIVATION_ORIGIN;
   }
   return undefined; // Production will use the actual domain
+};
+
+// Helper function to get local Internet Identity URL
+export const getLocalInternetIdentityUrl = (): string | undefined => {
+  if (APP_MODE === "development" && INTERNET_IDENTITY_CANISTER_ID) {
+    return `http://${INTERNET_IDENTITY_CANISTER_ID}.localhost:4943`;
+  }
+  return undefined;
 };

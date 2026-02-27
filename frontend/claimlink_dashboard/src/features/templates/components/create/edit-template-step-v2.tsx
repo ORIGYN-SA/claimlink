@@ -138,13 +138,35 @@ export function EditTemplateStepV2({
       return;
     }
 
+    // Enforce 5-field limit on Certificate section for data fields
+    const targetSection = state.template.structure.sections?.find(s => s.id === sectionId);
+    if (targetSection?.name === 'Certificate') {
+      const itemType = preset.item.type as string;
+      const isDataField = itemType !== 'image' && itemType !== 'title';
+      if (isDataField) {
+        const currentDataFields = targetSection.items.filter(
+          (item) => item.type !== 'image' && item.type !== 'title'
+        ).length;
+        if (currentDataFields >= 5) return;
+      }
+    }
+
     const updatedSections = state.template.structure.sections?.map(
       (section) => {
         if (section.id === sectionId) {
           const newOrder = section.items.length;
+          // Spread preset.item and convert readonly arrays to mutable
+          const newItem = {
+            ...preset.item,
+            order: newOrder,
+            // Spread acceptedFormats if present to convert from readonly to mutable
+            ...('acceptedFormats' in preset.item && preset.item.acceptedFormats
+              ? { acceptedFormats: [...preset.item.acceptedFormats] }
+              : {}),
+          } as TemplateItem;
           return {
             ...section,
-            items: [...section.items, { ...preset.item, order: newOrder }],
+            items: [...section.items, newItem],
           };
         }
         return section;
@@ -282,6 +304,25 @@ export function EditTemplateStepV2({
               </div>
             </div>
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-4">
+              {/* Simple/Advanced Mode Toggle (Advanced disabled for now) */}
+              <div className="flex rounded-lg border border-[#e1e1e1] overflow-hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="rounded-none bg-[#f1f6f9] text-[#222526] hover:bg-[#f1f6f9] text-xs"
+                >
+                  Simple Mode
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  disabled
+                  title="Advanced Mode - Coming Soon"
+                  className="rounded-none text-[#69737c] text-xs opacity-50 cursor-not-allowed"
+                >
+                  Advanced
+                </Button>
+              </div>
               {isScratchMode && onEditorModeChange && (
                 <Button
                   variant="outline"
@@ -371,7 +412,9 @@ export function EditTemplateStepV2({
             const isNeeded =
               (preset.semantic === 'title' && !validationResult.hasTitleField) ||
               (preset.semantic === 'image' && !validationResult.hasImageField) ||
-              (preset.semantic === 'description' && !validationResult.hasDescriptionField);
+              (preset.semantic === 'description' && !validationResult.hasDescriptionField) ||
+              (preset.semantic === 'company_logo' && !validationResult.hasCompanyLogoField) ||
+              (preset.semantic === 'company_name' && !validationResult.hasCompanyNameField);
 
             return (
               <Button

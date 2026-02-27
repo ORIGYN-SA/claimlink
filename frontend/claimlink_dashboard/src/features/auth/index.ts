@@ -12,7 +12,7 @@ export * from "./components/wallet-icons";
 
 // Authentication system
 export { AuthGate } from "./components/AuthGate";
-export { SessionExpiryWatcher } from "./components/SessionExpiryWatcher";
+
 export { useAuth } from "./hooks/useAuth";
 export type { AuthState, Canisters } from "./types/interfaces";
 export type { RouterContext, RouterAuthContext } from "./types/router-context";

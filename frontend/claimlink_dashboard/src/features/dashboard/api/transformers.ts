@@ -92,9 +92,9 @@ export function formatMintedDate(timestamp: bigint | null): string {
     const milliseconds = Number(timestamp / 1000000n);
     const date = new Date(milliseconds);
 
-    return date.toLocaleDateString('en-US', {
+    return date.toLocaleDateString('en-GB', {
       day: '2-digit',
-      month: 'short',
+      month: '2-digit',
       year: 'numeric',
     });
   } catch (error) {

@@ -213,20 +213,56 @@ Create `.env` file (see `env.example`):
 
 ### Template System Architecture
 
-Templates define the form structure for creating/editing certificates. Two formats exist:
+Templates define the form structure for creating/editing certificates. The system supports two formats with a compatibility layer:
 
-- **`TemplateStructure`** (ClaimLink format): Form definition with `sections[].items[]` containing field types, labels, validation, etc. Used by the frontend to render dynamic forms.
-- **`TemplateNode[]`** (ORIGYN format): Rendering layout with columns, elements, valueField. Stored on-chain in `public.metadata.template`.
+- **`TemplateStructure`** (Legacy ClaimLink format): Form definition with `sections[].items[]` containing field types, labels, validation. Used by the form editor.
+- **`TemplateNode[]`** (ORIGYN tree format): Rendering layout with nodes like `field`, `section`, `image`, `gallery`. Stored on-chain and used for certificate rendering.
+
+**Compatibility Layer:**
+A compatibility layer (`template-compat.ts`) allows working with either format:
+- `getTemplateFormat(template)` - Detect format ('tree', 'structure', 'empty')
+- `convertStructureToTree(structure)` - Convert legacy to tree format
+- `getUnifiedSections(template)` - Get sections from either format
+- `ensureTreeFormat(template)` - Convert to tree format if needed
 
 **Key files:**
-- `src/features/templates/types/template.types.ts` - TemplateStructure type definition
+- `src/features/templates/types/template.types.ts` - Type definitions
 - `src/features/templates/utils/template-serializer.ts` - Serialize/deserialize for ORIGYN storage
-- `src/shared/data/templates.ts` - Mock templates (Made in Italy, Gold Certificate)
+- `src/features/templates/utils/template-tree-utils.ts` - Tree manipulation utilities (findNodeById, addNode, removeNode, etc.)
+- `src/features/templates/utils/template-compat.ts` - Compatibility layer between formats
+- `src/features/templates/utils/simple-mode-constraints.ts` - Simple mode validation and node creation
+- `src/features/template-renderer/types/origyn-template.types.ts` - TemplateNode types (18 node types)
+- `src/features/template-renderer/utils/icrc3-converter.ts` - Convert form data to ICRC3 metadata for minting
+
+**Tree Manipulation Utilities:**
+```typescript
+// Core operations (immutable - returns new arrays)
+findNodeById(nodes, id)      // Find node by ID
+findNodesByType(nodes, type) // Find all nodes of a type
+addNode(nodes, parentId, node) // Add node to parent
+removeNode(nodes, nodeId)    // Remove node
+updateNode(nodes, nodeId, updates) // Update node properties
+moveNode(nodes, nodeId, newParentId, index) // Move node
+
+// Section operations
+getSectionNodes(nodes)       // Get all section nodes
+createSectionNode(id, title) // Create new section
+
+// Field extraction
+getAllFieldIds(nodes)        // Get all field IDs for validation
+extractFormFields(nodes)     // Extract form field definitions
+```
+
+**Multi-Language Support:**
+- Templates can define multiple languages in `RootNode.languages` or `TemplateStructure.languages`
+- Form fields support `LocalizedValue` objects: `{ en: "English text", RU: "Russian text" }`
+- Certificate detail pages have a language toggle when multiple languages exist
+- ICRC3 converter extracts primary language value for metadata, stores full localized content with `_localized` suffix
 
 **Template storage flow:**
-1. Collection creation: User selects template → stored in ORIGYN collection's `collection_metadata` as JSON
-2. Certificate creation: Template auto-loaded from collection (no separate selection)
-3. Certificate editing: `TemplateStructure` fetched from collection metadata to reconstruct form
+1. Collection creation: User selects/creates template → stored in ORIGYN collection's `collection_metadata` as JSON
+2. Certificate creation: Template auto-loaded from collection, form rendered dynamically
+3. Certificate viewing: Template fetched to render certificate with correct layout, language toggle available
 
 **Hooks:**
 - `useCollectionTemplate({ collectionId })` - Fetch template from collection metadata

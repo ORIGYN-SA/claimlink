@@ -90,6 +90,44 @@ export interface GetBlocksResult {
   archived_blocks: Array<ArchivedBlocks>;
 }
 
+// Update collection metadata args
+export interface UpdateCollectionMetadataArgs {
+  supply_cap: [] | [bigint];
+  tx_window: [] | [bigint];
+  default_take_value: [] | [bigint];
+  max_take_value: [] | [bigint];
+  max_update_batch_size: [] | [bigint];
+  max_query_batch_size: [] | [bigint];
+  max_memo_size: [] | [bigint];
+  atomic_batch_transfers: [] | [boolean];
+  permitted_drift: [] | [bigint];
+  name: [] | [string];
+  description: [] | [string];
+  logo: [] | [string];
+  max_canister_storage_threshold: [] | [bigint];
+  collection_metadata: [] | [Array<[string, ICRC3Value]>];
+  symbol: [] | [string];
+}
+
+// Update NFT metadata args
+export interface UpdateNftMetadataArgs {
+  token_id: bigint;
+  metadata: Array<[string, ICRC3Value]>;
+}
+
+// Error types for update methods
+export type UpdateCollectionMetadataError =
+  | { StorageCanisterError: string }
+  | { ConcurrentManagementCall: null };
+
+export type UpdateNftMetadataError =
+  | { StorageCanisterError: string }
+  | { TokenDoesNotExist: null }
+  | { ConcurrentManagementCall: null };
+
+export type UpdateCollectionMetadataResult = { Ok: null } | { Err: UpdateCollectionMetadataError };
+export type UpdateNftMetadataResult = { Ok: bigint } | { Err: UpdateNftMetadataError };
+
 // ICRC7 standard methods
 export interface _SERVICE {
   // Minting
@@ -120,4 +158,8 @@ export interface _SERVICE {
   icrc7_name: ActorMethod<[], string>;
   icrc7_description: ActorMethod<[], [] | [string]>;
   icrc7_logo: ActorMethod<[], [] | [string]>;
+
+  // Update methods
+  update_collection_metadata: ActorMethod<[UpdateCollectionMetadataArgs], UpdateCollectionMetadataResult>;
+  update_nft_metadata: ActorMethod<[UpdateNftMetadataArgs], UpdateNftMetadataResult>;
 }

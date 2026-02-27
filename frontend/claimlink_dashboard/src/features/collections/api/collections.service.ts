@@ -22,6 +22,10 @@ import {
   deserializeTemplateFromOrigyn,
 } from '@/features/templates/utils/template-serializer';
 import { TemplateService } from '@/features/templates';
+import {
+  CURRENT_TEMPLATE_VERSION,
+  TEMPLATE_VERSION_KEY,
+} from '@/features/template-renderer/version';
 
 /**
  * Create a ClaimLink canister actor
@@ -403,7 +407,10 @@ export class CollectionsService {
       tx_window: [],
       permitted_drift: [],
       max_canister_storage_threshold: [],
-      collection_metadata: [[serializedTemplate]],
+      collection_metadata: [[
+        serializedTemplate,
+        [TEMPLATE_VERSION_KEY, { Text: CURRENT_TEMPLATE_VERSION }],
+      ]],
     });
 
     if ('Err' in result) {
@@ -510,6 +517,55 @@ export class CollectionsService {
     } catch (error) {
       console.warn('Failed to fetch collection logo from ORIGYN metadata:', error);
       return '';
+    }
+  }
+
+  /**
+   * Get collection name and description from ORIGYN canister
+   *
+   * ORIGYN is the authoritative source for editable collection metadata.
+   * ClaimLink backend stores registry data (owner, status, dates) but
+   * name/description should always be read from ORIGYN.
+   *
+   * @param agent - IC agent (can be unauthenticated for reads)
+   * @param collectionCanisterId - The collection's canister ID
+   * @returns Object with name and description (may be undefined if not set)
+   */
+  static async getOrigynCollectionInfo(
+    agent: Agent,
+    collectionCanisterId: string
+  ): Promise<{ name?: string; description?: string }> {
+    try {
+      const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
+      type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
+
+      const actor = createCanisterActor<OrigynNftService>(
+        agent,
+        collectionCanisterId,
+        origynIdlFactory
+      );
+
+      // Fetch collection metadata via ICRC7
+      const metadata = await actor.icrc7_collection_metadata();
+
+      let name: string | undefined;
+      let description: string | undefined;
+
+      // Parse name and description from metadata
+      // ICRC7 metadata is an array of [string, ICRC3Value] tuples
+      for (const [key, value] of metadata) {
+        if ((key === 'icrc7:name' || key === 'name') && 'Text' in value) {
+          name = value.Text;
+        }
+        if ((key === 'icrc7:description' || key === 'description') && 'Text' in value) {
+          description = value.Text;
+        }
+      }
+
+      return { name, description };
+    } catch (error) {
+      console.warn('Failed to fetch collection info from ORIGYN metadata:', error);
+      return {};
     }
   }
 

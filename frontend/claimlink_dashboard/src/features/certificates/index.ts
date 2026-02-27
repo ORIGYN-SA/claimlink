@@ -48,6 +48,7 @@ export {
   useCertificateTransactionHistory,
   useMintCertificate,
   useMintCertificateWithTemplate,
+  useTransferCertificate,
   useUpdateCertificateWithTemplate,
   useUploadCertificateImage,
   type CertificateWithParsedMetadata,

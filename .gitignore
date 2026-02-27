@@ -9,3 +9,4 @@ backend/integration_tests/pocket-ic
 node_modules
 cobertura.xml
 declarations
+.local-test-principals

@@ -161,6 +161,23 @@ export interface TemplateTranslations {
 }
 
 // ============================================================================
+// Background Types
+// ============================================================================
+
+/**
+ * Template background configuration
+ * Supports standard gradient or custom image/video backgrounds
+ * Custom backgrounds are stored as base64 data URIs (max ~1.5MB to fit within 2MB template limit)
+ */
+export interface TemplateBackground {
+  type: 'standard' | 'custom';
+  /** Base64 data URI for custom backgrounds (max ~1.5MB) */
+  dataUri?: string;
+  /** Media type for custom backgrounds */
+  mediaType?: 'image' | 'video';
+}
+
+// ============================================================================
 // Complete Template Structure
 // ============================================================================
 
@@ -169,6 +186,8 @@ export interface TemplateStructure {
   languages: TemplateLanguage[];
   translations?: TemplateTranslations;
   searchIndexField?: string; // Field ID to use as search index
+  /** Background configuration for certificate rendering */
+  background?: TemplateBackground;
   metadata?: {
     version?: string;
     createdBy?: string;
@@ -182,11 +201,37 @@ export interface TemplateStructure {
 // ============================================================================
 
 /**
+ * Localized value for multi-language support
+ * Key is the language code (e.g., 'en', 'it'), value is the text in that language
+ */
+export interface LocalizedValue {
+  [languageCode: string]: string;
+}
+
+/**
  * Form data structure when creating a certificate from a template
  * Key is the item ID, value is the user's input
+ *
+ * For text fields with multi-language support, the value can be a LocalizedValue
+ * object containing translations for each supported language.
  */
 export interface CertificateFormData {
-  [itemId: string]: string | string[] | File | File[];
+  [itemId: string]: string | string[] | File | File[] | LocalizedValue;
+}
+
+/**
+ * Check if a value is a LocalizedValue object
+ */
+export function isLocalizedValue(value: unknown): value is LocalizedValue {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false;
+  }
+  // Check if it's a File
+  if (value instanceof File) {
+    return false;
+  }
+  // Check that all values are strings
+  return Object.values(value).every(v => typeof v === 'string');
 }
 
 /**
@@ -251,11 +296,20 @@ export interface PaginationState {
 // Template Types (Frontend)
 // ============================================================================
 
+// Import tree types for the new format
+import type { TemplateNode } from '@/features/template-renderer/types/origyn-template.types';
+
 /**
  * Frontend Template type
  *
  * This is the main template type used throughout the frontend.
  * When stored in the backend, the relevant fields are serialized to JSON.
+ *
+ * Supports two formats during migration:
+ * - `structure`: Legacy TemplateStructure format (sections/items)
+ * - `tree`: New TemplateNode[] tree format (preferred)
+ *
+ * Components should prefer `tree` when available and fall back to `structure`.
  */
 export interface Template {
   id: string; // String version of backend template_id for frontend use
@@ -267,9 +321,19 @@ export interface Template {
   updatedAt?: Date;
   thumbnail?: string;
   metadata?: Record<string, unknown>;
-  // Template structure with sections and items
+  /**
+   * Legacy template structure with sections and items
+   * @deprecated Use `tree` instead
+   */
   structure?: TemplateStructure;
+  /**
+   * New template tree format - array of TemplateNode
+   * This is the preferred format going forward.
+   */
+  tree?: TemplateNode[];
 }
+
+export { type TemplateNode };
 
 // ============================================================================
 // Backend Template Types

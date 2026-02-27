@@ -1,7 +1,8 @@
 /**
  * Template Utilities
- * 
- * Helper functions for working with templates, sections, and items
+ *
+ * Helper functions for working with templates, sections, and items.
+ * Updated to support both legacy TemplateStructure and new TemplateNode[] formats.
  */
 
 import type { Template } from '@/shared/data/templates';
@@ -17,17 +18,112 @@ import type {
   CertificateFormData,
   ValidationResult,
 } from '@/features/templates/types/template.types';
+import { isLocalizedValue } from '@/features/templates/types/template.types';
+import {
+  getTemplateFormat,
+  getUnifiedSections,
+  getUnifiedLanguages,
+  type UnifiedItem,
+} from './template-compat';
 
 // ============================================================================
 // Template Getters
 // ============================================================================
 
 /**
- * Get all sections from a template, sorted by order
+ * Get all sections from a template, sorted by order.
+ * Works with both legacy TemplateStructure and new tree formats.
+ *
+ * Note: For new code, prefer using getUnifiedSections() from template-compat.ts
+ * which returns a format-agnostic representation.
  */
 export function getTemplateSections(template: Template): TemplateSection[] {
+  // Check if using tree format
+  if (getTemplateFormat(template) === 'tree') {
+    // Convert unified sections to legacy TemplateSection format for compatibility
+    const unified = getUnifiedSections(template);
+    return unified.map((section) => ({
+      id: section.id,
+      name: section.name as TemplateSection['name'],
+      order: section.order,
+      items: section.items.map((item) => convertUnifiedItemToTemplateItem(item)),
+      collapsible: section.collapsible,
+      description: section.description,
+    }));
+  }
+
+  // Legacy format
   if (!template.structure?.sections) return [];
   return [...template.structure.sections].sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Convert a unified item to legacy TemplateItem format
+ */
+function convertUnifiedItemToTemplateItem(item: UnifiedItem): TemplateItem {
+  const base = {
+    id: item.id,
+    label: item.label,
+    order: item.order,
+    required: item.required,
+    immutable: item.immutable,
+    description: item.description,
+  };
+
+  switch (item.type) {
+    case 'title':
+      return {
+        ...base,
+        type: 'title',
+        defaultValue: item.defaultValue,
+      } as TitleItem;
+
+    case 'input':
+      return {
+        ...base,
+        type: 'input',
+        inputType: item.inputType || 'text',
+        placeholder: item.placeholder,
+        multiline: item.inputType === 'textarea',
+      } as InputItem;
+
+    case 'badge':
+      return {
+        ...base,
+        type: 'badge',
+        badgeStyle: (item.badgeStyle as any) || 'default',
+        defaultValue: item.defaultValue,
+      } as BadgeItem;
+
+    case 'image':
+      return {
+        ...base,
+        type: 'image',
+        multiple: item.multiple,
+        maxImages: item.maxImages,
+        acceptVideo: item.acceptVideo,
+      } as ImageItem;
+
+    case 'video':
+      return {
+        ...base,
+        type: 'video',
+      } as VideoItem;
+
+    case 'readonly':
+      return {
+        ...base,
+        type: 'readonly',
+        defaultValue: item.defaultValue,
+      } as any;
+
+    default:
+      return {
+        ...base,
+        type: 'input',
+        inputType: 'text',
+      } as InputItem;
+  }
 }
 
 /**
@@ -154,9 +250,13 @@ export function validateField(
   item: TemplateItem,
   value: any
 ): { isValid: boolean; error?: string } {
-  // For immutable fields with default values, consider the default as the value
-  // This handles cases where badge fields display defaults but form state might not have them
+  // Extract primary string value from LocalizedValue objects
+  // Multi-language mode stores values as { en: "value", it: "valore" }
   let effectiveValue = value;
+  if (isLocalizedValue(value)) {
+    const values = Object.values(value);
+    effectiveValue = values.find((v) => v !== '') ?? values[0] ?? '';
+  }
   if (item.immutable && !value) {
     if (isBadgeItem(item) && item.defaultValue) {
       effectiveValue = item.defaultValue;
@@ -174,14 +274,14 @@ export function validateField(
   }
 
   // Skip validation if value is empty and not required
-  if (!value && !item.required) {
+  if (!effectiveValue && !item.required) {
     return { isValid: true };
   }
 
   // Type-specific validation
   if (isInputItem(item) && item.validation) {
     const validation = item.validation;
-    const strValue = String(value);
+    const strValue = String(effectiveValue);
 
     // Min length
     if (validation.minLength && strValue.length < validation.minLength) {
@@ -409,16 +509,25 @@ export function getSearchIndexField(template: Template): TemplateItem | undefine
 // ============================================================================
 
 /**
- * Get default language from template
+ * Get default language from template.
+ * Works with both legacy TemplateStructure and new tree formats.
  */
 export function getDefaultLanguage(template: Template) {
-  return template.structure?.languages.find((lang) => lang.isDefault);
+  const languages = getTemplateLanguages(template);
+  return languages.find((lang) => lang.isDefault) || languages[0];
 }
 
 /**
- * Get available languages from template
+ * Get available languages from template.
+ * Works with both legacy TemplateStructure and new tree formats.
  */
 export function getTemplateLanguages(template: Template) {
+  // Check if using tree format
+  if (getTemplateFormat(template) === 'tree') {
+    return getUnifiedLanguages(template);
+  }
+
+  // Legacy format
   return template.structure?.languages || [];
 }
 

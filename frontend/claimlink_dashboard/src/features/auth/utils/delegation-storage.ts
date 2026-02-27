@@ -17,9 +17,9 @@ export const saveDelegationToStorage = (user: any, _agent: any) => {
     const principalId = user.principal.toText()
     localStorage.setItem(STORAGE_KEY_PRINCIPAL, principalId)
 
-    // Calculate and store expiry time (1 week from now, matching maxTimeToLive)
-    const oneWeekInMs = 7 * 24 * 60 * 60 * 1000
-    const expiryTime = Date.now() + oneWeekInMs
+    // Calculate and store expiry time (1 day from now, matching maxTimeToLive)
+    const oneDayInMs = 24 * 60 * 60 * 1000
+    const expiryTime = Date.now() + oneDayInMs
     localStorage.setItem(STORAGE_KEY_EXPIRY, expiryTime.toString())
 
     console.log('[Auth] Session info saved to localStorage', { principalId })

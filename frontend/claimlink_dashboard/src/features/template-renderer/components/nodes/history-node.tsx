@@ -14,7 +14,7 @@ interface HistoryNodeProps {
 export function HistoryNode({ node }: HistoryNodeProps) {
   // For now, show a basic minted event
   // TODO: Parse actual history records from metadata
-  const currentDate = new Date().toDateString();
+  const currentDate = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   return (
     <div className={cn('ml-5 pl-5 border-l border-[#afafaf]', node.className)}>

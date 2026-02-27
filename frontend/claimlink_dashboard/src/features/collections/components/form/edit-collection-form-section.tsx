@@ -1,21 +1,16 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ImageUploadSection } from '@/components/common';
-
-interface Template {
-  id: string;
-  name: string;
-}
 
 interface EditCollectionFormSectionProps {
   collectionName: string;
   onCollectionNameChange: (value: string) => void;
-  selectedTemplate: string;
-  onTemplateChange: (value: string) => void;
-  templates: Template[];
+  description: string;
+  onDescriptionChange: (value: string) => void;
   onSubmit: () => void;
+  isSubmitting?: boolean;
   // Image upload props
   imagePreviewUrl: string | null;
   onImageFileSelect: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -32,10 +27,10 @@ interface EditCollectionFormSectionProps {
 export function EditCollectionFormSection({
   collectionName,
   onCollectionNameChange,
-  selectedTemplate,
-  onTemplateChange,
-  templates,
+  description,
+  onDescriptionChange,
   onSubmit,
+  isSubmitting = false,
   imagePreviewUrl,
   onImageFileSelect,
   onImageRemove,
@@ -72,37 +67,34 @@ export function EditCollectionFormSection({
               onChange={(e) => onCollectionNameChange(e.target.value)}
               placeholder="Collection Name"
               className="rounded-full border-[#e1e1e1] h-11"
+              disabled={isSubmitting}
             />
           </div>
 
-          {/* Template Selection */}
+          {/* Description */}
           <div className="space-y-2">
             <label className="text-[#69737c] font-medium text-sm">
-              Select your template
+              Description
             </label>
-            <Select value={selectedTemplate} onValueChange={onTemplateChange}>
-              <SelectTrigger className="rounded-full border-[#e1e1e1] h-11 w-full">
-                <SelectValue placeholder="Choose a template" />
-              </SelectTrigger>
-              <SelectContent>
-                {templates.map((template) => (
-                  <SelectItem key={template.id} value={template.id}>
-                    {template.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Textarea
+              value={description}
+              onChange={(e) => onDescriptionChange(e.target.value)}
+              placeholder="Describe your collection"
+              className="border-[#e1e1e1] min-h-[100px] resize-none"
+              disabled={isSubmitting}
+            />
           </div>
         </CardContent>
       </Card>
 
       {/* Update Button */}
       <div className="flex justify-end pt-6">
-        <Button 
+        <Button
           onClick={onSubmit}
+          disabled={isSubmitting}
           className="bg-[#222526] hover:bg-[#222526]/90 rounded-full px-6 py-3 text-white font-medium"
         >
-          Update your collection
+          {isSubmitting ? 'Updating...' : 'Update your collection'}
         </Button>
       </div>
     </div>

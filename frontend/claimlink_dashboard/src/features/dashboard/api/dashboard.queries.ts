@@ -24,6 +24,10 @@ export const dashboardKeys = {
     [...dashboardKeys.all, "statusCounts", principalId] as const,
   recentCertificates: (principalId?: string, limit?: number) =>
     [...dashboardKeys.all, "recentCertificates", principalId, limit] as const,
+  recentOwners: (principalId?: string, limit?: number) =>
+    [...dashboardKeys.all, "recentOwners", principalId, limit] as const,
+  sentCertificates: (principalId?: string, limit?: number) =>
+    [...dashboardKeys.all, "sentCertificates", principalId, limit] as const,
 };
 
 /**
@@ -115,6 +119,58 @@ export const useDashboardRecentCertificates = (limit: number = 9) => {
       }
 
       return await DashboardService.getRecentCertificates(
+        authenticatedAgent,
+        principalId,
+        limit,
+      );
+    },
+    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+  });
+};
+
+/**
+ * Fetch recent certificate owners (unique principals who own transferred certificates)
+ * Used for "Last Certificate Owners" dashboard section
+ */
+export const useDashboardRecentOwners = (limit: number = 5) => {
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
+
+  return useQuery({
+    queryKey: dashboardKeys.recentOwners(principalId, limit),
+    queryFn: async () => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error("Not authenticated");
+      }
+
+      return await DashboardService.getRecentCertificateOwners(
+        authenticatedAgent,
+        principalId,
+        limit,
+      );
+    },
+    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 1,
+  });
+};
+
+/**
+ * Fetch recently sent (transferred) certificates
+ * Used for "Last Sent Certificates" dashboard section
+ */
+export const useDashboardSentCertificates = (limit: number = 5) => {
+  const { authenticatedAgent, principalId, isConnected } = useAuth();
+
+  return useQuery({
+    queryKey: dashboardKeys.sentCertificates(principalId, limit),
+    queryFn: async () => {
+      if (!authenticatedAgent || !principalId) {
+        throw new Error("Not authenticated");
+      }
+
+      return await DashboardService.getRecentSentCertificates(
         authenticatedAgent,
         principalId,
         limit,

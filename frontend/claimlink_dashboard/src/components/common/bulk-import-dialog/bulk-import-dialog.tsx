@@ -74,12 +74,12 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="w-[720px] p-0 border-0 overflow-hidden !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2 !z-[9999]"
+        className="w-full max-w-[720px] mx-4 sm:mx-auto p-0 border-0 overflow-hidden !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2 !z-[9999]"
         showCloseButton
       >
-        <div className="bg-white rounded-[20px] border border-[#e1e1e1]">
+        <div className="bg-white rounded-[20px] border border-[#e1e1e1] max-h-[90vh] overflow-y-auto">
           {/* Header */}
-          <div className="px-8 pt-8 pb-4 text-center">
+          <div className="px-4 pt-4 pb-3 sm:px-8 sm:pt-8 sm:pb-4 text-center">
             <DialogTitle className="text-[#222526] text-xl font-semibold mb-2">Bulk import</DialogTitle>
             <DialogDescription className="text-[#69737c] text-[13px]">
               Fusce ultricies nibh ac magna molestie tempor. Pellentesque molestie ante ut orci venenatis, sit amet.
@@ -87,17 +87,17 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
           </div>
 
           {/* Actions */}
-          <div className="px-8 pb-6 flex items-center justify-center gap-3">
-            <Button className="rounded-full h-10 px-5 bg-[#222526] text-white hover:bg-[#222526]/90" onClick={handleUploadClick}>
+          <div className="px-4 sm:px-8 pb-4 sm:pb-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3">
+            <Button className="rounded-full h-10 px-5 bg-[#222526] text-white hover:bg-[#222526]/90 w-full sm:w-auto text-sm" onClick={handleUploadClick}>
               Import CSV template
             </Button>
-            <Button variant="outline" className="rounded-full h-10 px-5" onClick={handleDownloadTemplate}>
+            <Button variant="outline" className="rounded-full h-10 px-5 w-full sm:w-auto text-sm" onClick={handleDownloadTemplate}>
               Download CSV template
             </Button>
           </div>
 
           {/* CSV Upload (inline, collapses once selected) */}
-          <div className="px-8 pb-6">
+          <div className="px-4 sm:px-8 pb-4 sm:pb-6">
             <CsvUploadSection
               fileName={fileName}
               onFileSelect={handleFileSelect}
@@ -110,9 +110,9 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
           </div>
 
           {/* Table */}
-          <div className="px-6 pb-6">
-            <div className="overflow-hidden rounded-[16px] border border-[#efece3]">
-              <Table>
+          <div className="px-3 sm:px-6 pb-4 sm:pb-6">
+            <div className="overflow-hidden rounded-[16px] border border-[#efece3] overflow-x-auto">
+              <Table className="text-xs sm:text-sm">
                 <TableHeader>
                   <TableRow className="bg-[#222526]">
                     <TableHead className="text-white">Import ID</TableHead>
@@ -124,7 +124,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
                 <TableBody>
                   {pagedRows.map((row, idx) => (
                     <TableRow key={idx} className="bg-white">
-                      <TableCell className="text-[#222526]">{row.id}</TableCell>
+                      <TableCell className="text-[#222526] max-w-[100px] sm:max-w-none truncate">{row.id}</TableCell>
                       <TableCell className="text-[#222526]">{row.fileName}</TableCell>
                       <TableCell className="text-[#222526]">{row.date}</TableCell>
                       <TableCell>{statusBadge(row.status)}</TableCell>
@@ -142,7 +142,7 @@ export function BulkImportDialog({ open, onOpenChange }: BulkImportDialogProps) 
                 setItemsPerPage(n);
                 setCurrentPage(1);
               }}
-              className="px-6"
+              className="px-2 sm:px-6"
               contentClassName="!z-[10000]"
             />
           </div>

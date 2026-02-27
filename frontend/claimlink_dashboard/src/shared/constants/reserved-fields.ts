@@ -25,7 +25,6 @@ export const RESERVED_FIELDS = {
     'title',
     'certificate_title',
     'product_name',
-    'company_name',
   ] as const,
 
   /**
@@ -52,6 +51,20 @@ export const RESERVED_FIELDS = {
   DESCRIPTION: ['short_description', 'description', 'about'] as const,
 
   /**
+   * Fields used for company logo display in certificate header.
+   * Logo is inverted to white for visibility on the dark navy header.
+   * @see CertificateFrame component
+   */
+  COMPANY_LOGO: ['company_logo', 'logo', 'brand_logo'] as const,
+
+  /**
+   * Fields used for company/issuer name display (e.g., "Issued By: Federitaly").
+   * Used in certificate launchpad and detail views.
+   * @see CertificateLaunchpad component
+   */
+  COMPANY_NAME: ['certified_by', 'issued_by', 'company_name', 'issuer_name', 'brand_name'] as const,
+
+  /**
    * Fields that can auto-detect as search index.
    * Matched by label containing these keywords.
    * @see view-generator.ts
@@ -70,7 +83,7 @@ export const ALL_IMAGE_FIELDS = [
 /**
  * Semantic field types for the UI
  */
-export type SemanticFieldType = 'title' | 'image' | 'description' | 'custom';
+export type SemanticFieldType = 'title' | 'image' | 'description' | 'company_logo' | 'company_name' | 'custom';
 
 /**
  * Recommended default field IDs for each semantic type.
@@ -83,6 +96,8 @@ export const RECOMMENDED_FIELD_IDS: Record<
   title: 'name',
   image: 'product_images',
   description: 'short_description',
+  company_logo: 'company_logo',
+  company_name: 'certified_by',
 };
 
 /**
@@ -107,13 +122,29 @@ export function isDescriptionFieldId(fieldId: string): boolean {
 }
 
 /**
+ * Check if a field ID is reserved for company logo display
+ */
+export function isCompanyLogoFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_LOGO as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for company/issuer name display
+ */
+export function isCompanyNameFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_NAME as readonly string[]).includes(fieldId);
+}
+
+/**
  * Check if a field ID is reserved for any semantic purpose
  */
 export function isReservedFieldId(fieldId: string): boolean {
   return (
     isTitleFieldId(fieldId) ||
     isImageFieldId(fieldId) ||
-    isDescriptionFieldId(fieldId)
+    isDescriptionFieldId(fieldId) ||
+    isCompanyLogoFieldId(fieldId) ||
+    isCompanyNameFieldId(fieldId)
   );
 }
 
@@ -125,6 +156,8 @@ export function getAllReservedFieldIds(): string[] {
     ...RESERVED_FIELDS.TITLE,
     ...ALL_IMAGE_FIELDS,
     ...RESERVED_FIELDS.DESCRIPTION,
+    ...RESERVED_FIELDS.COMPANY_LOGO,
+    ...RESERVED_FIELDS.COMPANY_NAME,
   ];
 }
 
@@ -137,5 +170,7 @@ export function getFieldSemanticPurpose(
   if (isTitleFieldId(fieldId)) return 'title';
   if (isImageFieldId(fieldId)) return 'image';
   if (isDescriptionFieldId(fieldId)) return 'description';
+  if (isCompanyLogoFieldId(fieldId)) return 'company_logo';
+  if (isCompanyNameFieldId(fieldId)) return 'company_name';
   return null;
 }
