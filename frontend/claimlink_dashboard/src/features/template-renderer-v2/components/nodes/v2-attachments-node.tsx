@@ -1,41 +1,33 @@
 /**
- * Attachments Node Component
+ * V2 Attachments Node
  *
- * Renders a list of downloadable file attachments.
+ * File download list bound to a field.
+ * Variant-aware: information variant uses pill buttons, default uses card grid.
  */
 
 import { FileText, Download } from 'lucide-react';
-import type { AttachmentsNode as AttachmentsNodeType } from '../../types';
-import { useTemplateContext } from '../../context/template-context';
+import type { V2AttachmentsNode as V2AttachmentsNodeType } from '../../types';
+import { useV2Context } from '../../context/v2-template-context';
 import { cn } from '@/lib/utils';
 
-interface AttachmentsNodeProps {
-  node: AttachmentsNodeType;
+interface V2AttachmentsNodeProps {
+  node: V2AttachmentsNodeType;
+  variant: 'certificate' | 'custom-certificate' | 'information' | 'default';
 }
 
-export function AttachmentsNode({ node }: AttachmentsNodeProps) {
-  const { getFileArray, resolveAssetUrl, variant } = useTemplateContext();
+export function V2AttachmentsNode({ node, variant }: V2AttachmentsNodeProps) {
+  const { getFileArray, resolveAssetUrl } = useV2Context();
 
-  // Get attachments from metadata
-  const files = getFileArray(node.pointer);
+  const files = getFileArray(node.fieldId);
+  if (!files?.length) return null;
 
-  if (!files?.length) {
-    return null;
-  }
-
-  // Information variant: pill-shaped download buttons on dark background
+  // Information variant: pill-shaped download buttons
   if (variant === 'information') {
     return (
-      <div
-        className={cn(
-          'flex flex-col gap-4 w-full',
-          node.className
-        )}
-      >
+      <div className={cn('flex flex-col gap-4 w-full', node.className)}>
         {files.map((file, index) => {
           const fileUrl = resolveAssetUrl(file.path);
           const fileName = file.path.split('/').pop() || file.path;
-
           return (
             <a
               key={file.id || index}
@@ -59,18 +51,12 @@ export function AttachmentsNode({ node }: AttachmentsNodeProps) {
     );
   }
 
-  // Default variant: card grid
+  // Default / certificate variant: card grid
   return (
-    <div
-      className={cn(
-        'grid grid-cols-2 sm:grid-cols-1 gap-9 max-w-[660px] mx-auto',
-        node.className
-      )}
-    >
+    <div className={cn('grid grid-cols-2 sm:grid-cols-1 gap-9 max-w-[660px] mx-auto', node.className)}>
       {files.map((file, index) => {
         const fileUrl = resolveAssetUrl(file.path);
         const fileName = file.path.split('/').pop() || file.path;
-
         return (
           <div
             key={file.id || index}

@@ -6,16 +6,16 @@
  * renderer can be selected when viewing.
  */
 
-import type { ComponentType } from 'react';
+import type { ComponentType } from "react";
 
 /** Current template version stamped on newly minted tokens. */
-export const CURRENT_TEMPLATE_VERSION = '1.0.0';
+export const CURRENT_TEMPLATE_VERSION = "1.0.0";
 
 /** Fallback version assigned to tokens that have no version field. */
-export const DEFAULT_TEMPLATE_VERSION = '1.0.0';
+export const DEFAULT_TEMPLATE_VERSION = "1.0.0";
 
 /** ICRC3 metadata key used to store the template version. */
-export const TEMPLATE_VERSION_KEY = 'claimlink.template.version';
+export const TEMPLATE_VERSION_KEY = "claimlink.template.version";
 
 /** A version string (semver). */
 export type TemplateVersion = string;

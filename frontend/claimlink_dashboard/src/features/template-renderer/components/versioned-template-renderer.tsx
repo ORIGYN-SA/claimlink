@@ -20,10 +20,16 @@ export interface VersionedTemplateRendererProps {
   /**
    * Data source for the renderer. Shape depends on the version:
    * - v1: { type: 'onchain', metadata: ParsedOrigynMetadata, ... }
-   * - v2+: defined by the versioned renderer
+   * - v2: { type: 'onchain', tokenData: V2TokenData, ... } or preview
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dataSource?: any;
+  /**
+   * V2 template document. When provided with version='2.0.0', the v2 renderer
+   * receives this as the `templateDocument` prop.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  templateDocument?: any;
   /** All other props are forwarded to the versioned renderer as-is. */
   [key: string]: unknown;
 }
@@ -31,12 +37,18 @@ export interface VersionedTemplateRendererProps {
 export function VersionedTemplateRenderer({
   version,
   dataSource,
+  templateDocument,
   ...rest
 }: VersionedTemplateRendererProps) {
   let resolvedVersion = version;
 
   if (!resolvedVersion) {
-    if (dataSource?.type === 'onchain' && dataSource.metadata?.templateVersion) {
+    // V2: check templateDocument.version
+    if (templateDocument?.version) {
+      resolvedVersion = templateDocument.version;
+    }
+    // V1: check dataSource.metadata.templateVersion
+    else if (dataSource?.type === 'onchain' && dataSource.metadata?.templateVersion) {
       resolvedVersion = dataSource.metadata.templateVersion;
     } else {
       resolvedVersion = DEFAULT_TEMPLATE_VERSION;
@@ -45,5 +57,5 @@ export function VersionedTemplateRenderer({
 
   const { Renderer } = getRendererForVersion(resolvedVersion);
 
-  return <Renderer dataSource={dataSource} {...rest} />;
+  return <Renderer dataSource={dataSource} templateDocument={templateDocument} {...rest} />;
 }
