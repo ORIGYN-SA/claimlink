@@ -1,6 +1,6 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { usePublicCertificate } from "../api/certificates.queries";
+import { usePublicCertificate, useCertificateTransactionHistory } from "../api/certificates.queries";
 import { CertificateLaunchpad } from "../components/certificate-launchpad";
 import {
   CertificateViewer,
@@ -16,6 +16,7 @@ import {
   DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
+import { useAuth } from "@/features/auth";
 import { toast } from "sonner";
 import {
   extractTextFromMetadata,
@@ -46,6 +47,12 @@ export const PublicCertificatePage = ({
   const { data, isLoading, error } = usePublicCertificate(
     collectionId,
     tokenId,
+  );
+  const { unauthenticatedAgent } = useAuth();
+  const { data: historyData } = useCertificateTransactionHistory(
+    collectionId,
+    tokenId,
+    unauthenticatedAgent ?? undefined,
   );
   const qrCanvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedLanguage, setSelectedLanguage] = useState("en");
@@ -182,6 +189,41 @@ export const PublicCertificatePage = ({
     };
   }, [data, collectionId, tokenId]);
 
+  // Dynamically update page title and OG meta tags for certificate
+  useEffect(() => {
+    if (!data) return;
+    const { certificate } = data;
+    const title = certificate.title
+      ? `${certificate.title} - ORIGYN Certificate`
+      : "ORIGYN Certificate";
+    document.title = title;
+
+    const setMeta = (property: string, content: string) => {
+      let el = document.querySelector(`meta[property="${property}"]`);
+      if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute("property", property);
+        document.head.appendChild(el);
+      }
+      el.setAttribute("content", content);
+    };
+
+    setMeta("og:title", title);
+    setMeta(
+      "og:description",
+      certificate.description ||
+        certificate.collectionName ||
+        "Verified Digital Certificate on the Internet Computer",
+    );
+    if (certificate.imageUrl) {
+      setMeta("og:image", certificate.imageUrl);
+    }
+
+    return () => {
+      document.title = "ORIGYN Certificate";
+    };
+  }, [data]);
+
   const handleDownloadQR = async () => {
     if (!qrCanvasRef.current || !data) {
       toast.error("QR code not ready");
@@ -316,11 +358,12 @@ export const PublicCertificatePage = ({
         {/* Certificate Viewer with Dynamic Template */}
         <CertificateViewer
           templateData={templateData}
-          // Note: No eventsData or ledgerData for public view (requires auth)
+          eventsData={historyData?.eventsData}
+          ledgerData={historyData?.ledgerData}
         />
 
         {/* Login CTA Card */}
-        <Card className="bg-azure/10 border-azure p-6">
+        {/*<Card className="bg-azure/10 border-azure p-6">
           <div className="flex items-start justify-between gap-6">
             <div className="flex-1">
               <h3 className="font-semibold mb-2 text-charcoal">
@@ -340,7 +383,7 @@ export const PublicCertificatePage = ({
               <Button>Login</Button>
             </Link>
           </div>
-        </Card>
+        </Card>*/}
       </div>
     </div>
   );

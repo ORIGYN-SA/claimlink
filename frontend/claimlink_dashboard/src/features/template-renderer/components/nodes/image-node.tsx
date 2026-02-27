@@ -7,6 +7,7 @@
 import { ImageIcon } from 'lucide-react';
 import type { ImageNode as ImageNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
 import { cn } from '@/lib/utils';
 
 interface ImageNodeProps {
@@ -44,7 +45,7 @@ export function ImageNode({ node }: ImageNodeProps) {
   const imageUrl = resolveAssetUrl(file.path);
 
   return (
-    <img
+    <CanisterImage
       src={imageUrl}
       alt=""
       loading="lazy"

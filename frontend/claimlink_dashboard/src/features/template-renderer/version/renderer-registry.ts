@@ -7,6 +7,7 @@
  */
 
 import { TemplateRenderer } from '../components/template-renderer';
+import { V2TemplateRenderer } from '../../template-renderer-v2/components/v2-template-renderer';
 import {
   DEFAULT_TEMPLATE_VERSION,
   type TemplateVersion,
@@ -17,6 +18,10 @@ const registry: Record<TemplateVersion, VersionedRendererEntry> = {
   '1.0.0': {
     Renderer: TemplateRenderer,
     label: 'v1.0.0',
+  },
+  '2.0.0': {
+    Renderer: V2TemplateRenderer,
+    label: 'v2.0.0',
   },
 };
 

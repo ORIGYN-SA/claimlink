@@ -7,6 +7,8 @@ interface InformationFrameProps {
     artworkTitle?: string;
     year?: string;
   };
+  /** Custom section heading (e.g., "Made In Italy" instead of "Information") */
+  sectionTitle?: string;
   /** Dynamic content from TemplateRenderer */
   children: React.ReactNode;
   /** Gallery images to display below content */
@@ -25,11 +27,12 @@ interface InformationFrameProps {
  */
 export function InformationFrame({
   title,
+  sectionTitle,
   children,
   galleryImages,
   className = "",
 }: InformationFrameProps) {
-  const hasTitle = title?.artistName || title?.artworkTitle;
+  const hasTitle = title?.artistName || title?.artworkTitle || sectionTitle;
 
   return (
     <div
@@ -43,6 +46,11 @@ export function InformationFrame({
           {hasTitle && (
             <div className="w-full lg:w-[389px] shrink-0 lg:sticky lg:top-0 flex items-center justify-center py-4 sm:py-10">
               <div className="w-full">
+                {sectionTitle && (
+                  <p className="text-[#85f1ff] text-[12px] sm:text-[14px] font-semibold leading-5 tracking-[2px] sm:tracking-[3px] uppercase mb-2">
+                    {sectionTitle}
+                  </p>
+                )}
                 {title?.artistName && (
                   <p className="text-[#e1e1e1] text-[14px] sm:text-[16px] font-semibold leading-5 tracking-[1.5px] sm:tracking-[2.24px] uppercase mb-0">
                     {title.artistName}

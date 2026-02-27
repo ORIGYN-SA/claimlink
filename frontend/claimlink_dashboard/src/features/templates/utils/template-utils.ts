@@ -15,6 +15,7 @@ import type {
   BadgeItem,
   ImageItem,
   VideoItem,
+  DocumentItem,
   CertificateFormData,
   ValidationResult,
 } from '@/features/templates/types/template.types';
@@ -205,6 +206,10 @@ export function isVideoItem(item: TemplateItem): item is VideoItem {
   return item.type === 'video';
 }
 
+export function isDocumentItem(item: TemplateItem): item is DocumentItem {
+  return item.type === 'document';
+}
+
 // ============================================================================
 // Icon/Visual Helpers
 // ============================================================================
@@ -219,6 +224,7 @@ export function getItemTypeIcon(type: TemplateItemType): string {
     badge: 'CircleStack',
     image: 'Mint',
     video: 'Video',
+    document: 'File',
     readonly: 'Lock',
   };
   return iconMap[type] || 'Mint';
@@ -234,6 +240,7 @@ export function getItemTypeDisplayName(type: TemplateItemType): string {
     badge: 'Badge',
     image: 'Image',
     video: 'Video',
+    document: 'Document',
     readonly: 'Read Only',
   };
   return displayNames[type] || type;

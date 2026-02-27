@@ -34,96 +34,73 @@ export function ValueFieldNode({ node }: ValueFieldNodeProps) {
     return null;
   }
 
-  // Check if this is a "main" or prominent value field
-  const isMainValue = node.className?.includes('mainValue') || node.className?.includes('companyName');
+  const fieldSize = node.size ?? 'md';
 
-  // Certificate variant: large centered text
+  // Certificate variant: centered text with size-based styling
   if (variant === 'certificate') {
-    if (isMainValue) {
-      return (
-        <h3
-          className={cn(
-            'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px] text-[#222526] text-center',
-            isPlaceholder && 'text-gray-400 italic',
-            node.className
-          )}
-        >
-          {node.preText}
-          <span className="whitespace-pre-wrap">{displayValue}</span>
-        </h3>
-      );
-    }
+    const sizeStyles = {
+      lg: 'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px]',
+      md: 'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8',
+      sm: 'text-[14px] sm:text-[18px] font-normal leading-5 sm:leading-7',
+    };
+    const Tag = fieldSize === 'lg' ? 'h3' : 'h5';
     return (
-      <h5
+      <Tag
         className={cn(
-          'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-[#222526] text-center',
+          sizeStyles[fieldSize],
+          'text-[#222526] text-center',
           isPlaceholder && 'text-gray-400 italic',
           node.className
         )}
       >
         {node.preText}
         <span className="whitespace-pre-wrap">{displayValue}</span>
-      </h5>
+      </Tag>
     );
   }
 
-  // Custom-certificate variant: large centered light text for custom backgrounds
+  // Custom-certificate variant: centered light text for custom backgrounds
   if (variant === 'custom-certificate') {
-    if (isMainValue) {
-      return (
-        <h3
-          className={cn(
-            'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px] text-white text-center',
-            isPlaceholder && 'text-gray-500 italic',
-            node.className
-          )}
-        >
-          {node.preText}
-          <span className="whitespace-pre-wrap">{displayValue}</span>
-        </h3>
-      );
-    }
+    const sizeStyles = {
+      lg: 'text-[36px] sm:text-[72px] font-light leading-[40px] sm:leading-[56px]',
+      md: 'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8',
+      sm: 'text-[14px] sm:text-[18px] font-normal leading-5 sm:leading-7',
+    };
+    const Tag = fieldSize === 'lg' ? 'h3' : 'h5';
     return (
-      <h5
+      <Tag
         className={cn(
-          'text-[18px] sm:text-[24px] font-medium leading-6 sm:leading-8 text-white text-center',
+          sizeStyles[fieldSize],
+          'text-white text-center',
           isPlaceholder && 'text-gray-500 italic',
           node.className
         )}
       >
         {node.preText}
         <span className="whitespace-pre-wrap">{displayValue}</span>
-      </h5>
+      </Tag>
     );
   }
 
   // Information variant: light text on dark background
   if (variant === 'information') {
-    if (isMainValue) {
-      return (
-        <h3
-          className={cn(
-            'text-[#f9f8f4] font-extralight italic text-[24px] sm:text-[38px] leading-[32px] sm:leading-[50px]',
-            isPlaceholder && 'text-gray-500',
-            node.className
-          )}
-        >
-          {node.preText}
-          <span className="whitespace-pre-wrap">{displayValue}</span>
-        </h3>
-      );
-    }
+    const sizeStyles = {
+      lg: 'text-[#f9f8f4] font-extralight italic text-[24px] sm:text-[38px] leading-[32px] sm:leading-[50px]',
+      md: 'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
+      sm: 'text-white text-[12px] sm:text-[14px] font-light leading-5 sm:leading-6',
+    };
+    const Tag = fieldSize === 'lg' ? 'h3' : 'p';
     return (
-      <p
+      <Tag
         className={cn(
-          'text-white text-[14px] sm:text-[16px] font-light leading-6 sm:leading-8',
-          isPlaceholder && 'text-gray-500 italic',
+          sizeStyles[fieldSize],
+          isPlaceholder && 'text-gray-500' + (fieldSize !== 'lg' ? ' italic' : ''),
           node.className
         )}
       >
         {node.preText}
         <span className="whitespace-pre-wrap">{displayValue}</span>
-      </p>
+      </Tag>
     );
   }
 

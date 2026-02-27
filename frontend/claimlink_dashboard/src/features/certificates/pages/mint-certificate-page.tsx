@@ -11,6 +11,7 @@ import {
 import { CertificatesActions } from "../components/list";
 import type { Certificate } from "../types/certificate.types";
 import { Eye, Edit, Trash2 } from "lucide-react";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import { toast } from "sonner";
 import { useAllUserNfts } from "@/features/collections";
 
@@ -84,7 +85,7 @@ export function MintCertificatePage() {
 
         return (
           <div className="flex items-center gap-3">
-            <img
+            <CanisterImage
               src={certificate.imageUrl || "/placeholder-image.jpg"}
               alt={certificate.title || "Certificate"}
               className="w-12 h-12 rounded-lg object-cover"

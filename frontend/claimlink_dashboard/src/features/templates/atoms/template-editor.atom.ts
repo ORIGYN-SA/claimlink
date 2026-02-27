@@ -51,6 +51,7 @@ export interface TemplateEditorState {
     description: string;
     required: boolean;
     badgeStyle: 'default' | 'success' | 'warning' | 'error' | 'info';
+    size: 'sm' | 'md' | 'lg';
   };
 }
 
@@ -120,6 +121,7 @@ export const getInitialTemplateEditorState = (
     description: '',
     required: false,
     badgeStyle: 'default',
+    size: 'md',
   },
 });
 
@@ -180,6 +182,7 @@ export function templateEditorReducer(
           description: '',
           required: false,
           badgeStyle: 'default',
+          size: 'md',
         },
       };
 
@@ -222,6 +225,7 @@ export function templateEditorReducer(
           description: action.field.description || '',
           required: action.field.required || false,
           badgeStyle,
+          size: (action.field as any).size || 'md',
         },
       };
     }
@@ -339,6 +343,7 @@ export function templateEditorReducer(
           description: '',
           required: false,
           badgeStyle: 'default',
+          size: 'md',
         },
       };
 
@@ -373,6 +378,7 @@ export function templateEditorReducer(
         description: state.fieldForm.description,
         required: state.fieldForm.required,
         order: 0,
+        size: state.fieldForm.size,
       };
 
       switch (state.fieldForm.type) {
@@ -483,6 +489,7 @@ export function templateEditorReducer(
               label: state.fieldForm.label,
               description: state.fieldForm.description,
               required: state.fieldForm.required,
+              size: state.fieldForm.size,
             };
 
             // Map UI type back to storage type

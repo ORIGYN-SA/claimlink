@@ -20,6 +20,7 @@ import type {
   BadgeItem,
   ImageItem,
   VideoItem,
+  DocumentItem,
   CertificateFormData,
   LocalizedValue,
 } from '@/features/templates/types/template.types';
@@ -33,10 +34,12 @@ import {
   isBadgeItem,
   isImageItem,
   isVideoItem,
+  isDocumentItem,
   validateField,
   getInitialFormData,
 } from '@/features/templates/utils/template-utils';
 import { UPLOAD_CONFIG, isVideoFile } from '@/shared/config/upload.config';
+import { FileText, X } from 'lucide-react';
 
 interface DynamicTemplateFormProps {
   template: Template;
@@ -459,7 +462,7 @@ export function DynamicTemplateForm({
           onRemove={() => handleRemove(0)}
           onUploadClick={handleUploadClick}
           fileInputRef={inputRef}
-          uploadText={`Upload ${item.multiple ? (acceptVideo ? 'media' : 'images') : (acceptVideo ? 'file' : 'image')} or drag ${item.multiple ? 'them' : 'it'} here`}
+          uploadText={`Upload ${item.multiple ? (acceptVideo ? 'images or videos' : 'images') : (acceptVideo ? 'image or video' : 'image')} or drag ${item.multiple ? 'them' : 'it'} here`}
           acceptedFormats={formatFileTypes()}
           acceptVideo={acceptVideo}
           selectedFile={firstFile}
@@ -616,6 +619,118 @@ export function DynamicTemplateForm({
     );
   };
 
+  // Render Document Item
+  const renderDocumentItem = (item: DocumentItem) => {
+    const value = formData[item.id];
+    const files: File[] = Array.isArray(value) ? value.filter((f): f is File => f instanceof File) : value instanceof File ? [value] : [];
+    const error = errors[item.id];
+
+    // Get or create ref for this item
+    if (!fileInputRefs.current.has(item.id)) {
+      fileInputRefs.current.set(item.id, createRef<HTMLInputElement>());
+    }
+    const inputRef = fileInputRefs.current.get(item.id)!;
+
+    const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+      const selectedFiles = Array.from(event.target.files || []);
+      if (item.multiple) {
+        const currentFiles = files;
+        const maxFiles = item.maxFiles || 5;
+        const newFiles = [...currentFiles, ...selectedFiles].slice(0, maxFiles);
+        handleChange(item.id, newFiles);
+      } else {
+        handleChange(item.id, selectedFiles[0] || null);
+      }
+    };
+
+    const handleRemove = (index: number) => {
+      const newFiles = files.filter((_, i) => i !== index);
+      handleChange(item.id, item.multiple ? newFiles : null);
+    };
+
+    const handleUploadClick = () => {
+      inputRef.current?.click();
+    };
+
+    const acceptString = item.acceptedFormats?.join(',') || UPLOAD_CONFIG.document.acceptString;
+
+    return (
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-[#222526] flex items-center gap-1">
+          {item.label}
+          {item.required && <span className="text-red-500">*</span>}
+        </label>
+
+        {item.description && (
+          <p className="text-xs text-[#69737c]">{item.description}</p>
+        )}
+
+        {/* Uploaded files list */}
+        {files.length > 0 && (
+          <div className="space-y-2">
+            {files.map((file, index) => (
+              <div
+                key={index}
+                className="flex items-center gap-3 p-3 bg-[#f5f5f5] rounded-lg border border-[#e1e1e1]"
+              >
+                <FileText className="w-5 h-5 text-[#615bff] shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-[#222526] truncate">{file.name}</p>
+                  <p className="text-xs text-[#69737c]">
+                    {(file.size / 1024 / 1024).toFixed(2)} MB
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleRemove(index)}
+                  className="p-1 hover:bg-[#e1e1e1] rounded-full transition-colors"
+                  aria-label="Remove file"
+                >
+                  <X className="w-4 h-4 text-[#69737c]" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Upload button */}
+        {(!item.maxFiles || files.length < item.maxFiles) && (
+          <div
+            onClick={handleUploadClick}
+            className="border-2 border-dashed border-[#e1e1e1] rounded-md p-4 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex items-center justify-center gap-3 cursor-pointer transition-all duration-200"
+          >
+            <FileText className="w-5 h-5 text-[#615bff]" />
+            <div className="text-center">
+              <p className="text-[#615bff] font-medium text-sm">
+                Upload document
+              </p>
+              <p className="text-[#69737c] text-xs">
+                {UPLOAD_CONFIG.document.formatLabel} (max {UPLOAD_CONFIG.document.maxSizeMB}MB)
+              </p>
+            </div>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={acceptString}
+              multiple={item.multiple}
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+          </div>
+        )}
+
+        {item.multiple && item.maxFiles && (
+          <p className="text-xs text-[#69737c]">
+            {files.length} / {item.maxFiles} files
+          </p>
+        )}
+
+        {error && (
+          <p className="text-xs text-red-500">{error}</p>
+        )}
+      </div>
+    );
+  };
+
   // Render single item based on type
   const renderItem = (item: TemplateItem) => {
     if (isTitleItem(item)) return renderTitleItem(item);
@@ -623,23 +738,47 @@ export function DynamicTemplateForm({
     if (isBadgeItem(item)) return renderBadgeItem(item);
     if (isImageItem(item)) return renderImageItem(item);
     if (isVideoItem(item)) return renderVideoItem(item);
+    if (isDocumentItem(item)) return renderDocumentItem(item);
     return null;
   };
 
   // Render form
   const sections = getTemplateSections(template);
 
+  // Helper to get the section display title key for storing in form data
+  const getSectionTitleKey = (sectionId: string) => `__section_${sectionId}_title`;
+
   return (
     <div className="space-y-6">
       {sections.map((section) => {
         const items = getSectionItems(section);
-        
+        const titleKey = getSectionTitleKey(section.id);
+        const hasCustomTitle = !!section.displayName;
+        const sectionTitle = hasCustomTitle
+          ? (formData[titleKey] as string) || section.displayName || section.name
+          : section.name;
+
         return (
           <Card key={section.id} className="p-4 sm:p-6">
-            <h3 className="text-base sm:text-lg font-semibold text-[#222526] mb-4">
-              {section.name}
-            </h3>
-            
+            {hasCustomTitle ? (
+              <div className="mb-4">
+                <label htmlFor={titleKey} className="text-xs text-[#69737c] mb-1 block">
+                  Section Title
+                </label>
+                <Input
+                  id={titleKey}
+                  value={sectionTitle}
+                  onChange={(e) => handleChange(titleKey, e.target.value)}
+                  placeholder={section.displayName || section.name}
+                  className="text-base sm:text-lg font-semibold text-[#222526] border-dashed"
+                />
+              </div>
+            ) : (
+              <h3 className="text-base sm:text-lg font-semibold text-[#222526] mb-4">
+                {section.name}
+              </h3>
+            )}
+
             <div className="space-y-6">
               {items.map((item) => (
                 <div key={item.id}>

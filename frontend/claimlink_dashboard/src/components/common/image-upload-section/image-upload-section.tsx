@@ -1,4 +1,4 @@
-import { Upload, X } from 'lucide-react';
+import { Upload, Video, X } from 'lucide-react';
 import { isVideoFile, UPLOAD_CONFIG } from '@/shared/config/upload.config';
 
 interface ImageUploadSectionProps {
@@ -95,8 +95,15 @@ export function ImageUploadSection({
         onClick={onUploadClick}
         className="flex-1 border-2 border-dashed border-[#e1e1e1] rounded-md p-4 sm:p-6 bg-[#cddfec26] hover:bg-[#cde9ec40] hover:border-[#615bff] flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200"
       >
-        <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center mb-3">
-          <Upload className="w-4 h-4 text-[#615bff]" />
+        <div className="flex items-center gap-2 mb-3">
+          <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
+            <Upload className="w-4 h-4 text-[#615bff]" />
+          </div>
+          {acceptVideo && (
+            <div className="w-10 h-10 bg-[#cde9ec] rounded-full flex items-center justify-center">
+              <Video className="w-4 h-4 text-[#615bff]" />
+            </div>
+          )}
         </div>
         <p className="text-[#615bff] font-medium mb-2">
           {uploadText}
@@ -104,6 +111,11 @@ export function ImageUploadSection({
         <p className="text-[#69737c] text-sm">
           {acceptedFormats || defaultFormats}
         </p>
+        {acceptVideo && (
+          <p className="text-[#69737c] text-xs mt-1">
+            Accepts images and videos (MP4, WebM, MOV)
+          </p>
+        )}
         <input
           ref={fileInputRef}
           type="file"

@@ -14,7 +14,7 @@ interface AttachmentsNodeProps {
 }
 
 export function AttachmentsNode({ node }: AttachmentsNodeProps) {
-  const { getFileArray, resolveAssetUrl } = useTemplateContext();
+  const { getFileArray, resolveAssetUrl, variant } = useTemplateContext();
 
   // Get attachments from metadata
   const files = getFileArray(node.pointer);
@@ -23,6 +23,43 @@ export function AttachmentsNode({ node }: AttachmentsNodeProps) {
     return null;
   }
 
+  // Information variant: pill-shaped download buttons on dark background
+  if (variant === 'information') {
+    return (
+      <div
+        className={cn(
+          'flex flex-col gap-4 w-full',
+          node.className
+        )}
+      >
+        {files.map((file, index) => {
+          const fileUrl = resolveAssetUrl(file.path);
+          const fileName = file.path.split('/').pop() || file.path;
+
+          return (
+            <a
+              key={file.id || index}
+              href={fileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="flex items-center justify-center gap-2.5 bg-white h-14 rounded-[20px] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)] hover:bg-[#e1e1e1] transition-colors pl-6 pr-3 py-3"
+              aria-label={`Download ${fileName}`}
+            >
+              <span className="text-[#222526] text-[14px] font-normal leading-4 text-center truncate">
+                {fileName}
+              </span>
+              <div className="bg-[#222526] rounded-2xl size-8 flex items-center justify-center shrink-0">
+                <Download className="size-4 text-white" />
+              </div>
+            </a>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Default variant: card grid
   return (
     <div
       className={cn(

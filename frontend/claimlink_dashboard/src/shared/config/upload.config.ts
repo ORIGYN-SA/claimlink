@@ -26,12 +26,24 @@ export const VIDEO_MIME_TYPES = [
 ] as const;
 
 /**
+ * MIME types for documents
+ */
+export const DOCUMENT_MIME_TYPES = [
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/vnd.ms-excel',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+] as const;
+
+/**
  * All supported media MIME types (images + videos)
  */
 export const MEDIA_MIME_TYPES = [...IMAGE_MIME_TYPES, ...VIDEO_MIME_TYPES] as const;
 
 export type ImageMimeType = (typeof IMAGE_MIME_TYPES)[number];
 export type VideoMimeType = (typeof VIDEO_MIME_TYPES)[number];
+export type DocumentMimeType = (typeof DOCUMENT_MIME_TYPES)[number];
 export type MediaMimeType = (typeof MEDIA_MIME_TYPES)[number];
 
 /**
@@ -69,6 +81,18 @@ export const UPLOAD_CONFIG = {
   },
 
   /**
+   * Document upload settings
+   */
+  document: {
+    maxSizeBytes: 10 * 1024 * 1024, // 10MB
+    maxSizeMB: 10,
+    mimeTypes: DOCUMENT_MIME_TYPES,
+    extensions: ['.pdf', '.doc', '.docx', '.xls', '.xlsx'],
+    acceptString: DOCUMENT_MIME_TYPES.join(','),
+    formatLabel: 'PDF, Word, Excel',
+  },
+
+  /**
    * Combined image + video settings
    */
   media: {
@@ -92,6 +116,13 @@ export function isImageFile(file: File): boolean {
  */
 export function isVideoFile(file: File): boolean {
   return (VIDEO_MIME_TYPES as readonly string[]).includes(file.type);
+}
+
+/**
+ * Check if a file is a document based on MIME type
+ */
+export function isDocumentFile(file: File): boolean {
+  return (DOCUMENT_MIME_TYPES as readonly string[]).includes(file.type);
 }
 
 /**

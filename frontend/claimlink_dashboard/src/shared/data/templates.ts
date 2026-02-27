@@ -1,4 +1,4 @@
-import type { TemplateStructure } from "@/features/templates/types/template.types";
+import type { TemplateStructure, DocumentItem } from "@/features/templates/types/template.types";
 
 // Template data type - unified for all use cases
 export interface Template {
@@ -71,6 +71,19 @@ const commonProductImages = {
   maxImages: 8,
 };
 
+const commonStampUpload = {
+  id: "stamp_upload",
+  type: "image" as const,
+  label: "Custom Stamp",
+  order: 999,
+  required: false,
+  multiple: false,
+  maxImages: 1,
+  acceptedFormats: ["image/jpeg", "image/png", "image/svg+xml", "image/webp"],
+  maxFileSize: 2097152, // 2MB
+  description: "Upload a custom stamp image to replace the default ORIGYN stamp",
+};
+
 const commonGalleryImages = {
   id: "gallery_images",
   type: "image" as const,
@@ -128,6 +141,7 @@ export const artTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Artwork title",
+            size: 'lg' as const,
           },
 
           {
@@ -141,6 +155,7 @@ export const artTemplate: Template = {
           },
 
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
@@ -278,9 +293,11 @@ export const diamondTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Diamond title or identifier",
+            size: 'lg' as const,
           },
 
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
@@ -470,6 +487,7 @@ export const goldCertificateTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., 1oz Gold Bar, 100g Gold Ingot",
+            size: 'lg' as const,
           },
           {
             id: "serial_number",
@@ -482,6 +500,7 @@ export const goldCertificateTemplate: Template = {
           },
 
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
@@ -626,6 +645,7 @@ export const watchTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Submariner Date",
+            size: 'lg' as const,
           },
           {
             id: "brand",
@@ -647,6 +667,7 @@ export const watchTemplate: Template = {
             placeholder: "Unique serial number",
           },
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
@@ -802,6 +823,7 @@ export const carTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., 911 Carrera GT",
+            size: 'lg' as const,
           },
           {
             id: "brand_manufacturer",
@@ -823,6 +845,7 @@ export const carTemplate: Template = {
             placeholder: "17-character VIN",
           },
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
@@ -945,6 +968,7 @@ export const spiritTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Macallan 25 Year, Domaine Romanée-Conti",
+            size: 'lg' as const,
           },
           {
             id: "producer_domaine",
@@ -956,6 +980,7 @@ export const spiritTemplate: Template = {
             placeholder: "Producer or domaine name",
           },
           { ...commonProductImages, order: 5 },
+          commonStampUpload,
         ],
       },
       {
@@ -1111,6 +1136,7 @@ export const luxuryGoodTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "e.g., Birkin 30, Neverfull MM",
+            size: 'lg' as const,
           },
           {
             id: "brand_manufacturer",
@@ -1122,6 +1148,7 @@ export const luxuryGoodTemplate: Template = {
             placeholder: "e.g., Hermès, Louis Vuitton, Chanel",
           },
           { ...commonProductImages, order: 6 },
+          commonStampUpload,
         ],
       },
       {
@@ -1289,6 +1316,7 @@ export const madeInTemplate: Template = {
             required: true,
             inputType: "text",
             placeholder: "Enter certificate name",
+            size: 'lg' as const,
             validation: {
               minLength: 2,
               maxLength: 200,
@@ -1324,11 +1352,13 @@ export const madeInTemplate: Template = {
             placeholder: "IT12345678901",
           },
           { ...commonProductImages, order: 7 },
+          commonStampUpload,
         ],
       },
       {
         id: "section_information",
         name: "Information",
+        displayName: "Made In",
         order: 2,
         collapsible: true,
         description: "Additional company information and contacts",
@@ -1422,6 +1452,23 @@ export const madeInTemplate: Template = {
             multiline: true,
             rows: 4,
           },
+          {
+            id: "attachments",
+            type: "document",
+            label: "Attachments",
+            order: 10,
+            required: false,
+            multiple: true,
+            maxFiles: 5,
+            acceptedFormats: [
+              "application/pdf",
+              "application/msword",
+              "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+              "application/vnd.ms-excel",
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            ],
+            maxFileSize: 10485760,
+          } satisfies DocumentItem,
           commonGalleryImages,
         ],
       },
@@ -1492,6 +1539,7 @@ export const manualTemplateOption: Template = {
             required: true,
             inputType: "text",
             placeholder: "Enter certificate name",
+            size: 'lg' as const,
           },
         ],
       },

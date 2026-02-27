@@ -83,6 +83,7 @@ export interface BaseTemplateNode {
   id?: string;
   type: TemplateNodeType;
   className?: string;
+  size?: 'sm' | 'md' | 'lg'; // Display size for rendering
 }
 
 // ============================================================================

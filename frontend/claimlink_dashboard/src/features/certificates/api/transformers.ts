@@ -1,5 +1,6 @@
 import type { ICRC3Value } from '@canisters/origyn_nft';
 import { RESERVED_FIELDS } from '@/shared/constants/reserved-fields';
+import { getNonRawUrl } from '@/features/template-renderer/utils/url-resolver';
 
 /**
  * Certificate Transformers
@@ -156,19 +157,24 @@ function extractFileReferenceUrl(
 export function getCertificateImageUrl(
   metadata: Array<[string, ICRC3Value]>
 ): string {
+  let url = '';
+
   // First, try standard string fields
   for (const fieldId of RESERVED_FIELDS.IMAGE_STRING) {
     const value = extractTextValue(metadata, fieldId);
-    if (value) return value;
+    if (value) { url = value; break; }
   }
 
   // Then, try FileReference array fields from templates
-  for (const fieldId of RESERVED_FIELDS.IMAGE_FILE_REFERENCE) {
-    const url = extractFileReferenceUrl(metadata, fieldId);
-    if (url) return url;
+  if (!url) {
+    for (const fieldId of RESERVED_FIELDS.IMAGE_FILE_REFERENCE) {
+      const value = extractFileReferenceUrl(metadata, fieldId);
+      if (value) { url = value; break; }
+    }
   }
 
-  return '';
+  // Strip .raw from stored on-chain URLs (raw fails for chunked assets >2MB)
+  return getNonRawUrl(url) ?? url;
 }
 
 /**

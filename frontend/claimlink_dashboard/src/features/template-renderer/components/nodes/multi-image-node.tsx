@@ -6,6 +6,7 @@
 
 import type { MultiImageNode as MultiImageNodeType } from '../../types';
 import { useTemplateContext } from '../../context/template-context';
+import { CanisterImage } from '@/components/common/canister-image/canister-image';
 import { cn } from '@/lib/utils';
 
 interface MultiImageNodeProps {
@@ -30,7 +31,7 @@ export function MultiImageNode({ node }: MultiImageNodeProps) {
           const imageUrl = resolveAssetUrl(file.path);
           return (
             <div key={file.id || index} className="flex justify-center">
-              <img
+              <CanisterImage
                 src={imageUrl}
                 alt=""
                 loading="lazy"

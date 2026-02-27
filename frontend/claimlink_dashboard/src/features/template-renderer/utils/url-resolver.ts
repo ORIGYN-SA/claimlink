@@ -40,8 +40,9 @@ export function buildCanisterUrl(canisterId: string): string {
     return `http://${canisterId}.localhost:4943`;
   }
 
-  // Production: use raw.icp0.io for direct asset access
-  return `https://${canisterId}.raw.icp0.io`;
+  // Production: use icp0.io (non-raw) for reliable asset loading.
+  // The .raw subdomain fails for chunked assets (>2MB) with ERR_HTTP2_PROTOCOL_ERROR.
+  return `https://${canisterId}.icp0.io`;
 }
 
 /**
@@ -201,4 +202,19 @@ export function isCanisterUrl(url: string): boolean {
     url?.includes('.localhost:4943') ||
     false
   );
+}
+
+/**
+ * Convert a .raw.icp0.io URL to a non-raw .icp0.io URL.
+ *
+ * The .raw subdomain bypasses the IC service worker, which can cause issues
+ * with chunked assets (>2MB) that need reassembly by the boundary node.
+ * The non-raw .icp0.io URL goes through the service worker which handles
+ * chunk reassembly correctly.
+ *
+ * Returns the original URL unchanged if it's not a .raw.icp0.io URL.
+ */
+export function getNonRawUrl(url: string): string | null {
+  if (!url?.includes('.raw.icp0.io')) return null;
+  return url.replace('.raw.icp0.io', '.icp0.io');
 }

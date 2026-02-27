@@ -1,5 +1,6 @@
 import stampStandard from "@assets/stamp_standard.svg";
 import logoTransparent from "@assets/logo_transparent.svg";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
 
 interface CertificateFrameProps {
@@ -13,6 +14,8 @@ interface CertificateFrameProps {
   className?: string;
   /** Background configuration (custom image/video or standard gradient) */
   background?: TemplateBackground;
+  /** Custom stamp URL (overrides default stamp_standard.svg) */
+  stampUrl?: string;
 }
 
 /**
@@ -42,7 +45,9 @@ export function CertificateFrame({
   children,
   className = "",
   background,
+  stampUrl,
 }: CertificateFrameProps) {
+  const stampSrc = stampUrl || stampStandard;
   const hasCustomBackground = background?.type === 'custom' && background.dataUri;
   const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
 
@@ -66,8 +71,8 @@ export function CertificateFrame({
                 autoPlay
               />
             ) : (
-              <img
-                src={background.dataUri}
+              <CanisterImage
+                src={background.dataUri!}
                 alt=""
                 className="absolute inset-0 w-full h-full object-cover"
               />
@@ -88,7 +93,7 @@ export function CertificateFrame({
               <div className="absolute -top-[35px] sm:-top-[55px] left-0 right-0 z-20 flex justify-center">
                 <img
                   alt="Blockchain Certified"
-                  src={stampStandard}
+                  src={stampSrc}
                   className="w-[70px] h-[70px] sm:w-[110px] sm:h-[110px]"
                 />
               </div>
@@ -96,7 +101,7 @@ export function CertificateFrame({
               {/* Company Logo - centered at top inside panel */}
               <div className="flex justify-center w-full">
                 {companyLogo ? (
-                  <img
+                  <CanisterImage
                     alt="Company Logo"
                     src={companyLogo}
                     className="h-[32px] sm:h-[48px] object-contain brightness-0 invert"
@@ -181,7 +186,7 @@ export function CertificateFrame({
                 {/* Company Logo */}
                 <div className="flex items-center pb-4 flex-1 border-b border-[rgba(105,115,124,0.2)]">
                   {companyLogo ? (
-                    <img
+                    <CanisterImage
                       alt="Company Logo"
                       src={companyLogo}
                       className="h-[28px] sm:h-[40px] object-contain"
@@ -229,7 +234,7 @@ export function CertificateFrame({
             <div className="absolute top-[15px] sm:top-[22px] left-0 right-0 z-20 flex justify-center">
               <img
                 alt="Blockchain Certified"
-                src={stampStandard}
+                src={stampSrc}
                 className="w-[70px] h-[70px] sm:w-[110px] sm:h-[110px]"
               />
             </div>

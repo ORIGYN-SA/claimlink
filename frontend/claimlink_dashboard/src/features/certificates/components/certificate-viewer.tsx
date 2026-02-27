@@ -18,11 +18,24 @@ import {
   resolveTokenAssetUrl,
   resolveCollectionAssetUrl,
 } from "@/features/template-renderer";
+import type { V2TemplateDocument, V2RenderDataSource, V2TokenData } from "@/features/template-renderer-v2";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
 import {
   extractTextFromMetadata,
   extractImageFromMetadata,
 } from "../utils/metadata-extractors";
+
+/**
+ * V2 template data for dynamic rendering
+ */
+export interface V2TemplateData {
+  templateDocument: V2TemplateDocument;
+  tokenData: V2TokenData;
+  canisterId: string;
+  tokenId: string;
+  language?: string;
+  showPlaceholders?: boolean;
+}
 
 /**
  * Template data for dynamic rendering from ORIGYN NFT metadata
@@ -46,11 +59,17 @@ export interface TemplateData {
   showPlaceholders?: boolean;
   /** Background configuration for certificate rendering */
   background?: TemplateBackground;
+  /** Custom section title for the Information tab (e.g., "Made In Italy") */
+  sectionTitle?: string;
+  /** Custom stamp URL (overrides default stamp_standard.svg) */
+  stampUrl?: string;
 }
 
 interface CertificateViewerProps {
-  /** Template-based rendering data (required for display) */
+  /** Template-based rendering data (required for display) — v1 tokens */
   templateData?: TemplateData;
+  /** V2 template data — v2 tokens */
+  v2TemplateData?: V2TemplateData;
   /** Events tab data (blockchain transaction history) */
   eventsData?: CertificateEventsData;
   /** Ledger tab data (blockchain ownership history) */
@@ -81,6 +100,7 @@ function NoDataPlaceholder({ tab }: { tab: string }) {
 
 export function CertificateViewer({
   templateData,
+  v2TemplateData,
   eventsData,
   ledgerData,
   onEventAdded,
@@ -88,7 +108,9 @@ export function CertificateViewer({
 }: CertificateViewerProps) {
   const [activeTab, setActiveTab] = useState<CertificateTab>("certificate");
 
-  // Create data source for template rendering
+  const isV2 = !!v2TemplateData;
+
+  // Create data source for template rendering (v1)
   const dataSource: RenderDataSource | null = templateData
     ? {
         type: 'onchain',
@@ -97,10 +119,34 @@ export function CertificateViewer({
       }
     : null;
 
+  // V2 data source
+  const v2DataSource: V2RenderDataSource | null = v2TemplateData
+    ? {
+        type: 'onchain',
+        tokenData: v2TemplateData.tokenData,
+        showPlaceholders: v2TemplateData.showPlaceholders,
+      }
+    : null;
+
   const renderTabContent = () => {
     switch (activeTab) {
       case "certificate":
-        // Use CertificateFrame wrapper with TemplateRenderer for content
+        // V2: render via VersionedTemplateRenderer with templateDocument
+        if (isV2 && v2TemplateData && v2DataSource) {
+          return (
+            <VersionedTemplateRenderer
+              version="2.0.0"
+              templateDocument={v2TemplateData.templateDocument}
+              dataSource={v2DataSource}
+              canisterId={v2TemplateData.canisterId}
+              tokenId={v2TemplateData.tokenId}
+              language={v2TemplateData.language || 'en'}
+              activeViewId="certificate"
+            />
+          );
+        }
+
+        // V1: Use CertificateFrame wrapper with TemplateRenderer for content
         if (templateData?.certificateTemplate && dataSource) {
           // Get company logo from metadata if available (image field)
           const companyLogo = extractImageFromMetadata(
@@ -112,11 +158,19 @@ export function CertificateViewer({
           // Determine variant based on background type
           const variant = templateData.background?.type === 'custom' ? 'custom-certificate' : 'certificate';
 
+          // Extract custom stamp URL from metadata
+          const stampUrl = extractImageFromMetadata(
+            templateData.metadata.metadata.stamp_upload,
+            templateData.canisterId,
+            templateData.tokenId
+          ) || templateData.stampUrl;
+
           return (
             <CertificateFrame
               companyLogo={companyLogo}
               tokenId={templateData.tokenId}
               background={templateData.background}
+              stampUrl={stampUrl}
             >
               <VersionedTemplateRenderer
                 template={templateData.certificateTemplate}
@@ -132,7 +186,22 @@ export function CertificateViewer({
         return <NoDataPlaceholder tab="certificate" />;
 
       case "informations":
-        // Use InformationFrame wrapper with TemplateRenderer for content
+        // V2: render information view via VersionedTemplateRenderer
+        if (isV2 && v2TemplateData && v2DataSource) {
+          return (
+            <VersionedTemplateRenderer
+              version="2.0.0"
+              templateDocument={v2TemplateData.templateDocument}
+              dataSource={v2DataSource}
+              canisterId={v2TemplateData.canisterId}
+              tokenId={v2TemplateData.tokenId}
+              language={v2TemplateData.language || 'en'}
+              activeViewId="information"
+            />
+          );
+        }
+
+        // V1: Use InformationFrame wrapper with TemplateRenderer for content
         if (templateData?.template && dataSource) {
           const lang = templateData.language || 'en';
 
@@ -173,6 +242,12 @@ export function CertificateViewer({
                 };
               });
 
+          // Extract custom section title from metadata
+          const sectionTitle = extractTextFromMetadata(
+            templateData.metadata.metadata.__section_section_information_title,
+            lang
+          ) || templateData.sectionTitle;
+
           return (
             <InformationFrame
               title={{
@@ -180,6 +255,7 @@ export function CertificateViewer({
                 artworkTitle: certificateTitle,
                 year: year,
               }}
+              sectionTitle={sectionTitle}
               galleryImages={galleryImages}
             >
               <VersionedTemplateRenderer

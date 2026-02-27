@@ -27,6 +27,7 @@ import type {
   GalleryNode,
   ImageNode,
   VideoNode,
+  AttachmentsNode,
   FormTemplateCategory,
   LocalizedContent,
   TemplateLanguageConfig,
@@ -93,12 +94,13 @@ function generateCertificateTemplate(
       content: [],
     };
 
-    // Add key fields from Certificate section (images and titles handled elsewhere)
+    // Add key fields from Certificate section (images, titles, and stamp handled elsewhere)
     const certFields: TemplateItem[] = certificateSection.items
       .filter(
         (item) =>
           item.type !== "image" &&
-          item.type !== "title",
+          item.type !== "title" &&
+          item.id !== "stamp_upload",
       )
       .slice(0, 5); // Max 5 fields on certificate (fixed 950x1350 layout)
 
@@ -115,16 +117,13 @@ function generateCertificateTemplate(
           return;
         }
 
-        // First field gets larger spacing (gap-4, py-2) to emphasize it as the main asset/name
-        const isFirstField: boolean =
-          certificateSection.items.indexOf(item) === 0 || item.order === 1;
-        const isNameField: boolean = item.id.includes("name");
-        const isMainField: boolean = isFirstField || isNameField;
+        const fieldSize = item.size ?? 'md';
+        const isLarge = fieldSize === 'lg';
 
         const fieldGroup: ElementsNode = {
           id: generateNodeId(),
           type: "elements",
-          className: `flex flex-col ${isMainField ? "gap-4" : "gap-1"} items-center text-center w-full ${isMainField ? "py-2" : ""}`,
+          className: `flex flex-col ${isLarge ? "gap-4 py-2" : "gap-1"} items-center text-center w-full`,
           content: [
             // Title/Label
             {
@@ -136,7 +135,7 @@ function generateCertificateTemplate(
             {
               id: generateNodeId(),
               type: "valueField",
-              className: isMainField ? "companyName" : undefined,
+              size: fieldSize,
               fields: [item.id],
             } as ValueFieldNode,
           ],
@@ -348,6 +347,26 @@ function generateExperienceTemplate(
             field: item.id,
           } as ImageNode);
         }
+
+        nodes.push({
+          id: generateNodeId(),
+          type: "separator",
+        } as SeparatorNode);
+      }
+      // Handle document/attachment fields
+      else if (item.type === "document") {
+        nodes.push({
+          id: generateNodeId(),
+          type: "title",
+          title: toLocalizedContent(item.label, languages),
+        } as TitleNode);
+
+        // Use attachments node to render as downloadable file list
+        nodes.push({
+          id: generateNodeId(),
+          type: "attachments",
+          pointer: item.id,
+        } as AttachmentsNode);
 
         nodes.push({
           id: generateNodeId(),
