@@ -1,7 +1,7 @@
 use std::time::Duration;
 
 use crate::{
-    guards,
+    guards::{self, CallerGuard},
     state::{audit::process_event, mutate_state, read_state},
     task_manager::create_and_install_canister,
     types::{
@@ -29,11 +29,22 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
                 s.env.cycles_balance(),
                 s.env.caller(),
                 s.data.collection_request_fee,
-                s.data.origyn_nft_wasm_hash.clone(),
+                s.data.origyn_nft_wasm_hash,
             )
         });
 
-    let template_id = args.template_id.0.clone().try_into().unwrap();
+    // Reentrancy guard: prevent concurrent create_collection calls from the same caller
+    let _guard = match CallerGuard::new(caller) {
+        Ok(guard) => guard,
+        Err(_) => return Err(CreateCollectionError::ConcurrentRequest),
+    };
+
+    let template_id = args
+        .template_id
+        .0
+        .clone()
+        .try_into()
+        .map_err(|_| CreateCollectionError::InvalidNftTemplateId)?;
 
     // in case the caller does not own the template
     if !read_state(|s| s.data.owns_template(&caller, template_id)) {
@@ -60,7 +71,7 @@ pub async fn create_collection(args: CreateCollectionArgs) -> CreateCollectionRe
         amount: Nat::from(ogy_to_pay),
         fee: Some(Nat::from(utils::consts::E8S_FEE_OGY)),
         memo: Some(icrc_ledger_types::icrc1::transfer::Memo::from(
-            format!("Canister creation: {}", args.symbol).into_bytes(),
+            format!("Collection creation: {}", args.symbol).into_bytes(),
         )),
         created_at_time: Some(timestamp_nanos()),
     };

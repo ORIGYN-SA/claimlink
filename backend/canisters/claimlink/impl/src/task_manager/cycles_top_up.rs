@@ -71,8 +71,7 @@ pub async fn top_up_collection_canisters() {
         for (canister_id, result) in results {
             match result {
                 Ok(status) => {
-                    let canister_cycles: u128 =
-                        status.cycles.0.try_into().unwrap_or(u128::MAX);
+                    let canister_cycles: u128 = status.cycles.0.try_into().unwrap_or(u128::MAX);
 
                     if canister_cycles < minimum_canister_cycles {
                         log!(

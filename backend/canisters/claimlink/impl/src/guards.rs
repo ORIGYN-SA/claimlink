@@ -50,3 +50,27 @@ impl Drop for TimerGuard {
         });
     }
 }
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct CallerGuard {
+    caller: candid::Principal,
+}
+
+impl CallerGuard {
+    pub fn new(caller: candid::Principal) -> Result<Self, TimerGuardError> {
+        mutate_state(|s| {
+            if !s.data.creating_collection_callers.insert(caller) {
+                return Err(TimerGuardError::AlreadyProcessing);
+            }
+            Ok(Self { caller })
+        })
+    }
+}
+
+impl Drop for CallerGuard {
+    fn drop(&mut self) {
+        mutate_state(|s| {
+            s.data.creating_collection_callers.remove(&self.caller);
+        });
+    }
+}

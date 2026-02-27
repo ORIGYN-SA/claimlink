@@ -11,6 +11,7 @@ pub enum CreateCollectionError {
     ExternalCanisterError(String),
     Generic(GenericError),
     InvalidNftTemplateId,
+    ConcurrentRequest,
 }
 
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
@@ -22,6 +23,7 @@ pub enum CreateTemplateError {
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum UpdateTemplateError {
     JsonError(String),
+    InvalidNftTemplateId,
     TemplateNotFound,
     UnauthorizedCall,
 }
@@ -29,6 +31,7 @@ pub enum UpdateTemplateError {
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum DeleteTemplateError {
     UnauthorizedCall,
+    InvalidNftTemplateId,
 }
 
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]

@@ -27,7 +27,7 @@ pub const PROCESS_REIMBURSEMENTS: Duration = Duration::from_secs(1 * 60);
 
 pub const PROCESS_OGY_BURN: Duration = Duration::from_secs(1 * 60 * 60);
 
-pub const CYCLES_TOP_UP_INTERVAL: Duration = Duration::from_secs(60 * 60);
+pub const CYCLES_TOP_UP_INTERVAL: Duration = Duration::from_secs(1 * 60 * 60);
 
 pub fn setup_timers() {
     ic_cdk_timers::set_timer_interval(RETRY_COLLECTION_INSTALLTION_INTERVAL, || {

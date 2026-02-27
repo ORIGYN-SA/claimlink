@@ -36,7 +36,24 @@ pub async fn process_reimbursements() {
                 .clone()
         });
 
-        let reimbusement_amount = collection.ogy_charged.wrapping_sub(ogy_transfer_fee);
+        // check if the charged amount is less than transfer fee to prevent wrapping and panics.
+        let reimbusement_amount = match collection.ogy_charged.checked_sub(ogy_transfer_fee) {
+            Some(amount) => amount,
+            None => {
+                mutate_state(|s| {
+                    process_event(
+                        s,
+                        EventType::QuarantinedReimbursement {
+                            ogy_payment_index,
+                            reason:
+                                "Reimbursement amount underflow: ogy_charged < ogy_transfer_fee"
+                                    .to_string(),
+                        },
+                    )
+                });
+                continue;
+            }
+        };
 
         // Transfer OGY from claimlink canister to the collection owner as a refund
         let transfer_args = icrc_ledger_types::icrc1::transfer::TransferArg {
