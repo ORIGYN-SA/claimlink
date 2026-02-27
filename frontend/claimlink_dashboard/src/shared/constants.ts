@@ -2,7 +2,7 @@
 export const APP_MODE = import.meta.env.MODE;
 
 // Canister IDs for ClaimLink
-export const CLAIMLINK_CANISTER_ID =
+export const CLAIMLINK_CANISTER_ID_STAGING =
   import.meta.env.VITE_CLAIMLINK_CANISTER_ID || "zqa57-zaaaa-aaaah-qqopq-cai";
 export const NFT_CANISTER_ID =
   import.meta.env.VITE_NFT_CANISTER_ID || "zqa57-zaaaa-aaaah-qqopq-cai";
@@ -55,22 +55,14 @@ export const getNfidTargets = (): string[] => {
     const localhostTargets =
       NFID_LOCALHOST_TARGETS?.split(",").filter(Boolean) || [];
     const canisterTargets = [
-      CLAIMLINK_CANISTER_ID,
-      NFT_CANISTER_ID,
-      CERTIFICATE_CANISTER_ID,
-      LEDGER_CANISTER_ID,
+      CLAIMLINK_CANISTER_ID_STAGING,
     ].filter(Boolean); // Filter out undefined values
 
     return [...localhostTargets, ...canisterTargets];
   }
 
-  // In production, only use canister IDs
-  return [
-    CLAIMLINK_CANISTER_ID,
-    NFT_CANISTER_ID,
-    CERTIFICATE_CANISTER_ID,
-    LEDGER_CANISTER_ID,
-  ].filter(Boolean);
+  // In production, only claimlink canister ID cause ICRC21 is only implemented on that
+  return [CLAIMLINK_CANISTER_ID_STAGING].filter(Boolean);
 };
 
 // Helper function to get derivation origin
