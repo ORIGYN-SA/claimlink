@@ -4,6 +4,7 @@ import {
   IdentityKitAuthType,
   NFIDW,
   InternetIdentity,
+  OISY,
 } from "@nfid/identitykit";
 import type { IdentityKitSignerConfig } from "@nfid/identitykit";
 import { useSetAtom } from "jotai";
@@ -129,6 +130,7 @@ interface AuthGateProps {
   children: (authContext: RouterAuthContext) => ReactNode;
   targets?: string[];
   signers?: IdentityKitSignerConfig[];
+  authType?: Record<string, IdentityKitAuthType>,
   derivationOrigin?: string | undefined;
   maxTimeToLive?: bigint;
 }
@@ -150,9 +152,16 @@ interface AuthGateProps {
 export const AuthGate = ({
   children,
   targets,
-  signers,
+  signers = [OISY, NFIDW, InternetIdentity],
   derivationOrigin,
-  maxTimeToLive = 86400000000000n, // one day (24 hours in nanoseconds)
+  maxTimeToLive = 604800000000000n, // one week
+  authType = {
+    [NFIDW.id]: IdentityKitAuthType.DELEGATION,
+    ['Plug']: IdentityKitAuthType.DELEGATION,
+    [OISY.id]: IdentityKitAuthType.ACCOUNTS, // does not support icrc34_delegation
+    [InternetIdentity.id]: IdentityKitAuthType.DELEGATION, // does not support icrc27_accounts
+  }
+
 }: AuthGateProps) => {
   const queryClient = useQueryClient();
 
@@ -199,9 +208,16 @@ export const AuthGate = ({
 
   return (
     <IdentityKitProvider
-      signers={resolvedSigners}
-      authType={IdentityKitAuthType.DELEGATION}
-      signerClientOptions={signerClientOptions}
+      signers={signers}
+      authType={authType}
+      signerClientOptions={{
+        targets: nfidTargets,
+        maxTimeToLive,
+        derivationOrigin: nfidDerivationOrigin,
+        idleOptions: {
+          disableIdle: false,
+        },
+      }}
       onConnectFailure={(err: Error) => {
         console.error("[Auth] Connection failed:", err);
       }}
