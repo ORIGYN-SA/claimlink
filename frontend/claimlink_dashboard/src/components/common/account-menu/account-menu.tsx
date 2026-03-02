@@ -17,10 +17,8 @@ import { useNavigate, useRouter } from "@tanstack/react-router";
 import {
   useMultiTokenBalance,
   SUPPORTED_TOKENS,
-  useFetchTokenPrice,
   useFetchAccountTransactions,
   useCopyToClipboard,
-  useFetchLedgerDecimals,
 } from "@/shared";
 import { OGY_LEDGER_INDEX_CANISTER_ID } from "@/shared/constants";
 
@@ -62,29 +60,10 @@ export function AccountMenu({
   const ogyBalance = balances.find(({ token }) => token.id === "ogy")?.balance;
   const ogyToken = SUPPORTED_TOKENS.find((token) => token.id === "ogy");
 
-  // Fetch real-time OGY token price
-  const { data: ogyPriceData, isLoading: ogyPriceLoading } = useFetchTokenPrice(
-    authenticatedAgent,
-    {
-      from: "OGY",
-      from_canister_id: ogyToken?.canister_id || "",
-      amount: 1n * BigInt(10 ** 8), // 1 OGY in e8s format
-      enabled: !!authenticatedAgent && !!ogyToken,
-      refetchInterval: 60000, // Refresh price every minute
-    },
-  );
+  // Price and decimals are already fetched by useMultiTokenBalance via KongSwap
+  const ogyPriceUsd = ogyBalance?.data?.price_usd;
+  const ogyDecimals = ogyBalance?.data?.decimals;
 
-  // Fetch OGY token decimals for proper amount formatting
-  const decimals = useFetchLedgerDecimals(
-    ogyToken?.canister_id || "",
-    unauthenticatedAgent,
-    {
-      ledger: ogyToken?.name || "OGY",
-      enabled: !!unauthenticatedAgent && !!ogyToken,
-    },
-  );
-
-  // Fetch account transactions
   // Fetch transaction history for OGY token
   const txs = useFetchAccountTransactions(
     OGY_LEDGER_INDEX_CANISTER_ID,
@@ -104,11 +83,8 @@ export function AccountMenu({
   // Get the most recent transaction
   const lastTransaction = transactionData[0];
 
-  // Calculate total USD value
-  const totalUsdValue =
-    ogyBalance?.data?.balance && ogyPriceData
-      ? ogyBalance.data.balance * ogyPriceData.amount_usd
-      : 0;
+  // Total USD value is already computed by useMultiTokenBalance
+  const totalUsdValue = ogyBalance?.data?.balance_usd ?? 0;
 
   const handleSignOut = () => {
     disconnect();
@@ -202,8 +178,7 @@ export function AccountMenu({
                 {/* Wallet Balance Section */}
                 <WalletBalanceSection
                   balance={ogyBalance}
-                  priceData={ogyPriceData}
-                  priceLoading={ogyPriceLoading}
+                  priceUsd={ogyPriceUsd}
                   totalUsdValue={totalUsdValue}
                   onRefresh={() => refetchAll()}
                   onWithdrawClick={handleWithdrawClick}
@@ -219,8 +194,8 @@ export function AccountMenu({
                     refetch: txs.refetch,
                   }}
                   lastTransaction={lastTransaction}
-                  decimals={decimals}
-                  priceData={ogyPriceData}
+                  decimals={ogyDecimals}
+                  priceUsd={ogyPriceUsd}
                   onSeeAllTransactions={handleSeeAllTransactions}
                   formatTransactionDate={formatTransactionDate}
                   getTransactionTypeLabel={getTransactionTypeLabel}

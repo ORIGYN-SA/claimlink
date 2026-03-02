@@ -10,10 +10,7 @@ interface WalletBalanceSectionProps {
       balance: number;
     };
   } | undefined;
-  priceData: {
-    amount_usd: number;
-  } | undefined;
-  priceLoading: boolean;
+  priceUsd: number | undefined;
   totalUsdValue: number;
   onRefresh: () => void;
   onWithdrawClick: () => void;
@@ -23,8 +20,7 @@ interface WalletBalanceSectionProps {
 
 export function WalletBalanceSection({
   balance,
-  priceData,
-  priceLoading,
+  priceUsd,
   totalUsdValue,
   onRefresh,
   onWithdrawClick,
@@ -76,11 +72,11 @@ export function WalletBalanceSection({
               )}
             </div>
             <p className="text-[#69737c] text-sm tracking-[0.8px]">
-              {priceLoading ? (
+              {balance?.isLoading ? (
                 <span className="font-medium flex items-center justify-center gap-1">
                   <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
                 </span>
-              ) : priceData ? (
+              ) : priceUsd ? (
                 <span className="font-medium">(${totalUsdValue.toFixed(2)})</span>
               ) : (
                 <span className="font-medium">Price unavailable</span>
@@ -132,13 +128,13 @@ export function WalletBalanceSection({
       <div className="bg-[#fcfafa] border-x border-b border-[#e1e1e1] px-4 py-3">
         <p className="text-[#69737c] text-xs text-center">
           <span className="font-normal">Current rate:</span>{" "}
-          {priceLoading ? (
+          {balance?.isLoading ? (
             <span className="font-medium flex items-center justify-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
             </span>
-          ) : priceData ? (
+          ) : priceUsd ? (
             <span className="font-medium">
-              1 OGY = {priceData.amount_usd.toFixed(5)} USD
+              1 OGY = {priceUsd.toFixed(5)} USD
             </span>
           ) : (
             <span className="font-medium">Price unavailable</span>
