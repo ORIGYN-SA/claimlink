@@ -42,6 +42,7 @@ import {
 } from "@/features/certificates";
 import { useCollectionTemplate } from "@/features/collections";
 import { mockTemplates } from "@/shared/data/templates";
+import { PricingSidebar } from "./pricing-sidebar";
 
 /**
  * Reconstruct CertificateFormData from parsed on-chain metadata
@@ -442,6 +443,19 @@ export function CreateCertificatePageV2({
   // Compute if we're in uploading/minting state
   const isBusy = activeMutation.isPending;
 
+  // Calculate total file size for cost estimation
+  const totalFileSizeBytes = Array.from(state.fileFields.values()).reduce(
+    (sum, files) => {
+      for (const file of files) {
+        if (file instanceof File) {
+          sum += file.size;
+        }
+      }
+      return sum;
+    },
+    0,
+  );
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 items-start">
@@ -614,10 +628,17 @@ export function CreateCertificatePageV2({
           </div>
         </div>
 
-        {/* Sidebar */}
-        {/*<div className="w-full lg:w-[350px] flex-shrink-0">
-          <PricingSidebar />
-        </div>*/}
+        {/* Sidebar - only show in create mode when collection is selected */}
+        {mode === "create" && state.selectedCollection && (
+          <div className="w-full lg:w-[350px] flex-shrink-0">
+            <PricingSidebar
+              collectionCanisterId={state.selectedCollection}
+              totalFileSizeBytes={totalFileSizeBytes}
+              onMint={handleSubmit}
+              isMinting={isBusy}
+            />
+          </div>
+        )}
       </div>
 
       {/* Certificate Preview Modal */}

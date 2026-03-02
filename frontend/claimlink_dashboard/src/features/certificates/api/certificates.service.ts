@@ -2,7 +2,14 @@ import type { Agent } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
 import { idlFactory } from "@canisters/origyn_nft";
 import type { _SERVICE, ICRC3Value, GetBlocksRequest, GetBlocksResult, TransferError } from "@canisters/origyn_nft";
-import { createCanisterActor, retryWithBackoff } from "@/shared/canister";
+import { idlFactory as claimlinkIdlFactory } from "@canisters/claimlink";
+import type {
+  _SERVICE as ClaimlinkService,
+  MintCostEstimate,
+  OgyPriceData,
+  ICRC3Value_1,
+} from "@canisters/claimlink";
+import { createCanisterActor, retryWithBackoff, getCanisterId } from "@/shared/canister";
 import { buildCanisterUrl, isLocalReplica } from "@/features/template-renderer/utils/url-resolver";
 
 /**
@@ -404,5 +411,249 @@ export class CertificatesService {
     const actor = this.createActor(agent, canisterId);
     const request: GetBlocksRequest = { start, length };
     return actor.icrc3_get_blocks([request]);
+  }
+}
+
+/**
+ * ClaimLink Minting Service
+ *
+ * Handles paid minting operations through the ClaimLink backend canister.
+ * This replaces direct ORIGYN canister calls for new mints (edits still go direct).
+ */
+export class ClaimlinkMintingService {
+  private static createActor(agent: Agent): ClaimlinkService {
+    return createCanisterActor<ClaimlinkService>(
+      agent,
+      getCanisterId('claimlink'),
+      claimlinkIdlFactory,
+    );
+  }
+
+  /**
+   * Estimate the cost of minting certificates
+   */
+  static async estimateMintCost(
+    agent: Agent,
+    collectionCanisterId: string,
+    numMints: number,
+    totalFileSizeBytes: number,
+  ): Promise<MintCostEstimate> {
+    const actor = this.createActor(agent);
+    const result = await actor.estimate_mint_cost({
+      collection_canister_id: Principal.fromText(collectionCanisterId),
+      num_mints: BigInt(numMints),
+      total_file_size_bytes: BigInt(totalFileSizeBytes),
+    });
+
+    if ('Err' in result) {
+      const errKey = Object.keys(result.Err)[0];
+      if (errKey === 'MintPricingNotConfigured') {
+        throw new Error('Mint pricing is not configured on this canister.');
+      }
+      if (errKey === 'OgyPriceNotAvailable') {
+        throw new Error('OGY price data is currently unavailable. Please try again later.');
+      }
+      throw new Error(`Estimate failed: ${errKey}`);
+    }
+
+    return result.Ok;
+  }
+
+  /**
+   * Initialize a paid mint request
+   * The backend collects OGY payment via ICRC-2 transfer_from
+   */
+  static async initializeMint(
+    agent: Agent,
+    collectionCanisterId: string,
+    numMints: number,
+    totalFileSizeBytes: number,
+  ): Promise<bigint> {
+    const actor = this.createActor(agent);
+    const result = await actor.initialize_mint({
+      collection_canister_id: Principal.fromText(collectionCanisterId),
+      num_mints: BigInt(numMints),
+      total_file_size_bytes: BigInt(totalFileSizeBytes),
+    });
+
+    if ('Err' in result) {
+      const err = result.Err;
+      if ('CallerNotCollectionOwner' in err) {
+        throw new Error('You are not the owner of this collection.');
+      }
+      if ('CollectionNotFound' in err) {
+        throw new Error('Collection not found.');
+      }
+      if ('CollectionNotReady' in err) {
+        throw new Error('Collection is not ready for minting.');
+      }
+      if ('TransferFromError' in err) {
+        const transferErr = err.TransferFromError;
+        if ('InsufficientAllowance' in transferErr) {
+          throw new Error('Insufficient OGY allowance. Please approve spending first.');
+        }
+        if ('InsufficientFunds' in transferErr) {
+          throw new Error('Insufficient OGY balance.');
+        }
+        throw new Error(`OGY payment failed: ${Object.keys(transferErr)[0]}`);
+      }
+      if ('OgyPriceNotAvailable' in err) {
+        throw new Error('OGY price data is currently unavailable.');
+      }
+      throw new Error(`Initialize mint failed: ${Object.keys(err)[0]}`);
+    }
+
+    return result.Ok;
+  }
+
+  /**
+   * Upload a file through the ClaimLink proxy
+   * Same chunked upload pattern but routed through ClaimLink canister
+   */
+  static async proxyUploadFile(
+    agent: Agent,
+    mintRequestId: bigint,
+    file: File,
+    onProgress?: (progress: number) => void,
+  ): Promise<string> {
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks
+    const sanitizedName = file.name
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+    const filePath = `${Date.now()}_${sanitizedName}`;
+
+    // Calculate file hash (SHA-256)
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const actor = this.createActor(agent);
+
+    // Initialize upload
+    const initResult = await actor.proxy_init_upload({
+      mint_request_id: mintRequestId,
+      file_path: filePath,
+      file_hash: fileHash,
+      file_size: BigInt(file.size),
+      chunk_size: [BigInt(CHUNK_SIZE)],
+    });
+
+    if ('Err' in initResult) {
+      throw new Error(`Proxy init upload failed: ${this.formatProxyUploadError(initResult.Err)}`);
+    }
+
+    // Upload chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkData = Array.from(uint8Array.slice(start, end));
+
+      await retryWithBackoff(
+        async () => {
+          const storeResult = await actor.proxy_store_chunk({
+            mint_request_id: mintRequestId,
+            file_path: filePath,
+            chunk_id: BigInt(i),
+            chunk_data: chunkData,
+          });
+
+          if ('Err' in storeResult) {
+            throw new Error(`Proxy store chunk failed: ${this.formatProxyUploadError(storeResult.Err)}`);
+          }
+        },
+        { maxRetries: 3, operationName: `Chunk ${i + 1}/${totalChunks}` },
+      );
+
+      if (onProgress) {
+        onProgress(((i + 1) / totalChunks) * 100);
+      }
+    }
+
+    // Finalize upload
+    const finalizeResult = await actor.proxy_finalize_upload({
+      mint_request_id: mintRequestId,
+      file_path: filePath,
+    });
+
+    if ('Err' in finalizeResult) {
+      throw new Error(`Proxy finalize upload failed: ${this.formatProxyUploadError(finalizeResult.Err)}`);
+    }
+
+    return finalizeResult.Ok;
+  }
+
+  /**
+   * Mint NFTs through the ClaimLink proxy
+   */
+  static async mintNfts(
+    agent: Agent,
+    mintRequestId: bigint,
+    mintItems: Array<{
+      tokenOwner: { owner: Principal; subaccount: [] | [Uint8Array | number[]] };
+      metadata: Array<[string, ICRC3Value_1]>;
+      memo?: Uint8Array | number[];
+    }>,
+  ): Promise<bigint[]> {
+    const actor = this.createActor(agent);
+
+    const result = await actor.mint_nfts({
+      mint_request_id: mintRequestId,
+      mint_items: mintItems.map(item => ({
+        token_owner: item.tokenOwner,
+        metadata: item.metadata,
+        memo: item.memo ? [item.memo] : [],
+      })),
+    });
+
+    if ('Err' in result) {
+      const err = result.Err;
+      if ('MintError' in err) {
+        throw new Error(`Minting failed: ${err.MintError}`);
+      }
+      if ('MintLimitExceeded' in err) {
+        throw new Error(
+          `Mint limit exceeded: requested ${err.MintLimitExceeded.requested}, ` +
+          `already minted ${err.MintLimitExceeded.already_minted}, ` +
+          `allowed ${err.MintLimitExceeded.allowed}`,
+        );
+      }
+      throw new Error(`Mint failed: ${Object.keys(err)[0]}`);
+    }
+
+    return result.Ok;
+  }
+
+  /**
+   * Get current OGY/USD price
+   */
+  static async getOgyUsdPrice(agent: Agent): Promise<OgyPriceData | null> {
+    const actor = this.createActor(agent);
+    const result = await actor.get_ogy_usd_price();
+    return result.length > 0 ? (result[0] ?? null) : null;
+  }
+
+  private static formatProxyUploadError(err: { 'ByteLimitExceeded' : { 'requested' : bigint, 'allocated' : bigint, 'used' : bigint } } | { 'MintRequestNotFound' : null } | { 'UploadError' : string } | { 'Unauthorized' : null } | { 'MintRequestNotActive' : null }): string {
+    if ('ByteLimitExceeded' in err) {
+      return `File size exceeds allocated storage (used: ${err.ByteLimitExceeded.used}, allocated: ${err.ByteLimitExceeded.allocated})`;
+    }
+    if ('UploadError' in err) {
+      return err.UploadError;
+    }
+    if ('MintRequestNotFound' in err) {
+      return 'Mint request not found';
+    }
+    if ('Unauthorized' in err) {
+      return 'Unauthorized';
+    }
+    if ('MintRequestNotActive' in err) {
+      return 'Mint request is no longer active';
+    }
+    return 'Unknown upload error';
   }
 }

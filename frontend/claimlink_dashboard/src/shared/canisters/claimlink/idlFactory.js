@@ -10,15 +10,26 @@ export const idlFactory = ({ IDL }) => {
     'minor' : IDL.Nat32,
     'patch' : IDL.Nat32,
   });
+  const MintPricingConfig = IDL.Record({
+    'storage_fee_per_mb_usd_e8s' : IDL.Nat64,
+    'base_mint_fee_usd_e8s' : IDL.Nat64,
+  });
   const UpgradeArgs = IDL.Record({
     'origyn_nft_wasm_hash' : IDL.Opt(IDL.Text),
     'cycles_management' : IDL.Opt(CyclesManagement),
     'max_creation_retries' : IDL.Opt(IDL.Nat),
     'collection_request_fee' : IDL.Opt(IDL.Nat),
+    'new_authorized_principals' : IDL.Opt(IDL.Vec(IDL.Record({
+      'principal' : IDL.Principal,
+      'name' : IDL.Text,
+    }))),
     'ogy_transfer_fee' : IDL.Opt(IDL.Nat),
     'bank_principal_id' : IDL.Opt(IDL.Principal),
+    'ledger_canister_id' : IDL.Opt(IDL.Principal),
+    'mint_pricing' : IDL.Opt(MintPricingConfig),
     'commit_hash' : IDL.Text,
     'build_version' : BuildVersion,
+    'icpswap_pool_canister_id' : IDL.Opt(IDL.Principal),
     'max_template_per_owner' : IDL.Opt(IDL.Nat),
   });
   const AuthordiedPrincipal = IDL.Record({
@@ -26,6 +37,7 @@ export const idlFactory = ({ IDL }) => {
     'name' : IDL.Text,
   });
   const InitArg = IDL.Record({
+    'base_url' : IDL.Opt(IDL.Text),
     'cycles_management' : CyclesManagement,
     'test_mode' : IDL.Bool,
     'max_creation_retries' : IDL.Nat,
@@ -34,7 +46,9 @@ export const idlFactory = ({ IDL }) => {
     'authorized_principals' : IDL.Vec(AuthordiedPrincipal),
     'bank_principal_id' : IDL.Principal,
     'ledger_canister_id' : IDL.Principal,
+    'mint_pricing' : IDL.Opt(MintPricingConfig),
     'commit_hash' : IDL.Text,
+    'icpswap_pool_canister_id' : IDL.Opt(IDL.Principal),
     'max_template_per_owner' : IDL.Nat,
   });
   const ClaimlinkArgs = IDL.Variant({
@@ -68,6 +82,7 @@ export const idlFactory = ({ IDL }) => {
     'CreateOrigynNftCanisterError' : IDL.Null,
     'TransferFromError' : TransferFromError,
     'InvalidNftTemplateId' : IDL.Null,
+    'ConcurrentRequest' : IDL.Null,
   });
   const Result = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : CreateCollectionError });
   const CreateTemplateArgs = IDL.Record({ 'template_json' : IDL.Text });
@@ -76,6 +91,31 @@ export const idlFactory = ({ IDL }) => {
     'LimitExceeded' : IDL.Record({ 'max_templates' : IDL.Nat }),
   });
   const Result_1 = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : CreateTemplateError });
+  const DeleteTemplateError = IDL.Variant({
+    'UnauthorizedCall' : IDL.Null,
+    'InvalidNftTemplateId' : IDL.Null,
+  });
+  const Result_2 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : DeleteTemplateError });
+  const EstimateMintCostArgs = IDL.Record({
+    'total_file_size_bytes' : IDL.Nat,
+    'num_mints' : IDL.Nat64,
+    'collection_canister_id' : IDL.Principal,
+  });
+  const MintCostBreakdown = IDL.Record({
+    'storage_fee_usd_e8s' : IDL.Nat64,
+    'base_fee_usd_e8s' : IDL.Nat64,
+  });
+  const MintCostEstimate = IDL.Record({
+    'breakdown' : MintCostBreakdown,
+    'total_usd_e8s' : IDL.Nat64,
+    'ogy_usd_price_e8s' : IDL.Nat64,
+    'total_ogy_e8s' : IDL.Nat64,
+  });
+  const EstimateMintCostError = IDL.Variant({
+    'MintPricingNotConfigured' : IDL.Null,
+    'OgyPriceNotAvailable' : IDL.Null,
+  });
+  const Result_3 = IDL.Variant({ 'Ok' : MintCostEstimate, 'Err' : EstimateMintCostError });
   const CollectionSearchParam = IDL.Variant({
     'CanisterId' : IDL.Principal,
     'CollectionId' : IDL.Nat,
@@ -125,6 +165,41 @@ export const idlFactory = ({ IDL }) => {
     'collections' : IDL.Vec(CollectionInfo),
     'total_count' : IDL.Nat64,
   });
+  const GetCollectionsForUserArgs = IDL.Record({
+    'pagination' : PaginationArgs,
+    'user' : IDL.Principal,
+  });
+  const GetMintRequestsByOwnerArgs = IDL.Record({
+    'owner' : IDL.Principal,
+    'offset' : IDL.Opt(IDL.Nat64),
+    'limit' : IDL.Opt(IDL.Nat64),
+  });
+  const MintRequestStatus = IDL.Variant({
+    'Initialized' : IDL.Null,
+    'Refunded' : IDL.Record({ 'tx_index' : IDL.Nat }),
+    'RefundRequested' : IDL.Null,
+    'RefundFailed' : IDL.Record({ 'reason' : IDL.Text }),
+    'Completed' : IDL.Null,
+  });
+  const UploadedFileInfo = IDL.Record({
+    'file_path' : IDL.Text,
+    'file_url' : IDL.Text,
+    'file_size' : IDL.Nat64,
+  });
+  const MintRequestInfo = IDL.Record({
+    'id' : IDL.Nat,
+    'status' : MintRequestStatus,
+    'updated_at' : IDL.Nat,
+    'minted_count' : IDL.Nat,
+    'uploaded_files' : IDL.Vec(UploadedFileInfo),
+    'owner' : IDL.Principal,
+    'allocated_bytes' : IDL.Nat,
+    'created_at' : IDL.Nat,
+    'bytes_uploaded' : IDL.Nat,
+    'num_mints' : IDL.Nat,
+    'collection_canister_id' : IDL.Principal,
+    'ogy_charged' : IDL.Nat,
+  });
   const GetNftDetailsArgs = IDL.Record({
     'canister_id' : IDL.Principal,
     'token_ids' : IDL.Vec(IDL.Nat),
@@ -171,6 +246,10 @@ export const idlFactory = ({ IDL }) => {
     'owner' : IDL.Opt(Account),
     'metadata' : IDL.Opt(IDL.Vec(IDL.Tuple(IDL.Text, ICRC3Value_1))),
   });
+  const OgyPriceData = IDL.Record({
+    'updated_at' : IDL.Nat64,
+    'usd_per_ogy_e8s' : IDL.Nat64,
+  });
   const GetTemplatesByOwnerArgs = IDL.Record({
     'owner' : IDL.Principal,
     'pagination' : PaginationArgs,
@@ -186,10 +265,151 @@ export const idlFactory = ({ IDL }) => {
   const GetTemplatesByOwnerError = IDL.Variant({
     'UnauthorizedCall' : IDL.Null,
   });
-  const Result_2 = IDL.Variant({
+  const Result_4 = IDL.Variant({
     'Ok' : TemplatesResult,
     'Err' : GetTemplatesByOwnerError,
   });
+  const SupportedStandard = IDL.Record({
+    'url' : IDL.Text,
+    'name' : IDL.Text,
+  });
+  const Icrc21ConsentMessageMetadata = IDL.Record({
+    'utc_offset_minutes' : IDL.Opt(IDL.Int16),
+    'language' : IDL.Text,
+  });
+  const Icrc21DeviceSpec = IDL.Variant({
+    'GenericDisplay' : IDL.Null,
+    'FieldsDisplay' : IDL.Null,
+  });
+  const Icrc21ConsentMessageSpec = IDL.Record({
+    'metadata' : Icrc21ConsentMessageMetadata,
+    'device_spec' : IDL.Opt(Icrc21DeviceSpec),
+  });
+  const Icrc21ConsentMessageRequest = IDL.Record({
+    'arg' : IDL.Vec(IDL.Nat8),
+    'method' : IDL.Text,
+    'user_preferences' : Icrc21ConsentMessageSpec,
+  });
+  const Icrc21FieldDisplayMessage = IDL.Record({
+    'fields' : IDL.Vec(IDL.Tuple(IDL.Text, IDL.Text)),
+    'intent' : IDL.Text,
+  });
+  const Icrc21ConsentMessage = IDL.Record({
+    'generic_display_message' : IDL.Text,
+    'fields_display_message' : Icrc21FieldDisplayMessage,
+  });
+  const Icrc21ConsentInfo = IDL.Record({
+    'metadata' : Icrc21ConsentMessageMetadata,
+    'consent_message' : Icrc21ConsentMessage,
+  });
+  const Icrc21ErrorInfo = IDL.Record({ 'description' : IDL.Text });
+  const Icrc21GenericError = IDL.Record({
+    'description' : IDL.Text,
+    'error_code' : IDL.Nat64,
+  });
+  const Icrc21Error = IDL.Variant({
+    'GenericError' : Icrc21ErrorInfo,
+    'InsufficientPayment' : Icrc21GenericError,
+    'UnsupportedCanisterCall' : Icrc21ErrorInfo,
+    'ConsentMessageUnavailable' : Icrc21ErrorInfo,
+  });
+  const Icrc21ConsentMessageResponse = IDL.Variant({
+    'Ok' : Icrc21ConsentInfo,
+    'Err' : Icrc21Error,
+  });
+  const Icrc28TrustedOriginsResponse = IDL.Record({
+    'trusted_origins' : IDL.Vec(IDL.Text),
+  });
+  const InitializeMintArgs = IDL.Record({
+    'total_file_size_bytes' : IDL.Nat,
+    'num_mints' : IDL.Nat64,
+    'collection_canister_id' : IDL.Principal,
+  });
+  const InitializeMintError = IDL.Variant({
+    'CollectionNotReady' : IDL.Null,
+    'CallerNotCollectionOwner' : IDL.Null,
+    'CollectionNotFound' : IDL.Null,
+    'InvalidNumMints' : IDL.Null,
+    'Generic' : GenericError,
+    'TransferFromError' : TransferFromError,
+    'OgyPriceNotAvailable' : IDL.Null,
+  });
+  const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : InitializeMintError });
+  const MintItemArg = IDL.Record({
+    'metadata' : IDL.Vec(IDL.Tuple(IDL.Text, ICRC3Value_1)),
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'token_owner' : Account,
+  });
+  const MintNftsArgs = IDL.Record({
+    'mint_items' : IDL.Vec(MintItemArg),
+    'mint_request_id' : IDL.Nat64,
+  });
+  const MintNftsError = IDL.Variant({
+    'MintError' : IDL.Text,
+    'MintRequestNotFound' : IDL.Null,
+    'MintLimitExceeded' : IDL.Record({
+      'requested' : IDL.Nat,
+      'already_minted' : IDL.Nat,
+      'allowed' : IDL.Nat,
+    }),
+    'TooManyItems' : IDL.Record({ 'max' : IDL.Nat }),
+    'Unauthorized' : IDL.Null,
+    'MintRequestNotActive' : IDL.Null,
+    'NoItemsProvided' : IDL.Null,
+  });
+  const Result_6 = IDL.Variant({ 'Ok' : IDL.Vec(IDL.Nat), 'Err' : MintNftsError });
+  const ProxyFinalizeUploadArgs = IDL.Record({
+    'file_path' : IDL.Text,
+    'mint_request_id' : IDL.Nat64,
+  });
+  const ProxyUploadError = IDL.Variant({
+    'ByteLimitExceeded' : IDL.Record({
+      'requested' : IDL.Nat,
+      'allocated' : IDL.Nat,
+      'used' : IDL.Nat,
+    }),
+    'MintRequestNotFound' : IDL.Null,
+    'UploadError' : IDL.Text,
+    'Unauthorized' : IDL.Null,
+    'MintRequestNotActive' : IDL.Null,
+  });
+  const Result_7 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyUploadError });
+  const ProxyInitUploadArgs = IDL.Record({
+    'file_hash' : IDL.Text,
+    'file_path' : IDL.Text,
+    'file_size' : IDL.Nat64,
+    'chunk_size' : IDL.Opt(IDL.Nat64),
+    'mint_request_id' : IDL.Nat64,
+  });
+  const Result_8 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyUploadError });
+  const ProxyStoreChunkArgs = IDL.Record({
+    'chunk_id' : IDL.Nat,
+    'file_path' : IDL.Text,
+    'chunk_data' : IDL.Vec(IDL.Nat8),
+    'mint_request_id' : IDL.Nat64,
+  });
+  const RequestMintRefundArgs = IDL.Record({
+    'mint_request_id' : IDL.Nat64,
+  });
+  const RefundError = IDL.Variant({
+    'MintRequestNotFound' : IDL.Null,
+    'NotInRefundableState' : IDL.Null,
+    'Unauthorized' : IDL.Null,
+    'AlreadyRefunded' : IDL.Null,
+    'CreditsAlreadyUsed' : IDL.Null,
+  });
+  const Result_9 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : RefundError });
+  const UpdateTemplateArgs = IDL.Record({
+    'new_tempalte_json' : IDL.Text,
+    'template_id' : IDL.Nat,
+  });
+  const UpdateTemplateError = IDL.Variant({
+    'UnauthorizedCall' : IDL.Null,
+    'InvalidNftTemplateId' : IDL.Null,
+    'JsonError' : IDL.Text,
+    'TemplateNotFound' : IDL.Null,
+  });
+  const Result_10 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : UpdateTemplateError });
   const MemorySize = IDL.Record({ 'stable' : IDL.Nat64, 'heap' : IDL.Nat64 });
   const CanisterInfo = IDL.Record({
     'test_mode' : IDL.Bool,
@@ -215,6 +435,12 @@ export const idlFactory = ({ IDL }) => {
   return IDL.Service({
     'create_collection' : IDL.Func([CreateCollectionArgs], [Result], []),
     'create_template' : IDL.Func([CreateTemplateArgs], [Result_1], []),
+    'delete_template' : IDL.Func([IDL.Nat], [Result_2], []),
+    'estimate_mint_cost' : IDL.Func(
+        [EstimateMintCostArgs],
+        [Result_3],
+        ['query'],
+      ),
     'get_collection_count' : IDL.Func([], [IDL.Nat64], ['query']),
     'get_collection_info' : IDL.Func(
         [CollectionSearchParam],
@@ -231,22 +457,64 @@ export const idlFactory = ({ IDL }) => {
         [CollectionsResult],
         ['query'],
       ),
+    'get_collections_for_user' : IDL.Func(
+        [GetCollectionsForUserArgs],
+        [CollectionsResult],
+        ['composite_query'],
+      ),
     'get_metrics' : IDL.Func([], [Metrics], ['query']),
+    'get_mint_request' : IDL.Func(
+        [IDL.Nat64],
+        [IDL.Opt(MintRequestInfo)],
+        ['query'],
+      ),
+    'get_mint_requests_by_owner' : IDL.Func(
+        [GetMintRequestsByOwnerArgs],
+        [IDL.Vec(MintRequestInfo)],
+        ['query'],
+      ),
     'get_nft_details' : IDL.Func(
         [GetNftDetailsArgs],
         [IDL.Vec(NftDetails)],
         ['composite_query'],
       ),
+    'get_ogy_usd_price' : IDL.Func([], [IDL.Opt(OgyPriceData)], ['query']),
     'get_templates_by_owner' : IDL.Func(
         [GetTemplatesByOwnerArgs],
-        [Result_2],
+        [Result_4],
         ['query'],
       ),
+    'icrc10_supported_standards' : IDL.Func(
+        [],
+        [IDL.Vec(SupportedStandard)],
+        ['query'],
+      ),
+    'icrc21_canister_call_consent_message' : IDL.Func(
+        [Icrc21ConsentMessageRequest],
+        [Icrc21ConsentMessageResponse],
+        ['query'],
+      ),
+    'icrc28_trusted_origins' : IDL.Func(
+        [],
+        [Icrc28TrustedOriginsResponse],
+        ['query'],
+      ),
+    'initialize_mint' : IDL.Func([InitializeMintArgs], [Result_5], []),
     'list_all_collections' : IDL.Func(
         [PaginationArgs],
         [CollectionsResult],
         ['query'],
       ),
+    'mint_nfts' : IDL.Func([MintNftsArgs], [Result_6], []),
+    'proxy_finalize_upload' : IDL.Func(
+        [ProxyFinalizeUploadArgs],
+        [Result_7],
+        [],
+      ),
+    'proxy_init_upload' : IDL.Func([ProxyInitUploadArgs], [Result_8], []),
+    'proxy_store_chunk' : IDL.Func([ProxyStoreChunkArgs], [Result_8], []),
+    'request_mint_refund' : IDL.Func([RequestMintRefundArgs], [Result_9], []),
+    'update_template' : IDL.Func([UpdateTemplateArgs], [Result_10], []),
   });
 };
 export const init = ({ IDL }) => {
@@ -259,15 +527,26 @@ export const init = ({ IDL }) => {
     'minor' : IDL.Nat32,
     'patch' : IDL.Nat32,
   });
+  const MintPricingConfig = IDL.Record({
+    'storage_fee_per_mb_usd_e8s' : IDL.Nat64,
+    'base_mint_fee_usd_e8s' : IDL.Nat64,
+  });
   const UpgradeArgs = IDL.Record({
     'origyn_nft_wasm_hash' : IDL.Opt(IDL.Text),
     'cycles_management' : IDL.Opt(CyclesManagement),
     'max_creation_retries' : IDL.Opt(IDL.Nat),
     'collection_request_fee' : IDL.Opt(IDL.Nat),
+    'new_authorized_principals' : IDL.Opt(IDL.Vec(IDL.Record({
+      'principal' : IDL.Principal,
+      'name' : IDL.Text,
+    }))),
     'ogy_transfer_fee' : IDL.Opt(IDL.Nat),
     'bank_principal_id' : IDL.Opt(IDL.Principal),
+    'ledger_canister_id' : IDL.Opt(IDL.Principal),
+    'mint_pricing' : IDL.Opt(MintPricingConfig),
     'commit_hash' : IDL.Text,
     'build_version' : BuildVersion,
+    'icpswap_pool_canister_id' : IDL.Opt(IDL.Principal),
     'max_template_per_owner' : IDL.Opt(IDL.Nat),
   });
   const AuthordiedPrincipal = IDL.Record({
@@ -275,6 +554,7 @@ export const init = ({ IDL }) => {
     'name' : IDL.Text,
   });
   const InitArg = IDL.Record({
+    'base_url' : IDL.Opt(IDL.Text),
     'cycles_management' : CyclesManagement,
     'test_mode' : IDL.Bool,
     'max_creation_retries' : IDL.Nat,
@@ -283,7 +563,9 @@ export const init = ({ IDL }) => {
     'authorized_principals' : IDL.Vec(AuthordiedPrincipal),
     'bank_principal_id' : IDL.Principal,
     'ledger_canister_id' : IDL.Principal,
+    'mint_pricing' : IDL.Opt(MintPricingConfig),
     'commit_hash' : IDL.Text,
+    'icpswap_pool_canister_id' : IDL.Opt(IDL.Principal),
     'max_template_per_owner' : IDL.Nat,
   });
   const ClaimlinkArgs = IDL.Variant({

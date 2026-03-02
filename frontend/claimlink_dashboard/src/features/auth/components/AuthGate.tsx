@@ -24,7 +24,7 @@ import {
   APP_MODE,
   getNfidTargets,
   getDerivationOrigin,
-  getLocalInternetIdentityUrl,
+  // getLocalInternetIdentityUrl,
 } from "@/shared/constants";
 import { isLocalICReplica } from "@/shared/utils/environment";
 
@@ -107,7 +107,13 @@ const AuthGateInner = ({ children }: AuthGateInnerProps) => {
       authenticatedAgent,
       unauthenticatedAgent,
     }));
-  }, [user, isInitializing, authenticatedAgent, unauthenticatedAgent, setState]);
+  }, [
+    user,
+    isInitializing,
+    authenticatedAgent,
+    unauthenticatedAgent,
+    setState,
+  ]);
 
   // Show loading until auth AND agents are resolved
   // This is the KEY INSIGHT: Router doesn't exist during this phase
@@ -130,7 +136,7 @@ interface AuthGateProps {
   children: (authContext: RouterAuthContext) => ReactNode;
   targets?: string[];
   signers?: IdentityKitSignerConfig[];
-  authType?: Record<string, IdentityKitAuthType>,
+  authType?: Record<string, IdentityKitAuthType>;
   derivationOrigin?: string | undefined;
   maxTimeToLive?: bigint;
 }
@@ -157,42 +163,41 @@ export const AuthGate = ({
   maxTimeToLive = 604800000000000n, // one week
   authType = {
     [NFIDW.id]: IdentityKitAuthType.DELEGATION,
-    ['Plug']: IdentityKitAuthType.DELEGATION,
+    ["Plug"]: IdentityKitAuthType.DELEGATION,
     [OISY.id]: IdentityKitAuthType.ACCOUNTS, // does not support icrc34_delegation
     [InternetIdentity.id]: IdentityKitAuthType.DELEGATION, // does not support icrc27_accounts
-  }
-
+  },
 }: AuthGateProps) => {
   const queryClient = useQueryClient();
 
   // Memoize signers to prevent IdentityKitProvider re-initialization on re-renders.
   // New array/object references cause the provider to reset auth state.
-  const localIIUrl = getLocalInternetIdentityUrl();
-  const resolvedSigners = useMemo(
-    () =>
-      signers ||
-      (localIIUrl
-        ? [{ ...InternetIdentity, providerUrl: localIIUrl }]
-        : [NFIDW, InternetIdentity]),
-    [signers, localIIUrl],
-  );
+  // const localIIUrl = getLocalInternetIdentityUrl();
+  // const resolvedSigners = useMemo(
+  //   () =>
+  //     signers ||
+  //     (localIIUrl
+  //       ? [{ ...InternetIdentity, providerUrl: localIIUrl }]
+  //       : [NFIDW, InternetIdentity]),
+  //   [signers, localIIUrl],
+  // );
 
   const nfidTargets = useMemo(() => targets || getNfidTargets(), [targets]);
   const nfidDerivationOrigin =
     derivationOrigin !== undefined ? derivationOrigin : getDerivationOrigin();
 
   // Memoize signerClientOptions to prevent provider re-initialization
-  const signerClientOptions = useMemo(
-    () => ({
-      targets: nfidTargets,
-      maxTimeToLive,
-      derivationOrigin: nfidDerivationOrigin,
-      idleOptions: {
-        disableIdle: true,
-      },
-    }),
-    [nfidTargets, maxTimeToLive, nfidDerivationOrigin],
-  );
+  // const signerClientOptions = useMemo(
+  //   () => ({
+  //     targets: nfidTargets,
+  //     maxTimeToLive,
+  //     derivationOrigin: nfidDerivationOrigin,
+  //     idleOptions: {
+  //       disableIdle: true,
+  //     },
+  //   }),
+  //   [nfidTargets, maxTimeToLive, nfidDerivationOrigin],
+  // );
 
   // Handle successful connection
   const handleConnectSuccess = () => {
