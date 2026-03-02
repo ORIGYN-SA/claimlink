@@ -31,8 +31,11 @@ pub struct InitArg {
     pub base_url: Option<String>,
     #[n(11)]
     pub mint_pricing: Option<MintPricingConfig>,
+    /// kept here to keep the canister event state backward compatible but not used anymore
     #[cbor(n(12), with = "crate::cbor::principal::option")]
     pub icpswap_pool_canister_id: Option<Principal>,
+    #[cbor(n(13), with = "crate::cbor::principal::option")]
+    pub kongswap_canister_id: Option<Principal>,
 }
 
 #[derive(Deserialize, CandidType, Encode, Decode, PartialEq, Eq, Debug, Clone, Serialize)]

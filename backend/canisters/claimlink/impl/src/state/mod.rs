@@ -94,7 +94,8 @@ impl RuntimeState {
             new_authorized_principals,
             ledger_canister_id,
             mint_pricing,
-            icpswap_pool_canister_id,
+            icpswap_pool_canister_id: _,
+            kongswap_canister_id,
         }: UpgradeArgs,
     ) -> Result<(), String> {
         if let Some(origyn_nft_wasm_hash) = origyn_nft_wasm_hash {
@@ -151,8 +152,8 @@ impl RuntimeState {
             self.data.mint_pricing = mint_pricing;
         }
 
-        if icpswap_pool_canister_id.is_some() {
-            self.data.icpswap_pool_canister_id = icpswap_pool_canister_id;
+        if kongswap_canister_id.is_some() {
+            self.data.kongswap_canister_id = kongswap_canister_id;
         }
 
         self.env.set_version(build_version);
@@ -219,7 +220,7 @@ pub struct Data {
     // Mint pricing
     pub mint_pricing: Option<MintPricingConfig>,
     pub ogy_price: Option<OgyPriceData>,
-    pub icpswap_pool_canister_id: Option<Principal>,
+    pub kongswap_canister_id: Option<Principal>,
 
     // Mint requests
     pub mint_requests: BTreeMap<MintRequestId, MintRequest>,
@@ -715,7 +716,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 base_url: value.base_url,
                 mint_pricing: value.mint_pricing,
                 ogy_price: None,
-                icpswap_pool_canister_id: value.icpswap_pool_canister_id,
+                kongswap_canister_id: value.kongswap_canister_id,
                 mint_requests: Default::default(),
                 next_mint_request_id: 0,
                 mint_refund_queue: Default::default(),

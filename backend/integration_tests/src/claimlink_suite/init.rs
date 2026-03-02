@@ -148,7 +148,8 @@ fn install_canisters(pic: &mut PocketIc, principal_ids: &PrincipalIds) -> Canist
             base_mint_fee_usd_e8s: 1_000_000,       // $0.01
             storage_fee_per_mb_usd_e8s: 4_600_000,   // $0.046
         }),
-        icpswap_pool_canister_id: None, // Not needed in test mode
+        icpswap_pool_canister_id: None,
+        kongswap_canister_id: None,
     });
 
     install_canister(

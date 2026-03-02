@@ -57,8 +57,9 @@ fn upgrade_claimlink() {
                 base_mint_fee_usd_e8s: 1_000_000,
                 storage_fee_per_mb_usd_e8s: 4_600_000,
             }),
-            icpswap_pool_canister_id: Some(
-                Principal::from_text("ttnzy-lyaaa-aaaag-qj2bq-cai").unwrap(),
+            icpswap_pool_canister_id: None,
+            kongswap_canister_id: Some(
+                Principal::from_text("2ipq2-uqaaa-aaaar-qailq-cai").unwrap(),
             ),
         }),
     );

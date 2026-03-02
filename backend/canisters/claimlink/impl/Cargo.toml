@@ -30,10 +30,8 @@ ic_management_canister_api = { path = '../../../external_canisters/ic_management
 ic_management_canister_c2c_client = { path = '../../../external_canisters/ic_management/c2c_client' }
 origyn-nft-canister-api = { path = '../../../external_canisters/origyn_nft/api' }
 origyn-nft-canister-c2c-client = { path = '../../../external_canisters/origyn_nft/c2c_client' }
-icpswap-pool-canister-api = { path = '../../../external_canisters/icpswap/api' }
-icpswap-pool-canister-c2c-client = { path = '../../../external_canisters/icpswap/c2c_client' }
-xrc-canister-api = { path = '../../../external_canisters/xrc/api' }
-xrc-canister-c2c-client = { path = '../../../external_canisters/xrc/c2c_client' }
+kongswap-canister-api = { path = '../../../external_canisters/kongswap/api' }
+kongswap-canister-c2c-client = { path = '../../../external_canisters/kongswap/c2c_client' }
 types = { path = "../../../libraries/types" }
 utils = { path = "../../../libraries/utils" }
 
