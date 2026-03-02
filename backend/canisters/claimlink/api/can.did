@@ -177,6 +177,7 @@ type InitArg = record {
   test_mode : bool;
   max_creation_retries : nat;
   collection_request_fee : nat;
+  kongswap_canister_id : opt principal;
   ogy_transfer_fee : nat;
   authorized_principals : vec AuthordiedPrincipal;
   bank_principal_id : principal;
@@ -356,6 +357,7 @@ type UpgradeArgs = record {
   max_creation_retries : opt nat;
   collection_request_fee : opt nat;
   new_authorized_principals : opt vec AuthordiedPrincipal;
+  kongswap_canister_id : opt principal;
   ogy_transfer_fee : opt nat;
   bank_principal_id : opt principal;
   ledger_canister_id : opt principal;
