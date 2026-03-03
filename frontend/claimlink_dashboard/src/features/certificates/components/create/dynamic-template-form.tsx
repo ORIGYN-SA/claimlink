@@ -384,6 +384,9 @@ export function DynamicTemplateForm({
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = Array.from(event.target.files || []);
 
+      // Reset input so the same file can be re-selected after removal
+      event.target.value = '';
+
       // Filter to only renderable files (actual images, or videos if accepted)
       const validFiles = selectedFiles.filter((file) => {
         if (isImageFile(file)) return true;
@@ -533,6 +536,8 @@ export function DynamicTemplateForm({
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
       const selectedFile = event.target.files?.[0];
+      // Reset input so the same file can be re-selected after removal
+      event.target.value = '';
       if (selectedFile) {
         handleChange(item.id, selectedFile);
       }
@@ -642,6 +647,8 @@ export function DynamicTemplateForm({
 
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = Array.from(event.target.files || []);
+      // Reset input so the same file can be re-selected after removal
+      event.target.value = '';
       if (item.multiple) {
         const currentFiles = files;
         const maxFiles = item.maxFiles || 5;
