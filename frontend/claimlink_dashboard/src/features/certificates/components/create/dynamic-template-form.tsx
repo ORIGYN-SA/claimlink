@@ -38,7 +38,7 @@ import {
   validateField,
   getInitialFormData,
 } from '@/features/templates/utils/template-utils';
-import { UPLOAD_CONFIG, isVideoFile } from '@/shared/config/upload.config';
+import { UPLOAD_CONFIG, isVideoFile, isImageFile } from '@/shared/config/upload.config';
 import { FileText, X } from 'lucide-react';
 
 interface DynamicTemplateFormProps {
@@ -384,15 +384,24 @@ export function DynamicTemplateForm({
     const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
       const selectedFiles = Array.from(event.target.files || []);
 
+      // Filter to only renderable files (actual images, or videos if accepted)
+      const validFiles = selectedFiles.filter((file) => {
+        if (isImageFile(file)) return true;
+        if (acceptVideo && isVideoFile(file)) return true;
+        return false;
+      });
+
+      if (validFiles.length === 0) return;
+
       if (item.multiple) {
         const currentFiles = Array.isArray(value) ? value : [];
         const maxImages = item.maxImages || 10;
 
         // Limit total number of files
-        const newFiles = [...currentFiles, ...selectedFiles].slice(0, maxImages);
+        const newFiles = [...currentFiles, ...validFiles].slice(0, maxImages);
         handleChange(item.id, newFiles);
       } else {
-        handleChange(item.id, selectedFiles[0] || null);
+        handleChange(item.id, validFiles[0] || null);
       }
     };
 

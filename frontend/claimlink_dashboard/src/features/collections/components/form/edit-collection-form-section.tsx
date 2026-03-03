@@ -54,7 +54,7 @@ export function EditCollectionFormSection({
             onUploadClick={onImageUploadClick}
             fileInputRef={imageFileInputRef}
             uploadText="Upload your Collection cover"
-            acceptedFormats="JPEG, PNG, SVG, PDF"
+            acceptedFormats="JPEG, PNG, SVG"
           />
 
           {/* Collection Name Input */}

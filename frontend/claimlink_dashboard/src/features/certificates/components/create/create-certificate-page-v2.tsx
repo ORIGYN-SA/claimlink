@@ -350,6 +350,14 @@ export function CreateCertificatePageV2({
         files: filesOrUrls as File[],
       });
     });
+
+    // Remove file fields that are no longer present in form data
+    // This ensures totalFileSizeBytes decreases when files are removed
+    state.fileFields.forEach((_, key) => {
+      if (!newFileFields.has(key)) {
+        dispatch({ type: "REMOVE_FILE_FIELD", field: key });
+      }
+    });
   };
 
   const handleSubmit = async () => {
@@ -630,7 +638,7 @@ export function CreateCertificatePageV2({
 
         {/* Sidebar - only show in create mode when collection is selected */}
         {mode === "create" && state.selectedCollection && (
-          <div className="w-full lg:w-[350px] flex-shrink-0">
+          <div className="w-full lg:w-[350px] flex-shrink-0 lg:sticky lg:top-6">
             <PricingSidebar
               collectionCanisterId={state.selectedCollection}
               totalFileSizeBytes={totalFileSizeBytes}
