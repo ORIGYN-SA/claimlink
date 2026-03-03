@@ -17,7 +17,7 @@ import {
   formatCreateCollectionError,
 } from './transformers';
 import { createCanisterActor, getCanisterId, retryWithBackoff } from '@/shared/canister';
-import { buildCanisterUrl } from '@/features/template-renderer/utils/url-resolver';
+import { buildCanisterUrl, getNonRawUrl } from '@/features/template-renderer/utils/url-resolver';
 import {
   serializeTemplateForOrigyn,
   deserializeTemplateFromOrigyn,
@@ -381,7 +381,8 @@ export class CollectionsService {
     if (rawUrl.startsWith('/')) {
       return `${buildCanisterUrl(collectionCanisterId)}${rawUrl}`;
     }
-    return rawUrl;
+    // Convert .raw.icp0.io to .icp0.io for reliable chunked asset loading
+    return getNonRawUrl(rawUrl) ?? rawUrl;
   }
 
   /**
@@ -593,7 +594,8 @@ export class CollectionsService {
         if (key === 'icrc7:logo' || key === 'logo') {
           // Logo can be stored as Text directly or in a nested structure
           if ('Text' in value) {
-            return value.Text;
+            // Convert .raw.icp0.io to .icp0.io for reliable chunked asset loading
+            return getNonRawUrl(value.Text) ?? value.Text;
           }
         }
       }

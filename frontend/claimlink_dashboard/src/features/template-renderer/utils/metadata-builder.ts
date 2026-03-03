@@ -19,6 +19,7 @@ import { isRootNode } from "../types";
 
 import { generateOrigynViews } from "./view-generator";
 import { convertFormDataToOrigynMetadata } from "./template-converter";
+import { buildCanisterUrl } from "./url-resolver";
 
 // ============================================================================
 // Types
@@ -138,7 +139,7 @@ function buildLibraryItems(
         title: tokenId,
         filename: ref.path,
         location_type: "canister",
-        location: `https://${canisterId}.raw.icp0.io/-/${tokenId}/-/${ref.path}`,
+        location: `${buildCanisterUrl(canisterId)}/-/${tokenId}/-/${ref.path}`,
         content_type: getMimeType(ref.path),
         content_hash: "1", // Placeholder - should be actual hash
         created_at: new Date().toISOString(),
