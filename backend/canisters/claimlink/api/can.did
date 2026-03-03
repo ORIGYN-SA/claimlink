@@ -51,6 +51,16 @@ type CollectionStatus = variant {
   Installed;
   TemplateUploaded;
 };
+type CollectionStatusCounts = record {
+  created : nat64;
+  template_uploaded : nat64;
+  installed : nat64;
+  reimbursing_queued : nat64;
+  queued : nat64;
+  reimbursed : nat64;
+  failed : nat64;
+  quarantined : nat64;
+};
 type CollectionsResult = record {
   collections : vec CollectionInfo;
   total_count : nat64;
@@ -203,19 +213,37 @@ type InitializeMintError = variant {
 };
 type MemorySize = record { stable : nat64; heap : nat64 };
 type Metrics = record {
+  base_url : opt text;
   next_template_id : nat;
+  timers : vec TimerMetrics;
   origyn_nft_wasm_hash : text;
   cycles_management : CyclesManagement;
+  total_collections : nat64;
+  active_tasks : vec text;
   max_creation_retries : nat;
+  total_templates : nat64;
+  mint_refund_queue_length : nat64;
   collection_request_fee : nat;
+  kongswap_canister_id : opt principal;
+  total_mint_requests : nat64;
+  total_bytes_uploaded : nat64;
   ogy_to_burn : nat;
+  collection_status_counts : CollectionStatusCounts;
   ogy_transfer_fee : nat;
   authorized_principals : vec AuthordiedPrincipal;
+  reimbursement_queue_length : nat64;
+  pending_queue_length : nat64;
   total_ogy_burned : nat;
   bank_principal_id : principal;
+  next_mint_request_id : nat64;
   ledger_canister_id : principal;
   canister_info : CanisterInfo;
+  mint_pricing : opt MintPricingConfig;
+  total_nfts_minted : nat64;
+  mint_request_status_counts : MintRequestStatusCounts;
   max_template_per_owner : nat;
+  ogy_price : opt OgyPriceData;
+  total_files_uploaded : nat64;
 };
 type MintCostBreakdown = record {
   storage_fee_usd_e8s : nat64;
@@ -274,6 +302,13 @@ type MintRequestStatus = variant {
   RefundFailed : record { reason : text };
   Completed;
 };
+type MintRequestStatusCounts = record {
+  initialized : nat64;
+  completed : nat64;
+  refunded : nat64;
+  refund_failed : nat64;
+  refund_requested : nat64;
+};
 type NftDetails = record {
   token_id : nat;
   owner : opt Account;
@@ -330,6 +365,11 @@ type Result_9 = variant { Ok; Err : RefundError };
 type SupportedStandard = record { url : text; name : text };
 type Template = record { template_json : text; template_id : nat };
 type TemplatesResult = record { templates : vec Template; total_count : nat64 };
+type TimerMetrics = record {
+  name : text;
+  interval_seconds : nat64;
+  last_run : opt nat64;
+};
 type TransferFromError = variant {
   GenericError : record { message : text; error_code : nat };
   TemporarilyUnavailable;

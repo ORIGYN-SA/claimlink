@@ -19,6 +19,12 @@ pub async fn burn_ogy() {
         }
     };
 
+    mutate_state(|s| {
+        s.data
+            .timer_last_run
+            .insert(TaskType::BurnOGY, ic_cdk::api::time())
+    });
+
     let (bank_principal, ledger_id, ogy_to_burn, origyn_transfer_fee) = read_state(|s| {
         (
             s.data.bank_principal_id,

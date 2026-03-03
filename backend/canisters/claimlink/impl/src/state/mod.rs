@@ -7,13 +7,15 @@ use claimlink_api::{
     collection::CollectionSearchParam,
     cycles::CyclesManagement,
     init::{AuthordiedPrincipal, InitArg},
-    metrics::{CanisterInfo, Metrics},
+    metrics::{
+        CanisterInfo, CollectionStatusCounts, Metrics, MintRequestStatusCounts, TimerMetrics,
+    },
     mint::{MintRequestId, MintRequestStatus, UploadedFileInfo},
     post_upgrade::UpgradeArgs,
     pricing::{MintPricingConfig, OgyPriceData},
 };
 use std::{
-    collections::{BTreeMap, HashSet},
+    collections::{BTreeMap, HashMap, HashSet},
     str::FromStr,
 };
 use types::TimestampNanos;
@@ -49,6 +51,113 @@ impl RuntimeState {
     }
 
     pub fn metrics(&self) -> Metrics {
+        use crate::{
+            CYCLES_TOP_UP_INTERVAL, FETCH_OGY_PRICE_INTERVAL, PROCESS_OGY_BURN,
+            PROCESS_REIMBURSEMENTS, RETRY_COLLECTION_INSTALLTION_INTERVAL,
+        };
+
+        let timer_defs: Vec<(TaskType, &str, u64)> = vec![
+            (
+                TaskType::RetryFailedInstallation,
+                "RetryFailedInstallation",
+                RETRY_COLLECTION_INSTALLTION_INTERVAL.as_secs(),
+            ),
+            (
+                TaskType::Reimbursement,
+                "Reimbursement",
+                PROCESS_REIMBURSEMENTS.as_secs(),
+            ),
+            (
+                TaskType::BurnOGY,
+                "BurnOGY",
+                PROCESS_OGY_BURN.as_secs(),
+            ),
+            (
+                TaskType::FetchOgyPrice,
+                "FetchOgyPrice",
+                FETCH_OGY_PRICE_INTERVAL.as_secs(),
+            ),
+            (
+                TaskType::CyclesTopUp,
+                "CyclesTopUp",
+                CYCLES_TOP_UP_INTERVAL.as_secs(),
+            ),
+        ];
+
+        let timers: Vec<TimerMetrics> = timer_defs
+            .into_iter()
+            .map(|(task, name, interval)| TimerMetrics {
+                name: name.to_string(),
+                last_run: self.data.timer_last_run.get(&task).copied(),
+                interval_seconds: interval,
+            })
+            .collect();
+
+        // Collection status counts
+        let mut collection_status_counts = CollectionStatusCounts {
+            queued: 0,
+            created: 0,
+            installed: 0,
+            template_uploaded: 0,
+            failed: 0,
+            reimbursing_queued: 0,
+            reimbursed: 0,
+            quarantined: 0,
+        };
+        for request in self.data.collection_requests.values() {
+            match &request.status {
+                InstallationStatus::Queued => collection_status_counts.queued += 1,
+                InstallationStatus::Created => collection_status_counts.created += 1,
+                InstallationStatus::Installed => collection_status_counts.installed += 1,
+                InstallationStatus::TemplateUploaded => {
+                    collection_status_counts.template_uploaded += 1
+                }
+                InstallationStatus::Failed { .. } => collection_status_counts.failed += 1,
+                InstallationStatus::ReimbursingQueued => {
+                    collection_status_counts.reimbursing_queued += 1
+                }
+                InstallationStatus::Reimbursed { .. } => collection_status_counts.reimbursed += 1,
+                InstallationStatus::QuarantinedReimbursement { .. } => {
+                    collection_status_counts.quarantined += 1
+                }
+            }
+        }
+
+        // Mint request status counts + aggregates
+        let mut mint_request_status_counts = MintRequestStatusCounts {
+            initialized: 0,
+            completed: 0,
+            refund_requested: 0,
+            refunded: 0,
+            refund_failed: 0,
+        };
+        let mut total_nfts_minted: u64 = 0;
+        let mut total_files_uploaded: u64 = 0;
+        let mut total_bytes_uploaded: u64 = 0;
+        for request in self.data.mint_requests.values() {
+            match &request.status {
+                MintRequestStatus::Initialized => mint_request_status_counts.initialized += 1,
+                MintRequestStatus::Completed => mint_request_status_counts.completed += 1,
+                MintRequestStatus::RefundRequested => {
+                    mint_request_status_counts.refund_requested += 1
+                }
+                MintRequestStatus::Refunded { .. } => mint_request_status_counts.refunded += 1,
+                MintRequestStatus::RefundFailed { .. } => {
+                    mint_request_status_counts.refund_failed += 1
+                }
+            }
+            total_nfts_minted += request.minted_count;
+            total_files_uploaded += request.uploaded_files.len() as u64;
+            total_bytes_uploaded += request.bytes_uploaded;
+        }
+
+        let total_templates: u64 = self
+            .data
+            .template_owners
+            .values()
+            .map(|v| v.len() as u64)
+            .sum();
+
         Metrics {
             canister_info: CanisterInfo {
                 now_nanos: self.env.now(),
@@ -68,6 +177,29 @@ impl RuntimeState {
             max_template_per_owner: self.data.max_template_per_owner.into(),
             next_template_id: self.data.next_template_id.into(),
             max_creation_retries: self.data.max_creation_retries.into(),
+            timers,
+            pending_queue_length: self.data.pending_queue.len() as u64,
+            reimbursement_queue_length: self.data.reimbursement_queue.len() as u64,
+            mint_refund_queue_length: self.data.mint_refund_queue.len() as u64,
+            collection_status_counts,
+            mint_request_status_counts,
+            base_url: self.data.base_url.clone(),
+            mint_pricing: self.data.mint_pricing,
+            ogy_price: self.data.ogy_price,
+            kongswap_canister_id: self.data.kongswap_canister_id,
+            total_collections: self.data.collection_requests.len() as u64,
+            total_templates,
+            total_mint_requests: self.data.mint_requests.len() as u64,
+            next_mint_request_id: self.data.next_mint_request_id,
+            active_tasks: self
+                .data
+                .active_tasks
+                .iter()
+                .map(|t| format!("{:?}", t))
+                .collect(),
+            total_nfts_minted,
+            total_files_uploaded,
+            total_bytes_uploaded,
         }
     }
 
@@ -226,6 +358,9 @@ pub struct Data {
     pub mint_requests: BTreeMap<MintRequestId, MintRequest>,
     pub next_mint_request_id: u64,
     pub mint_refund_queue: Vec<MintRequestId>,
+
+    // Timer execution timestamps
+    pub timer_last_run: HashMap<TaskType, TimestampNanos>,
 }
 
 impl Data {
@@ -720,6 +855,7 @@ impl TryFrom<InitArg> for RuntimeState {
                 mint_requests: Default::default(),
                 next_mint_request_id: 0,
                 mint_refund_queue: Default::default(),
+                timer_last_run: HashMap::new(),
             },
         ))
     }

@@ -20,6 +20,12 @@ pub async fn process_reimbursements() {
         }
     };
 
+    mutate_state(|s| {
+        s.data
+            .timer_last_run
+            .insert(TaskType::Reimbursement, ic_cdk::api::time())
+    });
+
     let (reimbursements, mint_refunds, ledger_id, ogy_transfer_fee) = read_state(|s| {
         (
             s.data.get_reimbusements(),

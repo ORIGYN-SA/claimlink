@@ -21,6 +21,12 @@ pub async fn retry_installation() {
         }
     };
 
+    mutate_state(|s| {
+        s.data
+            .timer_last_run
+            .insert(TaskType::RetryFailedInstallation, ic_cdk::api::time())
+    });
+
     let (
         failed_collecctions,
         cycles_for_collection_creation,

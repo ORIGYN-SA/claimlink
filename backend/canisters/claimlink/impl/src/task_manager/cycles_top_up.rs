@@ -7,7 +7,7 @@ use ic_cdk::management_canister::{
 
 use crate::{
     guards::{TaskType, TimerGuard},
-    state::read_state,
+    state::{mutate_state, read_state},
     utils::log::{DEBUG, INFO},
 };
 
@@ -21,6 +21,12 @@ pub async fn top_up_collection_canisters() {
             return;
         }
     };
+
+    mutate_state(|s| {
+        s.data
+            .timer_last_run
+            .insert(TaskType::CyclesTopUp, ic_cdk::api::time())
+    });
 
     let (canister_ids, minimum_canister_cycles, minimum_manager_cycles, top_up_increment) =
         read_state(|s| {

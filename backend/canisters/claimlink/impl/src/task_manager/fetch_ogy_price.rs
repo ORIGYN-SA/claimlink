@@ -18,6 +18,12 @@ pub async fn fetch_ogy_price() {
         }
     };
 
+    mutate_state(|s| {
+        s.data
+            .timer_last_run
+            .insert(TaskType::FetchOgyPrice, ic_cdk::api::time())
+    });
+
     let kongswap_canister_id = read_state(|s| s.data.kongswap_canister_id).unwrap_or_else(|| {
         candid::Principal::from_text(KONGSWAP_CANISTER_ID).expect("Invalid KongSwap canister ID")
     });
