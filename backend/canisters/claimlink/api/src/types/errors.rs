@@ -64,6 +64,15 @@ pub enum ProxyUploadError {
 }
 
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum ProxyLogoUploadError {
+    CollectionNotFound,
+    Unauthorized,
+    CollectionNotReady,
+    FileTooLarge { max_bytes: u64, requested: u64 },
+    UploadError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum MintNftsError {
     MintRequestNotFound,
     Unauthorized,
