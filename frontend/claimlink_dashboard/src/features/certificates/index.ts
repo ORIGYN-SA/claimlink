@@ -39,13 +39,14 @@ export {
 // API Layer
 // ============================================================================
 
-export { CertificatesService } from './api/certificates.service';
+export { CertificatesService, ClaimlinkMintingService } from './api/certificates.service';
 
 export {
   certificatesKeys,
   useCollectionCertificates,
   useCertificate,
   useCertificateTransactionHistory,
+  useEstimateMintCost,
   useMintCertificate,
   useMintCertificateWithTemplate,
   useTransferCertificate,

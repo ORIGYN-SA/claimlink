@@ -153,7 +153,7 @@ export function ConfigureCampaignStep({
                 onUploadClick={onCoverImageUploadClick}
                 fileInputRef={coverImageInputRef}
                 uploadText="Upload your Cover or drag it here"
-                acceptedFormats="JPEG, PNG, SVG, PDF"
+                acceptedFormats="JPEG, PNG, SVG"
               />
 
               {/* Date Inputs */}
