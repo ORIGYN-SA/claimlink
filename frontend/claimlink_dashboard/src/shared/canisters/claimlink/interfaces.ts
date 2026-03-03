@@ -246,6 +246,28 @@ export interface ProxyFinalizeUploadArgs {
   'file_path' : string,
   'mint_request_id' : bigint,
 }
+export interface ProxyLogoFinalizeUploadArgs {
+  'file_path' : string,
+  'collection_canister_id' : Principal,
+}
+export interface ProxyLogoInitUploadArgs {
+  'file_hash' : string,
+  'file_path' : string,
+  'file_size' : bigint,
+  'collection_canister_id' : Principal,
+  'chunk_size' : [] | [bigint],
+}
+export interface ProxyLogoStoreChunkArgs {
+  'chunk_id' : bigint,
+  'file_path' : string,
+  'collection_canister_id' : Principal,
+  'chunk_data' : Uint8Array | number[],
+}
+export type ProxyLogoUploadError = { 'CollectionNotReady' : null } |
+  { 'CollectionNotFound' : null } |
+  { 'FileTooLarge' : { 'requested' : bigint, 'max_bytes' : bigint } } |
+  { 'UploadError' : string } |
+  { 'Unauthorized' : null };
 export interface ProxyInitUploadArgs {
   'file_hash' : string,
   'file_path' : string,
@@ -278,6 +300,10 @@ export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : CreateTemplateError };
 export type Result_10 = { 'Ok' : null } |
   { 'Err' : UpdateTemplateError };
+export type Result_11 = { 'Ok' : string } |
+  { 'Err' : ProxyLogoUploadError };
+export type Result_12 = { 'Ok' : null } |
+  { 'Err' : ProxyLogoUploadError };
 export type Result_2 = { 'Ok' : null } |
   { 'Err' : DeleteTemplateError };
 export type Result_3 = { 'Ok' : MintCostEstimate } |
@@ -382,6 +408,9 @@ export interface _SERVICE {
   'mint_nfts' : ActorMethod<[MintNftsArgs], Result_6>,
   'proxy_finalize_upload' : ActorMethod<[ProxyFinalizeUploadArgs], Result_7>,
   'proxy_init_upload' : ActorMethod<[ProxyInitUploadArgs], Result_8>,
+  'proxy_logo_finalize_upload' : ActorMethod<[ProxyLogoFinalizeUploadArgs], Result_11>,
+  'proxy_logo_init_upload' : ActorMethod<[ProxyLogoInitUploadArgs], Result_12>,
+  'proxy_logo_store_chunk' : ActorMethod<[ProxyLogoStoreChunkArgs], Result_12>,
   'proxy_store_chunk' : ActorMethod<[ProxyStoreChunkArgs], Result_8>,
   'request_mint_refund' : ActorMethod<[RequestMintRefundArgs], Result_9>,
   'update_template' : ActorMethod<[UpdateTemplateArgs], Result_10>,

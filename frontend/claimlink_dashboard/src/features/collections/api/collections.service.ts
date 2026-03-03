@@ -16,7 +16,8 @@ import {
   transformPaginationArgs,
   formatCreateCollectionError,
 } from './transformers';
-import { createCanisterActor, getCanisterId } from '@/shared/canister';
+import { createCanisterActor, getCanisterId, retryWithBackoff } from '@/shared/canister';
+import { buildCanisterUrl } from '@/features/template-renderer/utils/url-resolver';
 import {
   serializeTemplateForOrigyn,
   deserializeTemplateFromOrigyn,
@@ -243,8 +244,8 @@ export class CollectionsService {
         throw new Error(`Collection creation was cancelled. Status: ${backendStatus}`);
       }
 
-      // Check for success states - collection is ready for uploads
-      if (backendStatus === 'Installed' || backendStatus === 'TemplateUploaded') {
+      // Check for success state - collection must reach TemplateUploaded before proxy logo upload
+      if (backendStatus === 'TemplateUploaded') {
         if (!hasCanisterId) {
           throw new Error('Collection installed but canister ID not available');
         }
@@ -287,10 +288,11 @@ export class CollectionsService {
   }
 
   /**
-   * Upload logo directly to collection canister
+   * Upload logo through ClaimLink proxy
    *
-   * Uses ORIGYN NFT upload API to store logo in the collection's own canister.
-   * The uploaded file will be accessible at: https://{canisterId}.raw.icp0.io/{filename}
+   * Routes the chunked upload through the ClaimLink canister, which validates
+   * collection ownership and readiness before forwarding to the ORIGYN canister.
+   * Max file size: 5MB (enforced by backend).
    *
    * @param agent - Authenticated IC agent
    * @param collectionCanisterId - Collection canister ID to upload to
@@ -298,20 +300,103 @@ export class CollectionsService {
    * @param onProgress - Optional progress callback (0-100)
    * @returns URL of the uploaded logo
    */
-  static async uploadLogoToCollection(
+  static async proxyUploadLogo(
     agent: Agent,
     collectionCanisterId: string,
     file: File,
     onProgress?: (progress: number) => void
   ): Promise<string> {
-    const { CertificatesService } = await import('@/features/certificates/api/certificates.service');
+    const CHUNK_SIZE = 1024 * 1024; // 1MB chunks - DO NOT INCREASE (IC message size limit)
+    const sanitizedName = file.name
+      .toLowerCase()
+      .replace(/[^a-z0-9._-]/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_|_$/g, '');
+    const filePath = `${Date.now()}_${sanitizedName}`;
 
-    return await CertificatesService.uploadCertificateFile(
-      agent,
-      collectionCanisterId,
-      file,
-      onProgress
-    );
+    // Calculate file hash (SHA-256)
+    const arrayBuffer = await file.arrayBuffer();
+    const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const fileHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    const actor = createActor(agent);
+    const collectionPrincipal = PrincipalClass.fromText(collectionCanisterId);
+
+    // Initialize upload
+    const initResult = await actor.proxy_logo_init_upload({
+      collection_canister_id: collectionPrincipal,
+      file_path: filePath,
+      file_hash: fileHash,
+      file_size: BigInt(file.size),
+      chunk_size: [BigInt(CHUNK_SIZE)],
+    });
+
+    if ('Err' in initResult) {
+      throw new Error(`Logo upload init failed: ${this.formatProxyLogoError(initResult.Err)}`);
+    }
+
+    // Upload chunks
+    const totalChunks = Math.ceil(file.size / CHUNK_SIZE);
+    const uint8Array = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < totalChunks; i++) {
+      const start = i * CHUNK_SIZE;
+      const end = Math.min(start + CHUNK_SIZE, file.size);
+      const chunkData = Array.from(uint8Array.slice(start, end));
+
+      await retryWithBackoff(
+        async () => {
+          const storeResult = await actor.proxy_logo_store_chunk({
+            collection_canister_id: collectionPrincipal,
+            file_path: filePath,
+            chunk_id: BigInt(i),
+            chunk_data: chunkData,
+          });
+
+          if ('Err' in storeResult) {
+            throw new Error(`Logo chunk upload failed: ${this.formatProxyLogoError(storeResult.Err)}`);
+          }
+        },
+        { maxRetries: 3, operationName: `Logo chunk ${i + 1}/${totalChunks}` },
+      );
+
+      if (onProgress) {
+        onProgress(((i + 1) / totalChunks) * 100);
+      }
+    }
+
+    // Finalize upload
+    const finalizeResult = await actor.proxy_logo_finalize_upload({
+      collection_canister_id: collectionPrincipal,
+      file_path: filePath,
+    });
+
+    if ('Err' in finalizeResult) {
+      throw new Error(`Logo upload finalize failed: ${this.formatProxyLogoError(finalizeResult.Err)}`);
+    }
+
+    // Normalize URL for the current environment
+    const rawUrl = finalizeResult.Ok;
+    if (rawUrl.startsWith('/')) {
+      return `${buildCanisterUrl(collectionCanisterId)}${rawUrl}`;
+    }
+    return rawUrl;
+  }
+
+  /**
+   * Format ProxyLogoUploadError into a human-readable string
+   */
+  private static formatProxyLogoError(error: import('@canisters/claimlink').ProxyLogoUploadError): string {
+    if ('CollectionNotFound' in error) return 'Collection not found';
+    if ('Unauthorized' in error) return 'Not authorized to upload to this collection';
+    if ('CollectionNotReady' in error) return 'Collection is not ready for uploads yet';
+    if ('FileTooLarge' in error) {
+      const maxMb = Number(error.FileTooLarge.max_bytes) / (1024 * 1024);
+      return `File too large (max ${maxMb}MB)`;
+    }
+    if ('UploadError' in error) return error.UploadError;
+    return 'Unknown upload error';
   }
 
   /**

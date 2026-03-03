@@ -468,7 +468,7 @@ export const useUpdateCollectionMetadata = (options?: UseUpdateCollectionMetadat
 
       // Upload new logo if provided
       if (logoFile) {
-        logoUrl = await CollectionsService.uploadLogoToCollection(
+        logoUrl = await CollectionsService.proxyUploadLogo(
           authenticatedAgent,
           collectionCanisterId,
           logoFile

@@ -388,6 +388,32 @@ export const idlFactory = ({ IDL }) => {
     'chunk_data' : IDL.Vec(IDL.Nat8),
     'mint_request_id' : IDL.Nat64,
   });
+  const ProxyLogoFinalizeUploadArgs = IDL.Record({
+    'file_path' : IDL.Text,
+    'collection_canister_id' : IDL.Principal,
+  });
+  const ProxyLogoInitUploadArgs = IDL.Record({
+    'file_hash' : IDL.Text,
+    'file_path' : IDL.Text,
+    'file_size' : IDL.Nat64,
+    'collection_canister_id' : IDL.Principal,
+    'chunk_size' : IDL.Opt(IDL.Nat64),
+  });
+  const ProxyLogoStoreChunkArgs = IDL.Record({
+    'chunk_id' : IDL.Nat,
+    'file_path' : IDL.Text,
+    'collection_canister_id' : IDL.Principal,
+    'chunk_data' : IDL.Vec(IDL.Nat8),
+  });
+  const ProxyLogoUploadError = IDL.Variant({
+    'CollectionNotReady' : IDL.Null,
+    'CollectionNotFound' : IDL.Null,
+    'FileTooLarge' : IDL.Record({ 'requested' : IDL.Nat64, 'max_bytes' : IDL.Nat64 }),
+    'UploadError' : IDL.Text,
+    'Unauthorized' : IDL.Null,
+  });
+  const Result_11 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyLogoUploadError });
+  const Result_12 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyLogoUploadError });
   const RequestMintRefundArgs = IDL.Record({
     'mint_request_id' : IDL.Nat64,
   });
@@ -512,6 +538,13 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'proxy_init_upload' : IDL.Func([ProxyInitUploadArgs], [Result_8], []),
+    'proxy_logo_finalize_upload' : IDL.Func(
+        [ProxyLogoFinalizeUploadArgs],
+        [Result_11],
+        [],
+      ),
+    'proxy_logo_init_upload' : IDL.Func([ProxyLogoInitUploadArgs], [Result_12], []),
+    'proxy_logo_store_chunk' : IDL.Func([ProxyLogoStoreChunkArgs], [Result_12], []),
     'proxy_store_chunk' : IDL.Func([ProxyStoreChunkArgs], [Result_8], []),
     'request_mint_refund' : IDL.Func([RequestMintRefundArgs], [Result_9], []),
     'update_template' : IDL.Func([UpdateTemplateArgs], [Result_10], []),
