@@ -3,13 +3,15 @@ import { Button } from "@/components/ui/button";
 import icon from "@/assets/icon.svg";
 
 interface WalletBalanceSectionProps {
-  balance: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: {
-      balance: number;
-    };
-  } | undefined;
+  balance:
+    | {
+        isLoading: boolean;
+        isError: boolean;
+        data?: {
+          balance: number;
+        };
+      }
+    | undefined;
   priceUsd: number | undefined;
   totalUsdValue: number;
   onRefresh: () => void;
@@ -77,7 +79,9 @@ export function WalletBalanceSection({
                   <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
                 </span>
               ) : priceUsd ? (
-                <span className="font-medium">(${totalUsdValue.toFixed(2)})</span>
+                <span className="font-medium">
+                  (${totalUsdValue.toFixed(2)})
+                </span>
               ) : (
                 <span className="font-medium">Price unavailable</span>
               )}
@@ -96,7 +100,9 @@ export function WalletBalanceSection({
                 </div>
               </div>
               <div className="text-xs">
-                <span className="text-[#69737c] font-normal">Principal ID: </span>
+                <span className="text-[#69737c] font-normal">
+                  Principal ID:{" "}
+                </span>
                 <span className="text-[#222526] font-semibold">
                   {principalId || "55vo5-45mf9-...1234d-erpra"}
                 </span>
@@ -120,9 +126,9 @@ export function WalletBalanceSection({
             Withdraw
           </Button>
 
-          <button className="text-[#69737c] text-xs hover:text-[#222526] transition-colors">
+          {/*<button className="text-[#69737c] text-xs hover:text-[#222526] transition-colors">
             How to top up?
-          </button>
+          </button>*/}
         </div>
       </div>
       <div className="bg-[#fcfafa] border-x border-b border-[#e1e1e1] px-4 py-3">

@@ -50,6 +50,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.minted.trend}
             trendColor={statusData.minted.trendColor}
             icon={<ScrollText className="w-4 h-4" />}
+            tooltip="Total number of certificates successfully minted on-chain with your account."
           />
           <StatCard
             title="Awaiting Certificates"
@@ -57,6 +58,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.awaiting.trend}
             trendColor={statusData.awaiting.trendColor}
             icon={<Hourglass className="w-4 h-4" />}
+            tooltip="Certificates that have been created but not yet minted. Review and finalize them before they appear on-chain."
           />
           <StatCard
             title="Certificate in my wallet"
@@ -64,6 +66,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.wallet.trend}
             trendColor={statusData.wallet.trendColor}
             icon={<Wallet className="w-4 h-4" />}
+            tooltip="All certificates held in your wallet address, both newly minted and previously received items."
           />
           <StatCard
             title="Transferred Certificates"
@@ -71,6 +74,7 @@ export const TotalStatusSection: React.FC<TotalStatusSectionProps> = ({
             trend={statusData.transferred.trend}
             trendColor={statusData.transferred.trendColor}
             icon={<ArrowLeftRight className="w-4 h-4" />}
+            tooltip="Certificates that have been successfully transferred to another wallet or owner address."
           />
         </div>
       </Card>
