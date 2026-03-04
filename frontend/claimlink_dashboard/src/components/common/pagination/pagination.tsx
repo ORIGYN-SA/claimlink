@@ -1,0 +1,156 @@
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
+
+export interface PaginationProps {
+  currentPage: number;
+  totalPages: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange: (items: number) => void;
+  itemsPerPageOptions?: number[];
+  showItemsPerPage?: boolean;
+  className?: string;
+  contentClassName?: string; // forwarded to SelectContent for z-index overrides per instance
+}
+
+export function Pagination({
+  currentPage,
+  totalPages,
+  itemsPerPage,
+  onPageChange,
+  onItemsPerPageChange,
+  itemsPerPageOptions = [5, 10, 20, 50],
+  showItemsPerPage = true,
+  className,
+  contentClassName,
+}: PaginationProps) {
+  const handlePreviousPage = () => {
+    onPageChange(Math.max(1, currentPage - 1));
+  };
+
+  const handleNextPage = () => {
+    onPageChange(Math.min(totalPages, currentPage + 1));
+  };
+
+  const renderPageNumbers = () => {
+    const maxVisiblePages = 5;
+    const pageNumbers = [];
+
+    if (totalPages <= maxVisiblePages) {
+      // Show all pages if total is less than max visible
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      // Show first few pages with ellipsis logic
+      for (let i = 1; i <= Math.min(maxVisiblePages, totalPages); i++) {
+        pageNumbers.push(i);
+      }
+    }
+
+    return (
+      <>
+        {pageNumbers.map((page) => (
+          <Button
+            key={page}
+            variant={currentPage === page ? "default" : "ghost"}
+            size="sm"
+            onClick={() => onPageChange(page)}
+            className={cn(
+              "h-7 w-7 rounded-[11px] text-[13px] cursor-pointer transition-colors",
+              currentPage === page
+                ? "bg-[rgba(205,233,236,0.4)] text-[#222526] hover:bg-[rgba(205,233,236,0.6)]"
+                : "text-[#69737c] hover:bg-[#f0f0f0] hover:text-[#222526]"
+            )}
+          >
+            {page}
+          </Button>
+        ))}
+        {totalPages > 5 && (
+          <>
+            <span className="text-[#69737c] text-[13px]">...</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onPageChange(totalPages)}
+              className="h-7 w-7 rounded-[11px] text-[13px] text-[#69737c] cursor-pointer hover:bg-[#f0f0f0] hover:text-[#222526] transition-colors"
+            >
+              {totalPages}
+            </Button>
+          </>
+        )}
+      </>
+    );
+  };
+
+  return (
+    <div className={cn(
+      "bg-white border-t border-[#f2f2f2] px-4 sm:px-10 py-3 sm:py-4 rounded-b-[25px] flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 mt-auto",
+      className
+    )}>
+      {/* Lines per page */}
+      {showItemsPerPage && (
+        <div className="flex gap-2 sm:gap-2.5 items-center">
+          <span className="text-[12px] sm:text-[13px] text-[#86858a] leading-normal">Lines per page</span>
+          <Select
+            value={itemsPerPage.toString()}
+            onValueChange={(value) => onItemsPerPageChange(parseInt(value))}
+          >
+            <SelectTrigger size="sm" className="cursor-pointer w-auto min-w-[60px] h-8 rounded-full border-[#e1e1e1] bg-white hover:bg-[#f9f9f9] transition-colors">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className={contentClassName}>
+              {itemsPerPageOptions.map((option) => (
+                <SelectItem 
+                  key={option} 
+                  value={option.toString()}
+                  className="cursor-pointer hover:bg-[#f0f0f0] focus:bg-[#f0f0f0] transition-colors"
+                >
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      <div className="flex items-center gap-2 sm:gap-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handlePreviousPage}
+          disabled={currentPage === 1}
+          className={cn(
+            "p-2 h-8 w-8 rounded-full transition-colors",
+            currentPage === 1 
+              ? "cursor-not-allowed opacity-50" 
+              : "cursor-pointer hover:bg-[#f0f0f0]"
+          )}
+        >
+          ←
+        </Button>
+
+        <div className="flex items-center gap-2">
+          {renderPageNumbers()}
+        </div>
+
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleNextPage}
+          disabled={currentPage === totalPages}
+          className={cn(
+            "p-2 h-8 w-8 rounded-full transition-colors",
+            currentPage === totalPages 
+              ? "cursor-not-allowed opacity-50" 
+              : "cursor-pointer hover:bg-[#f0f0f0]"
+          )}
+        >
+          →
+        </Button>
+      </div>
+    </div>
+  );
+}

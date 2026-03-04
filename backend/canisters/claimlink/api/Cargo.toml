@@ -22,9 +22,19 @@ origyn-nft-canister-api = { path = '../../../external_canisters/origyn_nft/api' 
 icrc_ledger_canister = { path = '../../../external_canisters/icrc_ledger/api' }
 
 ic-cdk = { workspace = true }
+ic-stable-structures = { workspace = true }
 candid = { workspace = true }
 canfund = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
+serde_bytes = { workspace = true }
 bity-ic-types = { workspace = true }
+minicbor = { workspace = true }
+num-bigint = { workspace = true }
+num-traits = { workspace = true }
+hex = { workspace = true }
 
+
+
+[dev-dependencies]
+proptest="1.4.0"
 

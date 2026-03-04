@@ -1,11 +1,11 @@
 {
   "claimlink_backend": {
-    "ic": "",
-    "staging": ""
+    "ic": "uasjq-dyaaa-aaaas-qdwka-cai",
+    "staging": "zqa57-zaaaa-aaaah-qqopq-cai"
   },
   "claimlink_frontend": {
-    "ic": "",
-    "staging": ""
+    "ic": "s73wp-uiaaa-aaaap-qrqsq-cai",
+    "staging": "eghlv-zqaaa-aaaah-qqlxa-cai"
   },
   "registry": {
     "ic": "",

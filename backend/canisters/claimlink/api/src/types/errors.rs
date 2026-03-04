@@ -1,21 +1,110 @@
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+use candid::{CandidType, Nat};
 
+#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum GenericError {
     Other(String),
 }
-#[derive(Debug, candid::CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum CreateCollectionError {
-    InsufficientCycles,
-    // We would need to update bity_ic_subcanister_manager::NewCanisterError
-    // to derive CandidType and Serialize
     CreateOrigynNftCanisterError,
     TransferFromError(icrc_ledger_types::icrc2::transfer_from::TransferFromError),
     ExternalCanisterError(String),
     Generic(GenericError),
+    InvalidNftTemplateId,
+    ConcurrentRequest,
 }
 
-impl From<crate::sub_canister::CreateOrigynNftCanisterError> for CreateCollectionError {
-    fn from(_error: crate::sub_canister::CreateOrigynNftCanisterError) -> Self {
-        CreateCollectionError::CreateOrigynNftCanisterError
-    }
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum CreateTemplateError {
+    LimitExceeded { max_templates: Nat },
+    JsonError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum UpdateTemplateError {
+    JsonError(String),
+    InvalidNftTemplateId,
+    TemplateNotFound,
+    UnauthorizedCall,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum DeleteTemplateError {
+    UnauthorizedCall,
+    InvalidNftTemplateId,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum GetTemplatesByOwnerError {
+    UnauthorizedCall,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum InitializeMintError {
+    CollectionNotFound,
+    CollectionNotReady,
+    CallerNotCollectionOwner,
+    OgyPriceNotAvailable,
+    InvalidNumMints,
+    TransferFromError(icrc_ledger_types::icrc2::transfer_from::TransferFromError),
+    Generic(GenericError),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum ProxyUploadError {
+    MintRequestNotFound,
+    Unauthorized,
+    MintRequestNotActive,
+    ByteLimitExceeded {
+        allocated: Nat,
+        used: Nat,
+        requested: Nat,
+    },
+    UploadError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum ProxyLogoUploadError {
+    CollectionNotFound,
+    Unauthorized,
+    CollectionNotReady,
+    FileTooLarge { max_bytes: u64, requested: u64 },
+    UploadError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum MintNftsError {
+    MintRequestNotFound,
+    Unauthorized,
+    MintRequestNotActive,
+    MintLimitExceeded {
+        allowed: Nat,
+        already_minted: Nat,
+        requested: Nat,
+    },
+    NoItemsProvided,
+    TooManyItems { max: Nat },
+    MintError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum BurnNftError {
+    CollectionNotFound,
+    CallerNotTokenOwner,
+    BurnError(String),
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum RefundError {
+    MintRequestNotFound,
+    Unauthorized,
+    CreditsAlreadyUsed,
+    AlreadyRefunded,
+    NotInRefundableState,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum EstimateMintCostError {
+    OgyPriceNotAvailable,
+    MintPricingNotConfigured,
 }

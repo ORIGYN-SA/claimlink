@@ -1,27 +1,400 @@
+type Account = record { owner : principal; subaccount : opt blob };
+type AuthordiedPrincipal = record { "principal" : principal; name : text };
+type BTreeMap = vec record {
+  text;
+  variant {
+    Int : int;
+    Map : BTreeMap;
+    Nat : nat;
+    Blob : blob;
+    Text : text;
+    Array : vec ICRC3Value;
+  };
+};
+type BuildVersion = record { major : nat32; minor : nat32; patch : nat32 };
+type CanisterInfo = record {
+  test_mode : bool;
+  memory_used : MemorySize;
+  now_nanos : nat64;
+  cycles_balance_in_tc : float64;
+};
+type ClaimlinkArgs = variant { UpgradeArg : UpgradeArgs; InitArg : InitArg };
+type CollectionInfo = record {
+  status : CollectionStatus;
+  updated_at : nat;
+  owner : principal;
+  metadata : CollectionMetadata;
+  canister_id : opt principal;
+  collection_id : nat;
+  created_at : nat;
+  temaplte_url : opt text;
+  wasm_hash : opt text;
+  ogy_charged : nat;
+};
+type CollectionMetadata = record {
+  name : text;
+  description : text;
+  template_id : nat;
+  symbol : text;
+};
+type CollectionSearchParam = variant {
+  CanisterId : principal;
+  CollectionId : nat;
+};
+type CollectionStatus = variant {
+  Queued;
+  Failed : record { attempsts : nat; reason : text };
+  QuarantinedReimbursement : record { reason : text };
+  Reimbursed : record { tx_index : nat };
+  Created;
+  ReimbursingQueued;
+  Installed;
+  TemplateUploaded;
+};
+type CollectionStatusCounts = record {
+  created : nat64;
+  template_uploaded : nat64;
+  installed : nat64;
+  reimbursing_queued : nat64;
+  queued : nat64;
+  reimbursed : nat64;
+  failed : nat64;
+  quarantined : nat64;
+};
+type CollectionsResult = record {
+  collections : vec CollectionInfo;
+  total_count : nat64;
+};
 type CreateCollectionArgs = record {
   name : text;
   description : text;
+  template_id : nat;
   symbol : text;
 };
 type CreateCollectionError = variant {
-  InsufficientCycles;
   ExternalCanisterError : text;
   Generic : GenericError;
   CreateOrigynNftCanisterError;
   TransferFromError : TransferFromError;
+  InvalidNftTemplateId;
+  ConcurrentRequest;
 };
-type CreateCollectionResult = record { origyn_nft_canister_id : principal };
+type CreateTemplateArgs = record { template_json : text };
+type CreateTemplateError = variant {
+  JsonError : text;
+  LimitExceeded : record { max_templates : nat };
+};
+type CyclesManagement = record {
+  cycles_top_up_increment : nat;
+  cycles_for_collection_creation : nat;
+};
+type DeleteTemplateError = variant { UnauthorizedCall; InvalidNftTemplateId };
+type EstimateMintCostArgs = record {
+  total_file_size_bytes : nat;
+  num_mints : nat64;
+  collection_canister_id : principal;
+};
+type EstimateMintCostError = variant {
+  MintPricingNotConfigured;
+  OgyPriceNotAvailable;
+};
 type GenericError = variant { Other : text };
-type InitArgs = record {
-  origyn_nft_commit_hash : text;
+type GetCollectionNftsArgs = record {
+  prev : opt nat;
+  take : opt nat;
+  canister_id : principal;
+};
+type GetCollectionsByOwnerArgs = record {
+  owner : principal;
+  pagination : PaginationArgs;
+};
+type GetCollectionsForUserArgs = record {
+  pagination : PaginationArgs;
+  user : principal;
+};
+type GetMintRequestsByOwnerArgs = record {
+  owner : principal;
+  offset : opt nat64;
+  limit : opt nat64;
+};
+type GetNftDetailsArgs = record {
+  canister_id : principal;
+  token_ids : vec nat;
+};
+type GetTemplatesByOwnerArgs = record {
+  owner : principal;
+  pagination : PaginationArgs;
+};
+type GetTemplatesByOwnerError = variant { UnauthorizedCall };
+type ICRC3Value = variant {
+  Int : int;
+  Map : BTreeMap;
+  Nat : nat;
+  Blob : blob;
+  Text : text;
+  Array : vec ICRC3Value;
+};
+type ICRC3Value_1 = variant {
+  Int : int;
+  Map : vec record { text; ICRC3Value };
+  Nat : nat;
+  Blob : blob;
+  Text : text;
+  Array : vec ICRC3Value;
+};
+type Icrc21ConsentInfo = record {
+  metadata : Icrc21ConsentMessageMetadata;
+  consent_message : Icrc21ConsentMessage;
+};
+type Icrc21ConsentMessage = record {
+  generic_display_message : text;
+  fields_display_message : Icrc21FieldDisplayMessage;
+};
+type Icrc21ConsentMessageMetadata = record {
+  utc_offset_minutes : opt int16;
+  language : text;
+};
+type Icrc21ConsentMessageRequest = record {
+  arg : blob;
+  method : text;
+  user_preferences : Icrc21ConsentMessageSpec;
+};
+type Icrc21ConsentMessageResponse = variant {
+  Ok : Icrc21ConsentInfo;
+  Err : Icrc21Error;
+};
+type Icrc21ConsentMessageSpec = record {
+  metadata : Icrc21ConsentMessageMetadata;
+  device_spec : opt Icrc21DeviceSpec;
+};
+type Icrc21DeviceSpec = variant { GenericDisplay; FieldsDisplay };
+type Icrc21Error = variant {
+  GenericError : Icrc21ErrorInfo;
+  InsufficientPayment : Icrc21GenericError;
+  UnsupportedCanisterCall : Icrc21ErrorInfo;
+  ConsentMessageUnavailable : Icrc21ErrorInfo;
+};
+type Icrc21ErrorInfo = record { description : text };
+type Icrc21FieldDisplayMessage = record {
+  fields : vec record { text; text };
+  intent : text;
+};
+type Icrc21GenericError = record { description : text; error_code : nat64 };
+type Icrc28TrustedOriginsResponse = record { trusted_origins : vec text };
+type InitArg = record {
+  base_url : opt text;
+  cycles_management : CyclesManagement;
   test_mode : bool;
-  authorized_principals : vec principal;
+  max_creation_retries : nat;
+  collection_request_fee : nat;
+  kongswap_canister_id : opt principal;
+  ogy_transfer_fee : nat;
+  authorized_principals : vec AuthordiedPrincipal;
   bank_principal_id : principal;
   ledger_canister_id : principal;
+  mint_pricing : opt MintPricingConfig;
+  commit_hash : text;
+  icpswap_pool_canister_id : opt principal;
+  max_template_per_owner : nat;
 };
-type Result = variant {
-  Ok : CreateCollectionResult;
-  Err : CreateCollectionError;
+type InitializeMintArgs = record {
+  total_file_size_bytes : nat;
+  num_mints : nat64;
+  collection_canister_id : principal;
+};
+type InitializeMintError = variant {
+  CollectionNotReady;
+  CallerNotCollectionOwner;
+  CollectionNotFound;
+  InvalidNumMints;
+  Generic : GenericError;
+  TransferFromError : TransferFromError;
+  OgyPriceNotAvailable;
+};
+type MemorySize = record { stable : nat64; heap : nat64 };
+type Metrics = record {
+  base_url : opt text;
+  next_template_id : nat;
+  timers : vec TimerMetrics;
+  origyn_nft_wasm_hash : text;
+  cycles_management : CyclesManagement;
+  total_collections : nat64;
+  active_tasks : vec text;
+  max_creation_retries : nat;
+  total_templates : nat64;
+  mint_refund_queue_length : nat64;
+  collection_request_fee : nat;
+  kongswap_canister_id : opt principal;
+  total_mint_requests : nat64;
+  total_bytes_uploaded : nat64;
+  ogy_to_burn : nat;
+  collection_status_counts : CollectionStatusCounts;
+  ogy_transfer_fee : nat;
+  authorized_principals : vec AuthordiedPrincipal;
+  reimbursement_queue_length : nat64;
+  pending_queue_length : nat64;
+  total_ogy_burned : nat;
+  bank_principal_id : principal;
+  next_mint_request_id : nat64;
+  ledger_canister_id : principal;
+  canister_info : CanisterInfo;
+  mint_pricing : opt MintPricingConfig;
+  total_nfts_minted : nat64;
+  mint_request_status_counts : MintRequestStatusCounts;
+  max_template_per_owner : nat;
+  ogy_price : opt OgyPriceData;
+  total_files_uploaded : nat64;
+};
+type MintCostBreakdown = record {
+  storage_fee_usd_e8s : nat64;
+  base_fee_usd_e8s : nat64;
+};
+type MintCostEstimate = record {
+  breakdown : MintCostBreakdown;
+  total_usd_e8s : nat64;
+  ogy_usd_price_e8s : nat64;
+  total_ogy_e8s : nat64;
+};
+type MintItemArg = record {
+  metadata : vec record { text; ICRC3Value_1 };
+  memo : opt blob;
+  token_owner : Account;
+};
+type MintNftsArgs = record {
+  mint_items : vec MintItemArg;
+  mint_request_id : nat64;
+};
+type MintNftsError = variant {
+  MintError : text;
+  MintRequestNotFound;
+  MintLimitExceeded : record {
+    requested : nat;
+    already_minted : nat;
+    allowed : nat;
+  };
+  TooManyItems : record { max : nat };
+  Unauthorized;
+  MintRequestNotActive;
+  NoItemsProvided;
+};
+type MintPricingConfig = record {
+  storage_fee_per_mb_usd_e8s : nat64;
+  base_mint_fee_usd_e8s : nat64;
+};
+type MintRequestInfo = record {
+  id : nat;
+  status : MintRequestStatus;
+  updated_at : nat;
+  minted_count : nat;
+  uploaded_files : vec UploadedFileInfo;
+  owner : principal;
+  allocated_bytes : nat;
+  created_at : nat;
+  bytes_uploaded : nat;
+  num_mints : nat;
+  collection_canister_id : principal;
+  ogy_charged : nat;
+};
+type MintRequestStatus = variant {
+  Initialized;
+  Refunded : record { tx_index : nat };
+  RefundRequested;
+  RefundFailed : record { reason : text };
+  Completed;
+};
+type MintRequestStatusCounts = record {
+  initialized : nat64;
+  completed : nat64;
+  refunded : nat64;
+  refund_failed : nat64;
+  refund_requested : nat64;
+};
+type NftDetails = record {
+  token_id : nat;
+  owner : opt Account;
+  metadata : opt vec record { text; ICRC3Value_1 };
+};
+type OgyPriceData = record { updated_at : nat64; usd_per_ogy_e8s : nat64 };
+type PaginationArgs = record { offset : opt nat64; limit : opt nat64 };
+type ProxyFinalizeUploadArgs = record {
+  file_path : text;
+  mint_request_id : nat64;
+};
+type ProxyInitUploadArgs = record {
+  file_hash : text;
+  file_path : text;
+  file_size : nat64;
+  chunk_size : opt nat64;
+  mint_request_id : nat64;
+};
+type ProxyLogoFinalizeUploadArgs = record {
+  file_path : text;
+  collection_canister_id : principal;
+};
+type ProxyLogoInitUploadArgs = record {
+  file_hash : text;
+  file_path : text;
+  file_size : nat64;
+  collection_canister_id : principal;
+  chunk_size : opt nat64;
+};
+type ProxyLogoStoreChunkArgs = record {
+  chunk_id : nat;
+  file_path : text;
+  collection_canister_id : principal;
+  chunk_data : blob;
+};
+type ProxyLogoUploadError = variant {
+  CollectionNotReady;
+  CollectionNotFound;
+  FileTooLarge : record { requested : nat64; max_bytes : nat64 };
+  UploadError : text;
+  Unauthorized;
+};
+type ProxyStoreChunkArgs = record {
+  chunk_id : nat;
+  file_path : text;
+  chunk_data : blob;
+  mint_request_id : nat64;
+};
+type ProxyUploadError = variant {
+  ByteLimitExceeded : record { requested : nat; allocated : nat; used : nat };
+  MintRequestNotFound;
+  UploadError : text;
+  Unauthorized;
+  MintRequestNotActive;
+};
+type RefundError = variant {
+  MintRequestNotFound;
+  NotInRefundableState;
+  Unauthorized;
+  AlreadyRefunded;
+  CreditsAlreadyUsed;
+};
+type RequestMintRefundArgs = record { mint_request_id : nat64 };
+type Result = variant { Ok : nat; Err : CreateCollectionError };
+type Result_1 = variant { Ok : nat; Err : CreateTemplateError };
+type Result_10 = variant { Ok; Err : ProxyLogoUploadError };
+type Result_11 = variant { Ok; Err : RefundError };
+type Result_12 = variant { Ok; Err : UpdateTemplateError };
+type Result_2 = variant { Ok; Err : DeleteTemplateError };
+type Result_3 = variant { Ok : MintCostEstimate; Err : EstimateMintCostError };
+type Result_4 = variant {
+  Ok : TemplatesResult;
+  Err : GetTemplatesByOwnerError;
+};
+type Result_5 = variant { Ok : nat64; Err : InitializeMintError };
+type Result_6 = variant { Ok : vec nat; Err : MintNftsError };
+type Result_7 = variant { Ok : text; Err : ProxyUploadError };
+type Result_8 = variant { Ok; Err : ProxyUploadError };
+type Result_9 = variant { Ok : text; Err : ProxyLogoUploadError };
+type SupportedStandard = record { url : text; name : text };
+type Template = record { template_json : text; template_id : nat };
+type TemplatesResult = record { templates : vec Template; total_count : nat64 };
+type TimerMetrics = record {
+  name : text;
+  interval_seconds : nat64;
+  last_run : opt nat64;
 };
 type TransferFromError = variant {
   GenericError : record { message : text; error_code : nat };
@@ -34,6 +407,73 @@ type TransferFromError = variant {
   TooOld;
   InsufficientFunds : record { balance : nat };
 };
-service : (InitArgs) -> {
+type UpdateTemplateArgs = record {
+  new_tempalte_json : text;
+  template_id : nat;
+};
+type UpdateTemplateError = variant {
+  UnauthorizedCall;
+  InvalidNftTemplateId;
+  JsonError : text;
+  TemplateNotFound;
+};
+type UpgradeArgs = record {
+  origyn_nft_wasm_hash : opt text;
+  cycles_management : opt CyclesManagement;
+  max_creation_retries : opt nat;
+  collection_request_fee : opt nat;
+  new_authorized_principals : opt vec AuthordiedPrincipal;
+  kongswap_canister_id : opt principal;
+  ogy_transfer_fee : opt nat;
+  bank_principal_id : opt principal;
+  ledger_canister_id : opt principal;
+  mint_pricing : opt MintPricingConfig;
+  commit_hash : text;
+  build_version : BuildVersion;
+  icpswap_pool_canister_id : opt principal;
+  max_template_per_owner : opt nat;
+};
+type UploadedFileInfo = record {
+  file_path : text;
+  file_url : text;
+  file_size : nat64;
+};
+service : (ClaimlinkArgs) -> {
   create_collection : (CreateCollectionArgs) -> (Result);
+  create_template : (CreateTemplateArgs) -> (Result_1);
+  delete_template : (nat) -> (Result_2);
+  estimate_mint_cost : (EstimateMintCostArgs) -> (Result_3) query;
+  get_collection_count : () -> (nat64) query;
+  get_collection_info : (CollectionSearchParam) -> (opt CollectionInfo) query;
+  get_collection_nfts : (GetCollectionNftsArgs) -> (vec nat) composite_query;
+  get_collections_by_owner : (GetCollectionsByOwnerArgs) -> (
+      CollectionsResult,
+    ) query;
+  get_collections_for_user : (GetCollectionsForUserArgs) -> (
+      CollectionsResult,
+    ) composite_query;
+  get_metrics : () -> (Metrics) query;
+  get_mint_request : (nat64) -> (opt MintRequestInfo) query;
+  get_mint_requests_by_owner : (GetMintRequestsByOwnerArgs) -> (
+      vec MintRequestInfo,
+    ) query;
+  get_nft_details : (GetNftDetailsArgs) -> (vec NftDetails) composite_query;
+  get_ogy_usd_price : () -> (opt OgyPriceData) query;
+  get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_4) query;
+  icrc10_supported_standards : () -> (vec SupportedStandard) query;
+  icrc21_canister_call_consent_message : (Icrc21ConsentMessageRequest) -> (
+      Icrc21ConsentMessageResponse,
+    ) query;
+  icrc28_trusted_origins : () -> (Icrc28TrustedOriginsResponse) query;
+  initialize_mint : (InitializeMintArgs) -> (Result_5);
+  list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
+  mint_nfts : (MintNftsArgs) -> (Result_6);
+  proxy_finalize_upload : (ProxyFinalizeUploadArgs) -> (Result_7);
+  proxy_init_upload : (ProxyInitUploadArgs) -> (Result_8);
+  proxy_logo_finalize_upload : (ProxyLogoFinalizeUploadArgs) -> (Result_9);
+  proxy_logo_init_upload : (ProxyLogoInitUploadArgs) -> (Result_10);
+  proxy_logo_store_chunk : (ProxyLogoStoreChunkArgs) -> (Result_10);
+  proxy_store_chunk : (ProxyStoreChunkArgs) -> (Result_8);
+  request_mint_refund : (RequestMintRefundArgs) -> (Result_11);
+  update_template : (UpdateTemplateArgs) -> (Result_12);
 }

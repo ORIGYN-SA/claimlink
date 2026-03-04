@@ -1,0 +1,176 @@
+/**
+ * Reserved Field IDs
+ *
+ * These field IDs have special meaning in the system and are used by
+ * transformers to extract certificate data for display (title, image, description).
+ *
+ * When users create templates, they should use these IDs for fields that
+ * serve these semantic purposes. Otherwise, certificates may not display
+ * correctly (e.g., showing "Certificate #123" instead of the actual name).
+ */
+
+/**
+ * Reserved field IDs organized by semantic purpose
+ */
+export const RESERVED_FIELDS = {
+  /**
+   * Fields used for certificate title display.
+   * Priority order: first match wins.
+   * @see getCertificateTitle in certificates/api/transformers.ts
+   */
+  TITLE: [
+    'item_artwork_title',
+    'item_name',
+    'name',
+    'title',
+    'certificate_title',
+    'product_name',
+  ] as const,
+
+  /**
+   * Fields used for certificate image display.
+   * First checks string fields, then FileReference array fields.
+   * @see getCertificateImageUrl in certificates/api/transformers.ts
+   */
+  IMAGE_STRING: ['image', 'item_image', 'thumbnail'] as const,
+
+  IMAGE_FILE_REFERENCE: [
+    'product_images',
+    'gallery_images',
+    'detail_images',
+    'files-media',
+    'main_image',
+    'primary_image',
+    'certificate_image',
+  ] as const,
+
+  /**
+   * Fields used for certificate description in ICRC3 metadata.
+   * @see convertToIcrc3Metadata in template-renderer/utils/icrc3-converter.ts
+   */
+  DESCRIPTION: ['short_description', 'description', 'about'] as const,
+
+  /**
+   * Fields used for company logo display in certificate header.
+   * Logo is inverted to white for visibility on the dark navy header.
+   * @see CertificateFrame component
+   */
+  COMPANY_LOGO: ['company_logo', 'logo', 'brand_logo'] as const,
+
+  /**
+   * Fields used for company/issuer name display (e.g., "Issued By: Federitaly").
+   * Used in certificate launchpad and detail views.
+   * @see CertificateLaunchpad component
+   */
+  COMPANY_NAME: ['certified_by', 'issued_by', 'company_name', 'issuer_name', 'brand_name'] as const,
+
+  /**
+   * Fields that can auto-detect as search index.
+   * Matched by label containing these keywords.
+   * @see view-generator.ts
+   */
+  SEARCH_INDEX_KEYWORDS: ['name', 'company', 'title', 'serial'] as const,
+} as const;
+
+/**
+ * All image fields combined (string + FileReference)
+ */
+export const ALL_IMAGE_FIELDS = [
+  ...RESERVED_FIELDS.IMAGE_STRING,
+  ...RESERVED_FIELDS.IMAGE_FILE_REFERENCE,
+] as const;
+
+/**
+ * Semantic field types for the UI
+ */
+export type SemanticFieldType = 'title' | 'image' | 'description' | 'company_logo' | 'company_name' | 'custom';
+
+/**
+ * Recommended default field IDs for each semantic type.
+ * Used when adding semantic field presets in the template editor.
+ */
+export const RECOMMENDED_FIELD_IDS: Record<
+  Exclude<SemanticFieldType, 'custom'>,
+  string
+> = {
+  title: 'name',
+  image: 'product_images',
+  description: 'short_description',
+  company_logo: 'company_logo',
+  company_name: 'certified_by',
+};
+
+/**
+ * Check if a field ID is reserved for certificate title display
+ */
+export function isTitleFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.TITLE as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for certificate image display
+ */
+export function isImageFieldId(fieldId: string): boolean {
+  return (ALL_IMAGE_FIELDS as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for certificate description
+ */
+export function isDescriptionFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.DESCRIPTION as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for company logo display
+ */
+export function isCompanyLogoFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_LOGO as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for company/issuer name display
+ */
+export function isCompanyNameFieldId(fieldId: string): boolean {
+  return (RESERVED_FIELDS.COMPANY_NAME as readonly string[]).includes(fieldId);
+}
+
+/**
+ * Check if a field ID is reserved for any semantic purpose
+ */
+export function isReservedFieldId(fieldId: string): boolean {
+  return (
+    isTitleFieldId(fieldId) ||
+    isImageFieldId(fieldId) ||
+    isDescriptionFieldId(fieldId) ||
+    isCompanyLogoFieldId(fieldId) ||
+    isCompanyNameFieldId(fieldId)
+  );
+}
+
+/**
+ * Get all reserved field IDs as a flat array
+ */
+export function getAllReservedFieldIds(): string[] {
+  return [
+    ...RESERVED_FIELDS.TITLE,
+    ...ALL_IMAGE_FIELDS,
+    ...RESERVED_FIELDS.DESCRIPTION,
+    ...RESERVED_FIELDS.COMPANY_LOGO,
+    ...RESERVED_FIELDS.COMPANY_NAME,
+  ];
+}
+
+/**
+ * Get the semantic purpose of a field ID, if any
+ */
+export function getFieldSemanticPurpose(
+  fieldId: string
+): SemanticFieldType | null {
+  if (isTitleFieldId(fieldId)) return 'title';
+  if (isImageFieldId(fieldId)) return 'image';
+  if (isDescriptionFieldId(fieldId)) return 'description';
+  if (isCompanyLogoFieldId(fieldId)) return 'company_logo';
+  if (isCompanyNameFieldId(fieldId)) return 'company_name';
+  return null;
+}

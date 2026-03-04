@@ -1,16 +1,43 @@
 {
   "__0": "ORIGYN Claimlink Monorepo",
   "canisters": {
-    "claimlink_backend": {
+    "internet_identity": {
       "type": "custom",
-      "candid": "backend/canisters/backend/canisters/claimlink/api/can.did",
-      "package": "claimlink_backend",
-      "wasm": "backend/canisters/backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai",
+          "staging": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "init_arg": "(opt record { captcha_config = opt record { max_unsolved_captchas = 50:nat64; captcha_trigger = variant { Static = variant { CaptchaDisabled } } } })"
+    },
+    "ogy_ledger": {
+      "type": "custom",
+      "candid": "backend/external_canisters/icrc_ledger/api/can.did",
+      "wasm": "backend/external_canisters/icrc_ledger/wasm/icrc_ledger_canister.wasm.gz",
       "declarations": {
         "bindings": ["js", "did", "ts"],
         "env_override": null,
-        "output": "backend/canisters/backend/canisters/claimlink/api/declarations"
+        "output": "backend/external_canisters/icrc_ledger/api/declarations"
       }
+    },
+    "claimlink_backend": {
+      "type": "custom",
+      "candid": "backend/canisters/claimlink/api/can.did",
+      "package": "claimlink_backend",
+      "wasm": "backend/canisters/claimlink/target/wasm32-unknown-unknown/release/claimlink_canister.wasm.gz",
+      "declarations": {
+        "bindings": ["js", "did", "ts"],
+        "env_override": null,
+        "output": "backend/canisters/claimlink/api/declarations"
+      },
+       "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     },
     "claimlink_frontend": {
       "declarations": {
@@ -18,7 +45,7 @@
         "env_override": null,
         "output": null
       },
-      "source": ["frontend/claimlink_frontend/dist"],
+      "source": ["frontend/claimlink_dashboard/dist"],
       "type": "assets"
     }
   },
@@ -33,7 +60,7 @@
       "type": "persistent"
     },
     "local": {
-      "bind": "localhost:8080",
+      "bind": "localhost:4943",
       "type": "ephemeral"
     }
   }

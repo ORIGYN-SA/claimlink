@@ -10,3 +10,4 @@ bity-ic-canister-client = { workspace = true }
 ic_management_canister_api = { path = "../api" }
 types = { path = "../../../libraries/types" }
 ic-cdk = { workspace = true }
+bity-ic-types = { workspace = true }

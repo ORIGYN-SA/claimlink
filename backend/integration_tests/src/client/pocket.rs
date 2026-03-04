@@ -53,6 +53,23 @@ pub fn install_canister<P: CandidType>(
     pic.advance_time(Duration::from_secs(1));
 }
 
+pub fn upgrade_canister<P: CandidType>(
+    pic: &mut PocketIc,
+    sender: Principal,
+    canister_id: CanisterId,
+    wasm: Vec<u8>,
+    payload: P,
+) {
+    pic.upgrade_canister(
+        canister_id,
+        wasm,
+        candid::encode_one(&payload).unwrap(),
+        Some(sender),
+    )
+    .unwrap();
+    pic.advance_time(Duration::from_secs(1));
+}
+
 pub fn execute_query<P: CandidType, R: CandidType + DeserializeOwned>(
     pic: &PocketIc,
     sender: Principal,
@@ -61,6 +78,10 @@ pub fn execute_query<P: CandidType, R: CandidType + DeserializeOwned>(
     payload: &P,
 ) -> R {
     pic.advance_time(Duration::from_secs(1));
+    pic.tick();
+    pic.tick();
+    pic.tick();
+    pic.tick();
     unwrap_response(pic.query_call(
         canister_id,
         sender,

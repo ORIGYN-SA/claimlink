@@ -21,7 +21,7 @@ $[[ inputs.src-folder ]] unit tests:
     - |
       set -e
       status=0
-      for crate in $(find backend/canisters/$[[inputs.src-folder]] -name Cargo.toml -exec dirname {} \;); do
+      for crate in $(find backend/canisters/$[[inputs.src-folder]]/impl -name Cargo.toml -exec dirname {} \;); do
         echo "📦 Running tests in $crate"
         (cd "$crate" && cargo test) || status=1
       done

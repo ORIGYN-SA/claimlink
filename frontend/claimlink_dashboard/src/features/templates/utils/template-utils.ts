@@ -1,0 +1,554 @@
+/**
+ * Template Utilities
+ *
+ * Helper functions for working with templates, sections, and items.
+ * Updated to support both legacy TemplateStructure and new TemplateNode[] formats.
+ */
+
+import type { Template } from '@/shared/data/templates';
+import type {
+  TemplateSection,
+  TemplateItem,
+  TemplateItemType,
+  TitleItem,
+  InputItem,
+  BadgeItem,
+  ImageItem,
+  VideoItem,
+  DocumentItem,
+  CertificateFormData,
+  ValidationResult,
+} from '@/features/templates/types/template.types';
+import { isLocalizedValue } from '@/features/templates/types/template.types';
+import {
+  getTemplateFormat,
+  getUnifiedSections,
+  getUnifiedLanguages,
+  type UnifiedItem,
+} from './template-compat';
+
+// ============================================================================
+// Template Getters
+// ============================================================================
+
+/**
+ * Get all sections from a template, sorted by order.
+ * Works with both legacy TemplateStructure and new tree formats.
+ *
+ * Note: For new code, prefer using getUnifiedSections() from template-compat.ts
+ * which returns a format-agnostic representation.
+ */
+export function getTemplateSections(template: Template): TemplateSection[] {
+  // Check if using tree format
+  if (getTemplateFormat(template) === 'tree') {
+    // Convert unified sections to legacy TemplateSection format for compatibility
+    const unified = getUnifiedSections(template);
+    return unified.map((section) => ({
+      id: section.id,
+      name: section.name as TemplateSection['name'],
+      order: section.order,
+      items: section.items.map((item) => convertUnifiedItemToTemplateItem(item)),
+      collapsible: section.collapsible,
+      description: section.description,
+    }));
+  }
+
+  // Legacy format
+  if (!template.structure?.sections) return [];
+  return [...template.structure.sections].sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Convert a unified item to legacy TemplateItem format
+ */
+function convertUnifiedItemToTemplateItem(item: UnifiedItem): TemplateItem {
+  const base = {
+    id: item.id,
+    label: item.label,
+    order: item.order,
+    required: item.required,
+    immutable: item.immutable,
+    description: item.description,
+  };
+
+  switch (item.type) {
+    case 'title':
+      return {
+        ...base,
+        type: 'title',
+        defaultValue: item.defaultValue,
+      } as TitleItem;
+
+    case 'input':
+      return {
+        ...base,
+        type: 'input',
+        inputType: item.inputType || 'text',
+        placeholder: item.placeholder,
+        multiline: item.inputType === 'textarea',
+      } as InputItem;
+
+    case 'badge':
+      return {
+        ...base,
+        type: 'badge',
+        badgeStyle: (item.badgeStyle as any) || 'default',
+        defaultValue: item.defaultValue,
+      } as BadgeItem;
+
+    case 'image':
+      return {
+        ...base,
+        type: 'image',
+        multiple: item.multiple,
+        maxImages: item.maxImages,
+        acceptVideo: item.acceptVideo,
+      } as ImageItem;
+
+    case 'video':
+      return {
+        ...base,
+        type: 'video',
+      } as VideoItem;
+
+    case 'readonly':
+      return {
+        ...base,
+        type: 'readonly',
+        defaultValue: item.defaultValue,
+      } as any;
+
+    default:
+      return {
+        ...base,
+        type: 'input',
+        inputType: 'text',
+      } as InputItem;
+  }
+}
+
+/**
+ * Get a specific section by ID
+ */
+export function getSectionById(
+  template: Template,
+  sectionId: string
+): TemplateSection | undefined {
+  return template.structure?.sections.find((s) => s.id === sectionId);
+}
+
+/**
+ * Get all items from a section, sorted by order
+ */
+export function getSectionItems(section: TemplateSection): TemplateItem[] {
+  return [...section.items].sort((a, b) => a.order - b.order);
+}
+
+/**
+ * Get a specific item by ID from template
+ */
+export function getItemById(
+  template: Template,
+  itemId: string
+): TemplateItem | undefined {
+  const sections = getTemplateSections(template);
+  for (const section of sections) {
+    const item = section.items.find((i) => i.id === itemId);
+    if (item) return item;
+  }
+  return undefined;
+}
+
+/**
+ * Get all required items from template
+ */
+export function getRequiredItems(template: Template): TemplateItem[] {
+  const sections = getTemplateSections(template);
+  const allItems = sections.flatMap((s) => s.items);
+  return allItems.filter((item) => item.required);
+}
+
+/**
+ * Get item count per section
+ */
+export function getSectionItemCount(section: TemplateSection): number {
+  return section.items.length;
+}
+
+/**
+ * Get required item count per section
+ */
+export function getSectionRequiredItemCount(section: TemplateSection): number {
+  return section.items.filter((item) => item.required).length;
+}
+
+// ============================================================================
+// Type Guards
+// ============================================================================
+
+export function isTitleItem(item: TemplateItem): item is TitleItem {
+  return item.type === 'title';
+}
+
+export function isInputItem(item: TemplateItem): item is InputItem {
+  return item.type === 'input';
+}
+
+export function isBadgeItem(item: TemplateItem): item is BadgeItem {
+  return item.type === 'badge';
+}
+
+export function isImageItem(item: TemplateItem): item is ImageItem {
+  return item.type === 'image';
+}
+
+export function isVideoItem(item: TemplateItem): item is VideoItem {
+  return item.type === 'video';
+}
+
+export function isDocumentItem(item: TemplateItem): item is DocumentItem {
+  return item.type === 'document';
+}
+
+// ============================================================================
+// Icon/Visual Helpers
+// ============================================================================
+
+/**
+ * Get icon identifier for item type
+ */
+export function getItemTypeIcon(type: TemplateItemType): string {
+  const iconMap: Record<TemplateItemType, string> = {
+    title: 'Tt',
+    input: 'Mint',
+    badge: 'CircleStack',
+    image: 'Mint',
+    video: 'Video',
+    document: 'File',
+    readonly: 'Lock',
+  };
+  return iconMap[type] || 'Mint';
+}
+
+/**
+ * Get display name for item type
+ */
+export function getItemTypeDisplayName(type: TemplateItemType): string {
+  const displayNames: Record<TemplateItemType, string> = {
+    title: 'Title',
+    input: 'Input',
+    badge: 'Badge',
+    image: 'Image',
+    video: 'Video',
+    document: 'Document',
+    readonly: 'Read Only',
+  };
+  return displayNames[type] || type;
+}
+
+// ============================================================================
+// Validation
+// ============================================================================
+
+/**
+ * Validate a single field value
+ */
+export function validateField(
+  item: TemplateItem,
+  value: any
+): { isValid: boolean; error?: string } {
+  // Extract primary string value from LocalizedValue objects
+  // Multi-language mode stores values as { en: "value", it: "valore" }
+  let effectiveValue = value;
+  if (isLocalizedValue(value)) {
+    const values = Object.values(value);
+    effectiveValue = values.find((v) => v !== '') ?? values[0] ?? '';
+  }
+  if (item.immutable && !value) {
+    if (isBadgeItem(item) && item.defaultValue) {
+      effectiveValue = item.defaultValue;
+    } else if (isTitleItem(item) && item.defaultValue) {
+      effectiveValue = item.defaultValue;
+    }
+  }
+
+  // Check required
+  if (item.required && !effectiveValue) {
+    return {
+      isValid: false,
+      error: `${item.label} is required`,
+    };
+  }
+
+  // Skip validation if value is empty and not required
+  if (!effectiveValue && !item.required) {
+    return { isValid: true };
+  }
+
+  // Type-specific validation
+  if (isInputItem(item) && item.validation) {
+    const validation = item.validation;
+    const strValue = String(effectiveValue);
+
+    // Min length
+    if (validation.minLength && strValue.length < validation.minLength) {
+      return {
+        isValid: false,
+        error: validation.errorMessage || `Minimum length is ${validation.minLength}`,
+      };
+    }
+
+    // Max length
+    if (validation.maxLength && strValue.length > validation.maxLength) {
+      return {
+        isValid: false,
+        error: validation.errorMessage || `Maximum length is ${validation.maxLength}`,
+      };
+    }
+
+    // Pattern
+    if (validation.pattern) {
+      const regex = new RegExp(validation.pattern);
+      if (!regex.test(strValue)) {
+        return {
+          isValid: false,
+          error: validation.errorMessage || `Invalid format`,
+        };
+      }
+    }
+  }
+
+  // Image validation
+  if (isImageItem(item) && value) {
+    const files = Array.isArray(value) ? value : [value];
+
+    if (item.multiple && item.maxImages && files.length > item.maxImages) {
+      return {
+        isValid: false,
+        error: `Maximum ${item.maxImages} images allowed`,
+      };
+    }
+
+    for (const file of files) {
+      if (file instanceof File) {
+        // Check file size
+        if (item.maxFileSize && file.size > item.maxFileSize) {
+          const maxMB = (item.maxFileSize / 1024 / 1024).toFixed(2);
+          return {
+            isValid: false,
+            error: `File size must be less than ${maxMB}MB`,
+          };
+        }
+
+        // Check file type
+        if (item.acceptedFormats && !item.acceptedFormats.includes(file.type)) {
+          return {
+            isValid: false,
+            error: `File type not accepted. Allowed: ${item.acceptedFormats.join(', ')}`,
+          };
+        }
+      }
+    }
+  }
+
+  // Video validation
+  if (isVideoItem(item) && value) {
+    if (value instanceof File) {
+      // Check file size (default 50MB if not specified)
+      const maxFileSize = item.maxFileSize || 50 * 1024 * 1024;
+      if (value.size > maxFileSize) {
+        const maxMB = (maxFileSize / 1024 / 1024).toFixed(0);
+        return {
+          isValid: false,
+          error: `Video must be less than ${maxMB}MB`,
+        };
+      }
+
+      // Check file type
+      if (item.acceptedFormats && !item.acceptedFormats.includes(value.type)) {
+        return {
+          isValid: false,
+          error: `Video type not accepted. Allowed: ${item.acceptedFormats.join(', ')}`,
+        };
+      }
+    }
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate all fields in form data
+ */
+export function validateFormData(
+  template: Template,
+  formData: CertificateFormData
+): ValidationResult {
+  const errors: { [itemId: string]: string } = {};
+  const sections = getTemplateSections(template);
+
+  sections.forEach((section) => {
+    section.items.forEach((item) => {
+      const value = formData[item.id];
+      const result = validateField(item, value);
+
+      if (!result.isValid && result.error) {
+        errors[item.id] = result.error;
+      }
+    });
+  });
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
+// ============================================================================
+// Form Data Helpers
+// ============================================================================
+
+/**
+ * Get initial/default form data for a template
+ */
+export function getInitialFormData(template: Template): CertificateFormData {
+  const formData: CertificateFormData = {};
+  const sections = getTemplateSections(template);
+
+  sections.forEach((section) => {
+    section.items.forEach((item) => {
+      if (isTitleItem(item) && item.defaultValue) {
+        formData[item.id] = item.defaultValue;
+      } else if (isInputItem(item) && item.defaultValue) {
+        formData[item.id] = item.defaultValue;
+      } else if (isBadgeItem(item) && item.defaultValue) {
+        formData[item.id] = item.defaultValue;
+      } else if (isImageItem(item) && item.multiple) {
+        formData[item.id] = [];
+      } else if (isVideoItem(item)) {
+        formData[item.id] = ''; // Videos are single files, empty string as default
+      } else {
+        formData[item.id] = '';
+      }
+    });
+  });
+
+  return formData;
+}
+
+/**
+ * Check if form data is complete (all required fields filled)
+ */
+export function isFormComplete(
+  template: Template,
+  formData: CertificateFormData
+): boolean {
+  const requiredItems = getRequiredItems(template);
+
+  return requiredItems.every((item) => {
+    const value = formData[item.id];
+
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+
+    return value !== undefined && value !== null && value !== '';
+  });
+}
+
+// ============================================================================
+// Section Helpers
+// ============================================================================
+
+/**
+ * Calculate section completion percentage
+ */
+export function getSectionProgress(
+  section: TemplateSection,
+  formData: CertificateFormData
+): number {
+  if (section.items.length === 0) return 100;
+
+  const completedCount = section.items.filter((item) => {
+    const value = formData[item.id];
+    if (Array.isArray(value)) {
+      return value.length > 0;
+    }
+    return value !== undefined && value !== null && value !== '';
+  }).length;
+
+  return Math.round((completedCount / section.items.length) * 100);
+}
+
+/**
+ * Get overall template completion percentage
+ */
+export function getTemplateProgress(
+  template: Template,
+  formData: CertificateFormData
+): number {
+  const sections = getTemplateSections(template);
+  if (sections.length === 0) return 0;
+
+  const totalProgress = sections.reduce(
+    (sum, section) => sum + getSectionProgress(section, formData),
+    0
+  );
+
+  return Math.round(totalProgress / sections.length);
+}
+
+// ============================================================================
+// Search Index
+// ============================================================================
+
+/**
+ * Get the search index field from template
+ */
+export function getSearchIndexField(template: Template): TemplateItem | undefined {
+  const fieldId = template.structure?.searchIndexField;
+  if (!fieldId) return undefined;
+  return getItemById(template, fieldId);
+}
+
+// ============================================================================
+// Language Helpers
+// ============================================================================
+
+/**
+ * Get default language from template.
+ * Works with both legacy TemplateStructure and new tree formats.
+ */
+export function getDefaultLanguage(template: Template) {
+  const languages = getTemplateLanguages(template);
+  return languages.find((lang) => lang.isDefault) || languages[0];
+}
+
+/**
+ * Get available languages from template.
+ * Works with both legacy TemplateStructure and new tree formats.
+ */
+export function getTemplateLanguages(template: Template) {
+  // Check if using tree format
+  if (getTemplateFormat(template) === 'tree') {
+    return getUnifiedLanguages(template);
+  }
+
+  // Legacy format
+  return template.structure?.languages || [];
+}
+
+/**
+ * Get translated value for an item
+ */
+export function getTranslatedValue(
+  template: Template,
+  itemId: string,
+  languageCode: string,
+  field: 'label' | 'placeholder' | 'defaultValue' | 'description'
+): string | undefined {
+  const translations = template.structure?.translations;
+  if (!translations) return undefined;
+  return translations[itemId]?.[languageCode]?.[field];
+}
+

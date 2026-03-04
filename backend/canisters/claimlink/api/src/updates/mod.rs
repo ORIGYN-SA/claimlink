@@ -1,1 +1,10 @@
 pub mod create_collection;
+pub mod create_template;
+pub mod delete_template;
+pub mod initialize_mint;
+pub mod mint_nfts;
+pub mod proxy_logo_upload;
+pub mod proxy_upload;
+pub mod request_mint_refund;
+pub mod set_ogy_price;
+pub mod update_template;

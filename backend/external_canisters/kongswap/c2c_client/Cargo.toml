@@ -1,0 +1,10 @@
+[package]
+name = "kongswap-canister-c2c-client"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bity-ic-canister-client = { workspace = true }
+kongswap-canister-api = { path = "../api" }
+types = { path = "../../../libraries/types" }
+ic-cdk = { workspace = true }
