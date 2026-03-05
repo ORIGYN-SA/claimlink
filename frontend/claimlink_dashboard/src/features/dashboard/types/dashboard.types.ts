@@ -4,6 +4,7 @@ export interface StatCardProps {
   trend: string
   trendColor: "green" | "red",
   icon?: React.ReactNode
+  tooltip?: string
   className?: string
 }
 

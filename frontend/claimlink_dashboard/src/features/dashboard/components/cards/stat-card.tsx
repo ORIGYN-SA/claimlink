@@ -10,6 +10,7 @@ export function StatCard({
   trend,
   trendColor,
   icon,
+  tooltip,
   className,
 }: StatCardProps) {
   return (
@@ -32,8 +33,8 @@ export function StatCard({
             <TooltipTrigger asChild>
               <Info className="w-3 h-3 text-[#69737c] opacity-50 cursor-help flex-shrink-0" />
             </TooltipTrigger>
-            <TooltipContent>
-              <p>Additional information about {title}</p>
+            <TooltipContent className="max-w-[240px]">
+              <p>{tooltip ?? `Additional information about ${title}`}</p>
             </TooltipContent>
           </Tooltip>
         </div>

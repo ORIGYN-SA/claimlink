@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Grid, List, Info } from 'lucide-react'
 import { StandardizedGridView, StandardizedListView, type ListColumn, SearchInput, FilterSelect, type FilterOption, Pagination, AddStorageDialog, TokenStatusBadge } from '@/components/common'
+import { CanisterImage } from '@/components/common/canister-image/canister-image'
 import type { Certificate } from '@/features/certificates/types/certificate.types'
 import { useCollectionCertificates } from '@/features/certificates'
 import { useFetchCollectionInfo } from '@/features/collections'
@@ -137,7 +138,7 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
             {certificate.imageUrl && (
-              <img
+              <CanisterImage
                 src={certificate.imageUrl}
                 alt={certificate.title}
                 className="w-full h-full object-cover"
@@ -215,7 +216,7 @@ export function CollectionDetailPage({ collectionId }: CollectionDetailPageProps
             <div className="flex gap-6 min-w-0 flex-1">
               <div className="w-32 h-32 bg-black rounded-lg overflow-hidden flex-shrink-0">
                 {collection.imageUrl && (
-                  <img
+                  <CanisterImage
                     src={collection.imageUrl}
                     alt={collection.title}
                     className="w-full h-full object-cover"

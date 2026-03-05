@@ -10,6 +10,7 @@
     "build:staging": "tsc -b && vite build --mode staging",
     "build:local": "tsc -b && vite build --mode development",
     "build:preprod": "tsc -b && vite build --mode preprod",
+    "build:staging": "tsc -b && vite build --mode staging",
     "build:production": "tsc -b && vite build --mode production",
     "lint": "eslint .",
     "preview": "vite preview",

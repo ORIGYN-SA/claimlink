@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { CollectionStatusBadge } from "./collection-status-badge";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import type { Collection } from "../types/collection.types";
 
 interface CollectionCardProps {
@@ -22,7 +23,7 @@ export function CollectionCard({ collection, onClick, className }: CollectionCar
     >
       {/* Image Container */}
       <div className="relative w-[233.5px] h-[233.434px] rounded-[8px] overflow-hidden bg-[#060606] shadow-[0px_4px_24px_0px_rgba(0,0,0,0.15)]">
-        <img
+        <CanisterImage
           src={collection.imageUrl}
           alt={collection.title}
           className="w-full h-full object-cover"

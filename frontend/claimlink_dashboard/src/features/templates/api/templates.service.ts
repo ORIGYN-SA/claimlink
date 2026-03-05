@@ -11,7 +11,7 @@ import { idlFactory } from '@canisters/claimlink';
 import type {
   _SERVICE,
   Result_1,
-  Result_2,
+  Result_4,
 } from '@canisters/claimlink';
 import type {
   Template,
@@ -103,7 +103,7 @@ export class TemplateService {
   ): Promise<{ templates: Template[]; totalCount: number }> {
     const actor = createActor(agent);
 
-    const result: Result_2 = await actor.get_templates_by_owner({
+    const result: Result_4 = await actor.get_templates_by_owner({
       owner,
       pagination: {
         offset: pagination?.offset !== undefined ? [BigInt(pagination.offset)] : [],

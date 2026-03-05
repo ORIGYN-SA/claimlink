@@ -7,17 +7,22 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Actor } from '@dfinity/agent';
 import { Principal } from '@dfinity/principal';
 import type { HttpAgent } from '@dfinity/agent';
+import { DateTime } from 'luxon';
 import { useAuth } from '@/features/auth';
-import { CertificatesService } from './certificates.service';
+import { CertificatesService, ClaimlinkMintingService } from './certificates.service';
 import { getCertificateTitle, getCertificateImageUrl, extractMetadataValue } from './transformers';
 import type { ICRC3Value } from '@canisters/origyn_nft';
+import type { ICRC3Value_1 } from '@canisters/claimlink';
 import type { Certificate } from '../types/certificate.types';
 import type { TemplateStructure, CertificateFormData } from '@/features/templates/types/template.types';
 import type { FileReference } from '@/features/template-renderer/types';
 import { buildOrigynApps, convertToIcrc3Metadata, parseOrigynMetadata, type ParsedOrigynMetadata } from '@/features/template-renderer';
 import { CollectionsService } from '@/features/collections';
+import { getCanisterId } from '@/shared/canister';
+import { idlFactory as ledgerIdlFactory } from '@/services/ledger/idlFactory';
 import type { CertificateEventsData } from '../components/detail/certificate-events';
 import type { CertificateLedgerData, LedgerTransaction } from '../components/detail/certificate-ledger';
 
@@ -32,6 +37,45 @@ export const certificatesKeys = {
   detail: (id: string) => [...certificatesKeys.details(), id] as const,
   collection: (collectionId: string) => [...certificatesKeys.all, 'collection', collectionId] as const,
 };
+
+// ============================================================================
+// Mint Cost Estimation
+// ============================================================================
+
+/**
+ * Hook for estimating mint cost via ClaimLink backend
+ * Returns live OGY cost based on file size, number of mints, and current OGY price
+ */
+export const useEstimateMintCost = (
+  collectionCanisterId: string,
+  numMints: number,
+  totalFileSizeBytes: number,
+  options?: { enabled?: boolean },
+) => {
+  const { authenticatedAgent } = useAuth();
+
+  return useQuery({
+    queryKey: ['mint-cost-estimate', collectionCanisterId, numMints, totalFileSizeBytes],
+    queryFn: () =>
+      ClaimlinkMintingService.estimateMintCost(
+        authenticatedAgent!,
+        collectionCanisterId,
+        numMints,
+        totalFileSizeBytes,
+      ),
+    enabled:
+      (options?.enabled ?? true) &&
+      !!authenticatedAgent &&
+      !!collectionCanisterId &&
+      numMints > 0,
+    staleTime: 30_000, // 30s - OGY price changes slowly
+    retry: 1,
+  });
+};
+
+// ============================================================================
+// Collection Certificates
+// ============================================================================
 
 /**
  * Fetch certificates for a specific collection
@@ -240,13 +284,14 @@ interface MintCertificateWithTemplateArgs {
 }
 
 /**
- * Hook for minting certificates with full ORIGYN template support
+ * Hook for minting certificates with full ORIGYN template support (Paid Flow)
  *
- * This hook:
- * 1. Uploads any files to the canister
- * 2. Builds the complete ORIGYN __apps structure using buildOrigynApps
- * 3. Converts to ICRC3 format
- * 4. Mints the certificate with embedded template views
+ * This hook routes through the ClaimLink backend canister:
+ * 1. Estimates cost + approves OGY spending
+ * 2. Initializes mint request (backend collects payment)
+ * 3. Uploads files via proxy
+ * 4. Builds ORIGYN metadata
+ * 5. Mints via proxy
  */
 export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptions) => {
   const { authenticatedAgent, principalId } = useAuth();
@@ -258,7 +303,68 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         throw new Error('Not authenticated');
       }
 
-      // Step 1: Upload files and build file references
+      // Step 1: Calculate total file size
+      let totalFileSizeBytes = 0;
+      if (args.files && args.files.size > 0) {
+        for (const [, files] of args.files) {
+          for (const file of files) {
+            if (file instanceof File) {
+              totalFileSizeBytes += file.size;
+            }
+          }
+        }
+      }
+
+      // Step 2: Estimate cost
+      const estimate = await ClaimlinkMintingService.estimateMintCost(
+        authenticatedAgent,
+        args.collectionCanisterId,
+        1, // single mint
+        totalFileSizeBytes,
+      );
+
+      // Step 3: Approve OGY spending on the ledger
+      // Add a buffer for the transfer fee
+      const OGY_TRANSFER_FEE = 200_000n; // 0.002 OGY
+      const approvalAmount = estimate.total_ogy_e8s + OGY_TRANSFER_FEE;
+
+      const ogyLedgerCanisterId = getCanisterId('ogyLedger');
+      const claimlinkCanisterId = getCanisterId('claimlink');
+
+      const ledgerActor = Actor.createActor(ledgerIdlFactory, {
+        agent: authenticatedAgent,
+        canisterId: ogyLedgerCanisterId,
+      });
+
+      const approveResult = await ledgerActor.icrc2_approve({
+        amount: approvalAmount,
+        fee: [],
+        memo: [],
+        expected_allowance: [],
+        created_at_time: [],
+        expires_at: [
+          BigInt(DateTime.now().plus({ hours: 1 }).toMillis()) * 1_000_000n,
+        ],
+        spender: {
+          owner: Principal.fromText(claimlinkCanisterId),
+          subaccount: [],
+        },
+        from_subaccount: [],
+      }) as { Ok: bigint } | { Err: unknown };
+
+      if ('Err' in approveResult) {
+        throw new Error(`OGY approval failed: ${JSON.stringify(approveResult.Err)}`);
+      }
+
+      // Step 4: Initialize mint (backend collects payment via transfer_from)
+      const mintRequestId = await ClaimlinkMintingService.initializeMint(
+        authenticatedAgent,
+        args.collectionCanisterId,
+        1, // single mint
+        totalFileSizeBytes,
+      );
+
+      // Step 5: Upload files via proxy and build file references
       const uploadedFiles = new Map<string, FileReference[]>();
 
       if (args.files && args.files.size > 0) {
@@ -268,22 +374,21 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
           for (let i = 0; i < files.length; i++) {
             const file = files[i];
 
-            // Skip URL strings (shouldn't appear during minting, but handle for type safety)
+            // Skip URL strings (existing file references)
             if (typeof file === 'string') {
               refs.push({ id: file, path: file });
               continue;
             }
 
-            // Upload file with progress tracking
-            const uploadedUrl = await CertificatesService.uploadCertificateFile(
+            // Upload file via ClaimLink proxy
+            const uploadedUrl = await ClaimlinkMintingService.proxyUploadFile(
               authenticatedAgent,
-              args.collectionCanisterId,
+              mintRequestId,
               file,
               (progress) => {
-                // Report overall progress for this field
                 const overallProgress = ((i + progress / 100) / files.length) * 100;
                 options?.onUploadProgress?.(fieldId, overallProgress);
-              }
+              },
             );
 
             refs.push({
@@ -296,7 +401,7 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         }
       }
 
-      // Step 2: Build ORIGYN apps structure
+      // Step 6: Build ORIGYN apps structure
       const apps = buildOrigynApps({
         template: args.template,
         formData: args.formData,
@@ -304,14 +409,12 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         writerPrincipal: principalId,
       });
 
-      // Step 3: Find certificate image URL from uploaded files
-      // Prefer certificate image fields over logo fields
+      // Step 7: Find certificate image URL
       const certificateImageFieldIds = ['product_images', 'certificate_image', 'main_image', 'primary_image', 'gallery_images', 'detail_images', 'files-media'];
       const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
 
       let imageUrl: string | undefined;
 
-      // First, try to find an image from certificate image fields
       for (const fieldId of certificateImageFieldIds) {
         const refs = uploadedFiles.get(fieldId);
         if (refs && refs.length > 0) {
@@ -324,7 +427,6 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         }
       }
 
-      // Fallback: if no certificate image found, use first image that's NOT a logo
       if (!imageUrl) {
         const logoFieldIds = ['company_logo', 'logo', 'brand_logo'];
         uploadedFiles.forEach((refs, fieldId) => {
@@ -338,22 +440,28 @@ export const useMintCertificateWithTemplate = (options?: UseMintCertificateOptio
         });
       }
 
-      // Step 4: Convert to ICRC3 metadata format
+      // Step 8: Convert to ICRC3 metadata format
       const metadata = convertToIcrc3Metadata(apps, args.formData, {
         name: args.name,
         description: args.description,
         imageUrl,
       });
 
-      // Step 5: Mint the certificate
-      const tokenId = await CertificatesService.mintCertificate(
+      // Step 9: Mint via ClaimLink proxy
+      // Cast metadata from ORIGYN ICRC3Value to ClaimLink ICRC3Value_1
+      // They have the same runtime shape, just different TS type definitions
+      const claimlinkMetadata = metadata as unknown as Array<[string, ICRC3Value_1]>;
+
+      const tokenIds = await ClaimlinkMintingService.mintNfts(
         authenticatedAgent,
-        args.collectionCanisterId,
-        { owner: Principal.fromText(principalId), subaccount: [] },
-        metadata
+        mintRequestId,
+        [{
+          tokenOwner: { owner: Principal.fromText(principalId), subaccount: [] },
+          metadata: claimlinkMetadata,
+        }],
       );
 
-      return tokenId;
+      return tokenIds[0]; // Return first (only) token ID
     },
     onSuccess: (tokenId) => {
       console.log('[useMintCertificateWithTemplate] Successfully minted certificate with token ID:', tokenId);

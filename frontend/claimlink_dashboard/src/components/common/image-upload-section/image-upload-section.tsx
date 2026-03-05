@@ -33,7 +33,7 @@ export function ImageUploadSection({
   onUploadClick,
   fileInputRef,
   uploadText = "Upload your image",
-  acceptedFormats = "JPEG, PNG, SVG, PDF",
+  acceptedFormats = "JPEG, PNG, SVG",
   acceptVideo = false,
   selectedFile,
 }: ImageUploadSectionProps) {

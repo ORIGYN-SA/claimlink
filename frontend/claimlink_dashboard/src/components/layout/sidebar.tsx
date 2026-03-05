@@ -99,12 +99,12 @@ const SidebarContent = ({ onLinkClick }: { onLinkClick?: () => void }) => {
         <div className="content-stretch flex flex-col gap-2 items-start justify-start relative shrink-0">
           <div className="bg-white box-border content-stretch flex flex-col gap-6 items-start justify-start p-[24px] relative rounded-[16px] shrink-0 w-[202px]" data-name="Footer">
             <div className="content-stretch flex flex-col font-sans gap-4 items-start justify-start leading-[0] not-italic overflow-clip relative shrink-0 text-[#69737c] text-[14px] w-[98px]" data-name="Menu">
-              <button type="button" className="relative shrink-0 w-full text-left hover:text-[#80848a] transition-colors">
+              <a href="mailto:admin@origyn.com?subject=Technical%20Help" className="relative shrink-0 w-full text-left hover:text-[#80848a] transition-colors">
                 <p className="leading-[16px]">Technical help</p>
-              </button>
-              <button type="button" className="relative shrink-0 w-full text-left hover:text-[#80848a] transition-colors">
+              </a>
+              <a href="mailto:admin@origyn.com?subject=Contact%20Us" className="relative shrink-0 w-full text-left hover:text-[#80848a] transition-colors">
                 <p className="leading-[16px]">Contact us</p>
-              </button>
+              </a>
             </div>
           </div>
         </div>

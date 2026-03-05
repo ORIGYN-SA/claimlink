@@ -13,7 +13,6 @@ export const IMAGE_MIME_TYPES = [
   'image/jpg',
   'image/png',
   'image/svg+xml',
-  'application/pdf',
 ] as const;
 
 /**
@@ -63,9 +62,9 @@ export const UPLOAD_CONFIG = {
     maxSizeBytes: 5 * 1024 * 1024, // 5MB
     maxSizeMB: 5,
     mimeTypes: IMAGE_MIME_TYPES,
-    extensions: ['.jpg', '.jpeg', '.png', '.svg', '.pdf'],
+    extensions: ['.jpg', '.jpeg', '.png', '.svg'],
     acceptString: IMAGE_MIME_TYPES.join(','),
-    formatLabel: 'JPEG, PNG, SVG, PDF',
+    formatLabel: 'JPEG, PNG, SVG',
   },
 
   /**
@@ -100,7 +99,7 @@ export const UPLOAD_CONFIG = {
     maxSizeMB: 50,
     mimeTypes: MEDIA_MIME_TYPES,
     acceptString: MEDIA_MIME_TYPES.join(','),
-    formatLabel: 'JPEG, PNG, SVG, PDF, MP4, WebM, MOV',
+    formatLabel: 'JPEG, PNG, SVG, MP4, WebM, MOV',
   },
 } as const;
 

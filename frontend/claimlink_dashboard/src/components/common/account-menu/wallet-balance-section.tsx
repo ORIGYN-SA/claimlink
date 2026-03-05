@@ -3,17 +3,16 @@ import { Button } from "@/components/ui/button";
 import icon from "@/assets/icon.svg";
 
 interface WalletBalanceSectionProps {
-  balance: {
-    isLoading: boolean;
-    isError: boolean;
-    data?: {
-      balance: number;
-    };
-  } | undefined;
-  priceData: {
-    amount_usd: number;
-  } | undefined;
-  priceLoading: boolean;
+  balance:
+    | {
+        isLoading: boolean;
+        isError: boolean;
+        data?: {
+          balance: number;
+        };
+      }
+    | undefined;
+  priceUsd: number | undefined;
   totalUsdValue: number;
   onRefresh: () => void;
   onWithdrawClick: () => void;
@@ -23,8 +22,7 @@ interface WalletBalanceSectionProps {
 
 export function WalletBalanceSection({
   balance,
-  priceData,
-  priceLoading,
+  priceUsd,
   totalUsdValue,
   onRefresh,
   onWithdrawClick,
@@ -76,12 +74,14 @@ export function WalletBalanceSection({
               )}
             </div>
             <p className="text-[#69737c] text-sm tracking-[0.8px]">
-              {priceLoading ? (
+              {balance?.isLoading ? (
                 <span className="font-medium flex items-center justify-center gap-1">
                   <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
                 </span>
-              ) : priceData ? (
-                <span className="font-medium">(${totalUsdValue.toFixed(2)})</span>
+              ) : priceUsd ? (
+                <span className="font-medium">
+                  (${totalUsdValue.toFixed(2)})
+                </span>
               ) : (
                 <span className="font-medium">Price unavailable</span>
               )}
@@ -100,7 +100,9 @@ export function WalletBalanceSection({
                 </div>
               </div>
               <div className="text-xs">
-                <span className="text-[#69737c] font-normal">Principal ID: </span>
+                <span className="text-[#69737c] font-normal">
+                  Principal ID:{" "}
+                </span>
                 <span className="text-[#222526] font-semibold">
                   {principalId || "55vo5-45mf9-...1234d-erpra"}
                 </span>
@@ -124,21 +126,21 @@ export function WalletBalanceSection({
             Withdraw
           </Button>
 
-          <button className="text-[#69737c] text-xs hover:text-[#222526] transition-colors">
+          {/*<button className="text-[#69737c] text-xs hover:text-[#222526] transition-colors">
             How to top up?
-          </button>
+          </button>*/}
         </div>
       </div>
       <div className="bg-[#fcfafa] border-x border-b border-[#e1e1e1] px-4 py-3">
         <p className="text-[#69737c] text-xs text-center">
           <span className="font-normal">Current rate:</span>{" "}
-          {priceLoading ? (
+          {balance?.isLoading ? (
             <span className="font-medium flex items-center justify-center gap-1">
               <RefreshCw className="w-3 h-3 animate-spin" /> Loading...
             </span>
-          ) : priceData ? (
+          ) : priceUsd ? (
             <span className="font-medium">
-              1 OGY = {priceData.amount_usd.toFixed(5)} USD
+              1 OGY = {priceUsd.toFixed(5)} USD
             </span>
           ) : (
             <span className="font-medium">Price unavailable</span>

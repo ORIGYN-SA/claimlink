@@ -12,6 +12,7 @@ import {
 } from "@/components/common";
 import type { FilterOption } from "@/components/common";
 import { CollectionStatusBadge } from "../components/collection-status-badge";
+import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import { useListMyCollections } from "@/features/collections";
 import type { Collection, CollectionStatus } from "../types/collection.types";
 import { Eye, Trash2 } from "lucide-react";
@@ -57,7 +58,7 @@ export function CollectionsPage() {
       render: (collection: Collection) => (
         <div className="flex items-center gap-4 min-w-0">
           <div className="w-12 h-12 rounded-[16px] overflow-hidden bg-[#f0f0f0] flex-shrink-0">
-            <img
+            <CanisterImage
               src={collection.imageUrl}
               alt={collection.title}
               className="w-full h-full object-cover"

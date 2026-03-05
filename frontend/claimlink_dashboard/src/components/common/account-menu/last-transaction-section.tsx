@@ -11,13 +11,8 @@ interface LastTransactionSectionProps {
     refetch: () => void;
   };
   lastTransaction: Transaction | undefined;
-  decimals: {
-    isSuccess: boolean;
-    data?: number;
-  };
-  priceData: {
-    amount_usd: number;
-  } | undefined;
+  decimals: number | undefined;
+  priceUsd: number | undefined;
   onSeeAllTransactions: () => void;
   formatTransactionDate: (timestamp: string) => string;
   getTransactionTypeLabel: (kind: string) => string;
@@ -28,7 +23,7 @@ export function LastTransactionSection({
   transactions,
   lastTransaction,
   decimals,
-  priceData,
+  priceUsd,
   onSeeAllTransactions,
   formatTransactionDate,
   getTransactionTypeLabel,
@@ -91,10 +86,10 @@ export function LastTransactionSection({
                   </div>
                   <span className="text-[#222526] text-sm font-semibold">
                     {lastTransaction.is_credit ? "+" : "-"}
-                    {decimals.isSuccess && lastTransaction.amount && decimals.data ? (
+                    {lastTransaction.amount && decimals != null ? (
                       <E8sToLocaleString
                         value={lastTransaction.amount}
-                        tokenDecimals={decimals.data}
+                        tokenDecimals={decimals}
                       />
                     ) : (
                       "0.00"
@@ -103,12 +98,12 @@ export function LastTransactionSection({
                   </span>
                 </div>
                 <p className="text-[#69737c] text-xs">
-                  {priceData && lastTransaction.amount && decimals.isSuccess && decimals.data
+                  {priceUsd && lastTransaction.amount && decimals != null
                     ? `($${(
-                        (Number(lastTransaction.amount) / 10 ** decimals.data) *
-                        priceData.amount_usd
+                        (Number(lastTransaction.amount) / 10 ** decimals) *
+                        priceUsd
                       ).toFixed(2)})`
-                    : "($-.--)"}    
+                    : "($-.--)"}
                 </p>
               </div>
             </div>
