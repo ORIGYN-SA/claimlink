@@ -41,7 +41,6 @@ import {
   useCertificate,
 } from "@/features/certificates";
 import { useCollectionTemplate } from "@/features/collections";
-import { mockTemplates } from "@/shared/data/templates";
 import { PricingSidebar } from "./pricing-sidebar";
 
 /**
@@ -158,20 +157,8 @@ export function CreateCertificatePageV2({
       }
 
       // Get template from collection metadata (stored TemplateStructure)
-      // Fall back to mock templates for legacy collections
-      let templateStructure: TemplateStructureType | null =
+      const templateStructure: TemplateStructureType | null =
         collectionTemplateStructure ?? null;
-
-      if (!templateStructure) {
-        // Legacy fallback: try to find a mock template that matches
-        const fallbackTemplate = mockTemplates.find((t) => t.structure);
-        if (fallbackTemplate?.structure) {
-          console.warn(
-            `Collection ${editCollectionId} has no stored template, using fallback: ${fallbackTemplate.name}`,
-          );
-          templateStructure = fallbackTemplate.structure;
-        }
-      }
 
       if (templateStructure) {
         // Create a Template object from the TemplateStructure
@@ -194,10 +181,10 @@ export function CreateCertificatePageV2({
         dispatch({ type: "UPDATE_FORM_DATA", data: formData });
       } else {
         console.error(
-          "Cannot edit certificate: No template found in collection or fallback templates",
+          "Cannot edit certificate: No template found for collection",
         );
         toast.error(
-          "Cannot load template for editing. Please contact support.",
+          "Template not found for this collection. Please try logging out and back in again, or contact your dedicated customer support person.",
         );
       }
     }

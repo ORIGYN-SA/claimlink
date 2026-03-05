@@ -1,13 +1,13 @@
 // Environment mode
 export const APP_MODE = import.meta.env.MODE;
 
-// Canister IDs for ClaimLink
-export const CLAIMLINK_CANISTER_ID_STAGING =
-  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || "zqa57-zaaaa-aaaah-qqopq-cai";
+// Canister IDs for ClaimLink (fallbacks are production IDs)
+export const CLAIMLINK_CANISTER_ID =
+  import.meta.env.VITE_CLAIMLINK_CANISTER_ID || "uasjq-dyaaa-aaaas-qdwka-cai";
 export const NFT_CANISTER_ID =
-  import.meta.env.VITE_NFT_CANISTER_ID || "zqa57-zaaaa-aaaah-qqopq-cai";
+  import.meta.env.VITE_NFT_CANISTER_ID || "uasjq-dyaaa-aaaas-qdwka-cai";
 export const CERTIFICATE_CANISTER_ID =
-  import.meta.env.VITE_CERTIFICATE_CANISTER_ID || "zqa57-zaaaa-aaaah-qqopq-cai";
+  import.meta.env.VITE_CERTIFICATE_CANISTER_ID || "uasjq-dyaaa-aaaas-qdwka-cai";
 export const LEDGER_CANISTER_ID = import.meta.env.VITE_LEDGER_CANISTER_ID;
 
 // IC Host
@@ -19,17 +19,15 @@ export const GLDT_LEDGER_CANISTER_ID = "6c7su-kiaaa-aaaar-qaira-cai";
 // Legacy alias for GLDT (Gold DAO)
 export const GOLDAO_LEDGER_CANISTER_ID = GLDT_LEDGER_CANISTER_ID;
 export const GOLDAO_LEDGER_CANISTER_ID_IC = GLDT_LEDGER_CANISTER_ID;
-// OGY Ledger: Use local canister in development, mainnet in production
-// export const OGY_LEDGER_CANISTER_ID = LEDGER_CANISTER_ID || "lkwrt-vyaaa-aaaaq-aadhq-cai"; // Local testing
+// OGY Ledger: env var from .env.[mode], fallback to production
 export const OGY_LEDGER_CANISTER_ID =
-  LEDGER_CANISTER_ID || "j5naj-nqaaa-aaaal-ajc7q-cai"; // Staging
+  LEDGER_CANISTER_ID || "lkwrt-vyaaa-aaaaq-aadhq-cai";
 export const CKUSDT_LEDGER_CANISTER_ID = "xevnm-gaaaa-aaaar-qafnq-cai";
 
 // Token Ledger Index Canister IDs (for transaction history)
 export const ICP_LEDGER_INDEX_CANISTER_ID = "qhbym-qaaaa-aaaah-qcl4q-cai";
 export const GLDT_LEDGER_INDEX_CANISTER_ID = "apia6-jaaaa-aaaar-qabma-cai";
-// export const OGY_LEDGER_INDEX_CANISTER_ID = "jqkzp-liaaa-aaaaq-aadiq-cai"; // Local testing
-export const OGY_LEDGER_INDEX_CANISTER_ID = "j2mg5-aiaaa-aaaal-ajc7a-cai"; // Staging
+export const OGY_LEDGER_INDEX_CANISTER_ID = "jqkzp-liaaa-aaaaq-aadiq-cai";
 export const CKUSDT_LEDGER_INDEX_CANISTER_ID = "xevnm-gaaaa-aaaar-qafnq-cai"; // Same as ledger for ckUSDT
 
 // Swap Canister ID
@@ -55,14 +53,14 @@ export const getNfidTargets = (): string[] => {
     const localhostTargets =
       NFID_LOCALHOST_TARGETS?.split(",").filter(Boolean) || [];
     const canisterTargets = [
-      CLAIMLINK_CANISTER_ID_STAGING,
+      CLAIMLINK_CANISTER_ID,
     ].filter(Boolean); // Filter out undefined values
 
     return [...localhostTargets, ...canisterTargets];
   }
 
   // In production, only claimlink canister ID cause ICRC21 is only implemented on that
-  return [CLAIMLINK_CANISTER_ID_STAGING].filter(Boolean);
+  return [CLAIMLINK_CANISTER_ID].filter(Boolean);
 };
 
 // Helper function to get derivation origin

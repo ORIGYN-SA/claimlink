@@ -15,13 +15,13 @@ export const CANISTER_IDS = {
   // Token ledgers (ICRC-1)
   icpLedger: 'ryjl3-tyaaa-aaaaa-aaaba-cai',
   gldtLedger: '6c7su-kiaaa-aaaar-qaira-cai',
-  ogyLedger: import.meta.env.VITE_LEDGER_CANISTER_ID || 'j5naj-nqaaa-aaaal-ajc7q-cai',
+  ogyLedger: import.meta.env.VITE_LEDGER_CANISTER_ID || 'lkwrt-vyaaa-aaaaq-aadhq-cai',
   ckusdtLedger: 'xevnm-gaaaa-aaaar-qafnq-cai',
 
   // Ledger index canisters (for transaction history)
   icpLedgerIndex: 'qhbym-qaaaa-aaaah-qcl4q-cai',
   gldtLedgerIndex: 'apia6-jaaaa-aaaar-qabma-cai',
-  ogyLedgerIndex: 'j2mg5-aiaaa-aaaal-ajc7a-cai',
+  ogyLedgerIndex: 'jqkzp-liaaa-aaaaq-aadiq-cai',
   ckusdtLedgerIndex: 'xevnm-gaaaa-aaaar-qafnq-cai',
 
   // DEX integration

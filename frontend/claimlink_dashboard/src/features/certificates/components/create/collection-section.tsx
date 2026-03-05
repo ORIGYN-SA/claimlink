@@ -13,7 +13,6 @@ import {
   useCollectionTemplate,
 } from "@/features/collections";
 import type { Template } from "@/shared/data/templates";
-import { mockTemplates } from "@/shared/data/templates";
 import { BulkImportDialog } from "@/components/common";
 
 interface CollectionSectionProps {
@@ -73,16 +72,10 @@ export function CollectionSection({
         structure: collectionTemplate,
       };
     } else if (selectedCollection) {
-      // Fallback: Try to find a matching template from mockTemplates
-      // This handles legacy collections without stored templates
-      const fallbackTemplate = mockTemplates.find((t) => t.structure);
-      if (fallbackTemplate) {
-        console.warn(
-          `Collection ${selectedCollection} has no stored template, using fallback: ${fallbackTemplate.name}`,
-        );
-        template = fallbackTemplate;
-        templateId = fallbackTemplate.id;
-      }
+      // No template found for this collection — do not fall back to a default template
+      console.warn(
+        `Collection ${selectedCollection} has no stored template.`,
+      );
     }
 
     // Only call if template changed to avoid infinite loops
@@ -227,9 +220,9 @@ export function CollectionSection({
             )}
 
             {!isLoadingTemplate && !templateError && !collectionTemplate && (
-              <div className="bg-amber-50 border border-amber-200 rounded-[16px] p-3 w-full">
-                <p className="text-amber-700 text-sm">
-                  No template found in collection. Using default template.
+              <div className="bg-red-50 border border-red-200 rounded-[16px] p-3 w-full">
+                <p className="text-red-700 text-sm">
+                  Template not found for this collection. Please try logging out and back in again, or contact your dedicated customer support person.
                 </p>
               </div>
             )}
