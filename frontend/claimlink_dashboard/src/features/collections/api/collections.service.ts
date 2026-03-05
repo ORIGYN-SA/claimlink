@@ -674,7 +674,7 @@ export class CollectionsService {
     // Try fetching template.json from the canister's library (uploaded by backend)
     try {
       const baseUrl = buildCanisterUrl(collectionCanisterId);
-      const templateUrl = `${baseUrl}/collection/-/template.json`;
+      const templateUrl = `${baseUrl}/template.json`;
       const response = await fetch(templateUrl);
 
       if (response.ok) {
