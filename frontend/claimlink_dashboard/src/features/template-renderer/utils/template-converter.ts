@@ -390,7 +390,7 @@ export function convertFormDataToOrigynMetadata(
   // Process each field in the form data
   for (const [fieldId, value] of Object.entries(formData)) {
     // Find the field definition to determine type
-    let isLanguageField = true;
+    const isLanguageField = true;
 
     for (const section of structure.sections) {
       const item = section.items.find((i) => i.id === fieldId);

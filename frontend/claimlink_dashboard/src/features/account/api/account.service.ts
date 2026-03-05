@@ -35,7 +35,6 @@ export class AccountService {
   /**
    * Get current user profile
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   static async getProfile(principalId: string): Promise<UserProfile> {
     // TODO: Replace with backend API call
     // const actor = Actor.createActor(idlFactory, { agent, canisterId });

@@ -16,7 +16,7 @@ export function ConnectWalletButton({
   size = "default"
 }: ConnectWalletButtonProps) {
   const { isConnected,  connect, disconnect, isInitializing } = useAuth();
-  let [principal, setPrincipal] = useState<String>();
+  const [principal, setPrincipal] = useState<string>();
   // ICP Wallet Hooks
   const icpAccounts = useAccounts();
   const icpIdentity = useIdentity();

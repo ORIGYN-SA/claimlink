@@ -90,7 +90,7 @@ const statusOptions: FilterOption[] = [
   { value: 'unclaimed', label: 'Unclaimed' }
 ]
 
-export function CampaignClaimersPage({}: CampaignClaimersPageProps) {
+export function CampaignClaimersPage(_props: CampaignClaimersPageProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)

@@ -152,7 +152,7 @@ export function getRelativeTime(
     } else {
       return rtf.format(Math.round(diffDays / 365), 'year');
     }
-  } catch (error) {
+  } catch (_error) {
     // Fallback if Intl.RelativeTimeFormat not supported
     return formatTimestamp(date.getTime(), locale);
   }
