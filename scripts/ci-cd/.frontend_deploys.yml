@@ -1,7 +1,10 @@
 spec:
   inputs:
     src-folder:
-      description: The front-end project folder name. Must be located in the /frontend/ folder
+      description: The frontend project folder name. Must be located in the /frontend/ folder
+      options: ["claimlink_dashboard"]
+    canister-name:
+      description: The DFX canister name for deployment
       options: ["claimlink_frontend"]
 ---
 # STAGING AND PREPROD DEPLOYMENT
@@ -32,7 +35,7 @@ $[[ inputs.src-folder ]] staging deploy:
       allow_failure: true
   needs: ["$[[ inputs.src-folder ]] staging build"]
   script:
-    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.src-folder ]]
+    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.canister-name ]]
   environment:
     name: $[[ inputs.src-folder ]] frontend
     deployment_tier: staging
@@ -55,7 +58,7 @@ $[[ inputs.src-folder ]] preprod deploy:
       allow_failure: true
   needs: ["$[[ inputs.src-folder ]] preprod build"]
   script:
-    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.src-folder ]]
+    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.canister-name ]]
   environment:
     name: $[[ inputs.src-folder ]] frontend
     deployment_tier: testing
@@ -80,7 +83,7 @@ $[[ inputs.src-folder ]] production deploy:
     - !reference [.import dfx identity, before_script]
     - !reference [.include didc, before_script]
   script:
-    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.src-folder ]]
+    - dfx deploy --network $TARGET_NETWORK --no-wallet --mode reinstall -y $[[ inputs.canister-name ]]
   environment:
     name: $[[ inputs.src-folder ]] frontend
     deployment_tier: production

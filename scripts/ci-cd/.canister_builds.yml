@@ -79,8 +79,8 @@ $[[ inputs.src-folder ]] integration-test build:
       needs: ["integration tests trigger"]
   extends: .rust template
   script:
-    - scripts/build_canister.sh -it $[[ inputs.src-folder ]]
-    - scripts/generate_did.sh $[[ inputs.src-folder ]]
+    - scripts/build-canister.sh -it $[[ inputs.src-folder ]]
+    - scripts/generate-did.sh $[[ inputs.src-folder ]]
   artifacts:
     name: "$[[ inputs.src-folder ]]-${CI_COMMIT_SHORT_SHA}-wasm-INT_TEST_BUILD"
     paths:
