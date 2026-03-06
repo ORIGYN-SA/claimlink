@@ -1,13 +1,12 @@
-# NodeJS & NextJS job template
+# NodeJS job template
 
 .node template:
   image: node:18
   cache:
-  - key: "node-$CI_COMMIT_REF_SLUG"
+  - key: "pnpm-$CI_COMMIT_REF_SLUG"
     paths:
-      - .npm/
-      - node_modules/
-      - frontend/**/.npm/
-      - frontend/**/node_modules/
+      - frontend/claimlink_dashboard/node_modules/
   before_script:
-    - npm ci --cache .npm --prefer-offline
+    - npm install -g pnpm
+    - cd frontend/claimlink_dashboard
+    - pnpm install --frozen-lockfile

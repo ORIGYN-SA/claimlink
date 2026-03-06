@@ -527,7 +527,7 @@ export function ensureSimpleModeSections(nodes: TemplateNode[]): TemplateNode[] 
     (s) => s.id === 'information' || s.title.en?.toLowerCase() === 'information'
   );
 
-  let content = [...root.content];
+  const content = [...root.content];
 
   if (!hasCertificate) {
     content.push(

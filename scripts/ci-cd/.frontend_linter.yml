@@ -1,10 +1,10 @@
 spec:
   inputs:
     src-folder:
-      description: The NextJS project folder. Must be located in the /frontend/ folder
-      options: ["claimlink_frontend"]
+      description: The frontend project folder. Must be located in the /frontend/ folder
+      options: ["claimlink_dashboard"]
 ---
-# Front-end (NextJS) linter job template
+# Front-end linter job template
 
 $[[ inputs.src-folder ]] linter:
   stage: lint
@@ -24,4 +24,4 @@ $[[ inputs.src-folder ]] linter:
         - "frontend/$[[ inputs.src-folder ]]/{**,**/**,**/**/**}/*.{js,jsx,ts,tsx,md,mdx,css,html,svg}"
   extends: .node template
   script:
-    - npm run --workspace $[[ inputs.src-folder ]] lint
+    - pnpm lint

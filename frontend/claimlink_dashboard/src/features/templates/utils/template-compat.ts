@@ -507,6 +507,6 @@ export function ensureTreeFormat(template: Template): Template {
  */
 export function migrateToTreeFormat(template: Template): Template {
   const updated = ensureTreeFormat(template);
-  const { structure, ...rest } = updated;
+  const { structure: _structure, ...rest } = updated;
   return rest;
 }

@@ -657,10 +657,11 @@ export class CollectionsService {
   }
 
   /**
-   * Get template structure from ORIGYN collection metadata (legacy)
+   * Get template structure from ORIGYN collection canister
    *
-   * Fetches the TemplateStructure stored in the collection's ORIGYN metadata.
-   * Used for backwards compatibility with collections created before template linking.
+   * The backend uploads the template as a file (template.json) to the ORIGYN
+   * canister's library. This fetches it via HTTP from the collection asset URL.
+   * Falls back to collection_metadata for legacy collections.
    *
    * @param agent - IC agent (can be unauthenticated for reads)
    * @param collectionCanisterId - The collection's canister ID
@@ -670,6 +671,24 @@ export class CollectionsService {
     agent: Agent,
     collectionCanisterId: string
   ): Promise<TemplateStructure | null> {
+    // Try fetching template.json from the canister's library (uploaded by backend)
+    try {
+      const baseUrl = buildCanisterUrl(collectionCanisterId);
+      const templateUrl = `${baseUrl}/template.json`;
+      const response = await fetch(templateUrl);
+
+      if (response.ok) {
+        const payload = await response.json();
+        // The file contains a TemplateJsonPayload: { name, description, category, structure, ... }
+        if (payload?.structure?.sections && Array.isArray(payload.structure.sections)) {
+          return payload.structure as TemplateStructure;
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to fetch template.json from canister library:', error);
+    }
+
+    // Fallback: try collection_metadata (legacy path)
     try {
       const { idlFactory: origynIdlFactory } = await import('@canisters/origyn_nft');
       type OrigynNftService = import('@canisters/origyn_nft')._SERVICE;
@@ -680,9 +699,7 @@ export class CollectionsService {
         origynIdlFactory
       );
 
-      // Fetch collection metadata via ICRC7
       const metadata = await actor.icrc7_collection_metadata();
-
       return deserializeTemplateFromOrigyn(metadata);
     } catch (error) {
       console.warn('Failed to fetch template from ORIGYN metadata:', error);

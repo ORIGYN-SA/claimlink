@@ -1,5 +1,5 @@
 default:
-  image: registry.bochslerfinance.com/runners-images/dfinity-canisters:0.27.0@sha256:dbbe973060737fb4e515ddd44565940d96c6e5137339a43a30a18332f53999a9
+  image: registry.bochslerfinance.com/runners-images/dfinity-canisters:0.29.0
   interruptible: true
   before_script:
     - dfx --version
@@ -33,7 +33,7 @@ include:
   # Frontend linters:
   - local: scripts/ci-cd/.frontend_linter.yml
     inputs:
-      src-folder: claimlink_frontend
+      src-folder: claimlink_dashboard
   # Unit tests
   - local: scripts/ci-cd/.libraries_unit_test_coverage.yml
   # - local: scripts/ci-cd/.canister_unit_test_coverage.yml
@@ -48,7 +48,7 @@ include:
   # Frontend builds
   - local: scripts/ci-cd/.frontend_builds.yml
     inputs:
-      src-folder: claimlink_frontend
+      src-folder: claimlink_dashboard
   # Backend deployments
   - local: scripts/ci-cd/.canister_deploys.yml
     inputs:
@@ -56,7 +56,8 @@ include:
   # Frontend deployments
   - local: scripts/ci-cd/.frontend_deploys.yml
     inputs:
-      src-folder: claimlink_frontend
+      src-folder: claimlink_dashboard
+      canister-name: claimlink_frontend
 
 ################################################################################
 # Cache preparation
@@ -66,12 +67,11 @@ node cache:
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
-        - "./frontend/{**,**/**,**/**/**}/*.{js,json,jsx,md,mdx,css,html,svg}"
+        - "frontend/claimlink_dashboard/{**,**/**,**/**/**}/*.{js,json,jsx,ts,tsx,md,mdx,css,html,svg}"
   extends: .node template
   script:
-    - npm pkg get name description author license workspaces engines
     - node --version
-    - npm --version
+    - pnpm --version
 
 ################################################################################
 # Linters

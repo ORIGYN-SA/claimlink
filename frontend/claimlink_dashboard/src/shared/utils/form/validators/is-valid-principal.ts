@@ -14,7 +14,7 @@ export function isValidPrincipal(value: string | undefined): string | undefined 
     // Attempt to parse the principal - will throw if invalid
     Principal.fromText(value.trim());
     return undefined;
-  } catch (error) {
+  } catch (_error) {
     return "Invalid Principal ID format";
   }
 }
@@ -35,7 +35,7 @@ export function isValidPrincipalOptional(
   try {
     Principal.fromText(value.trim());
     return undefined;
-  } catch (error) {
+  } catch (_error) {
     return "Invalid Principal ID format";
   }
 }
