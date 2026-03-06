@@ -3,7 +3,7 @@ pub use claimlink_api::queries::get_mint_requests_by_owner::{
     Args as GetMintRequestsByOwnerArgs, Response as GetMintRequestsByOwnerResponse,
 };
 
-#[ic_cdk::query(guard = "guards::reject_anonymous_caller")]
+#[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn get_mint_requests_by_owner(
     args: GetMintRequestsByOwnerArgs,

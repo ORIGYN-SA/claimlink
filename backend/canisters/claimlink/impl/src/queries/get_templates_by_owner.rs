@@ -2,20 +2,11 @@ use crate::{state::read_state, storage::read_stable_storage};
 pub use claimlink_api::queries::get_templates_by_owner::{
     Args as GetTemplatesByOwnerArgs, Response as GetTemplatesByOwnerResponse,
 };
-use claimlink_api::{
-    errors::GetTemplatesByOwnerError,
-    templates::{Template, TemplatesResult},
-};
+use claimlink_api::templates::{Template, TemplatesResult};
 
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn get_templates_by_owner(args: GetTemplatesByOwnerArgs) -> GetTemplatesByOwnerResponse {
-    let caller = ic_cdk::api::msg_caller();
-
-    if caller != args.owner {
-        return Err(GetTemplatesByOwnerError::UnauthorizedCall);
-    }
-
     let offset = args.pagination.get_offset();
     let limit = args.pagination.get_limit();
 
