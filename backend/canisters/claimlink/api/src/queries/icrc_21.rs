@@ -1,4 +1,4 @@
-use candid::{CandidType, Deserialize};
+use candid::{CandidType, Deserialize, Nat};
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct Icrc21ConsentMessageMetadata {
@@ -26,15 +26,45 @@ pub struct Icrc21ConsentMessageRequest {
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct Icrc21FieldDisplayMessage {
-    pub intent: String,
-    pub fields: Vec<(String, String)>,
+pub struct TokenAmount {
+    pub decimals: u8,
+    pub amount: u64,
+    pub symbol: String,
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
-pub struct Icrc21ConsentMessage {
-    pub generic_display_message: String,
-    pub fields_display_message: Icrc21FieldDisplayMessage,
+pub struct TimestampSeconds {
+    pub amount: u64,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct DurationSeconds {
+    pub amount: u64,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct TextValue {
+    pub content: String,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub enum Value {
+    TokenAmount(TokenAmount),
+    TimestampSeconds(TimestampSeconds),
+    DurationSeconds(DurationSeconds),
+    Text(TextValue),
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub struct Icrc21FieldDisplayMessage {
+    pub intent: String,
+    pub fields: Vec<(String, Value)>,
+}
+
+#[derive(CandidType, Deserialize, Clone, Debug)]
+pub enum Icrc21ConsentMessage {
+    GenericDisplayMessage(String),
+    FieldsDisplayMessage(Icrc21FieldDisplayMessage),
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
@@ -50,7 +80,7 @@ pub struct Icrc21ErrorInfo {
 
 #[derive(CandidType, Deserialize, Clone, Debug)]
 pub struct Icrc21GenericError {
-    pub error_code: u64,
+    pub error_code: Nat,
     pub description: String,
 }
 
@@ -58,8 +88,8 @@ pub struct Icrc21GenericError {
 pub enum Icrc21Error {
     UnsupportedCanisterCall(Icrc21ErrorInfo),
     ConsentMessageUnavailable(Icrc21ErrorInfo),
-    InsufficientPayment(Icrc21GenericError),
-    GenericError(Icrc21ErrorInfo),
+    InsufficientPayment(Icrc21ErrorInfo),
+    GenericError(Icrc21GenericError),
 }
 
 #[derive(CandidType, Deserialize, Clone, Debug)]

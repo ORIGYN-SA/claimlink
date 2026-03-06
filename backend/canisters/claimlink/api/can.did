@@ -89,6 +89,7 @@ type CyclesManagement = record {
   cycles_for_collection_creation : nat;
 };
 type DeleteTemplateError = variant { UnauthorizedCall; InvalidNftTemplateId };
+type DurationSeconds = record { amount : nat64 };
 type EstimateMintCostArgs = record {
   total_file_size_bytes : nat;
   num_mints : nat64;
@@ -146,9 +147,9 @@ type Icrc21ConsentInfo = record {
   metadata : Icrc21ConsentMessageMetadata;
   consent_message : Icrc21ConsentMessage;
 };
-type Icrc21ConsentMessage = record {
-  generic_display_message : text;
-  fields_display_message : Icrc21FieldDisplayMessage;
+type Icrc21ConsentMessage = variant {
+  FieldsDisplayMessage : Icrc21FieldDisplayMessage;
+  GenericDisplayMessage : text;
 };
 type Icrc21ConsentMessageMetadata = record {
   utc_offset_minutes : opt int16;
@@ -169,17 +170,17 @@ type Icrc21ConsentMessageSpec = record {
 };
 type Icrc21DeviceSpec = variant { GenericDisplay; FieldsDisplay };
 type Icrc21Error = variant {
-  GenericError : Icrc21ErrorInfo;
-  InsufficientPayment : Icrc21GenericError;
+  GenericError : Icrc21GenericError;
+  InsufficientPayment : Icrc21ErrorInfo;
   UnsupportedCanisterCall : Icrc21ErrorInfo;
   ConsentMessageUnavailable : Icrc21ErrorInfo;
 };
 type Icrc21ErrorInfo = record { description : text };
 type Icrc21FieldDisplayMessage = record {
-  fields : vec record { text; text };
+  fields : vec record { text; Value };
   intent : text;
 };
-type Icrc21GenericError = record { description : text; error_code : nat64 };
+type Icrc21GenericError = record { description : text; error_code : nat };
 type Icrc28TrustedOriginsResponse = record { trusted_origins : vec text };
 type InitArg = record {
   base_url : opt text;
@@ -391,11 +392,13 @@ type Result_9 = variant { Ok : text; Err : ProxyLogoUploadError };
 type SupportedStandard = record { url : text; name : text };
 type Template = record { template_json : text; template_id : nat };
 type TemplatesResult = record { templates : vec Template; total_count : nat64 };
+type TextValue = record { content : text };
 type TimerMetrics = record {
   name : text;
   interval_seconds : nat64;
   last_run : opt nat64;
 };
+type TokenAmount = record { decimals : nat8; amount : nat64; symbol : text };
 type TransferFromError = variant {
   GenericError : record { message : text; error_code : nat };
   TemporarilyUnavailable;
@@ -437,6 +440,12 @@ type UploadedFileInfo = record {
   file_path : text;
   file_url : text;
   file_size : nat64;
+};
+type Value = variant {
+  Text : TextValue;
+  TokenAmount : TokenAmount;
+  TimestampSeconds : DurationSeconds;
+  DurationSeconds : DurationSeconds;
 };
 service : (ClaimlinkArgs) -> {
   create_collection : (CreateCollectionArgs) -> (Result);

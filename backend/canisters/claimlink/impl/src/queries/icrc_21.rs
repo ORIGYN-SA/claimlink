@@ -1,7 +1,7 @@
 use candid::Decode;
 use claimlink_api::icrc_21::{
     Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata, Icrc21DeviceSpec,
-    Icrc21Error, Icrc21ErrorInfo, Icrc21FieldDisplayMessage,
+    Icrc21Error, Icrc21ErrorInfo, Icrc21FieldDisplayMessage, TextValue, Value,
 };
 pub use claimlink_api::icrc_21::{Icrc21ConsentMessageRequest, Icrc21ConsentMessageResponse};
 use claimlink_api::updates::{
@@ -45,6 +45,10 @@ pub fn icrc21_canister_call_consent_message(
     }
 }
 
+fn text_value(content: String) -> Value {
+    Value::Text(TextValue { content })
+}
+
 fn build_create_collection_message(
     arg: &[u8],
     use_fields: bool,
@@ -55,43 +59,38 @@ fn build_create_collection_message(
         })
     })?;
 
-    let generic_display_message = format!(
-        "## Create NFT Collection\n\n\
-        Create a new ORIGYN NFT collection on the Internet Computer.\n\n\
-        - **Name:** {}\n\
-        - **Symbol:** {}\n\
-        - **Description:** {}\n\
-        - **Template ID:** {}\n\n\
-        This action will charge an OGY fee for collection creation.",
-        args.name, args.symbol, args.description, args.template_id
-    );
-
-    let fields_display_message = Icrc21FieldDisplayMessage {
-        intent: "Create NFT Collection".to_string(),
-        fields: vec![
-            ("Name".to_string(), args.name),
-            ("Symbol".to_string(), args.symbol),
-            ("Description".to_string(), args.description),
-            ("Template ID".to_string(), args.template_id.to_string()),
-        ],
-    };
-
     if use_fields {
-        Ok(Icrc21ConsentMessage {
-            generic_display_message,
-            fields_display_message,
-        })
+        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
+            Icrc21FieldDisplayMessage {
+                intent: "Create NFT Collection".to_string(),
+                fields: vec![
+                    ("Name".to_string(), text_value(args.name)),
+                    ("Symbol".to_string(), text_value(args.symbol)),
+                    ("Description".to_string(), text_value(args.description)),
+                    (
+                        "Template ID".to_string(),
+                        text_value(args.template_id.to_string()),
+                    ),
+                ],
+            },
+        ))
     } else {
-        Ok(Icrc21ConsentMessage {
-            generic_display_message,
-            fields_display_message,
-        })
+        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+            "## Create NFT Collection\n\n\
+            Create a new ORIGYN NFT collection on the Internet Computer.\n\n\
+            - **Name:** {}\n\
+            - **Symbol:** {}\n\
+            - **Description:** {}\n\
+            - **Template ID:** {}\n\n\
+            This action will charge an OGY fee for collection creation.",
+            args.name, args.symbol, args.description, args.template_id
+        )))
     }
 }
 
 fn build_create_template_message(
     arg: &[u8],
-    _use_fields: bool,
+    use_fields: bool,
 ) -> Result<Icrc21ConsentMessage, Icrc21Error> {
     let args = Decode!(arg, CreateTemplateArgs).map_err(|e| {
         Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
@@ -105,28 +104,27 @@ fn build_create_template_message(
         args.template_json.clone()
     };
 
-    let generic_display_message = format!(
-        "## Create Certificate Template\n\n\
-        Create a new NFT certificate template.\n\n\
-        - **Template JSON:** `{}`\n\n\
-        This template can be used to mint NFT collections.",
-        json_preview
-    );
-
-    let fields_display_message = Icrc21FieldDisplayMessage {
-        intent: "Create Certificate Template".to_string(),
-        fields: vec![("Template JSON".to_string(), json_preview)],
-    };
-
-    Ok(Icrc21ConsentMessage {
-        generic_display_message,
-        fields_display_message,
-    })
+    if use_fields {
+        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
+            Icrc21FieldDisplayMessage {
+                intent: "Create Certificate Template".to_string(),
+                fields: vec![("Template JSON".to_string(), text_value(json_preview))],
+            },
+        ))
+    } else {
+        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+            "## Create Certificate Template\n\n\
+            Create a new NFT certificate template.\n\n\
+            - **Template JSON:** `{}`\n\n\
+            This template can be used to mint NFT collections.",
+            json_preview
+        )))
+    }
 }
 
 fn build_update_template_message(
     arg: &[u8],
-    _use_fields: bool,
+    use_fields: bool,
 ) -> Result<Icrc21ConsentMessage, Icrc21Error> {
     let args = Decode!(arg, UpdateTemplateArgs).map_err(|e| {
         Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
@@ -140,32 +138,34 @@ fn build_update_template_message(
         args.new_tempalte_json.clone()
     };
 
-    let generic_display_message = format!(
-        "## Update Certificate Template\n\n\
-        Update an existing NFT certificate template.\n\n\
-        - **Template ID:** {}\n\
-        - **New Template JSON:** `{}`\n\n\
-        This will replace the existing template data. You must be the template owner.",
-        args.template_id, json_preview
-    );
-
-    let fields_display_message = Icrc21FieldDisplayMessage {
-        intent: "Update Certificate Template".to_string(),
-        fields: vec![
-            ("Template ID".to_string(), args.template_id.to_string()),
-            ("New Template JSON".to_string(), json_preview),
-        ],
-    };
-
-    Ok(Icrc21ConsentMessage {
-        generic_display_message,
-        fields_display_message,
-    })
+    if use_fields {
+        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
+            Icrc21FieldDisplayMessage {
+                intent: "Update Certificate Template".to_string(),
+                fields: vec![
+                    (
+                        "Template ID".to_string(),
+                        text_value(args.template_id.to_string()),
+                    ),
+                    ("New Template JSON".to_string(), text_value(json_preview)),
+                ],
+            },
+        ))
+    } else {
+        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+            "## Update Certificate Template\n\n\
+            Update an existing NFT certificate template.\n\n\
+            - **Template ID:** {}\n\
+            - **New Template JSON:** `{}`\n\n\
+            This will replace the existing template data. You must be the template owner.",
+            args.template_id, json_preview
+        )))
+    }
 }
 
 fn build_delete_template_message(
     arg: &[u8],
-    _use_fields: bool,
+    use_fields: bool,
 ) -> Result<Icrc21ConsentMessage, Icrc21Error> {
     let template_id = Decode!(arg, DeleteTemplateArgs).map_err(|e| {
         Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
@@ -173,21 +173,23 @@ fn build_delete_template_message(
         })
     })?;
 
-    let generic_display_message = format!(
-        "## Delete Certificate Template\n\n\
-        Permanently delete an NFT certificate template.\n\n\
-        - **Template ID:** {}\n\n\
-        **Warning:** This action cannot be undone. You must be the template owner.",
-        template_id
-    );
-
-    let fields_display_message = Icrc21FieldDisplayMessage {
-        intent: "Delete Certificate Template".to_string(),
-        fields: vec![("Template ID".to_string(), template_id.to_string())],
-    };
-
-    Ok(Icrc21ConsentMessage {
-        generic_display_message,
-        fields_display_message,
-    })
+    if use_fields {
+        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
+            Icrc21FieldDisplayMessage {
+                intent: "Delete Certificate Template".to_string(),
+                fields: vec![(
+                    "Template ID".to_string(),
+                    text_value(template_id.to_string()),
+                )],
+            },
+        ))
+    } else {
+        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+            "## Delete Certificate Template\n\n\
+            Permanently delete an NFT certificate template.\n\n\
+            - **Template ID:** {}\n\n\
+            **Warning:** This action cannot be undone. You must be the template owner.",
+            template_id
+        )))
+    }
 }
