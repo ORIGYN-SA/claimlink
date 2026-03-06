@@ -1,26 +1,28 @@
 use candid::Decode;
-use claimlink_api::icrc_21::{
-    Icrc21ConsentInfo, Icrc21ConsentMessage, Icrc21ConsentMessageMetadata, Icrc21DeviceSpec,
-    Icrc21Error, Icrc21ErrorInfo, Icrc21FieldDisplayMessage, TextValue, Value,
-};
-pub use claimlink_api::icrc_21::{Icrc21ConsentMessageRequest, Icrc21ConsentMessageResponse};
-use claimlink_api::updates::{
-    create_collection::CreateCollectionArgs, create_template::CreateTemplateArgs,
-    delete_template::Args as DeleteTemplateArgs, update_template::UpdateTemplateArgs,
+
+pub use claimlink_api::updates::icrc_21::{Args, Response};
+use claimlink_api::{
+    create_collection::CreateCollectionArgs,
+    create_template::{CreateTemplateArgs, TemplateId},
+    update_template::UpdateTemplateArgs,
 };
 
-#[ic_cdk::query]
-pub fn icrc21_canister_call_consent_message(
-    request: Icrc21ConsentMessageRequest,
-) -> Icrc21ConsentMessageResponse {
-    let metadata = Icrc21ConsentMessageMetadata {
+use icrc_ledger_types::icrc21::{
+    errors::{ErrorInfo, Icrc21Error},
+    requests::{ConsentMessageMetadata, DisplayMessageType},
+    responses::{ConsentInfo, ConsentMessage, FieldsDisplay, Value},
+};
+
+#[ic_cdk::update]
+pub fn icrc21_canister_call_consent_message(request: Args) -> Response {
+    let metadata = ConsentMessageMetadata {
         language: request.user_preferences.metadata.language.clone(),
         utc_offset_minutes: request.user_preferences.metadata.utc_offset_minutes,
     };
 
     let use_fields = matches!(
         request.user_preferences.device_spec,
-        Some(Icrc21DeviceSpec::FieldsDisplay)
+        Some(DisplayMessageType::FieldsDisplay)
     );
 
     let result = match request.method.as_str() {
@@ -28,7 +30,7 @@ pub fn icrc21_canister_call_consent_message(
         "create_template" => build_create_template_message(&request.arg, use_fields),
         "update_template" => build_update_template_message(&request.arg, use_fields),
         "delete_template" => build_delete_template_message(&request.arg, use_fields),
-        _ => Err(Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
+        _ => Err(Icrc21Error::UnsupportedCanisterCall(ErrorInfo{
             description: format!(
                 "Unsupported method: {}. Supported methods: create_collection, create_template, update_template, delete_template",
                 request.method
@@ -37,45 +39,43 @@ pub fn icrc21_canister_call_consent_message(
     };
 
     match result {
-        Ok(consent_message) => Icrc21ConsentMessageResponse::Ok(Icrc21ConsentInfo {
+        Ok(consent_message) => Ok(ConsentInfo {
             consent_message,
             metadata,
         }),
-        Err(e) => Icrc21ConsentMessageResponse::Err(e),
+        Err(e) => Err(e),
     }
 }
 
 fn text_value(content: String) -> Value {
-    Value::Text(TextValue { content })
+    Value::Text { content }
 }
 
 fn build_create_collection_message(
     arg: &[u8],
     use_fields: bool,
-) -> Result<Icrc21ConsentMessage, Icrc21Error> {
+) -> Result<ConsentMessage, Icrc21Error> {
     let args = Decode!(arg, CreateCollectionArgs).map_err(|e| {
-        Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
+        Icrc21Error::UnsupportedCanisterCall(ErrorInfo {
             description: format!("Failed to decode create_collection arguments: {}", e),
         })
     })?;
 
     if use_fields {
-        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
-            Icrc21FieldDisplayMessage {
-                intent: "Create NFT Collection".to_string(),
-                fields: vec![
-                    ("Name".to_string(), text_value(args.name)),
-                    ("Symbol".to_string(), text_value(args.symbol)),
-                    ("Description".to_string(), text_value(args.description)),
-                    (
-                        "Template ID".to_string(),
-                        text_value(args.template_id.to_string()),
-                    ),
-                ],
-            },
-        ))
+        Ok(ConsentMessage::FieldsDisplayMessage(FieldsDisplay {
+            intent: "Create NFT Collection".to_string(),
+            fields: vec![
+                ("Name".to_string(), text_value(args.name)),
+                ("Symbol".to_string(), text_value(args.symbol)),
+                ("Description".to_string(), text_value(args.description)),
+                (
+                    "Template ID".to_string(),
+                    text_value(args.template_id.to_string()),
+                ),
+            ],
+        }))
     } else {
-        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+        Ok(ConsentMessage::GenericDisplayMessage(format!(
             "## Create NFT Collection\n\n\
             Create a new ORIGYN NFT collection on the Internet Computer.\n\n\
             - **Name:** {}\n\
@@ -91,9 +91,9 @@ fn build_create_collection_message(
 fn build_create_template_message(
     arg: &[u8],
     use_fields: bool,
-) -> Result<Icrc21ConsentMessage, Icrc21Error> {
+) -> Result<ConsentMessage, Icrc21Error> {
     let args = Decode!(arg, CreateTemplateArgs).map_err(|e| {
-        Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
+        Icrc21Error::UnsupportedCanisterCall(ErrorInfo {
             description: format!("Failed to decode create_template arguments: {}", e),
         })
     })?;
@@ -105,14 +105,12 @@ fn build_create_template_message(
     };
 
     if use_fields {
-        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
-            Icrc21FieldDisplayMessage {
-                intent: "Create Certificate Template".to_string(),
-                fields: vec![("Template JSON".to_string(), text_value(json_preview))],
-            },
-        ))
+        Ok(ConsentMessage::FieldsDisplayMessage(FieldsDisplay {
+            intent: "Create Certificate Template".to_string(),
+            fields: vec![("Template JSON".to_string(), text_value(json_preview))],
+        }))
     } else {
-        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+        Ok(ConsentMessage::GenericDisplayMessage(format!(
             "## Create Certificate Template\n\n\
             Create a new NFT certificate template.\n\n\
             - **Template JSON:** `{}`\n\n\
@@ -125,9 +123,9 @@ fn build_create_template_message(
 fn build_update_template_message(
     arg: &[u8],
     use_fields: bool,
-) -> Result<Icrc21ConsentMessage, Icrc21Error> {
+) -> Result<ConsentMessage, Icrc21Error> {
     let args = Decode!(arg, UpdateTemplateArgs).map_err(|e| {
-        Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
+        Icrc21Error::UnsupportedCanisterCall(ErrorInfo {
             description: format!("Failed to decode update_template arguments: {}", e),
         })
     })?;
@@ -139,20 +137,18 @@ fn build_update_template_message(
     };
 
     if use_fields {
-        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
-            Icrc21FieldDisplayMessage {
-                intent: "Update Certificate Template".to_string(),
-                fields: vec![
-                    (
-                        "Template ID".to_string(),
-                        text_value(args.template_id.to_string()),
-                    ),
-                    ("New Template JSON".to_string(), text_value(json_preview)),
-                ],
-            },
-        ))
+        Ok(ConsentMessage::FieldsDisplayMessage(FieldsDisplay {
+            intent: "Update Certificate Template".to_string(),
+            fields: vec![
+                (
+                    "Template ID".to_string(),
+                    text_value(args.template_id.to_string()),
+                ),
+                ("New Template JSON".to_string(), text_value(json_preview)),
+            ],
+        }))
     } else {
-        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+        Ok(ConsentMessage::GenericDisplayMessage(format!(
             "## Update Certificate Template\n\n\
             Update an existing NFT certificate template.\n\n\
             - **Template ID:** {}\n\
@@ -166,25 +162,23 @@ fn build_update_template_message(
 fn build_delete_template_message(
     arg: &[u8],
     use_fields: bool,
-) -> Result<Icrc21ConsentMessage, Icrc21Error> {
-    let template_id = Decode!(arg, DeleteTemplateArgs).map_err(|e| {
-        Icrc21Error::UnsupportedCanisterCall(Icrc21ErrorInfo {
+) -> Result<ConsentMessage, Icrc21Error> {
+    let template_id = Decode!(arg, TemplateId).map_err(|e| {
+        Icrc21Error::UnsupportedCanisterCall(ErrorInfo {
             description: format!("Failed to decode delete_template arguments: {}", e),
         })
     })?;
 
     if use_fields {
-        Ok(Icrc21ConsentMessage::FieldsDisplayMessage(
-            Icrc21FieldDisplayMessage {
-                intent: "Delete Certificate Template".to_string(),
-                fields: vec![(
-                    "Template ID".to_string(),
-                    text_value(template_id.to_string()),
-                )],
-            },
-        ))
+        Ok(ConsentMessage::FieldsDisplayMessage(FieldsDisplay {
+            intent: "Delete Certificate Template".to_string(),
+            fields: vec![(
+                "Template ID".to_string(),
+                text_value(template_id.to_string()),
+            )],
+        }))
     } else {
-        Ok(Icrc21ConsentMessage::GenericDisplayMessage(format!(
+        Ok(ConsentMessage::GenericDisplayMessage(format!(
             "## Delete Certificate Template\n\n\
             Permanently delete an NFT certificate template.\n\n\
             - **Template ID:** {}\n\n\

@@ -12,6 +12,5 @@ pub mod get_ogy_usd_price;
 pub mod get_templates_by_owner;
 pub mod http_request;
 pub mod icrc_10;
-pub mod icrc_21;
 pub mod icrc_28;
 pub mod list_all_collections;

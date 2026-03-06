@@ -65,6 +65,27 @@ type CollectionsResult = record {
   collections : vec CollectionInfo;
   total_count : nat64;
 };
+type ConsentInfo = record {
+  metadata : ConsentMessageMetadata;
+  consent_message : ConsentMessage;
+};
+type ConsentMessage = variant {
+  FieldsDisplayMessage : FieldsDisplay;
+  GenericDisplayMessage : text;
+};
+type ConsentMessageMetadata = record {
+  utc_offset_minutes : opt int16;
+  language : text;
+};
+type ConsentMessageRequest = record {
+  arg : blob;
+  method : text;
+  user_preferences : ConsentMessageSpec;
+};
+type ConsentMessageSpec = record {
+  metadata : ConsentMessageMetadata;
+  device_spec : opt DisplayMessageType;
+};
 type CreateCollectionArgs = record {
   name : text;
   description : text;
@@ -89,7 +110,8 @@ type CyclesManagement = record {
   cycles_for_collection_creation : nat;
 };
 type DeleteTemplateError = variant { UnauthorizedCall; InvalidNftTemplateId };
-type DurationSeconds = record { amount : nat64 };
+type DisplayMessageType = variant { GenericDisplay; FieldsDisplay };
+type ErrorInfo = record { description : text };
 type EstimateMintCostArgs = record {
   total_file_size_bytes : nat;
   num_mints : nat64;
@@ -98,6 +120,10 @@ type EstimateMintCostArgs = record {
 type EstimateMintCostError = variant {
   MintPricingNotConfigured;
   OgyPriceNotAvailable;
+};
+type FieldsDisplay = record {
+  fields : vec record { text; Value };
+  intent : text;
 };
 type GenericError = variant { Other : text };
 type GetCollectionNftsArgs = record {
@@ -143,44 +169,12 @@ type ICRC3Value_1 = variant {
   Text : text;
   Array : vec ICRC3Value;
 };
-type Icrc21ConsentInfo = record {
-  metadata : Icrc21ConsentMessageMetadata;
-  consent_message : Icrc21ConsentMessage;
-};
-type Icrc21ConsentMessage = variant {
-  FieldsDisplayMessage : Icrc21FieldDisplayMessage;
-  GenericDisplayMessage : text;
-};
-type Icrc21ConsentMessageMetadata = record {
-  utc_offset_minutes : opt int16;
-  language : text;
-};
-type Icrc21ConsentMessageRequest = record {
-  arg : blob;
-  method : text;
-  user_preferences : Icrc21ConsentMessageSpec;
-};
-type Icrc21ConsentMessageResponse = variant {
-  Ok : Icrc21ConsentInfo;
-  Err : Icrc21Error;
-};
-type Icrc21ConsentMessageSpec = record {
-  metadata : Icrc21ConsentMessageMetadata;
-  device_spec : opt Icrc21DeviceSpec;
-};
-type Icrc21DeviceSpec = variant { GenericDisplay; FieldsDisplay };
 type Icrc21Error = variant {
-  GenericError : Icrc21GenericError;
-  InsufficientPayment : Icrc21ErrorInfo;
-  UnsupportedCanisterCall : Icrc21ErrorInfo;
-  ConsentMessageUnavailable : Icrc21ErrorInfo;
+  GenericError : record { description : text; error_code : nat };
+  InsufficientPayment : ErrorInfo;
+  UnsupportedCanisterCall : ErrorInfo;
+  ConsentMessageUnavailable : ErrorInfo;
 };
-type Icrc21ErrorInfo = record { description : text };
-type Icrc21FieldDisplayMessage = record {
-  fields : vec record { text; Value };
-  intent : text;
-};
-type Icrc21GenericError = record { description : text; error_code : nat };
 type Icrc28TrustedOriginsResponse = record { trusted_origins : vec text };
 type InitArg = record {
   base_url : opt text;
@@ -375,30 +369,29 @@ type RefundError = variant {
 type RequestMintRefundArgs = record { mint_request_id : nat64 };
 type Result = variant { Ok : nat; Err : CreateCollectionError };
 type Result_1 = variant { Ok : nat; Err : CreateTemplateError };
-type Result_10 = variant { Ok; Err : ProxyLogoUploadError };
-type Result_11 = variant { Ok; Err : RefundError };
-type Result_12 = variant { Ok; Err : UpdateTemplateError };
+type Result_10 = variant { Ok : text; Err : ProxyLogoUploadError };
+type Result_11 = variant { Ok; Err : ProxyLogoUploadError };
+type Result_12 = variant { Ok; Err : RefundError };
+type Result_13 = variant { Ok; Err : UpdateTemplateError };
 type Result_2 = variant { Ok; Err : DeleteTemplateError };
 type Result_3 = variant { Ok : MintCostEstimate; Err : EstimateMintCostError };
 type Result_4 = variant {
   Ok : TemplatesResult;
   Err : GetTemplatesByOwnerError;
 };
-type Result_5 = variant { Ok : nat64; Err : InitializeMintError };
-type Result_6 = variant { Ok : vec nat; Err : MintNftsError };
-type Result_7 = variant { Ok : text; Err : ProxyUploadError };
-type Result_8 = variant { Ok; Err : ProxyUploadError };
-type Result_9 = variant { Ok : text; Err : ProxyLogoUploadError };
+type Result_5 = variant { Ok : ConsentInfo; Err : Icrc21Error };
+type Result_6 = variant { Ok : nat64; Err : InitializeMintError };
+type Result_7 = variant { Ok : vec nat; Err : MintNftsError };
+type Result_8 = variant { Ok : text; Err : ProxyUploadError };
+type Result_9 = variant { Ok; Err : ProxyUploadError };
 type SupportedStandard = record { url : text; name : text };
 type Template = record { template_json : text; template_id : nat };
 type TemplatesResult = record { templates : vec Template; total_count : nat64 };
-type TextValue = record { content : text };
 type TimerMetrics = record {
   name : text;
   interval_seconds : nat64;
   last_run : opt nat64;
 };
-type TokenAmount = record { decimals : nat8; amount : nat64; symbol : text };
 type TransferFromError = variant {
   GenericError : record { message : text; error_code : nat };
   TemporarilyUnavailable;
@@ -442,10 +435,10 @@ type UploadedFileInfo = record {
   file_size : nat64;
 };
 type Value = variant {
-  Text : TextValue;
-  TokenAmount : TokenAmount;
-  TimestampSeconds : DurationSeconds;
-  DurationSeconds : DurationSeconds;
+  Text : record { content : text };
+  TokenAmount : record { decimals : nat8; amount : nat64; symbol : text };
+  TimestampSeconds : record { amount : nat64 };
+  DurationSeconds : record { amount : nat64 };
 };
 service : (ClaimlinkArgs) -> {
   create_collection : (CreateCollectionArgs) -> (Result);
@@ -470,19 +463,17 @@ service : (ClaimlinkArgs) -> {
   get_ogy_usd_price : () -> (opt OgyPriceData) query;
   get_templates_by_owner : (GetTemplatesByOwnerArgs) -> (Result_4) query;
   icrc10_supported_standards : () -> (vec SupportedStandard) query;
-  icrc21_canister_call_consent_message : (Icrc21ConsentMessageRequest) -> (
-      Icrc21ConsentMessageResponse,
-    ) query;
+  icrc21_canister_call_consent_message : (ConsentMessageRequest) -> (Result_5);
   icrc28_trusted_origins : () -> (Icrc28TrustedOriginsResponse) query;
-  initialize_mint : (InitializeMintArgs) -> (Result_5);
+  initialize_mint : (InitializeMintArgs) -> (Result_6);
   list_all_collections : (PaginationArgs) -> (CollectionsResult) query;
-  mint_nfts : (MintNftsArgs) -> (Result_6);
-  proxy_finalize_upload : (ProxyFinalizeUploadArgs) -> (Result_7);
-  proxy_init_upload : (ProxyInitUploadArgs) -> (Result_8);
-  proxy_logo_finalize_upload : (ProxyLogoFinalizeUploadArgs) -> (Result_9);
-  proxy_logo_init_upload : (ProxyLogoInitUploadArgs) -> (Result_10);
-  proxy_logo_store_chunk : (ProxyLogoStoreChunkArgs) -> (Result_10);
-  proxy_store_chunk : (ProxyStoreChunkArgs) -> (Result_8);
-  request_mint_refund : (RequestMintRefundArgs) -> (Result_11);
-  update_template : (UpdateTemplateArgs) -> (Result_12);
+  mint_nfts : (MintNftsArgs) -> (Result_7);
+  proxy_finalize_upload : (ProxyFinalizeUploadArgs) -> (Result_8);
+  proxy_init_upload : (ProxyInitUploadArgs) -> (Result_9);
+  proxy_logo_finalize_upload : (ProxyLogoFinalizeUploadArgs) -> (Result_10);
+  proxy_logo_init_upload : (ProxyLogoInitUploadArgs) -> (Result_11);
+  proxy_logo_store_chunk : (ProxyLogoStoreChunkArgs) -> (Result_11);
+  proxy_store_chunk : (ProxyStoreChunkArgs) -> (Result_9);
+  request_mint_refund : (RequestMintRefundArgs) -> (Result_12);
+  update_template : (UpdateTemplateArgs) -> (Result_13);
 }
