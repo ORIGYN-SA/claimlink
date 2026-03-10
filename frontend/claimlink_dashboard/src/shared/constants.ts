@@ -63,12 +63,17 @@ export const getNfidTargets = (): string[] => {
   return [CLAIMLINK_CANISTER_ID].filter(Boolean);
 };
 
+// Frontend canister ID on mainnet (used for derivation origin)
+export const FRONTEND_CANISTER_ID = "s73wp-uiaaa-aaaap-qrqsq-cai";
+
 // Helper function to get derivation origin
+// In production, always derive from the canister URL so that the same principal
+// is returned whether the user logs in from minting.origyn.com or the canister URL.
 export const getDerivationOrigin = (): string | undefined => {
   if (APP_MODE === "development") {
     return NFID_DERIVATION_ORIGIN;
   }
-  return undefined; // Production will use the actual domain
+  return `https://${FRONTEND_CANISTER_ID}.icp0.io`;
 };
 
 // Helper function to get local Internet Identity URL

@@ -47,18 +47,18 @@ interface UseListMyCollectionsOptions {
  * - ORIGYN NFT canister: Authoritative source for name, description, logo
  */
 export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
   const { offset, limit, enabled = true } = options || {};
 
   return useQuery({
     queryKey: collectionKeys.myCollections({ offset, limit }),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       const result = await CollectionsService.getCollectionsByOwner(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId),
         offset,
         limit
@@ -75,8 +75,8 @@ export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
 
           try {
             const [origynInfo, logoUrl] = await Promise.all([
-              CollectionsService.getOrigynCollectionInfo(authenticatedAgent, collection.id),
-              CollectionsService.getCollectionLogo(authenticatedAgent, collection.id),
+              CollectionsService.getOrigynCollectionInfo(unauthenticatedAgent, collection.id),
+              CollectionsService.getCollectionLogo(unauthenticatedAgent, collection.id),
             ]);
 
             return {
@@ -97,7 +97,7 @@ export const useListMyCollections = (options?: UseListMyCollectionsOptions) => {
         collections: collectionsWithOrigynData,
       };
     },
-    enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
+    enabled: enabled && isConnected && !!unauthenticatedAgent && !!principalId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -269,7 +269,7 @@ export const useCollectionNfts = (options: UseCollectionNftsOptions) => {
  * 3. Combines all certificates into a single array
  */
 export const useAllUserNfts = () => {
-  const { authenticatedAgent, principalId } = useAuth();
+  const { unauthenticatedAgent, principalId } = useAuth();
 
   // Step 1: Get all user's collections
   const { data: collectionsData, isLoading: isLoadingCollections } = useListMyCollections({
@@ -282,7 +282,7 @@ export const useAllUserNfts = () => {
   return useQuery({
     queryKey: ['certificates', 'all-user', principalId],
     queryFn: async (): Promise<Certificate[]> => {
-      if (!authenticatedAgent || !principalId) return [];
+      if (!unauthenticatedAgent || !principalId) return [];
       if (collections.length === 0) return [];
 
       const account = { owner: Principal.fromText(principalId), subaccount: [] as [] };
@@ -292,7 +292,7 @@ export const useAllUserNfts = () => {
         try {
           // Get token IDs for this collection
           const tokenIds = await CertificatesService.getCertificatesOf(
-            authenticatedAgent,
+            unauthenticatedAgent,
             collection.id, // This is the ORIGYN canister ID
             account
           );
@@ -301,7 +301,7 @@ export const useAllUserNfts = () => {
 
           // Get metadata for each token
           const metadataResults = await CertificatesService.getCertificateMetadata(
-            authenticatedAgent,
+            unauthenticatedAgent,
             collection.id,
             tokenIds
           );
@@ -331,7 +331,7 @@ export const useAllUserNfts = () => {
       const certificateArrays = await Promise.all(certificatePromises);
       return certificateArrays.flat();
     },
-    enabled: !!authenticatedAgent && !!principalId && !isLoadingCollections && collections.length > 0,
+    enabled: !!unauthenticatedAgent && !!principalId && !isLoadingCollections && collections.length > 0,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -353,12 +353,10 @@ interface UseCollectionTemplateOptions {
  * Falls back to unauthenticatedAgent for public viewing (ORIGYN metadata).
  */
 export const useCollectionTemplate = (options: UseCollectionTemplateOptions) => {
-  const { authenticatedAgent, unauthenticatedAgent } = useAuth();
+  const { unauthenticatedAgent } = useAuth();
   const { collectionId, enabled = true } = options;
 
-  // Prefer authenticated agent (required for backend template fetching)
-  // Fall back to unauthenticated for public access (ORIGYN fallback)
-  const agent = authenticatedAgent || unauthenticatedAgent;
+  const agent = unauthenticatedAgent;
 
   return useQuery({
     queryKey: collectionKeys.template(collectionId),

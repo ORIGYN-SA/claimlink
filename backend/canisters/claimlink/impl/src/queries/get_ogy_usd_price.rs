@@ -4,5 +4,5 @@ pub use claimlink_api::queries::get_ogy_usd_price::Response as GetOgyUsdPriceRes
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn get_ogy_usd_price() -> GetOgyUsdPriceResponse {
-    read_state(|s| s.data.ogy_price.clone())
+    read_state(|s| s.data.ogy_price)
 }

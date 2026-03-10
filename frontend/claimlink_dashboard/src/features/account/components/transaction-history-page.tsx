@@ -26,10 +26,10 @@ export function TransactionHistoryPage() {
   // Fetch balances for all supported tokens
   const { balances } = useMultiTokenBalance(
     SUPPORTED_TOKENS,
-    authenticatedAgent,
+    unauthenticatedAgent,
     principalId || "",
     {
-      enabled: !!principalId && !!authenticatedAgent,
+      enabled: !!principalId && !!unauthenticatedAgent,
       refetchInterval: 30000, // Refresh every 30 seconds
     },
   );

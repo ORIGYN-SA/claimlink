@@ -21,7 +21,7 @@ const COLLECTION_CREATION_COST_OGY = 15000; // 15,000 OGY tokens required
 
 export function NewCollectionPage() {
   const navigate = useNavigate();
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { authenticatedAgent, unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   // Form state
   const [collectionName, setCollectionName] = useState('');
@@ -46,10 +46,10 @@ export function NewCollectionPage() {
   // Fetch OGY balance
   const { balances } = useMultiTokenBalance(
     [ogyToken!],
-    authenticatedAgent,
+    unauthenticatedAgent,
     principalId || '',
     {
-      enabled: !!principalId && !!authenticatedAgent && !!ogyToken,
+      enabled: !!principalId && !!unauthenticatedAgent && !!ogyToken,
       refetchInterval: 30000,
     }
   );

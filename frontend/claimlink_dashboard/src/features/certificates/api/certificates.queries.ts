@@ -52,20 +52,20 @@ export const useEstimateMintCost = (
   totalFileSizeBytes: number,
   options?: { enabled?: boolean },
 ) => {
-  const { authenticatedAgent } = useAuth();
+  const { unauthenticatedAgent } = useAuth();
 
   return useQuery({
     queryKey: ['mint-cost-estimate', collectionCanisterId, numMints, totalFileSizeBytes],
     queryFn: () =>
       ClaimlinkMintingService.estimateMintCost(
-        authenticatedAgent!,
+        unauthenticatedAgent!,
         collectionCanisterId,
         numMints,
         totalFileSizeBytes,
       ),
     enabled:
       (options?.enabled ?? true) &&
-      !!authenticatedAgent &&
+      !!unauthenticatedAgent &&
       !!collectionCanisterId &&
       numMints > 0,
     staleTime: 30_000, // 30s - OGY price changes slowly
@@ -81,17 +81,17 @@ export const useEstimateMintCost = (
  * Fetch certificates for a specific collection
  */
 export const useCollectionCertificates = (collectionCanisterId: string) => {
-  const { authenticatedAgent, principalId } = useAuth();
+  const { unauthenticatedAgent, principalId } = useAuth();
 
   return useQuery({
     queryKey: certificatesKeys.collection(collectionCanisterId),
     queryFn: async (): Promise<Certificate[]> => {
-      if (!authenticatedAgent || !principalId) return [];
+      if (!unauthenticatedAgent || !principalId) return [];
 
       // Step 1: Get token IDs
       const account = { owner: Principal.fromText(principalId), subaccount: [] as [] };
       const tokenIds = await CertificatesService.getCertificatesOf(
-        authenticatedAgent,
+        unauthenticatedAgent,
         collectionCanisterId,
         account
       );
@@ -105,7 +105,7 @@ export const useCollectionCertificates = (collectionCanisterId: string) => {
 
       // Step 2: Get metadata for each token
       const metadataResults = await CertificatesService.getCertificateMetadata(
-        authenticatedAgent,
+        unauthenticatedAgent,
         collectionCanisterId,
         tokenIds
       );
@@ -131,7 +131,7 @@ export const useCollectionCertificates = (collectionCanisterId: string) => {
         } as Certificate;
       });
     },
-    enabled: !!authenticatedAgent && !!principalId && !!collectionCanisterId,
+    enabled: !!unauthenticatedAgent && !!principalId && !!collectionCanisterId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -684,14 +684,14 @@ export const useCertificate = (
   tokenId: string,
   options?: UseCertificateOptions
 ) => {
-  const { authenticatedAgent } = useAuth();
+  const { unauthenticatedAgent } = useAuth();
   const externalEnabled = options?.enabled ?? true;
 
   return useQuery({
     queryKey: certificatesKeys.detail(`${collectionId}:${tokenId}`),
     queryFn: async (): Promise<CertificateWithParsedMetadata> => {
-      if (!authenticatedAgent) {
-        throw new Error('User not authenticated');
+      if (!unauthenticatedAgent) {
+        throw new Error('Agent not available');
       }
 
       console.log('[useCertificate] Fetching certificate:', {
@@ -701,7 +701,7 @@ export const useCertificate = (
 
       // Fetch metadata for this specific token
       const metadataResults = await CertificatesService.getCertificateMetadata(
-        authenticatedAgent,
+        unauthenticatedAgent,
         collectionId,
         [BigInt(tokenId)]
       );
@@ -728,7 +728,7 @@ export const useCertificate = (
       // Fetch collection info for collection name
       const collectionPrincipal = Principal.fromText(collectionId);
       const collectionInfo = await CollectionsService.getCollectionInfo(
-        authenticatedAgent,
+        unauthenticatedAgent,
         collectionPrincipal
       );
 
@@ -750,7 +750,7 @@ export const useCertificate = (
 
       return { certificate, parsedMetadata };
     },
-    enabled: externalEnabled && !!authenticatedAgent && !!collectionId && !!tokenId,
+    enabled: externalEnabled && !!unauthenticatedAgent && !!collectionId && !!tokenId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -848,11 +848,11 @@ interface CertificateTransactionHistoryResult {
 export const useCertificateTransactionHistory = (
   collectionCanisterId: string,
   tokenId: string,
-  /** Optional agent override. When omitted, falls back to authenticatedAgent. */
+  /** Optional agent override. When omitted, falls back to unauthenticatedAgent. */
   agentOverride?: HttpAgent
 ) => {
-  const { authenticatedAgent } = useAuth();
-  const agent = agentOverride || authenticatedAgent;
+  const { unauthenticatedAgent } = useAuth();
+  const agent = agentOverride || unauthenticatedAgent;
 
   return useQuery({
     queryKey: ['certificate-transaction-history', collectionCanisterId, tokenId],

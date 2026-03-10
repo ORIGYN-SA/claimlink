@@ -13,7 +13,6 @@ mod get_templates_by_owner;
 mod get_user_nfts;
 mod http_request;
 mod icrc_10;
-mod icrc_21;
 mod icrc_28;
 mod list_all_collections;
 
@@ -32,6 +31,5 @@ pub use get_ogy_usd_price::*;
 pub use get_templates_by_owner::*;
 pub use http_request::*;
 pub use icrc_10::*;
-pub use icrc_21::*;
 pub use icrc_28::*;
 pub use list_all_collections::*;

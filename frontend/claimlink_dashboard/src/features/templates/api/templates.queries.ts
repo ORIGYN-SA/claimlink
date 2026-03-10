@@ -36,23 +36,23 @@ interface UseMyTemplatesOptions {
  * This is the main hook for fetching user's templates from the backend.
  */
 export const useMyTemplates = (options?: UseMyTemplatesOptions) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
   const { offset, limit, enabled = true } = options || {};
 
   return useQuery({
     queryKey: templateKeys.myTemplates(principalId),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getTemplatesByOwner(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId),
         { offset, limit }
       );
     },
-    enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
+    enabled: enabled && isConnected && !!unauthenticatedAgent && !!principalId,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -69,18 +69,18 @@ interface UseTemplateOptions {
  * Requires authentication as templates are owned by users.
  */
 export const useTemplate = (options: UseTemplateOptions) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
   const { templateId, enabled = true } = options;
 
   return useQuery({
     queryKey: templateKeys.detail(templateId),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getTemplateById(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId),
         templateId
       );
@@ -88,7 +88,7 @@ export const useTemplate = (options: UseTemplateOptions) => {
     enabled:
       enabled &&
       isConnected &&
-      !!authenticatedAgent &&
+      !!unauthenticatedAgent &&
       !!principalId &&
       !!templateId,
     staleTime: 10 * 60 * 1000, // 10 minutes
@@ -105,23 +105,23 @@ interface UseTemplatesByCategoryOptions {
  * Fetch templates by category
  */
 export const useTemplatesByCategory = (options: UseTemplatesByCategoryOptions) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
   const { category, enabled = true } = options;
 
   return useQuery({
     queryKey: templateKeys.byCategory(category),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getTemplatesByCategory(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId),
         category
       );
     },
-    enabled: enabled && isConnected && !!authenticatedAgent && !!principalId,
+    enabled: enabled && isConnected && !!unauthenticatedAgent && !!principalId,
     staleTime: 10 * 60 * 1000,
     retry: 1,
   });
@@ -175,21 +175,21 @@ export const useCreateTemplate = (options?: UseCreateTemplateOptions) => {
  * Fetch free templates (non-premium)
  */
 export const useFreeTemplates = () => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: [...templateKeys.all, 'free'],
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getFreeTemplates(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId)
       );
     },
-    enabled: isConnected && !!authenticatedAgent && !!principalId,
+    enabled: isConnected && !!unauthenticatedAgent && !!principalId,
     staleTime: 10 * 60 * 1000,
     retry: 1,
   });
@@ -199,21 +199,21 @@ export const useFreeTemplates = () => {
  * Fetch premium templates
  */
 export const usePremiumTemplates = () => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: [...templateKeys.all, 'premium'],
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getPremiumTemplates(
-        authenticatedAgent,
+        unauthenticatedAgent,
         Principal.fromText(principalId)
       );
     },
-    enabled: isConnected && !!authenticatedAgent && !!principalId,
+    enabled: isConnected && !!unauthenticatedAgent && !!principalId,
     staleTime: 10 * 60 * 1000,
     retry: 1,
   });

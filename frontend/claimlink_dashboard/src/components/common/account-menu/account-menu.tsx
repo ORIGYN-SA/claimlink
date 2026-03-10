@@ -39,7 +39,6 @@ export function AccountMenu({
   const {
     disconnect,
     principalId,
-    authenticatedAgent,
     unauthenticatedAgent,
     isConnected,
   } = useAuth();
@@ -48,10 +47,10 @@ export function AccountMenu({
   // Fetch balances for all supported tokens
   const { balances, refetchAll } = useMultiTokenBalance(
     SUPPORTED_TOKENS,
-    authenticatedAgent,
+    unauthenticatedAgent,
     principalId || "",
     {
-      enabled: !!principalId && !!authenticatedAgent,
+      enabled: !!principalId && !!unauthenticatedAgent,
       refetchInterval: 30000, // Refresh every 30 seconds
     },
   );

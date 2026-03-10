@@ -84,21 +84,21 @@ export const useTrendingItems = (limit = 5) => {
  * - Transferred Certificates (owned by others)
  */
 export const useDashboardStatusCounts = () => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: dashboardKeys.statusCounts(principalId),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error("Not authenticated");
       }
 
       return await DashboardService.getCertificateStatusCounts(
-        authenticatedAgent,
+        unauthenticatedAgent,
         principalId,
       );
     },
-    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    enabled: !!unauthenticatedAgent && !!principalId && isConnected,
     staleTime: 5 * 60 * 1000, // 5 minutes - dashboard refreshes moderately
     retry: 1,
   });
@@ -109,22 +109,22 @@ export const useDashboardStatusCounts = () => {
  * Limited to 9 certificates by default
  */
 export const useDashboardRecentCertificates = (limit: number = 9) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: dashboardKeys.recentCertificates(principalId, limit),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error("Not authenticated");
       }
 
       return await DashboardService.getRecentCertificates(
-        authenticatedAgent,
+        unauthenticatedAgent,
         principalId,
         limit,
       );
     },
-    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    enabled: !!unauthenticatedAgent && !!principalId && isConnected,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -135,22 +135,22 @@ export const useDashboardRecentCertificates = (limit: number = 9) => {
  * Used for "Last Certificate Owners" dashboard section
  */
 export const useDashboardRecentOwners = (limit: number = 5) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: dashboardKeys.recentOwners(principalId, limit),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error("Not authenticated");
       }
 
       return await DashboardService.getRecentCertificateOwners(
-        authenticatedAgent,
+        unauthenticatedAgent,
         principalId,
         limit,
       );
     },
-    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    enabled: !!unauthenticatedAgent && !!principalId && isConnected,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
@@ -161,22 +161,22 @@ export const useDashboardRecentOwners = (limit: number = 5) => {
  * Used for "Last Sent Certificates" dashboard section
  */
 export const useDashboardSentCertificates = (limit: number = 5) => {
-  const { authenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
 
   return useQuery({
     queryKey: dashboardKeys.sentCertificates(principalId, limit),
     queryFn: async () => {
-      if (!authenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent || !principalId) {
         throw new Error("Not authenticated");
       }
 
       return await DashboardService.getRecentSentCertificates(
-        authenticatedAgent,
+        unauthenticatedAgent,
         principalId,
         limit,
       );
     },
-    enabled: !!authenticatedAgent && !!principalId && isConnected,
+    enabled: !!unauthenticatedAgent && !!principalId && isConnected,
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 1,
   });
