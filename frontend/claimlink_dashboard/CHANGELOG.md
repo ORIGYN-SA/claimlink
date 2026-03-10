@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3] - 2026-03-10
+
+### Fixed
+
+- Fix Oisy wallet login failing with "request not supported by signer" error by removing derivationOrigin from global signerClientOptions (OISY doesn't support ICRC-95)
+
 ## [1.0.2] - 2026-03-09
 
 ### Added
