@@ -23,7 +23,6 @@ import {
   IC_HOST,
   APP_MODE,
   getNfidTargets,
-  getDerivationOrigin,
   // getLocalInternetIdentityUrl,
 } from "@/shared/constants";
 import { isLocalICReplica } from "@/shared/utils/environment";
@@ -137,7 +136,6 @@ interface AuthGateProps {
   targets?: string[];
   signers?: IdentityKitSignerConfig[];
   authType?: Record<string, IdentityKitAuthType>;
-  derivationOrigin?: string | undefined;
   maxTimeToLive?: bigint;
 }
 
@@ -159,7 +157,6 @@ export const AuthGate = ({
   children,
   targets,
   signers = [OISY, NFIDW, InternetIdentity],
-  derivationOrigin,
   maxTimeToLive = 604800000000000n, // one week
   authType = {
     [NFIDW.id]: IdentityKitAuthType.DELEGATION,
@@ -183,8 +180,6 @@ export const AuthGate = ({
   // );
 
   const nfidTargets = useMemo(() => targets || getNfidTargets(), [targets]);
-  const nfidDerivationOrigin =
-    derivationOrigin !== undefined ? derivationOrigin : getDerivationOrigin();
 
   // Memoize signerClientOptions to prevent provider re-initialization
   // const signerClientOptions = useMemo(
@@ -218,7 +213,6 @@ export const AuthGate = ({
       signerClientOptions={{
         targets: nfidTargets,
         maxTimeToLive,
-        derivationOrigin: nfidDerivationOrigin,
         idleOptions: {
           disableIdle: false,
         },
