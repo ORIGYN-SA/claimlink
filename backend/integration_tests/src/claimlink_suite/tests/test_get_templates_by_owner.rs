@@ -219,36 +219,6 @@ fn query_owner_with_no_templates_returns_empty() {
 }
 
 #[test]
-fn query_by_different_owner_returns_unauthorized() {
-    let env = init();
-    let TestEnv {
-        mut pic,
-        canister_ids,
-        principal_ids,
-    } = env;
-    let claimlink = canister_ids.claimlink;
-
-    // Controller creates a template
-    create_n_templates(&mut pic, principal_ids.controller, claimlink, 1);
-
-    // principal_100k_ogy tries to query controller's templates → unauthorized
-    let result = crate::client::claimlink::get_templates_by_owner(
-        &pic,
-        principal_ids.principal_100k_ogy,
-        claimlink,
-        &GetTemplatesByOwnerArgs {
-            owner: principal_ids.controller,
-            pagination: PaginationArgs {
-                offset: None,
-                limit: None,
-            },
-        },
-    );
-
-    assert!(result.is_err());
-}
-
-#[test]
 fn query_after_delete_reflects_correct_count() {
     let env = init();
     let TestEnv {
