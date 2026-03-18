@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as NewPasswordRouteImport } from './routes/new-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -40,6 +41,11 @@ import { Route as AuthenticatedCampaignsCampaignsClaimersRouteImport } from './r
 import { Route as AuthenticatedAccountUsersUserIdRouteImport } from './routes/_authenticated/account/users.$userId'
 import { Route as AuthenticatedAccountTransactionsTransactionIdRouteImport } from './routes/_authenticated/account/transactions.$transactionId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NewPasswordRoute = NewPasswordRouteImport.update({
   id: '/new-password',
   path: '/new-password',
@@ -218,6 +224,7 @@ export interface FileRoutesByFullPath {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
@@ -249,6 +256,7 @@ export interface FileRoutesByTo {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/terms': typeof TermsRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
@@ -282,6 +290,7 @@ export interface FileRoutesById {
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/new-password': typeof NewPasswordRoute
+  '/terms': typeof TermsRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/certificate/$certificateId': typeof CertificateCertificateIdRoute
   '/_authenticated/account/edit_company': typeof AuthenticatedAccountEdit_companyRoute
@@ -315,6 +324,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/terms'
     | '/dashboard'
     | '/certificate/$certificateId'
     | '/account/edit_company'
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/terms'
     | '/dashboard'
     | '/certificate/$certificateId'
     | '/account/edit_company'
@@ -378,6 +389,7 @@ export interface FileRouteTypes {
     | '/forgot-password'
     | '/login'
     | '/new-password'
+    | '/terms'
     | '/_authenticated/dashboard'
     | '/certificate/$certificateId'
     | '/_authenticated/account/edit_company'
@@ -411,11 +423,19 @@ export interface RootRouteChildren {
   ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   NewPasswordRoute: typeof NewPasswordRoute
+  TermsRoute: typeof TermsRoute
   CertificateCertificateIdRoute: typeof CertificateCertificateIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/new-password': {
       id: '/new-password'
       path: '/new-password'
@@ -703,6 +723,7 @@ const rootRouteChildren: RootRouteChildren = {
   ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   NewPasswordRoute: NewPasswordRoute,
+  TermsRoute: TermsRoute,
   CertificateCertificateIdRoute: CertificateCertificateIdRoute,
 }
 export const routeTree = rootRouteImport
