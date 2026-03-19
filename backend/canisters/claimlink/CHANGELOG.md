@@ -1,6 +1,7 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the **backend** will be documented in this file.
+This changelog is versioned independently from the frontend.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
