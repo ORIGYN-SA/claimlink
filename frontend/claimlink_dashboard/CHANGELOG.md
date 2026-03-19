@@ -1,8 +1,15 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the **frontend** will be documented in this file.
+This changelog is versioned independently from the backend.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [1.1.0] - 2026-03-18
+
+### Added
+
+- Terms and Conditions page
 
 ## [1.0.3] - 2026-03-10
 

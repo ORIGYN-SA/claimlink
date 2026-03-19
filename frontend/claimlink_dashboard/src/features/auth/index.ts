@@ -7,6 +7,7 @@ export { NewPasswordPage } from "./components/new-password-page";
 export { WalletConnectionSection } from "./components/wallet-connection-section";
 export { IntegratorLoginSection } from "./components/integrator-login-section";
 export { LoginFooter } from "./components/login-footer";
+export { TermsPage } from "./components/terms-page";
 export { ConnectWalletButton } from "./components/connect-wallet-button";
 export * from "./components/wallet-icons";
 
