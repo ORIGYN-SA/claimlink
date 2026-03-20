@@ -3,8 +3,8 @@ use crate::{generate_query_call, generate_update_call};
 use claimlink_api::queries::{
     estimate_mint_cost, get_collection_count, get_collection_info, get_collection_nfts,
     get_collections_by_owner, get_collections_for_user, get_metrics, get_mint_request,
-    get_mint_requests_by_owner, get_nft_details, get_ogy_usd_price, get_templates_by_owner,
-    list_all_collections,
+    get_mint_requests_by_owner, get_nft_details, get_ogy_usd_price, get_template_by_id,
+    get_template_ids_by_owner, get_templates_by_owner, list_all_collections,
 };
 use claimlink_api::updates::{
     create_collection, create_template, delete_template, initialize_mint, mint_nfts,
@@ -31,6 +31,8 @@ generate_query_call!(get_collections_for_user);
 generate_query_call!(get_collection_count);
 generate_query_call!(get_collection_nfts);
 generate_query_call!(get_nft_details);
+generate_query_call!(get_template_by_id);
+generate_query_call!(get_template_ids_by_owner);
 generate_query_call!(get_templates_by_owner);
 generate_query_call!(get_metrics);
 generate_query_call!(estimate_mint_cost);

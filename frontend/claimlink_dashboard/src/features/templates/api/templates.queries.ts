@@ -66,22 +66,22 @@ interface UseTemplateOptions {
 /**
  * Fetch a single template by ID
  *
- * Requires authentication as templates are owned by users.
+ * Uses the dedicated get_template_by_id backend query which fetches
+ * a single template efficiently without hitting the IC 3MB reply limit.
  */
 export const useTemplate = (options: UseTemplateOptions) => {
-  const { unauthenticatedAgent, principalId, isConnected } = useAuth();
+  const { unauthenticatedAgent, isConnected } = useAuth();
   const { templateId, enabled = true } = options;
 
   return useQuery({
     queryKey: templateKeys.detail(templateId),
     queryFn: async () => {
-      if (!unauthenticatedAgent || !principalId) {
+      if (!unauthenticatedAgent) {
         throw new Error('Not authenticated');
       }
 
       return await TemplateService.getTemplateById(
         unauthenticatedAgent,
-        Principal.fromText(principalId),
         templateId
       );
     },
@@ -89,7 +89,6 @@ export const useTemplate = (options: UseTemplateOptions) => {
       enabled &&
       isConnected &&
       !!unauthenticatedAgent &&
-      !!principalId &&
       !!templateId,
     staleTime: 10 * 60 * 1000, // 10 minutes
     retry: 1,

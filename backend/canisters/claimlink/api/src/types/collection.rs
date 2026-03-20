@@ -57,9 +57,9 @@ impl PaginationArgs {
         self.offset.unwrap_or(0) as usize
     }
 
-    pub fn get_limit(&self) -> usize {
+    pub fn get_limit(&self) -> u64 {
         let limit = self.limit.unwrap_or(Self::MAX_LIMIT);
-        limit.min(Self::MAX_LIMIT) as usize
+        limit.min(Self::MAX_LIMIT)
     }
 }
 

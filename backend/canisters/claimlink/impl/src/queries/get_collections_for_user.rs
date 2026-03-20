@@ -68,7 +68,7 @@ pub async fn get_collections_for_user(
     let collections = user_collections
         .into_iter()
         .skip(offset)
-        .take(limit)
+        .take(limit as usize)
         .map(|collection| collection.into())
         .collect();
 

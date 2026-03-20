@@ -20,7 +20,7 @@ pub fn list_all_collections(args: ListAllCollectionsArgs) -> ListAllCollectionsR
             .collection_requests
             .iter()
             .skip(offset)
-            .take(limit)
+            .take(limit as usize)
             .map(|(_, collection)| CollectionInfo::from(collection.clone()))
             .collect();
 

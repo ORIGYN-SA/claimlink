@@ -5,6 +5,22 @@ This changelog is versioned independently from the frontend.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.0.3] - 2026-03-20
+
+### Added
+
+- `get_template_ids_by_owner` query: returns only template IDs (no heavy JSON payload), avoiding the IC 3MB reply limit
+- `get_template_by_id` query: fetches a single template's full data by ID
+
+### Changed
+
+- Reduced `get_templates_by_owner` pagination limit to 2 templates per call (`MAX_TEMPLATES_PER_CALL`) to prevent exceeding IC reply size limit when templates contain large base64 background images
+
+### Fixed
+
+- Fixed `get_limit()` return type mismatch in `PaginationArgs` (changed callers to cast `u64` to `usize`)
+- Updated integration tests to account for new pagination limit
+
 ## [1.0.2] - 2026-03-09
 
 ### Fixed

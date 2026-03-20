@@ -4,11 +4,14 @@ pub use claimlink_api::queries::get_templates_by_owner::{
 };
 use claimlink_api::templates::{Template, TemplatesResult};
 
+pub const MAX_TEMPLATES_PER_CALL: u64 = 2;
+
 #[ic_cdk::query]
 #[bity_ic_canister_tracing_macros::trace]
 pub fn get_templates_by_owner(args: GetTemplatesByOwnerArgs) -> GetTemplatesByOwnerResponse {
     let offset = args.pagination.get_offset();
-    let limit = args.pagination.get_limit();
+
+    let limit = args.pagination.get_limit().min(MAX_TEMPLATES_PER_CALL) as usize;
 
     // Apply pagination
     let template_ids = read_state(|s| s.data.get_template_ids_by_owner(&args.owner));

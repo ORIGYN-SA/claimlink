@@ -49,7 +49,7 @@ fn query_all_templates_at_max_limit() {
     );
     assert_eq!(ids.len() as u64, MAX_TEMPLATES_PER_OWNER);
 
-    // Query all templates — should return all 5
+    // Query templates — with MAX_TEMPLATES_PER_CALL=2, first page returns 2
     let result = crate::client::claimlink::get_templates_by_owner(
         &pic,
         principal_ids.controller,
@@ -65,9 +65,10 @@ fn query_all_templates_at_max_limit() {
     .unwrap();
 
     assert_eq!(result.total_count, MAX_TEMPLATES_PER_OWNER);
-    assert_eq!(result.templates.len() as u64, MAX_TEMPLATES_PER_OWNER);
+    // MAX_TEMPLATES_PER_CALL is 2, so we only get 2 back
+    assert_eq!(result.templates.len(), 2);
 
-    // Verify each template has the correct ID and valid JSON
+    // Verify the first 2 templates have correct IDs and valid JSON
     for (i, template) in result.templates.iter().enumerate() {
         assert_eq!(template.template_id, ids[i]);
         let parsed: serde_json::Value =
@@ -260,9 +261,10 @@ fn query_after_delete_reflects_correct_count() {
     .unwrap();
 
     assert_eq!(result.total_count, MAX_TEMPLATES_PER_OWNER - 1);
-    assert_eq!(result.templates.len() as u64, MAX_TEMPLATES_PER_OWNER - 1);
+    // With limit=2, we get min(4, 2) = 2
+    assert_eq!(result.templates.len(), 2);
 
-    // Deleted template should not appear
+    // Deleted template should not appear in returned results
     let returned_ids: Vec<candid::Nat> = result
         .templates
         .iter()
@@ -320,31 +322,38 @@ fn create_after_delete_allows_new_template_and_query_works() {
     )
     .unwrap();
 
-    // Query should return MAX count again with the new template
-    let result = crate::client::claimlink::get_templates_by_owner(
-        &pic,
-        principal_ids.controller,
-        claimlink,
-        &GetTemplatesByOwnerArgs {
-            owner: principal_ids.controller,
-            pagination: PaginationArgs {
-                offset: None,
-                limit: None,
+    // Paginate through all templates to collect all IDs
+    let mut all_returned_ids: Vec<candid::Nat> = vec![];
+    let mut offset = 0u64;
+    loop {
+        let result = crate::client::claimlink::get_templates_by_owner(
+            &pic,
+            principal_ids.controller,
+            claimlink,
+            &GetTemplatesByOwnerArgs {
+                owner: principal_ids.controller,
+                pagination: PaginationArgs {
+                    offset: Some(offset),
+                    limit: Some(2),
+                },
             },
-        },
-    )
-    .unwrap();
+        )
+        .unwrap();
 
-    assert_eq!(result.total_count, MAX_TEMPLATES_PER_OWNER);
-    assert_eq!(result.templates.len() as u64, MAX_TEMPLATES_PER_OWNER);
+        assert_eq!(result.total_count, MAX_TEMPLATES_PER_OWNER);
 
-    let returned_ids: Vec<candid::Nat> = result
-        .templates
-        .iter()
-        .map(|t| t.template_id.clone())
-        .collect();
-    assert!(!returned_ids.contains(&ids[0])); // deleted one gone
-    assert!(returned_ids.contains(&new_id)); // new one present
+        if result.templates.is_empty() {
+            break;
+        }
+        for t in &result.templates {
+            all_returned_ids.push(t.template_id.clone());
+        }
+        offset += result.templates.len() as u64;
+    }
+
+    assert_eq!(all_returned_ids.len() as u64, MAX_TEMPLATES_PER_OWNER);
+    assert!(!all_returned_ids.contains(&ids[0])); // deleted one gone
+    assert!(all_returned_ids.contains(&new_id)); // new one present
 }
 
 #[test]
@@ -384,10 +393,8 @@ fn two_owners_templates_are_isolated() {
     .unwrap();
 
     assert_eq!(controller_result.total_count, MAX_TEMPLATES_PER_OWNER);
-    assert_eq!(
-        controller_result.templates.len() as u64,
-        MAX_TEMPLATES_PER_OWNER
-    );
+    // Limited to 2 per call
+    assert_eq!(controller_result.templates.len(), 2);
     for (i, t) in controller_result.templates.iter().enumerate() {
         assert_eq!(t.template_id, controller_ids[i]);
     }
