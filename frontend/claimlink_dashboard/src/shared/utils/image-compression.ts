@@ -6,8 +6,19 @@
  * to leave room for template metadata, sections, and translations.
  */
 
-/** Maximum background data URI size (1MB leaves room for other template data) */
-export const MAX_BACKGROUND_SIZE_BYTES = 1 * 1024 * 1024;
+/**
+ * Maximum background data URI **string** size.
+ *
+ * IC ingress messages are limited to 2MB. The template_json string (which
+ * embeds the data URI) plus Candid encoding, IC envelope, and NFID delegation
+ * chain must all fit within this limit. 800KB data URI string leaves ~1.2MB
+ * headroom for template metadata, Candid overhead, and authentication data.
+ *
+ * Note: base64 adds ~33% overhead, so 800KB string ≈ 600KB binary.
+ * Previous limit of 1MB checked binary size, but the IC limit applies to the
+ * encoded string — which caused failures at the boundary.
+ */
+export const MAX_BACKGROUND_SIZE_BYTES = 800 * 1024;
 
 /** Minimum quality to attempt before giving up */
 const MIN_QUALITY = 0.1;
@@ -81,17 +92,16 @@ function compressToDataUri(
 }
 
 /**
- * Gets the byte size of a data URI
+ * Gets the **string length** of a data URI.
+ *
+ * This is the size that matters for IC ingress messages, because
+ * the data URI is embedded as a string in the template JSON which
+ * is sent as Candid text. The old implementation returned the
+ * decoded binary size, which is ~25% smaller than the actual
+ * string payload — causing ingress messages to exceed the 2MB limit.
  */
 function getDataUriSize(dataUri: string): number {
-  // Remove the data URI prefix to get just the base64 data
-  const base64 = dataUri.split(',')[1];
-  if (!base64) return dataUri.length;
-
-  // Base64 encodes 3 bytes into 4 characters
-  // Remove padding characters for accurate size
-  const padding = (base64.match(/=/g) || []).length;
-  return Math.floor((base64.length * 3) / 4) - padding;
+  return dataUri.length;
 }
 
 /**

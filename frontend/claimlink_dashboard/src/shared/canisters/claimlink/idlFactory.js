@@ -250,13 +250,21 @@ export const idlFactory = ({ IDL }) => {
     'updated_at' : IDL.Nat64,
     'usd_per_ogy_e8s' : IDL.Nat64,
   });
-  const GetTemplatesByOwnerArgs = IDL.Record({
-    'owner' : IDL.Principal,
-    'pagination' : PaginationArgs,
-  });
+  const GetTemplateByIdArgs = IDL.Record({ 'template_id' : IDL.Nat });
   const Template = IDL.Record({
     'template_json' : IDL.Text,
     'template_id' : IDL.Nat,
+  });
+  const GetTemplateByIdError = IDL.Variant({ 'TemplateNotFound' : IDL.Null });
+  const Result_4 = IDL.Variant({ 'Ok' : Template, 'Err' : GetTemplateByIdError });
+  const GetTemplateIdsByOwnerArgs = IDL.Record({ 'owner' : IDL.Principal });
+  const TemplateIdsResult = IDL.Record({
+    'template_ids' : IDL.Vec(IDL.Nat),
+    'total_count' : IDL.Nat64,
+  });
+  const GetTemplatesByOwnerArgs = IDL.Record({
+    'owner' : IDL.Principal,
+    'pagination' : PaginationArgs,
   });
   const TemplatesResult = IDL.Record({
     'templates' : IDL.Vec(Template),
@@ -265,7 +273,7 @@ export const idlFactory = ({ IDL }) => {
   const GetTemplatesByOwnerError = IDL.Variant({
     'UnauthorizedCall' : IDL.Null,
   });
-  const Result_4 = IDL.Variant({
+  const Result_5 = IDL.Variant({
     'Ok' : TemplatesResult,
     'Err' : GetTemplatesByOwnerError,
   });
@@ -313,10 +321,7 @@ export const idlFactory = ({ IDL }) => {
     'UnsupportedCanisterCall' : Icrc21ErrorInfo,
     'ConsentMessageUnavailable' : Icrc21ErrorInfo,
   });
-  const Icrc21ConsentMessageResponse = IDL.Variant({
-    'Ok' : Icrc21ConsentInfo,
-    'Err' : Icrc21Error,
-  });
+  // Result_6 (Icrc21ConsentMessageResponse) defined above
   const Icrc28TrustedOriginsResponse = IDL.Record({
     'trusted_origins' : IDL.Vec(IDL.Text),
   });
@@ -334,7 +339,11 @@ export const idlFactory = ({ IDL }) => {
     'TransferFromError' : TransferFromError,
     'OgyPriceNotAvailable' : IDL.Null,
   });
-  const Result_5 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : InitializeMintError });
+  const Result_6 = IDL.Variant({
+    'Ok' : Icrc21ConsentInfo,
+    'Err' : Icrc21Error,
+  });
+  const Result_7 = IDL.Variant({ 'Ok' : IDL.Nat64, 'Err' : InitializeMintError });
   const MintItemArg = IDL.Record({
     'metadata' : IDL.Vec(IDL.Tuple(IDL.Text, ICRC3Value_1)),
     'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
@@ -357,7 +366,7 @@ export const idlFactory = ({ IDL }) => {
     'MintRequestNotActive' : IDL.Null,
     'NoItemsProvided' : IDL.Null,
   });
-  const Result_6 = IDL.Variant({ 'Ok' : IDL.Vec(IDL.Nat), 'Err' : MintNftsError });
+  const Result_8 = IDL.Variant({ 'Ok' : IDL.Vec(IDL.Nat), 'Err' : MintNftsError });
   const ProxyFinalizeUploadArgs = IDL.Record({
     'file_path' : IDL.Text,
     'mint_request_id' : IDL.Nat64,
@@ -373,7 +382,7 @@ export const idlFactory = ({ IDL }) => {
     'Unauthorized' : IDL.Null,
     'MintRequestNotActive' : IDL.Null,
   });
-  const Result_7 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyUploadError });
+  const Result_9 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyUploadError });
   const ProxyInitUploadArgs = IDL.Record({
     'file_hash' : IDL.Text,
     'file_path' : IDL.Text,
@@ -381,7 +390,7 @@ export const idlFactory = ({ IDL }) => {
     'chunk_size' : IDL.Opt(IDL.Nat64),
     'mint_request_id' : IDL.Nat64,
   });
-  const Result_8 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyUploadError });
+  const Result_10 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyUploadError });
   const ProxyStoreChunkArgs = IDL.Record({
     'chunk_id' : IDL.Nat,
     'file_path' : IDL.Text,
@@ -414,6 +423,7 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_11 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyLogoUploadError });
   const Result_12 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyLogoUploadError });
+  const Result_13 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : RefundError });
   const RequestMintRefundArgs = IDL.Record({
     'mint_request_id' : IDL.Nat64,
   });
@@ -424,7 +434,7 @@ export const idlFactory = ({ IDL }) => {
     'AlreadyRefunded' : IDL.Null,
     'CreditsAlreadyUsed' : IDL.Null,
   });
-  const Result_9 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : RefundError });
+  const Result_14 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : UpdateTemplateError });
   const UpdateTemplateArgs = IDL.Record({
     'new_tempalte_json' : IDL.Text,
     'template_id' : IDL.Nat,
@@ -435,7 +445,7 @@ export const idlFactory = ({ IDL }) => {
     'JsonError' : IDL.Text,
     'TemplateNotFound' : IDL.Null,
   });
-  const Result_10 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : UpdateTemplateError });
+  // Result_10 defined above (ProxyUploadError)
   const MemorySize = IDL.Record({ 'stable' : IDL.Nat64, 'heap' : IDL.Nat64 });
   const CanisterInfo = IDL.Record({
     'test_mode' : IDL.Bool,
@@ -505,9 +515,19 @@ export const idlFactory = ({ IDL }) => {
         ['composite_query'],
       ),
     'get_ogy_usd_price' : IDL.Func([], [IDL.Opt(OgyPriceData)], ['query']),
+    'get_template_by_id' : IDL.Func(
+        [GetTemplateByIdArgs],
+        [Result_4],
+        ['query'],
+      ),
+    'get_template_ids_by_owner' : IDL.Func(
+        [GetTemplateIdsByOwnerArgs],
+        [TemplateIdsResult],
+        ['query'],
+      ),
     'get_templates_by_owner' : IDL.Func(
         [GetTemplatesByOwnerArgs],
-        [Result_4],
+        [Result_5],
         ['query'],
       ),
     'icrc10_supported_standards' : IDL.Func(
@@ -517,27 +537,27 @@ export const idlFactory = ({ IDL }) => {
       ),
     'icrc21_canister_call_consent_message' : IDL.Func(
         [Icrc21ConsentMessageRequest],
-        [Icrc21ConsentMessageResponse],
-        ['query'],
+        [Result_6],
+        [],
       ),
     'icrc28_trusted_origins' : IDL.Func(
         [],
         [Icrc28TrustedOriginsResponse],
         ['query'],
       ),
-    'initialize_mint' : IDL.Func([InitializeMintArgs], [Result_5], []),
+    'initialize_mint' : IDL.Func([InitializeMintArgs], [Result_7], []),
     'list_all_collections' : IDL.Func(
         [PaginationArgs],
         [CollectionsResult],
         ['query'],
       ),
-    'mint_nfts' : IDL.Func([MintNftsArgs], [Result_6], []),
+    'mint_nfts' : IDL.Func([MintNftsArgs], [Result_8], []),
     'proxy_finalize_upload' : IDL.Func(
         [ProxyFinalizeUploadArgs],
-        [Result_7],
+        [Result_9],
         [],
       ),
-    'proxy_init_upload' : IDL.Func([ProxyInitUploadArgs], [Result_8], []),
+    'proxy_init_upload' : IDL.Func([ProxyInitUploadArgs], [Result_10], []),
     'proxy_logo_finalize_upload' : IDL.Func(
         [ProxyLogoFinalizeUploadArgs],
         [Result_11],
@@ -545,9 +565,9 @@ export const idlFactory = ({ IDL }) => {
       ),
     'proxy_logo_init_upload' : IDL.Func([ProxyLogoInitUploadArgs], [Result_12], []),
     'proxy_logo_store_chunk' : IDL.Func([ProxyLogoStoreChunkArgs], [Result_12], []),
-    'proxy_store_chunk' : IDL.Func([ProxyStoreChunkArgs], [Result_8], []),
-    'request_mint_refund' : IDL.Func([RequestMintRefundArgs], [Result_9], []),
-    'update_template' : IDL.Func([UpdateTemplateArgs], [Result_10], []),
+    'proxy_store_chunk' : IDL.Func([ProxyStoreChunkArgs], [Result_10], []),
+    'request_mint_refund' : IDL.Func([RequestMintRefundArgs], [Result_13], []),
+    'update_template' : IDL.Func([UpdateTemplateArgs], [Result_14], []),
   });
 };
 export const init = ({ IDL }) => {

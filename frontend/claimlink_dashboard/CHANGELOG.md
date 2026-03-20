@@ -5,6 +5,23 @@ This changelog is versioned independently from the backend.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [1.2.0] - 2026-03-20
+
+### Fixed
+
+- Fix templates page crashing with IC 3MB reply limit when user has templates with large custom background images (base64 data URIs)
+- Fix template creation failing with `"Call was returned undefined"` error when custom background image pushed the IC ingress message past the 2MB limit
+  - Root cause: `getDataUriSize()` was checking the decoded binary size (~25% smaller) instead of the data URI string size that actually gets sent in the Candid message
+  - Reduced `MAX_BACKGROUND_SIZE_BYTES` from 1MB (binary) to 800KB (string) with proper string-length checking
+  - Added pre-flight size validation in `TemplateService.createTemplate()` with clear error message before attempting the IC call
+
+### Changed
+
+- Adopt scatter-gather fetch pattern for templates: fetch lightweight IDs via `get_template_ids_by_owner`, then fetch each template individually via `get_template_by_id` in parallel
+- Update Candid bindings to match backend v1.0.3 — added `get_template_ids_by_owner`, `get_template_by_id`, `TemplateIdsResult`, `GetTemplateByIdError` types
+- `TemplateService.getTemplateById()` now uses dedicated backend query instead of fetching all templates and filtering client-side
+- `useTemplate` hook no longer requires principal/owner parameter
+
 ## [1.1.0] - 2026-03-18
 
 ### Added

@@ -181,7 +181,7 @@ export interface TemplateTranslations {
 /**
  * Template background configuration
  * Supports standard gradient or custom image/video backgrounds
- * Custom backgrounds are stored as base64 data URIs (max ~1.5MB to fit within 2MB template limit)
+ * Custom backgrounds are stored as base64 data URIs (max ~800KB string to fit within IC 2MB ingress limit)
  */
 export interface TemplateBackground {
   type: 'standard' | 'custom';

@@ -136,6 +136,9 @@ export interface GetNftDetailsArgs {
   'canister_id' : Principal,
   'token_ids' : Array<bigint>,
 }
+export interface GetTemplateByIdArgs { 'template_id' : bigint }
+export type GetTemplateByIdError = { 'TemplateNotFound' : null };
+export interface GetTemplateIdsByOwnerArgs { 'owner' : Principal }
 export interface GetTemplatesByOwnerArgs {
   'owner' : Principal,
   'pagination' : PaginationArgs,
@@ -299,32 +302,40 @@ export type Result = { 'Ok' : bigint } |
 export type Result_1 = { 'Ok' : bigint } |
   { 'Err' : CreateTemplateError };
 export type Result_10 = { 'Ok' : null } |
-  { 'Err' : UpdateTemplateError };
+  { 'Err' : ProxyUploadError };
 export type Result_11 = { 'Ok' : string } |
   { 'Err' : ProxyLogoUploadError };
 export type Result_12 = { 'Ok' : null } |
   { 'Err' : ProxyLogoUploadError };
+export type Result_13 = { 'Ok' : null } |
+  { 'Err' : RefundError };
+export type Result_14 = { 'Ok' : null } |
+  { 'Err' : UpdateTemplateError };
 export type Result_2 = { 'Ok' : null } |
   { 'Err' : DeleteTemplateError };
 export type Result_3 = { 'Ok' : MintCostEstimate } |
   { 'Err' : EstimateMintCostError };
-export type Result_4 = { 'Ok' : TemplatesResult } |
+export type Result_4 = { 'Ok' : Template } |
+  { 'Err' : GetTemplateByIdError };
+export type Result_5 = { 'Ok' : TemplatesResult } |
   { 'Err' : GetTemplatesByOwnerError };
-export type Result_5 = { 'Ok' : bigint } |
+export type Result_6 = { 'Ok' : bigint } |
   { 'Err' : InitializeMintError };
-export type Result_6 = { 'Ok' : Array<bigint> } |
+export type Result_7 = { 'Ok' : bigint } |
+  { 'Err' : InitializeMintError };
+export type Result_8 = { 'Ok' : Array<bigint> } |
   { 'Err' : MintNftsError };
-export type Result_7 = { 'Ok' : string } |
+export type Result_9 = { 'Ok' : string } |
   { 'Err' : ProxyUploadError };
-export type Result_8 = { 'Ok' : null } |
-  { 'Err' : ProxyUploadError };
-export type Result_9 = { 'Ok' : null } |
-  { 'Err' : RefundError };
 export interface SupportedStandard {
   'url' : string,
   'name' : string,
 }
 export interface Template { 'template_json' : string, 'template_id' : bigint }
+export interface TemplateIdsResult {
+  'template_ids' : Array<bigint>,
+  'total_count' : bigint,
+}
 export interface TemplatesResult {
   'templates' : Array<Template>,
   'total_count' : bigint,
@@ -395,7 +406,9 @@ export interface _SERVICE {
   >,
   'get_nft_details' : ActorMethod<[GetNftDetailsArgs], Array<NftDetails>>,
   'get_ogy_usd_price' : ActorMethod<[], [] | [OgyPriceData]>,
-  'get_templates_by_owner' : ActorMethod<[GetTemplatesByOwnerArgs], Result_4>,
+  'get_template_by_id' : ActorMethod<[GetTemplateByIdArgs], Result_4>,
+  'get_template_ids_by_owner' : ActorMethod<[GetTemplateIdsByOwnerArgs], TemplateIdsResult>,
+  'get_templates_by_owner' : ActorMethod<[GetTemplatesByOwnerArgs], Result_5>,
   'icrc10_supported_standards' : ActorMethod<[], Array<SupportedStandard>>,
   'icrc21_canister_call_consent_message' : ActorMethod<
     [{ 'arg' : Uint8Array | number[], 'method' : string, 'user_preferences' : { 'metadata' : { 'utc_offset_minutes' : [] | [number], 'language' : string }, 'device_spec' : [] | [{ 'GenericDisplay' : null } | { 'FieldsDisplay' : null }] } }],
@@ -403,17 +416,17 @@ export interface _SERVICE {
     { 'Err' : { 'GenericError' : { 'description' : string } } | { 'InsufficientPayment' : { 'description' : string, 'error_code' : bigint } } | { 'UnsupportedCanisterCall' : { 'description' : string } } | { 'ConsentMessageUnavailable' : { 'description' : string } } }
   >,
   'icrc28_trusted_origins' : ActorMethod<[], { 'trusted_origins' : Array<string> }>,
-  'initialize_mint' : ActorMethod<[InitializeMintArgs], Result_5>,
+  'initialize_mint' : ActorMethod<[InitializeMintArgs], Result_7>,
   'list_all_collections' : ActorMethod<[PaginationArgs], CollectionsResult>,
-  'mint_nfts' : ActorMethod<[MintNftsArgs], Result_6>,
-  'proxy_finalize_upload' : ActorMethod<[ProxyFinalizeUploadArgs], Result_7>,
-  'proxy_init_upload' : ActorMethod<[ProxyInitUploadArgs], Result_8>,
+  'mint_nfts' : ActorMethod<[MintNftsArgs], Result_8>,
+  'proxy_finalize_upload' : ActorMethod<[ProxyFinalizeUploadArgs], Result_9>,
+  'proxy_init_upload' : ActorMethod<[ProxyInitUploadArgs], Result_10>,
   'proxy_logo_finalize_upload' : ActorMethod<[ProxyLogoFinalizeUploadArgs], Result_11>,
   'proxy_logo_init_upload' : ActorMethod<[ProxyLogoInitUploadArgs], Result_12>,
   'proxy_logo_store_chunk' : ActorMethod<[ProxyLogoStoreChunkArgs], Result_12>,
-  'proxy_store_chunk' : ActorMethod<[ProxyStoreChunkArgs], Result_8>,
-  'request_mint_refund' : ActorMethod<[RequestMintRefundArgs], Result_9>,
-  'update_template' : ActorMethod<[UpdateTemplateArgs], Result_10>,
+  'proxy_store_chunk' : ActorMethod<[ProxyStoreChunkArgs], Result_10>,
+  'request_mint_refund' : ActorMethod<[RequestMintRefundArgs], Result_13>,
+  'update_template' : ActorMethod<[UpdateTemplateArgs], Result_14>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];
