@@ -18,7 +18,7 @@ pub fn get_collections_by_owner(args: GetCollectionsByOwnerArgs) -> GetCollectio
     let collections = collections
         .into_iter()
         .skip(offset)
-        .take(limit)
+        .take(limit as usize)
         .map(|collection| collection.into())
         .collect();
 
