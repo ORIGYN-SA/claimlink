@@ -40,6 +40,11 @@ pub enum GetTemplatesByOwnerError {
 }
 
 #[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
+pub enum GetTemplateByIdError {
+    TemplateNotFound,
+}
+
+#[derive(Debug, CandidType, serde::Deserialize, serde::Serialize, PartialEq)]
 pub enum InitializeMintError {
     CollectionNotFound,
     CollectionNotReady,
