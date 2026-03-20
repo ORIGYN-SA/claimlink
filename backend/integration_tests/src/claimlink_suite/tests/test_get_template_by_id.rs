@@ -36,7 +36,10 @@ fn returns_template_by_id() {
     .unwrap();
 
     assert_eq!(result.template_id, template_id);
-    assert_eq!(result.template_json, template_json);
+    // create_template re-serializes JSON, so compare parsed values
+    let expected: serde_json::Value = serde_json::from_str(&template_json).unwrap();
+    let actual: serde_json::Value = serde_json::from_str(&result.template_json).unwrap();
+    assert_eq!(actual, expected);
 }
 
 #[test]
@@ -146,5 +149,7 @@ fn any_caller_can_fetch_template_by_id() {
     .unwrap();
 
     assert_eq!(result.template_id, template_id);
-    assert_eq!(result.template_json, r#"{"public": true}"#);
+    let expected: serde_json::Value = serde_json::from_str(r#"{"public": true}"#).unwrap();
+    let actual: serde_json::Value = serde_json::from_str(&result.template_json).unwrap();
+    assert_eq!(actual, expected);
 }
