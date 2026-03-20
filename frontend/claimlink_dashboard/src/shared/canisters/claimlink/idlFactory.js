@@ -423,7 +423,6 @@ export const idlFactory = ({ IDL }) => {
   });
   const Result_11 = IDL.Variant({ 'Ok' : IDL.Text, 'Err' : ProxyLogoUploadError });
   const Result_12 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : ProxyLogoUploadError });
-  const Result_13 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : RefundError });
   const RequestMintRefundArgs = IDL.Record({
     'mint_request_id' : IDL.Nat64,
   });
@@ -434,7 +433,7 @@ export const idlFactory = ({ IDL }) => {
     'AlreadyRefunded' : IDL.Null,
     'CreditsAlreadyUsed' : IDL.Null,
   });
-  const Result_14 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : UpdateTemplateError });
+  const Result_13 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : RefundError });
   const UpdateTemplateArgs = IDL.Record({
     'new_tempalte_json' : IDL.Text,
     'template_id' : IDL.Nat,
@@ -445,7 +444,7 @@ export const idlFactory = ({ IDL }) => {
     'JsonError' : IDL.Text,
     'TemplateNotFound' : IDL.Null,
   });
-  // Result_10 defined above (ProxyUploadError)
+  const Result_14 = IDL.Variant({ 'Ok' : IDL.Null, 'Err' : UpdateTemplateError });
   const MemorySize = IDL.Record({ 'stable' : IDL.Nat64, 'heap' : IDL.Nat64 });
   const CanisterInfo = IDL.Record({
     'test_mode' : IDL.Bool,
