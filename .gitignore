@@ -10,3 +10,4 @@ node_modules
 cobertura.xml
 declarations
 .local-test-principals
+docs
