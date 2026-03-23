@@ -212,7 +212,7 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
               <Trash2 className="h-6 w-6 text-red-600" />
@@ -244,7 +244,7 @@ export function EditTemplatePage({ templateId }: EditTemplatePageProps) {
 
       {/* Success Dialog - explains that a new template was created */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md !fixed !top-1/2 !left-1/2 !transform !-translate-x-1/2 !-translate-y-1/2">
           <DialogHeader>
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
               <CheckCircle2 className="h-6 w-6 text-green-600" />
