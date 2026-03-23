@@ -11,6 +11,7 @@ import { idlFactory } from '@canisters/claimlink';
 import type {
   _SERVICE,
   Result_1,
+  Result_2,
   Result_4,
 } from '@canisters/claimlink';
 import type {
@@ -32,6 +33,24 @@ function createActor(agent: Agent): _SERVICE {
     getCanisterId('claimlink'),
     idlFactory
   );
+}
+
+/**
+ * Format create template error to user-friendly message
+ */
+/**
+ * Format delete template error to user-friendly message
+ */
+function formatDeleteTemplateError(
+  error: { UnauthorizedCall: null } | { InvalidNftTemplateId: null }
+): string {
+  if ('UnauthorizedCall' in error) {
+    return 'You do not have permission to delete this template.';
+  }
+  if ('InvalidNftTemplateId' in error) {
+    return 'Template not found. It may have already been deleted.';
+  }
+  return 'Unknown error deleting template';
 }
 
 /**
@@ -93,6 +112,25 @@ export class TemplateService {
     }
 
     return result.Ok;
+  }
+
+  /**
+   * Delete a template by ID
+   *
+   * @param agent - Authenticated IC agent
+   * @param templateId - Template ID to delete
+   * @throws Error if deletion fails (unauthorized or not found)
+   */
+  static async deleteTemplate(
+    agent: Agent,
+    templateId: string
+  ): Promise<void> {
+    const actor = createActor(agent);
+    const result: Result_2 = await actor.delete_template(BigInt(templateId));
+
+    if ('Err' in result) {
+      throw new Error(formatDeleteTemplateError(result.Err));
+    }
   }
 
   /**

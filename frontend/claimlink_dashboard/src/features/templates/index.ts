@@ -35,6 +35,7 @@ export {
   useTemplate,
   useTemplatesByCategory,
   useCreateTemplate,
+  useDeleteTemplate,
   useFreeTemplates,
   usePremiumTemplates,
 } from './api/templates.queries'

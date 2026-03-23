@@ -170,6 +170,44 @@ export const useCreateTemplate = (options?: UseCreateTemplateOptions) => {
   });
 };
 
+interface UseDeleteTemplateOptions {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
+/**
+ * Delete a template
+ *
+ * Mutation hook for deleting templates from the backend.
+ * Requires authenticated agent (update call).
+ */
+export const useDeleteTemplate = (options?: UseDeleteTemplateOptions) => {
+  const { authenticatedAgent, isConnected } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (templateId: string) => {
+      if (!authenticatedAgent) {
+        throw new Error('Not authenticated');
+      }
+
+      if (!isConnected) {
+        throw new Error('Wallet not connected');
+      }
+
+      return await TemplateService.deleteTemplate(authenticatedAgent, templateId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: templateKeys.all });
+      options?.onSuccess?.();
+    },
+    onError: (error: Error) => {
+      console.error('Failed to delete template:', error);
+      options?.onError?.(error);
+    },
+  });
+};
+
 /**
  * Fetch free templates (non-premium)
  */
