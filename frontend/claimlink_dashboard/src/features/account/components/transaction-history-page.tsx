@@ -15,12 +15,8 @@ import type { DisplayTransaction } from "../types/account.types";
 
 export function TransactionHistoryPage() {
   const navigate = useNavigate();
-  const {
-    principalId,
-    authenticatedAgent,
-    unauthenticatedAgent,
-    isConnected,
-  } = useAuth();
+  const { principalId, authenticatedAgent, unauthenticatedAgent, isConnected } =
+    useAuth();
   const { copyToClipboard } = useCopyToClipboard();
 
   // Fetch balances for all supported tokens
@@ -39,16 +35,13 @@ export function TransactionHistoryPage() {
   const ogyToken = SUPPORTED_TOKENS.find((token) => token.id === "ogy");
 
   // Fetch real-time OGY token price
-  const { data: ogyPriceData } = useFetchTokenPrice(
-    authenticatedAgent,
-    {
-      from: "OGY",
-      from_canister_id: ogyToken?.canister_id || "",
-      amount: 1n * BigInt(10 ** 8), // 1 OGY in e8s format
-      enabled: !!authenticatedAgent && !!ogyToken,
-      refetchInterval: 60000, // Refresh price every minute
-    },
-  );
+  const { data: ogyPriceData } = useFetchTokenPrice(unauthenticatedAgent, {
+    from: "OGY",
+    from_canister_id: ogyToken?.canister_id || "",
+    amount: 1n * BigInt(10 ** 8), // 1 OGY in e8s format
+    enabled: !!authenticatedAgent && !!ogyToken,
+    refetchInterval: 60000, // Refresh price every minute
+  });
 
   // Fetch OGY token decimals for proper amount formatting
   const decimals = useFetchLedgerDecimals(
@@ -72,8 +65,8 @@ export function TransactionHistoryPage() {
   );
 
   // Get the transactions data
-  const transactionData = useMemo(() =>
-    (txs.data ? txs.data.pages.flatMap((page) => page.data) : []),
+  const transactionData = useMemo(
+    () => (txs.data ? txs.data.pages.flatMap((page) => page.data) : []),
     [txs],
   );
 
@@ -83,18 +76,23 @@ export function TransactionHistoryPage() {
       ...transaction,
       displayCategory: getTransactionTypeLabel(transaction.kind),
       displayDate: formatTransactionDate(transaction.timestamp),
-      formattedAmount: decimals.isSuccess && transaction.amount && decimals.data
-        ? new Intl.NumberFormat('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }).format(Number(transaction.amount) / Math.pow(10, decimals.data))
-        : "0.00",
-      formattedAmountUSD: ogyPriceData && transaction.amount && decimals.isSuccess && decimals.data
-        ? `($${(
-            (Number(transaction.amount) / 10 ** decimals.data) *
-            ogyPriceData.amount_usd
-          ).toFixed(2)})`
-        : undefined,
+      formattedAmount:
+        decimals.isSuccess && transaction.amount && decimals.data
+          ? new Intl.NumberFormat("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(Number(transaction.amount) / Math.pow(10, decimals.data))
+          : "0.00",
+      formattedAmountUSD:
+        ogyPriceData &&
+        transaction.amount &&
+        decimals.isSuccess &&
+        decimals.data
+          ? `($${(
+              (Number(transaction.amount) / 10 ** decimals.data) *
+              ogyPriceData.amount_usd
+            ).toFixed(2)})`
+          : undefined,
     }));
   }, [transactionData, decimals, ogyPriceData]);
 
@@ -114,27 +112,30 @@ export function TransactionHistoryPage() {
 
   const handleSearch = (query: string) => {
     // TODO: Implement search functionality
-    console.log('Search query:', query);
+    console.log("Search query:", query);
   };
 
-  const handleDateFilter = (dateRange: { start: Date | undefined; end: Date | undefined }) => {
+  const handleDateFilter = (dateRange: {
+    start: Date | undefined;
+    end: Date | undefined;
+  }) => {
     // TODO: Implement date filtering
-    console.log('Date range:', dateRange);
+    console.log("Date range:", dateRange);
   };
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    console.log('Export requested');
+    console.log("Export requested");
   };
 
   const handlePageChange = (page: number) => {
     // TODO: Implement pagination
-    console.log('Page change:', page);
+    console.log("Page change:", page);
   };
 
   const handleItemsPerPageChange = (items: number) => {
     // TODO: Implement items per page change
-    console.log('Items per page:', items);
+    console.log("Items per page:", items);
   };
 
   const handleTransactionClick = (transaction: DisplayTransaction) => {
@@ -144,19 +145,22 @@ export function TransactionHistoryPage() {
       amount: transaction.amount?.toString(),
       fee: transaction.fee?.toString(),
     };
-    
+
     // Store the transaction in sessionStorage for the detail page to access
-    sessionStorage.setItem(`transaction-${transaction.index}`, JSON.stringify({
-      transaction: serializableTransaction,
-      accountId: principalId,
-      balance: ogyBalance?.data?.balance,
-      currency: 'OGY'
-    }));
-    
+    sessionStorage.setItem(
+      `transaction-${transaction.index}`,
+      JSON.stringify({
+        transaction: serializableTransaction,
+        accountId: principalId,
+        balance: ogyBalance?.data?.balance,
+        currency: "OGY",
+      }),
+    );
+
     // Navigate to transaction detail page
     navigate({
-      to: '/account/transactions/$transactionId',
-      params: { transactionId: transaction.index.toString() }
+      to: "/account/transactions/$transactionId",
+      params: { transactionId: transaction.index.toString() },
     });
   };
 
@@ -173,10 +177,10 @@ export function TransactionHistoryPage() {
 
       <TransactionHistory
         accountOverview={{
-          accountId: principalId || '',
+          accountId: principalId || "",
           balance: ogyBalance?.data?.balance || 0,
           balanceInUSD: totalUsdValue,
-          currency: 'OGY',
+          currency: "OGY",
         }}
         transactions={formattedTransactions}
         onCopyTransactionId={handleCopyTransactionId}
