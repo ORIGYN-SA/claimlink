@@ -40,9 +40,9 @@ export function CertificateLaunchpad({
   //     ? QRCodeService.getCertificateVerificationUrl(canisterId, tokenId)
   //     : qrCodeUrl; // Fallback to old prop for backward compatibility
   return (
-    <div className={cn("flex gap-16 items-center p-16", className)}>
+    <div className={cn("flex flex-col lg:flex-row gap-6 lg:gap-16 items-center p-4 sm:p-8 lg:p-16", className)}>
       {/* Left Section: Certificate Image */}
-      <div className="flex-1 bg-[rgba(225,225,225,0.5)] border border-[#e1e1e1] rounded-2xl p-16 flex items-center justify-center min-h-[443px]">
+      <div className="w-full lg:flex-1 bg-[rgba(225,225,225,0.5)] border border-[#e1e1e1] rounded-2xl p-6 sm:p-10 lg:p-16 flex items-center justify-center min-h-[250px] sm:min-h-[350px] lg:min-h-[443px]">
         <div className="flex-1 h-full flex items-center justify-center">
           <CanisterImage
             src={imageUrl}
@@ -53,7 +53,7 @@ export function CertificateLaunchpad({
       </div>
 
       {/* Right Section: Certificate Details */}
-      <div className="w-[443px] flex flex-col gap-10 items-center justify-center">
+      <div className="w-full lg:w-[443px] flex flex-col gap-6 lg:gap-10 items-center justify-center">
         {/* Certificate Info */}
         <div className="flex flex-col gap-2 items-start w-full">
           {/* Company Name & Status */}
@@ -71,7 +71,7 @@ export function CertificateLaunchpad({
 
           {/* Certificate Title & Description */}
           <div className="flex flex-col gap-6 items-start w-full">
-            <h1 className="text-[48px] font-light leading-[56px] text-[#222526] font-['General_Sans',_sans-serif] w-[365px]">
+            <h1 className="text-[28px] sm:text-[36px] lg:text-[48px] font-light leading-[36px] sm:leading-[44px] lg:leading-[56px] text-[#222526] font-['General_Sans',_sans-serif] w-full lg:w-[365px]">
               {title}
             </h1>
             <p className="text-[16px] font-normal leading-[24px] text-[#69737c] tracking-[0.8px]">

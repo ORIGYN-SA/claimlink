@@ -1,7 +1,38 @@
+import { useRef, useState, useEffect, useCallback } from "react";
 import stampStandard from "@assets/stamp_standard.svg";
 import logoTransparent from "@assets/logo_transparent.svg";
 import { CanisterImage } from "@/components/common/canister-image/canister-image";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
+
+const CERT_WIDTH = 950;
+const CERT_HEIGHT = 1350;
+
+/**
+ * Hook that observes a container's width and returns a scale factor
+ * to fit the fixed-size certificate within it.
+ * Returns 1 (no scaling) when the container is wide enough.
+ */
+function useCertificateScale() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+
+  const updateScale = useCallback(() => {
+    if (!containerRef.current) return;
+    const containerWidth = containerRef.current.clientWidth;
+    setScale(Math.min(1, containerWidth / CERT_WIDTH));
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(updateScale);
+    ro.observe(el);
+    updateScale();
+    return () => ro.disconnect();
+  }, [updateScale]);
+
+  return { containerRef, scale };
+}
 
 interface CertificateFrameProps {
   /** Company logo URL (displayed in header, inverted to white) */
@@ -50,6 +81,7 @@ export function CertificateFrame({
   const stampSrc = stampUrl || stampStandard;
   const hasCustomBackground = background?.type === 'custom' && background.dataUri;
   const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
+  const { containerRef, scale } = useCertificateScale();
 
   // Custom background layout - completely different structure per Figma design
   if (hasCustomBackground) {
@@ -57,8 +89,21 @@ export function CertificateFrame({
       <div
         className={`rounded-bl-[24px] rounded-br-[24px] shadow-[0px_4px_4px_0px_rgba(0,0,0,0.25)] w-full ${className}`}
       >
+        {/* Scaling container */}
+        <div
+          ref={containerRef}
+          className="w-full overflow-hidden"
+          style={{ height: CERT_HEIGHT * scale }}
+        >
         {/* Full-bleed background wrapper */}
-        <div className="relative w-[950px] h-[1350px] mx-auto">
+        <div
+          className="relative mx-auto origin-top"
+          style={{
+            width: CERT_WIDTH,
+            height: CERT_HEIGHT,
+            transform: scale < 1 ? `scale(${scale})` : undefined,
+          }}
+        >
           {/* Background media - full bleed */}
           <div className="absolute inset-0 rounded-bl-[24px] rounded-br-[24px] overflow-hidden">
             {isVideoBackground ? (
@@ -138,6 +183,7 @@ export function CertificateFrame({
             </div>
           </div>
         </div>
+        </div>
       </div>
     );
   }
@@ -149,8 +195,21 @@ export function CertificateFrame({
     >
       {/* Certificate Content Wrapper */}
       <div className="bg-[#222526] px-4 sm:px-16 py-6 sm:py-10 rounded-bl-[24px] rounded-br-[24px] w-full">
-        {/* Certificate Paper - fixed dimensions */}
-        <div className="w-[950px] h-[1350px] mx-auto relative rounded-2xl overflow-hidden">
+        {/* Scaling container */}
+        <div
+          ref={containerRef}
+          className="w-full overflow-hidden"
+          style={{ height: CERT_HEIGHT * scale }}
+        >
+        {/* Certificate Paper - fixed dimensions, scaled on mobile */}
+        <div
+          className="mx-auto relative rounded-2xl overflow-hidden origin-top"
+          style={{
+            width: CERT_WIDTH,
+            height: CERT_HEIGHT,
+            transform: scale < 1 ? `scale(${scale})` : undefined,
+          }}
+        >
           {/* Background with Gradient */}
           <div className="bg-[#fcfafa] rounded-2xl relative h-full">
             {/* Standard Gradient Background at Bottom */}
@@ -239,6 +298,7 @@ export function CertificateFrame({
               />
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>

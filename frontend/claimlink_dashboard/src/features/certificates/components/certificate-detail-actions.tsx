@@ -54,7 +54,7 @@ export function CertificateDetailActions({
   return (
     <div
       className={cn(
-        "flex gap-4 items-stretch w-full",
+        "flex flex-col md:flex-row gap-4 items-stretch w-full",
         className
       )}
     >
@@ -165,11 +165,11 @@ export function CertificateDetailActions({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 items-center w-full">
+        <div className="flex flex-col sm:flex-row gap-2 items-center w-full">
           {/* Download QR Button */}
           <Button
             onClick={onDownloadQR}
-            className="flex-1 bg-[#222526] text-white rounded-full h-12 gap-2.5 hover:bg-[#222526]/90 font-semibold text-[14px] font-['DM_Sans',_sans-serif]"
+            className="flex-1 w-full sm:w-auto bg-[#222526] text-white rounded-full h-12 gap-2.5 hover:bg-[#222526]/90 font-semibold text-[14px] font-['DM_Sans',_sans-serif]"
           >
             <QrCode className="w-4 h-4" />
             Download QR
@@ -178,7 +178,7 @@ export function CertificateDetailActions({
           {/* Transfer Ownership Button */}
           <Button
             onClick={handleTransferClick}
-            className="flex-1 bg-[#222526] text-white rounded-full h-12 hover:bg-[#222526]/90 font-semibold text-[14px] font-['DM_Sans',_sans-serif]"
+            className="flex-1 w-full sm:w-auto bg-[#222526] text-white rounded-full h-12 hover:bg-[#222526]/90 font-semibold text-[14px] font-['DM_Sans',_sans-serif]"
           >
             Transfer ownership
           </Button>
