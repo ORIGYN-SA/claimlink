@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import {
   extractTextFromMetadata,
   extractImageFromMetadata,
+  extractLogoSizeFromTemplate,
 } from "../utils/metadata-extractors";
 import { Button } from "@/components/ui/button";
 import { useTransferCertificate } from "../api/certificates.queries";
@@ -81,6 +82,7 @@ export function CertificateDetailPage({
         language: selectedLanguage,
         // Include background from template structure if available
         background: templateStructure?.background,
+        logoSize: extractLogoSizeFromTemplate(templateStructure),
       };
     }
 
@@ -120,6 +122,7 @@ export function CertificateDetailPage({
           language: selectedLanguage,
           // Include background from template structure
           background: templateStructure.background,
+          logoSize: extractLogoSizeFromTemplate(templateStructure),
         };
       } catch (error) {
         console.error('Failed to generate template views:', error);

@@ -20,6 +20,9 @@ import {
   resolveCollectionAssetUrl,
   getNonRawUrl
 } from "@/features/template-renderer";
+import type { TemplateStructure } from "@/features/templates/types/template.types";
+import type { LogoSize } from "../components/certificate-frame";
+import { RESERVED_FIELDS } from "@/shared/constants/reserved-fields";
 
 /**
  * Extract a string value from a metadata field.
@@ -162,6 +165,24 @@ function resolveFilePath(
     return resolveCollectionAssetUrl(canisterId, path);
   }
   return resolveTokenAssetUrl(canisterId, tokenId, path);
+}
+
+/**
+ * Extract the logo size from a template structure by finding the company_logo field.
+ * Returns the `size` property of the logo ImageItem, or undefined if not set.
+ */
+export function extractLogoSizeFromTemplate(
+  structure: TemplateStructure | null | undefined
+): LogoSize | undefined {
+  if (!structure?.sections) return undefined;
+  for (const section of structure.sections) {
+    for (const item of section.items) {
+      if ((RESERVED_FIELDS.COMPANY_LOGO as readonly string[]).includes(item.id)) {
+        return (item.size as LogoSize) || undefined;
+      }
+    }
+  }
+  return undefined;
 }
 
 /**

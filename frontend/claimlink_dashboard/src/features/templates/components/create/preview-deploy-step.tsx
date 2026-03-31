@@ -1,8 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import type { Template, TemplateBackground } from "../../types/template.types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { RESERVED_FIELDS } from "@/shared/constants/reserved-fields";
+import { Upload, X } from "lucide-react";
 import {
   CertificateViewer,
   type TemplateData,
@@ -14,6 +15,7 @@ import {
   DEFAULT_TEMPLATE_VERSION,
   type ParsedOrigynMetadata,
 } from "@/features/template-renderer";
+import { extractLogoSizeFromTemplate } from "@/features/certificates/utils/metadata-extractors";
 
 interface TemplateWithBackground extends Template {
   backgroundType?: "standard" | "custom";
@@ -262,9 +264,11 @@ const MOCK_PREVIEW_DATA: Record<string, string> = {
 function CertificatePreview({
   selectedTemplate,
   selectedLanguage,
+  previewLogoUrl,
 }: {
   selectedTemplate: TemplateWithBackground | null;
   selectedLanguage: string;
+  previewLogoUrl?: string;
 }) {
   // Generate ORIGYN views from template structure (if available)
   const origynViews = useMemo(() => {
@@ -309,13 +313,22 @@ function CertificatePreview({
     selectedTemplate?.structure?.background,
   ]);
 
+  // Extract logo size from template structure
+  const logoSize = useMemo(
+    () => extractLogoSizeFromTemplate(selectedTemplate?.structure) || 'sm',
+    [selectedTemplate?.structure]
+  );
+
   // Build templateData for CertificateViewer
   const templateData: TemplateData | undefined = useMemo(() => {
     if (!origynViews) return undefined;
 
+    // Use uploaded preview logo if available, otherwise fall back to placeholder
+    const logoForPreview = previewLogoUrl || MOCK_PREVIEW_DATA.company_logo;
+
     // Create mock parsed metadata for preview
     const mockMetadata: ParsedOrigynMetadata = {
-      metadata: MOCK_PREVIEW_DATA,
+      metadata: { ...MOCK_PREVIEW_DATA, company_logo: logoForPreview },
       templates: {
         certificateTemplate: origynViews.certificateTemplate,
         template: origynViews.template,
@@ -339,8 +352,9 @@ function CertificatePreview({
       language: selectedLanguage,
       showPlaceholders: true, // Enable placeholders for custom fields in preview
       background, // Pass background for custom image/video rendering
+      logoSize, // Pass logo size from template structure
     };
-  }, [origynViews, selectedLanguage, background]);
+  }, [origynViews, selectedLanguage, background, previewLogoUrl, logoSize]);
 
   return (
     <div className="space-y-3 sm:space-y-4">
@@ -386,6 +400,23 @@ export function PreviewDeployStep({
 }: PreviewDeployStepProps) {
   // Language selection for template preview
   const [selectedLanguage, setSelectedLanguage] = useState("en");
+  // Preview logo uploaded by user (local-only, not persisted)
+  const [previewLogoUrl, setPreviewLogoUrl] = useState<string | undefined>();
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
+  const hasLogoField = findStructureField(
+    selectedTemplate,
+    RESERVED_FIELDS.COMPANY_LOGO,
+  );
+
+  const handleLogoUpload = useCallback((file: File) => {
+    if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setPreviewLogoUrl(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+  }, []);
 
   const handleDeploy = async () => {
     if (!selectedTemplate) return;
@@ -444,10 +475,63 @@ export function PreviewDeployStep({
         </div>
       )}
 
+      {/* Logo Preview Upload */}
+      {hasLogoField && (
+        <div className="flex flex-col items-center gap-3">
+          <p className="text-sm font-medium text-[#222526]">
+            Preview with your logo
+          </p>
+          <div className="flex items-center gap-3">
+            {previewLogoUrl ? (
+              <div className="flex items-center gap-3 bg-[#f5f5f5] rounded-lg px-4 py-2">
+                <img
+                  src={previewLogoUrl}
+                  alt="Preview logo"
+                  className="h-8 object-contain"
+                />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 w-7 p-0"
+                  onClick={() => setPreviewLogoUrl(undefined)}
+                >
+                  <X className="w-4 h-4 text-[#69737c]" />
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs"
+                onClick={() => logoInputRef.current?.click()}
+              >
+                <Upload className="w-3.5 h-3.5 mr-1.5" />
+                Upload logo to preview
+              </Button>
+            )}
+            <input
+              ref={logoInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/svg+xml,image/webp"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleLogoUpload(file);
+                e.target.value = "";
+              }}
+            />
+          </div>
+          <p className="text-xs text-[#69737c]">
+            This is for preview only — your logo won't be saved to the template
+          </p>
+        </div>
+      )}
+
       {/* Certificate Preview Section */}
       <CertificatePreview
         selectedTemplate={selectedTemplate}
         selectedLanguage={selectedLanguage}
+        previewLogoUrl={previewLogoUrl}
       />
 
       {/* Action Buttons */}

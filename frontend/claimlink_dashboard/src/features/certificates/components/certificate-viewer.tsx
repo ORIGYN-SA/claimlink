@@ -20,6 +20,7 @@ import {
 } from "@/features/template-renderer";
 import type { V2TemplateDocument, V2RenderDataSource, V2TokenData } from "@/features/template-renderer-v2";
 import type { TemplateBackground } from "@/features/templates/types/template.types";
+import type { LogoSize } from "./certificate-frame";
 import {
   extractTextFromMetadata,
   extractImageFromMetadata,
@@ -63,6 +64,8 @@ export interface TemplateData {
   sectionTitle?: string;
   /** Custom stamp URL (overrides default stamp_standard.svg) */
   stampUrl?: string;
+  /** Logo display size on the certificate */
+  logoSize?: LogoSize;
 }
 
 interface CertificateViewerProps {
@@ -168,6 +171,7 @@ export function CertificateViewer({
           return (
             <CertificateFrame
               companyLogo={companyLogo}
+              logoSize={templateData.logoSize}
               tokenId={templateData.tokenId}
               background={templateData.background}
               stampUrl={stampUrl}

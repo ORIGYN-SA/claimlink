@@ -17,7 +17,7 @@ export { CertificateLaunchpad } from './components/certificate-launchpad';
 // Certificate Display Components
 export { CertificateViewer, type TemplateData } from './components/certificate-viewer';
 export { CertificateDisplay } from './components/certificate-display';
-export { CertificateFrame } from './components/certificate-frame';
+export { CertificateFrame, type LogoSize } from './components/certificate-frame';
 export { InformationFrame } from './components/information-frame';
 
 // Detail view components

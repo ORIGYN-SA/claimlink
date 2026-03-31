@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import {
   extractTextFromMetadata,
   extractImageFromMetadata,
+  extractLogoSizeFromTemplate,
 } from "../utils/metadata-extractors";
 
 export interface PublicCertificatePageProps {
@@ -112,6 +113,7 @@ export const PublicCertificatePage = ({
         language: selectedLanguage,
         // Include background from template structure if available
         background: templateStructure?.background,
+        logoSize: extractLogoSizeFromTemplate(templateStructure),
       };
     }
 
@@ -150,6 +152,7 @@ export const PublicCertificatePage = ({
           language: selectedLanguage,
           // Include background from template structure
           background: templateStructure.background,
+          logoSize: extractLogoSizeFromTemplate(templateStructure),
         };
       } catch (error) {
         console.error("Failed to generate template views:", error);

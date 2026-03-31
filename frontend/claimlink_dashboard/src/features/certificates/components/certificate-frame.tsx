@@ -34,9 +34,21 @@ function useCertificateScale() {
   return { containerRef, scale };
 }
 
+/** Logo display size — controls the height of the company logo on the certificate */
+export type LogoSize = 'sm' | 'md' | 'lg';
+
+/** Height classes for each logo size, keyed by [size][breakpoint] */
+const LOGO_SIZE_MAP: Record<LogoSize, { standard: string; custom: string }> = {
+  sm: { standard: 'h-[28px] sm:h-[40px]', custom: 'h-[32px] sm:h-[48px]' },
+  md: { standard: 'h-[42px] sm:h-[60px]', custom: 'h-[48px] sm:h-[68px]' },
+  lg: { standard: 'h-[56px] sm:h-[80px]', custom: 'h-[64px] sm:h-[88px]' },
+};
+
 interface CertificateFrameProps {
   /** Company logo URL (displayed in header, inverted to white) */
   companyLogo?: string;
+  /** Logo display size (defaults to 'sm' for backward compatibility) */
+  logoSize?: LogoSize;
   /** Token ID displayed in header */
   tokenId: string;
   /** Dynamic content from TemplateRenderer */
@@ -72,6 +84,7 @@ interface CertificateFrameProps {
  */
 export function CertificateFrame({
   companyLogo,
+  logoSize = 'sm',
   tokenId,
   children,
   className = "",
@@ -82,6 +95,7 @@ export function CertificateFrame({
   const hasCustomBackground = background?.type === 'custom' && background.dataUri;
   const isVideoBackground = hasCustomBackground && background.mediaType === 'video';
   const { containerRef, scale } = useCertificateScale();
+  const sizeClasses = LOGO_SIZE_MAP[logoSize];
 
   // Custom background layout - completely different structure per Figma design
   if (hasCustomBackground) {
@@ -149,10 +163,10 @@ export function CertificateFrame({
                   <CanisterImage
                     alt="Company Logo"
                     src={companyLogo}
-                    className="h-[32px] sm:h-[48px] object-contain brightness-0 invert"
+                    className={`${sizeClasses.custom} object-contain brightness-0 invert`}
                   />
                 ) : (
-                  <div className="h-[32px] sm:h-[48px]" />
+                  <div className={sizeClasses.custom} />
                 )}
               </div>
 
@@ -248,10 +262,10 @@ export function CertificateFrame({
                     <CanisterImage
                       alt="Company Logo"
                       src={companyLogo}
-                      className="h-[28px] sm:h-[40px] object-contain"
+                      className={`${sizeClasses.standard} object-contain`}
                     />
                   ) : (
-                    <div className="h-[28px] sm:h-[40px]" />
+                    <div className={sizeClasses.standard} />
                   )}
                 </div>
 

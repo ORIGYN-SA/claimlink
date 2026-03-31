@@ -36,8 +36,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Trash2, AlertTriangle, Info, Sparkles } from "lucide-react";
+import { Trash2, AlertTriangle, Info, Sparkles, ImageIcon } from "lucide-react";
 import Icon from "@/shared/ui/icons";
+import { isCompanyLogoFieldId } from "@/shared/constants/reserved-fields";
+import type { LogoSize } from "@/features/certificates/components/certificate-frame";
 import { TemplateSectionCard } from "../template-section-card";
 import { CodeEditorStep } from "./code-editor-step";
 import { templateEditorAtom } from "../../atoms/template-editor.atom";
@@ -245,6 +247,30 @@ export function EditTemplateStepV2({
     dispatch({ type: "REORDER_ITEMS", sectionId, activeId, overId });
   };
 
+  // Find existing company logo field and its current size
+  const logoField = allItems.find(item => isCompanyLogoFieldId(item.id));
+  const currentLogoSize: LogoSize = (logoField?.size as LogoSize) || 'sm';
+
+  const handleLogoSizeChange = (size: LogoSize) => {
+    if (!state.template?.structure || !logoField) return;
+
+    const updatedSections = state.template.structure.sections.map(section => ({
+      ...section,
+      items: section.items.map(item =>
+        isCompanyLogoFieldId(item.id) ? { ...item, size } : item
+      ),
+    }));
+
+    const updatedTemplate: Template = {
+      ...state.template,
+      structure: {
+        ...state.template.structure,
+        sections: updatedSections,
+      },
+    };
+    dispatch({ type: "UPDATE_TEMPLATE", template: updatedTemplate });
+  };
+
   const handlePreviewChanges = () => {
     onNext?.();
   };
@@ -440,6 +466,48 @@ export function EditTemplateStepV2({
           })}
         </div>
       </Card>
+
+      {/* Logo Size Selector - only visible when company_logo field exists */}
+      {logoField && (
+        <Card className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+            <div className="flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-[#69737c]" />
+              <div>
+                <h2 className="text-base sm:text-lg font-medium text-[#222526]">
+                  Logo Display Size
+                </h2>
+                <p className="text-xs sm:text-sm text-[#69737c]">
+                  Control how large the company logo appears on the certificate
+                </p>
+              </div>
+            </div>
+            <div className="flex rounded-lg border border-[#e1e1e1] overflow-hidden self-start sm:self-auto">
+              {(
+                [
+                  { value: 'sm', label: 'Small' },
+                  { value: 'md', label: 'Medium' },
+                  { value: 'lg', label: 'Large' },
+                ] as const
+              ).map(({ value, label }) => (
+                <Button
+                  key={value}
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleLogoSizeChange(value)}
+                  className={`rounded-none text-xs px-4 ${
+                    currentLogoSize === value
+                      ? 'bg-[#222526] text-white hover:bg-[#333333] hover:text-white'
+                      : 'text-[#69737c] hover:bg-[#f1f6f9]'
+                  }`}
+                >
+                  {label}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Multi Language Support */}
       <Card className="p-4 sm:p-6">
